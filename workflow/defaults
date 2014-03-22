@@ -1,0 +1,46 @@
+# registered libraries
+
+php {
+"workflows.php"
+"3.3" "https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+}
+
+python {
+
+}
+
+Alfred-Workflow
+https://github.com/deanishe/alfred-workflow.git
+https://github.com/deanishe/alfred-workflow/archive/master.zip
+
+Alp
+https://github.com/phyllisstein/alp.git
+https://github.com/phyllisstein/alp/archive/master.zip
+
+Alfred-Python
+https://github.com/JinnLynn/alfred-python.git
+https://github.com/JinnLynn/alfred-python/archive/master.zip
+
+Workflows
+
+
+qWorkflow
+https://github.com/qlassiqa/qWorkflow.git
+https://github.com/qlassiqa/qWorkflow/archive/master.zip
+
+goAlfred
+https://raw.githubusercontent.com/raguay/goAlfred/master/goAlfred.go
+
+BashWorkflowHandler
+https://raw.github.com/markokaestner/bash-workflow-handler/master/workflowHandler.sh
+
+Alfred2-Ruby-Template
+https://github.com/canadaduane/alfred2-ruby-framework.git
+https://github.com/canadaduane/alfred2-ruby-framework/archive/master.zip
+
+Alfredo
+gem install alfredo
+https://github.com/djfpaagman/alfredo.git
+https://github.com/djfpaagman/alfredo/archive/master.zip
+
+bundle install --path vendor/bundle

@@ -3,20 +3,23 @@
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
 
-if [ ! -f "$data" ]; then
+if [ ! -d "$data" ]; then
   mkdir "$data"
 fi
-if [ ! -f "$data/meta" ]; then
+if [ ! -d "$data/meta" ]; then
   mkdir "$data/meta"
 fi
-if [ ! -f "$data/includes" ]; then
+if [ ! -d "$data/includes" ]; then
   mkdir "$data/includes"
 fi
-if [ ! -f "$data/utilities" ]; then
+if [ ! -d "$data/utilities" ]; then
   mkdir "$data/utilities"
 fi
-if [ ! -f "$data" ]; then
+if [ ! -d "$data" ]; then
   mkdir "$data/libraries"
+fi
+if [ ! -d "$data/meta/defaults" ]; then
+  mkdir "$data/meta/defaults"
 fi
 
 # These are the URLs to download
@@ -28,7 +31,7 @@ files=(
   "$git/bundler.sh"
   "$git/meta/version"
   "$git/meta/update.sh"
-  "$git/meta/defaults.json"
+  "$git/meta/defaults/list"
   "$git/includes/alfred.bundler.php"
   "$git/includes/alfred.bundler.py"
   "$git/includes/alfred.bundler.rb"
@@ -42,7 +45,7 @@ filenames=(
   "bundler.sh"
   "meta/version"
   "meta/update.sh"
-  "meta/defaults.json"
+  "meta/defaults/list"
   "includes/alfred.bundler.php"
   "includes/alfred.bundler.py"
   "includes/alfred.bundler.rb"
@@ -53,6 +56,12 @@ count=0
 for file in "${files[@]}"
 do
   tmp=${filenames[$count]}
-  curl -sF $file > "$data/$tmp"
+  curl -s $file > "$data/$tmp"
   count=$(( $count + 1 ))
 done
+
+defaults="$data/meta/defaults/list"
+while read l
+do
+      curl -s echo "$git/meta/defaults/list/$l.json" "$data/meta/defaults/list/$l.json"
+done < $defaults
