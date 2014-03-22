@@ -3,6 +3,22 @@
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
 
+if [ ! -f "$data" ]; then
+  mkdir "$data"
+fi
+if [ ! -f "$data/meta" ]; then
+  mkdir "$data/meta"
+fi
+if [ ! -f "$data/includes" ]; then
+  mkdir "$data/includes"
+fi
+if [ ! -f "$data/utilities" ]; then
+  mkdir "$data/utilities"
+fi
+if [ ! -f "$data" ]; then
+  mkdir "$data/libraries"
+fi
+
 # These are the URLs to download
 files=(
   # List of files to download
