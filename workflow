@@ -1,1 +1,0 @@
-/Users/Sven/Documents/Alfred2 Workflows/alfred-bundler/meta
