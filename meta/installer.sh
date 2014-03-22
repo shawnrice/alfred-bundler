@@ -63,5 +63,5 @@ done
 defaults="$data/meta/defaults/list"
 while read l
 do
-      curl -s echo "$git/meta/defaults/list/$l.json" "$data/meta/defaults/list/$l.json"
+      curl -s "$git/meta/defaults/list/$l.json" "$data/meta/defaults/list/$l.json"
 done < $defaults
