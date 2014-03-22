@@ -37,31 +37,14 @@ files=(
   "$git/includes/alfred.bundler.rb"
   "$git/includes/alfred.bundler.sh"
 )
-# These are the local filenames. We need these to match up with the URLs because we can't use wget.
-filenames=(
-  "bundler.php"
-  "bundler.py"
-  "bundler.rb"
-  "bundler.sh"
-  "meta/version"
-  "meta/update.sh"
-  "meta/defaults/list"
-  "includes/alfred.bundler.php"
-  "includes/alfred.bundler.py"
-  "includes/alfred.bundler.rb"
-  "includes/alfred.bundler.sh"
-)
 
-count=0
 for file in "${files[@]}"
 do
-  tmp=${filenames[$count]}
-  curl -s $file > "$data/$tmp"
-  count=$(( $count + 1 ))
+  curl -sL "$file" > "$data/"`basename $file`
 done
 
 defaults="$data/meta/defaults/list"
 while read l
 do
-      curl -s "$git/meta/defaults/$l.json" "$data/meta/defaults/$l.json"
+      curl -s "$git/meta/defaults/$l.json" > "$data/meta/defaults/$l.json"
 done < $defaults
