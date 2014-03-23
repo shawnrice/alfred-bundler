@@ -8,7 +8,6 @@ if ( ! file_exists( "$data" ) ) {
 
 foreach ( loadAsset( "Workflows" ) as $file ) {
   require_once($file);
-  echo $file;
 }
 
 function registerAsset( $json ) {
@@ -20,18 +19,19 @@ function registerAsset( $json ) {
 
 function loadAsset( $name , $version = "default" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-  if ( file_exists( "$data/php/$name/$version/") ) {
-    if ( file_exists( "$data/php/$name/$version") ) {
-      $files = scandir("$data/php/$name/$version");
+  if ( file_exists( "$data/assets/php/$name/$version") ) {
+    if ( file_exists( "$data/assets/php/$name/$version") ) {
+      $files = scandir("$data/assets/php/$name/$version");
 
       // Make sure that we get rid of anything that isn't a php file
       foreach ( $files as $k => $f ) {
-        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) == ".php" ) ) {
+
+        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) === "php" ) ) {
           unset( $files[$k] );
         }
         else {
           // Add the full path.
-          $files[$k] = "$data/php/$name/$version/$f";
+          $files[$k] = "$data/assets/php/$name/$version/$f";
         }
       }
       return $files;
@@ -45,7 +45,7 @@ function loadAsset( $name , $version = "default" ) {
 
       // Okay, we've downloaded the files, now, let's include them.
 
-      $files = scandir("$data/php/$name/$version");
+      $files = scandir("$data/assets/php/$name/$version");
 
       // Make sure that we get rid of anything that isn't a php file
       foreach ( $files as $k => $f ) {
@@ -79,7 +79,7 @@ function installUtility() {
   }
 
   // Download the installer
-  exec( "curl -sL '$git/installer.sh' > '$data/meta/installer.sh'" );
+  exec( "curl -sL '$git/meta/installer.sh' > '$data/meta/installer.sh'" );
   // file_put_contents( "$data/meta/installer.sh" , file_get_contents( "$git/installer.sh" ) );
   // Run the installer
   // At first, I was going to background this, but... well, that would throw errors.

@@ -17,7 +17,7 @@ function downloadFile( $file , $option = "default" ) {
   $cache    = "$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
   // $file     = "$data/meta/defaults/Alp.json";
   //$file     = "$data/meta/defaults/Alfred-Workflow.json";
-
+  $file     = "$data/meta/defaults/$file.json";
   $json     = json_decode( file_get_contents( $file ), ARRAY_A );
   $name     = $json[ 'name' ];
   $lang     = $json[ 'language' ];
@@ -41,19 +41,32 @@ function downloadFile( $file , $option = "default" ) {
   //   mkdir( "$data/assets/$lang/$name/$option" );
 
   if ( $method == 'download' ) {
-    if ( $version['zip'] == 'false' ) {
-      direct_download( "$data/assets/$lang/$name/$option" , $version['files'], "" );
-    } else {
+    if ( $version['zip'] == 'true' ) {
       // Nothing yet, well, download the zip file. Check function below.
       download_zip( "$data/assets/$lang/$name/$option" , $version['files']['one'] , 'alp-master/alp' , '' , $cache );
+    } else {
+      direct_download( "$data/assets/$lang/$name/$option" , $version['files'], "" );
     }
   }
 }
 
 function direct_download( $dir , $files , $data ) {
-  if ( ! file_exists("$dir") )
+  if ( ! file_exists("$dir") ) {
+    $dirs = explode( "/" , $dir );
+    $di="";
+    foreach( $dirs as $k => $d) {
+      for ($i=0; $i < (count($dirs) + 1); $i++ ) {
+        $di .= $dirs[$i];
+        if ( ! file_exists( "$di" ) ) {
+          mkdir("$di");
+          echo "$di
+";
+        }
+        $di .= "/";
+      }
+    }
     mkdir( "$dir" );
-
+  }
   foreach ( $files as $file ) {
     $f=pathinfo( parse_url( "$file", PHP_URL_PATH) );
     exec( "curl -sL '$file' > '$dir/" . $f['basename'] . "'" );
