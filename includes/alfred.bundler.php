@@ -33,7 +33,7 @@ function loadAsset( $name , $version = "default" ) {
   } else {
     if ( file_exists( "$data/meta/defaults/$name.json") ) {
       require_once( "$data/download.php" );
-      $return = downloadFile( $name , $version );
+      downloadFile( $name , $version );
 
       // Okay, we've downloaded the files, now, let's include them.
 

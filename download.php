@@ -73,7 +73,7 @@ function direct_download( $dir , $files , $data ) {
   }
   foreach ( $files as $file ) {
     $f=pathinfo( parse_url( "$file", PHP_URL_PATH) );
-    exec( "curl -sL '$file' > '$dir/" . $f['basename'] . "'" );
+    $return = exec( "curl -L '$file' > '$dir/" . $f['basename'] . "'" );
   }
   return TRUE;
 }
