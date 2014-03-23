@@ -6,10 +6,6 @@ if ( ! file_exists( "$data" ) ) {
   installUtility();
 }
 
-foreach ( loadAsset( "Workflows" ) as $file ) {
-  require_once($file);
-}
-
 function registerAsset( $json ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
 
