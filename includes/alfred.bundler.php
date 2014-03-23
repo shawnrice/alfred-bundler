@@ -16,7 +16,6 @@ function registerAsset( $json ) {
 function loadAsset( $name , $version = "default" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   if ( file_exists( "$data/assets/php/$name/$version") ) {
-    if ( file_exists( "$data/assets/php/$name/$version") ) {
       $files = scandir("$data/assets/php/$name/$version");
 
       // Make sure that we get rid of anything that isn't a php file
@@ -31,9 +30,6 @@ function loadAsset( $name , $version = "default" ) {
         }
       }
       return $files;
-    } else {
-      return FALSE;
-    }
   } else {
     if ( file_exists( "$data/meta/defaults/$name.json") ) {
       require_once( "$data/download.php" );
