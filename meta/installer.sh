@@ -30,7 +30,7 @@ rm "$data/utilities/terminal-notifier.zip"
 
 # chmod +x "$data/utilities/terminal-notifier.app"
 `"$data/utilities/terminal-notifier.app/Contents/MacOS/terminal-notifier" -title 'Installing Dependencies...' -message '...into the Alfred 2 data directory. Thank you for your patience.'`
-exit
+
 # These are the URLs to download
 files=(
   # List of files to download
