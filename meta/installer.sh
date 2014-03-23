@@ -2,7 +2,7 @@
 
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
-
+# "/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler/utilities/terminal-notifier.zip"
 # Make the directory structure
 if [ ! -d "$data" ]; then
   mkdir "$data"
@@ -24,11 +24,13 @@ if [ ! -d "$data/meta/defaults" ]; then
 fi
 
 # cd "$data/utilities"
-curl "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/utilities/terminal-notifier.zip"
-unzip "$data/utilities/terminal-notifer.zip" -d "$data/utilities/"
+curl -sL "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/utilities/terminal-notifier.zip"
+unzip -oq "$data/utilities/terminal-notifier.zip" -d "$data/utilities"
 rm "$data/utilities/terminal-notifier.zip"
-chmod +x "$data/utilities/terminal-notifer.app"
-"$data/utilities/terminal-notifier.app/Contents/MacOS/terminal-notifier -message 'Installing Dependencies in the background. This will take a minute.'"
+
+# chmod +x "$data/utilities/terminal-notifier.app"
+`"$data/utilities/terminal-notifier.app/Contents/MacOS/terminal-notifier" -title 'Installing Dependencies...' -message '...into the Alfred 2 data directory. Thank you for your patience.'`
+exit
 # These are the URLs to download
 files=(
   # List of files to download
