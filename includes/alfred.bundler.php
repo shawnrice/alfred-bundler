@@ -45,7 +45,7 @@ function loadAsset( $name , $version = "default" ) {
 
       // Make sure that we get rid of anything that isn't a php file
       foreach ( $files as $k => $f ) {
-        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) == ".php" ) ) {
+        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) == "php" ) ) {
           unset( $files[$k] );
         }
         else {
