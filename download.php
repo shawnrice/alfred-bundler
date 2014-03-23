@@ -43,11 +43,14 @@ function downloadFile( $file , $option = "default" ) {
   if ( $method == 'download' ) {
     if ( $version['zip'] == 'true' ) {
       // Nothing yet, well, download the zip file. Check function below.
-      download_zip( "$data/assets/$lang/$name/$option" , $version['files']['one'] , 'alp-master/alp' , '' , $cache );
+      $return = download_zip( "$data/assets/$lang/$name/$option" , $version['files']['one'] , 'alp-master/alp' , '' , $cache );
     } else {
-      direct_download( "$data/assets/$lang/$name/$option" , $version['files'], "" );
+      $return = direct_download( "$data/assets/$lang/$name/$option" , $version['files'], "" );
     }
   }
+
+  return $return;
+
 }
 
 function direct_download( $dir , $files , $data ) {
@@ -72,6 +75,7 @@ function direct_download( $dir , $files , $data ) {
     $f=pathinfo( parse_url( "$file", PHP_URL_PATH) );
     exec( "curl -sL '$file' > '$dir/" . $f['basename'] . "'" );
   }
+  return TRUE;
 }
 
 function download_zip( $dir , $url , $folder , $data , $cache ) {
@@ -82,6 +86,7 @@ function download_zip( $dir , $url , $folder , $data , $cache ) {
   exec( "unzip -o '$cache/$id/$id.zip' -d '$cache/$id'" );
   if ( file_exists("$dir")) delTree($dir);
   exec( "mv -f '$cache/$id/$folder' '$dir'");
+  return TRUE;
 }
 
 // For convenience, from the PHP docs
