@@ -1,7 +1,16 @@
 {
 "name":"Alfred-Workflow",
 "language":"python",
-"version":"1",
-"url":"https://github.com/deanishe/alfred-workflow/archive/master.zip",
-"zip":"true"
+"versions":{
+  "default":{
+    "version":"default",
+    "url":"https://github.com/deanishe/alfred-workflow/archive/master.zip",
+    "zip":"false",
+    "files":{
+      "1":"https://raw.githubusercontent.com/deanishe/alfred-workflow/master/workflow/__init__.py",
+      "2":"https://raw.githubusercontent.com/deanishe/alfred-workflow/master/workflow/web.py",
+      "3":"https://raw.githubusercontent.com/deanishe/alfred-workflow/master/workflow/workflow.py"
+      }
+    }
+  }
 }

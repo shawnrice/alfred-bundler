@@ -3,5 +3,8 @@
 "language":"php",
 "version":"3.3",
 "url":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php",
-"zip":"false"
+"zip":"false",
+"files":{
+  "1":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+  }
 }

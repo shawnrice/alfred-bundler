@@ -31,7 +31,11 @@ checkUpdate() {
 }
 
 doUpdate() {
+  git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
+  data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
 
-  # Put the update logic here....
+  file="$git/meta/installer.sh"
+  curl -sL "$file" > `echo $file | sed "s|$git|$data|g"`
 
+  sh "$data/meta/installer.sh"
 }
