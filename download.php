@@ -37,8 +37,8 @@ function downloadFile( $file , $option = "default" ) {
     mkdir( "$data/assets/$lang" );
   if ( ! file_exists( "$data/assets/$lang/$name" ) )
     mkdir( "$data/assets/$lang/$name" );
-  // if ( ! file_exists("$data/assets/$lang/$name/$option") )
-  //   mkdir( "$data/assets/$lang/$name/$option" );
+  if ( ! file_exists("$data/assets/$lang/$name/$option") )
+    mkdir( "$data/assets/$lang/$name/$option" );
 
   if ( $method == 'download' ) {
     if ( $version['zip'] == 'true' ) {
@@ -52,19 +52,20 @@ function downloadFile( $file , $option = "default" ) {
 
 function direct_download( $dir , $files , $data ) {
   if ( ! file_exists("$dir") ) {
-    $dirs = explode( "/" , $dir );
-    $di="";
-    foreach( $dirs as $k => $d) {
-      for ($i=0; $i < (count($dirs) + 1); $i++ ) {
-        $di .= $dirs[$i];
-        if ( ! file_exists( "$di" ) ) {
-          mkdir("$di");
-          echo "$di
-";
-        }
-        $di .= "/";
-      }
-    }
+    // Whoops. The commented out code goes awesomely haywire.
+//     $dirs = explode( "/" , $dir );
+//     $di="";
+//     foreach( $dirs as $k => $d) {
+//       for ($i=0; $i < (count($dirs) + 1); $i++ ) {
+//         $di .= $dirs[$i];
+//         if ( ! file_exists( "$di" ) ) {
+//           mkdir("$di");
+//           echo "$di
+// ";
+//         }
+//         $di .= "/";
+//       }
+//     }
     mkdir( "$dir" );
   }
   foreach ( $files as $file ) {
