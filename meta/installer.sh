@@ -24,7 +24,7 @@ if [ ! -d "$data/meta/defaults" ]; then
 fi
 
 # cd "$data/utilities"
-curl -sL "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/utilities/terminal-notifier.zip"
+curl "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/utilities/terminal-notifier.zip"
 unzip "$data/utilities/terminal-notifer.zip" -d "$data/utilities/"
 rm "$data/utilities/terminal-notifier.zip"
 chmod +x "$data/utilities/terminal-notifer.app"
