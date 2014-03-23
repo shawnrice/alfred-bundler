@@ -30,6 +30,8 @@ files=(
   "$git/bundler.py"
   "$git/bundler.rb"
   "$git/bundler.sh"
+  "$git/download.sh"
+  "$git/download.php"
   "$git/meta/version"
   "$git/meta/update.sh"
   "$git/meta/installer.sh"
@@ -54,5 +56,12 @@ do
 done < $defaults
 
 # Download jq so we can parse json from bash
-curl -sL "http://stedolan.github.io/jq/download/osx64/jq" > "$data/utilities/jq"
-chmod +x "$data/utilities/jq"
+if [ ! -f "$data/utilities/jq" ]; then
+  curl -sL "http://stedolan.github.io/jq/download/osx64/jq" > "$data/utilities/jq"
+  chmod +x "$data/utilities/jq"
+fi
+
+# Download pip
+if [ ! -f "$data/utilities/get-pip.py" ]; then
+  curl -s https://raw.github.com/pypa/pip/master/contrib/get-pip.py >  "$data/utilities/get-pip.py"
+fi

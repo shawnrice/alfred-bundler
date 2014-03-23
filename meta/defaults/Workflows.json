@@ -1,10 +1,19 @@
 {
 "name":"Workflows",
 "language":"php",
-"version":"3.3",
-"url":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php",
-"zip":"false",
-"files":{
-  "1":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
-  }
+"method":"download",
+"versions":{
+  "default":{
+    "version":"default",
+    "files":{
+      "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+      }
+    },
+  "3.3":{
+    "version":"3.3",
+    "files":{
+"one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+     }
+    }
+ }
 }
