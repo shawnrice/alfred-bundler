@@ -1,0 +1,77 @@
+Okay,
+
+So, we have a standard include that will include the functions
+(1) registerAsset
+(2) loadAsset
+(3) Install Utility
+
+# Registers asset with the workflow
+registerAsset() {
+
+}
+
+# Returns the path of the asset
+loadAsset() {
+  # $1 asset name
+  # $2 asset type
+  # $3 asset version
+
+  # if only the first two arguments are there, then load the default
+}
+
+
+
+installUtility() {
+
+  data="$HOME/Library/Application Support/Alfred 2/Workflow Data/"
+
+  if [ ! -d "$data/alfred.bundler"]; then
+    mkdir "$data/alfred.bundler"
+  fi
+  if [ ! -f "$data/alfred.bundler/installer.sh"]; then
+    curl "$url" > "$data/alfred.bundler/installer.sh"
+  fi
+
+  install=`sh $data/alfred.bundler/installer.sh &`
+
+}
+
+checkUpdate() {
+  git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
+
+  if [ ! -d "$data/alfred.bundler/meta"]; then
+    mkdir "$data/alfred.bundler/meta"
+  fi
+
+  date=`date "+%s"`
+  week=604800 # This is one week in seconds
+  let date=$date+$week
+
+  if [ ! -f "$data/alfred.bundler/meta/update-check"]; then
+      # Update the update-check file for a week from today.
+      echo "$date" > "$data/alfred.bundler/meta/update-check"
+      return 0
+  else
+    if [  $date -lt `cat "$data/alfred.bundler/meta/update-check"` ]; then
+      # Update the update-check file for a week from today.
+      echo "$date" > "$data/alfred.bundler/meta/update-check"
+      if [ `cat "$data/alfred.bundler/version" != `curl "$git/version"` ];
+        doUpdate
+      fi
+      # There is an error in this logic in that the update won't work if called
+      # when the function is run when the user is offline; start a fix for this
+      # at some point soon.
+    fi
+  fi
+}
+
+doUpdate() {
+
+  # Put the update logic here....
+
+}
+
+count the arguments...
+if there is only one or two, then get it from the defaults
+
+In each bundler utility, add in a check to update the bundler utility
