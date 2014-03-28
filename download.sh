@@ -1,22 +1,12 @@
 #!/bin/sh
 # This is the downloader script. But, really, it should just be rewritten in python.
 
-# ./jq '.version' < meta/defaults/Workflows.json
-
-file="meta/defaults/Alp.json"
-v="default"
-# Path variables to help with installation
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
-cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler"
-tmp=`date "+%s"`
+. helper-functions.sh
 
 # Make the caches directory
-if [ ! -d "$cache" ]; then
-  mkdir "$cache"
-fi
-if [ ! -d "$cache/$tmp" ]; then
-  mkdir "$cache/$tmp"
-fi
+dir "$cache"
+dir "$cache/$now"
+
 
 name=`./utilities/jq -r '.name' < $file`
 language=`./utilities/jq -r '.language' < $file`
@@ -37,20 +27,6 @@ exit
 
 url=`./utilities/jq '.url' < $file | sed 's|"||g'`
 zip=`./utilities/jq '.zip' < $file | sed 's|"||g'`
-
-
-
-
-
-# echo $name
-# echo $version
-# echo $language
-# echo $url
-# echo $zip
-
-
-
-
 
 
 

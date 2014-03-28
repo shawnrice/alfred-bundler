@@ -2,25 +2,15 @@
 
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
-# "/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler/utilities/terminal-notifier.zip"
+cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler"
+
+
 # Make the directory structure
 if [ ! -d "$data" ]; then
   mkdir "$data"
 fi
-if [ ! -d "$data/meta" ]; then
-  mkdir "$data/meta"
-fi
-if [ ! -d "$data/includes" ]; then
-  mkdir "$data/includes"
-fi
-if [ ! -d "$data/utilities" ]; then
-  mkdir "$data/utilities"
-fi
-if [ ! -d "$data" ]; then
-  mkdir "$data/libraries"
-fi
-if [ ! -d "$data/meta/defaults" ]; then
-  mkdir "$data/meta/defaults"
+if [ ! -d "$cache" ]; then
+  mkdir "$cache"
 fi
 
 # cd "$data/utilities"
