@@ -15,7 +15,7 @@ if ( file_exists( "info.plist" ) ) {
 
 loadAsset( 'Workflows' , 'default' , 'com.me');
 
-function registerAsset( $bundle , $asset ) {
+function registerAsset( $bundle , $asset , $version ) {
   $data   = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   $update = FALSE;
   if ( ! file_exists( $data ) ) mkdir( $data );
@@ -26,7 +26,7 @@ function registerAsset( $bundle , $asset ) {
 
   if ( isset( $registry ) && is_array( $registry ) ) {
     if ( isset( $registry[$bundle] ) ) {
-      if ( ! in_array( $asset , $registry[$bundle] ) ) {
+      if ( ! in_array( "$asset-$version" , $registry[$bundle] ) ) {
         $registry[$bundle][] = "$asset-$version";
         $update = TRUE;
       }
@@ -51,10 +51,10 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
   registerAsset( $bundle , $name , $version );
 
   // First: see if the file exists.
-  // if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
+  if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
     // It exists, so just return the invoke parameters.
-    // return file_get_contents( "$data/$kind/$name/$version/invoke" );
-  // }
+    return file_get_contents( "$data/assets/$kind/$name/$version/invoke" );
+  }
   // File doesn't exist, so let's look to see if it's in the defaults.
   if ( file_exists( "$data/meta/defaults/$name.json" ) ) {
 
@@ -96,7 +96,6 @@ function doDownload( $json , $version , $data , $kind , $name ) {
       $url = current($json['versions'][$version]['files']);
     }
     $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
-    echo "'$dir/" . $file['basename'] . "'";
     exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
   }
 
