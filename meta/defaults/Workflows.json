@@ -6,8 +6,7 @@
 "versions":{
   "default":{
     "version":"default",
-    "files":{
-      "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+    "files":{  "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
       }
     },
   "3.3":{

@@ -1,19 +1,57 @@
 <?php
 
+/***
+  Usage: at minimum, you need to use load( 'asset_name' );
+  This minimal usage works IF and ONLY IF the library is found in the
+  meta/defaults folder as ASSET.json (case sensitive). If you want to use a
+  version other than the newest (when the include files were written), then you
+  need to specify a version. If the library or the library version is not included
+  in the meta/defaults/ASSET.json file, then you need to append custom JSON to
+  let the bundler know where to find the file and how to get it. Look at the
+  meta/defaults/schema.json and the documentation to see how to contruct this JSON.
+  If you think that the library you need should be included as a default (i.e.
+  your use of it is not entirely an edge case), then send a pull request to the
+  github repo with the appropriate json file.
+
+  To use an asset, you need to send the name (case sensitive), version, kind,
+  and custom json -- at most.
+
+  You don't have to do anything to install the bundler or include it in anyway
+  other than requiring this file because it will install the bundler if it isn't
+  already there.
+
+  Since this is the PHP bundler, the "kind" defaults to php. If you want to use
+  a helper utility, then use the "utility" argument as the "kind."
+
+  Remember, currently, the bundler is in early development, so there may be...
+  "quirks."
+
+  If you would like to contribute to the project, then find it on github or contact
+  the repo author via the forums or the Packal contact page:
+  http://www.packal.org/contact
+
+  Cheers.
+
+***/
+
+// Let's just make sure that the utility exists before we try to use it.
 $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
 if ( ! file_exists( "$data" ) ) {
   installUtility();
 }
-if ( file_exists( "info.plist" ) ) {
-  $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
+
+function load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
+  if ( file_exists( "info.plist" ) ) {
+    $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
+  } else {
+    $bundle = "";
+  }
+
+  $kind = strtolower($kind);
+
+  loadAsset( $name , $version , $bundle , $kind , $json );
+
 }
-
-// Register: bundle . library
-//$registry = json_decode( file_get_contents( "$data/data/registry.json" ) );
-
-
-
-loadAsset( 'Workflows' , 'default' , 'com.me');
 
 function registerAsset( $bundle , $asset , $version ) {
   $data   = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
@@ -45,10 +83,9 @@ function registerAsset( $bundle , $asset , $version ) {
 
 function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $json = "" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-  if ( empty( $version ) ) {
-    $version = "default";
-  }
-  registerAsset( $bundle , $name , $version );
+
+  if ( empty( $version ) ) $version = "default"; // This shouldn't be needed....
+  if ( ! empty( $bundle ) ) registerAsset( $bundle , $name , $version );
 
   // First: see if the file exists.
   if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
@@ -91,12 +128,15 @@ function doDownload( $json , $version , $data , $kind , $name ) {
   // Add the invoke commands
   file_put_contents( "$dir/invoke" , $json['invoke'] );
   $method = $json['method'];
+
   if ( $method == "download" ) {
     if (count($json['versions'][$version]['files']) == 1) {
       $url = current($json['versions'][$version]['files']);
     }
     $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
     exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
+  } else if ( $method == 'zip' ) {
+    // DO ZIP LOGIC HERE
   }
 
 }
@@ -121,7 +161,7 @@ function installUtility() {
   exec( "sh '$cache/installer/installer.sh'" );
 }
 
-
+// Just a helper function
 function makeTree( $dir ) {
   $parts = explode( "/" , $dir );
   foreach ( $parts as $part ) {
