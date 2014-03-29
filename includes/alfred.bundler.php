@@ -59,9 +59,6 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
   if ( file_exists( "$data/meta/defaults/$name.json" ) ) {
 
     $info = json_decode( file_get_contents( "$data/meta/defaults/$name.json" ) , ARRAY_A);
-    $info =  file_get_contents( "$data/meta/defaults/$name.json" ) ;
-    print_r($info);
-
     $versions = array_keys( $info['versions'] );
     $json = file_get_contents( "$data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
@@ -100,7 +97,6 @@ function doDownload( $json , $version , $data , $kind , $name ) {
     }
     $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
     echo "'$dir/" . $file['basename'] . "'";
-    echo "HEREHERHE";
     exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
   }
 
