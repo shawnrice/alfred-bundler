@@ -1,7 +1,9 @@
 <?php
 
 $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-
+if ( ! file_exists( "$data" ) ) {
+  installUtility();
+}
 if ( file_exists( "info.plist" ) ) {
   $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
 }
@@ -9,9 +11,7 @@ if ( file_exists( "info.plist" ) ) {
 // Register: bundle . library
 //$registry = json_decode( file_get_contents( "$data/data/registry.json" ) );
 
-if ( ! file_exists( "$data" ) ) {
-  installUtility();
-}
+
 
 loadAsset( 'Workflows' , 'default' , 'com.me');
 
@@ -59,6 +59,9 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
   if ( file_exists( "$data/meta/defaults/$name.json" ) ) {
 
     $info = json_decode( file_get_contents( "$data/meta/defaults/$name.json" ) , ARRAY_A);
+    $info =  file_get_contents( "$data/meta/defaults/$name.json" ) ;
+    print_r($info);
+
     $versions = array_keys( $info['versions'] );
     $json = file_get_contents( "$data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
@@ -89,7 +92,6 @@ function doDownload( $json , $version , $data , $kind , $name ) {
 
   $dir = "$data/assets/$kind/$name/$version";
   // Add the invoke commands
-  print_r($json);
   file_put_contents( "$dir/invoke" , $json['invoke'] );
   $method = $json['method'];
   if ( $method == "download" ) {
@@ -97,6 +99,8 @@ function doDownload( $json , $version , $data , $kind , $name ) {
       $url = current($json['versions'][$version]['files']);
     }
     $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
+    echo "'$dir/" . $file['basename'] . "'";
+    echo "HEREHERHE";
     exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
   }
 
@@ -105,7 +109,7 @@ function doDownload( $json , $version , $data , $kind , $name ) {
 function installUtility() {
   // We have to install the utility.
   // Well, we need to move this to the cache directory...
-  $installer = "https: //raw.githubusercontent.com/shawnrice/alfred-bundler/initial/meta/installer.sh";
+  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/initial/meta/installer.sh";
   $data      = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   $cache     = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
 
@@ -114,14 +118,12 @@ function installUtility() {
     mkdir( $cache );
   }
   if ( ! file_exists( "$cache/installer" ) ) {
-    mkdir( "$cache/meta" );
+    mkdir( "$cache/installer" );
   }
-
   // Download the installer
-  exec( "curl -sL '$installer' > '$data/meta/installer.sh'" );
+  exec( "curl -sL '$installer' > '$cache/installer/installer.sh' && echo 'test'" );
   // Run the installer
-  exec( "sh '$data/meta/installer.sh'" );
-
+  exec( "sh '$cache/installer/installer.sh'" );
 }
 
 
