@@ -2,82 +2,139 @@
 
 $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
 
+if ( file_exists( "info.plist" ) ) {
+  $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
+}
+
+// Register: bundle . library
+//$registry = json_decode( file_get_contents( "$data/data/registry.json" ) );
+
 if ( ! file_exists( "$data" ) ) {
   installUtility();
 }
 
-function registerAsset( $json ) {
-  $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+loadAsset( 'Workflows' , 'default' , 'com.me');
 
-  // Here, we'll read the json in order to register the asset, download it, and make it available
-  // Still need to write the register function.
+function registerAsset( $bundle , $asset ) {
+  $data   = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+  $update = FALSE;
+  if ( ! file_exists( $data ) ) mkdir( $data );
+  if ( ! file_exists( "$data/data" ) ) mkdir( "$data/data" );
+  if ( file_exists( "$data/data/registry.json" ) ) {
+    $registry = json_decode( file_get_contents( "$data/data/registry.json" ) , ARRAY_A );
+  }
+
+  if ( isset( $registry ) && is_array( $registry ) ) {
+    if ( isset( $registry[$bundle] ) ) {
+      if ( ! in_array( $asset , $registry[$bundle] ) ) {
+        $registry[$bundle][] = "$asset-$version";
+        $update = TRUE;
+      }
+    } else {
+      $register[$bundle]   = array( "$asset-$version" );
+      $update = TRUE;
+    }
+  } else {
+    $registry = array( $bundle => array("$asset-$version") );
+    $update   = TRUE;
+  }
+
+  if ( $update ) file_put_contents( "$data/data/registry.json" , json_encode( $registry ) );
+
 }
 
-function loadAsset( $name , $version = "default" ) {
+function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $json = "" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-  if ( file_exists( "$data/assets/php/$name/$version") ) {
-      $files = scandir("$data/assets/php/$name/$version");
+  if ( empty( $version ) ) {
+    $version = "default";
+  }
+  registerAsset( $bundle , $name , $version );
 
-      // Make sure that we get rid of anything that isn't a php file
-      foreach ( $files as $k => $f ) {
+  // First: see if the file exists.
+  // if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
+    // It exists, so just return the invoke parameters.
+    // return file_get_contents( "$data/$kind/$name/$version/invoke" );
+  // }
+  // File doesn't exist, so let's look to see if it's in the defaults.
+  if ( file_exists( "$data/meta/defaults/$name.json" ) ) {
 
-        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) === "php" ) ) {
-          unset( $files[$k] );
-        }
-        else {
-          // Add the full path.
-          $files[$k] = "$data/assets/php/$name/$version/$f";
-        }
-      }
-      return $files;
-  } else {
-    if ( file_exists( "$data/meta/defaults/$name.json") ) {
-      require_once( "$data/download.php" );
-      downloadFile( $name , $version );
-
-      // Okay, we've downloaded the files, now, let's include them.
-
-      $files = scandir("$data/assets/php/$name/$version");
-
-      // Make sure that we get rid of anything that isn't a php file
-      foreach ( $files as $k => $f ) {
-        if ( ! ( pathinfo($f, PATHINFO_EXTENSION) == "php" ) ) {
-          unset( $files[$k] );
-        }
-        else {
-          // Add the full path.
-          $files[$k] = "$data/php/$name/$version/$f";
-        }
-      }
-      return $files;
-
+    $info = json_decode( file_get_contents( "$data/meta/defaults/$name.json" ) , ARRAY_A);
+    $versions = array_keys( $info['versions'] );
+    $json = file_get_contents( "$data/meta/defaults/$name.json" );
+    if ( in_array( $version , $versions ) ) {
+      return doDownload( $json , $version , $data, $kind , $name );
     }
-    return FALSE;
+  }
+  if ( ! empty( $json ) ) {
+    // Since the json variable is not empty and the asset doesn't exist, we'll
+    // assume it's new.
+    return doDownload( $json , $version , $data, $kind , $name );
+  }
+
+  // We shouldn't be getting here, but we'll do this anyway.
+  echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know.";
+  return FALSE;
+
+}
+
+function doDownload( $json , $version , $data , $kind , $name ) {
+  // The json variable contains everything we should need to complete this
+  // process.
+  $json = json_decode( $json , ARRAY_A );
+
+
+  // We're going to make the file tree if it doesn't already exist. See
+  // helper function below for the recursion-ish technique.
+  makeTree( "$data/assets/$kind/$name/$version" );
+
+  $dir = "$data/assets/$kind/$name/$version";
+  // Add the invoke commands
+  print_r($json);
+  file_put_contents( "$dir/invoke" , $json['invoke'] );
+  $method = $json['method'];
+  if ( $method == "download" ) {
+    if (count($json['versions'][$version]['files']) == 1) {
+      $url = current($json['versions'][$version]['files']);
+    }
+    $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
+    exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
   }
 
 }
 
 function installUtility() {
   // We have to install the utility.
-  $git = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/master";
-  $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+  // Well, we need to move this to the cache directory...
+  $installer = "https: //raw.githubusercontent.com/shawnrice/alfred-bundler/initial/meta/installer.sh";
+  $data      = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+  $cache     = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
 
   // Make the directories
-  if ( ! file_exists( $data) ) {
-    mkdir($data);
+  if ( ! file_exists( $cache ) ) {
+    mkdir( $cache );
   }
-  if ( ! file_exists( "$data/meta" ) ) {
-    mkdir( "$data/meta" );
+  if ( ! file_exists( "$cache/installer" ) ) {
+    mkdir( "$cache/meta" );
   }
 
   // Download the installer
-  exec( "curl -sL '$git/meta/installer.sh' > '$data/meta/installer.sh'" );
-  // file_put_contents( "$data/meta/installer.sh" , file_get_contents( "$git/installer.sh" ) );
+  exec( "curl -sL '$installer' > '$data/meta/installer.sh'" );
   // Run the installer
-  // At first, I was going to background this, but... well, that would throw errors.
   exec( "sh '$data/meta/installer.sh'" );
 
-  // Run it in the background
-  // exec(sprintf("%s > /dev/null 2>&1 &", $cmd));
+}
 
+
+function makeTree( $dir ) {
+  $parts = explode( "/" , $dir );
+  foreach ( $parts as $part ) {
+    if ( ! empty( $part ) ) {
+      $path .= "/$part";
+    }
+    if ( ! file_exists( $path ) ) {
+      if ( ! empty( $path ) ) {
+        mkdir($path);
+      }
+    }
+  }
 }
