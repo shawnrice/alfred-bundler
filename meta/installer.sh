@@ -9,6 +9,18 @@ gitzip="https://github.com/shawnrice/alfred-bundler/archive/initial.zip"
 if [ ! -d "$data" ]; then
   mkdir "$data"
 fi
+if [ ! -d "$data/assets" ]; then
+  mkdir "$data/assets"
+fi
+if [ ! -d "$data/assets/utilities" ]; then
+  mkdir "$data/assets/utilities"
+fi
+if [ ! -d "$data/assets/utilities/terminal-notifier" ]; then
+  mkdir "$data/assets/utilities/terminal-notifier"
+fi
+if [ ! -d "$data/assets/utilities/terminal-notifier/default" ]; then
+  mkdir "$data/assets/utilities/terminal-notifier/default"
+fi
 if [ ! -d "$cache" ]; then
   mkdir "$cache"
 fi
@@ -23,11 +35,14 @@ rm master.zip
 mv -f alfred-bundler-initial/* "$data"
 
 curl -sL "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/\
-master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/utilities\
+master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/assets/utilities\
 /terminal-notifier.zip"
-unzip -oq "$data/utilities/terminal-notifier.zip" -d "$data/utilities"
-rm "$data/utilities/terminal-notifier.zip"
+unzip -oq "$data/assets/utilities/terminal-notifier.zip" -d "$data/assets/utilities/terminal-notifier/default/"
+rm "$data/assets/utilities/terminal-notifier.zip"
 
-`"$data/utilities/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
+echo "$data/assets/utilities/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
+> "$data/assets/utilities/terminal-notifier/default/invoke"
+
+`"$data/assets/utilities/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
 -title 'Alfred Bundler Installation' -message 'A workflow that you use has \
 requested its installation.'`

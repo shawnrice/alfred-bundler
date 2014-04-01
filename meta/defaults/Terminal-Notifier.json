@@ -1,3 +1,20 @@
-Terminal-Notifier
-
-https://github.com/alloy/terminal-notifier/releases/download/1.5.0/terminal-notifier-1.5.0.zip
+{
+"name":"Terminal-Notifier",
+"language":"app",
+"method":"zip",
+"invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
+"versions":{
+  "default":{
+    "version":"default",
+    "files":{  
+        "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
+    }
+  },
+  "1.5.0":{
+    "version":"1.5.0",
+    "files":{
+      "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
+    }
+  }
+ }
+}

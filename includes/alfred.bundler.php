@@ -136,6 +136,7 @@ function doDownload( $json , $version , $data , $kind , $name ) {
     $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
     exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
   } else if ( $method == 'zip' ) {
+    exec( "unzip -q '$dir/" . $file['basename'] . "'");
     // DO ZIP LOGIC HERE
   }
 
