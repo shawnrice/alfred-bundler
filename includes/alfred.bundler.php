@@ -1,5 +1,6 @@
 <?php
 
+
 /***
   Usage: at minimum, you need to use load( 'asset_name' );
   This minimal usage works IF and ONLY IF the library is found in the
@@ -40,20 +41,26 @@ if ( ! file_exists( "$data" ) ) {
   installUtility();
 }
 
+/**
+ *  This is the only function the workflow author needs to invoke.
+ *
+ **/
 function load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
   if ( file_exists( "info.plist" ) ) {
+    // Grab the bundle ID from the plist file.
     $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
   } else {
     $bundle = "";
   }
 
-  $kind = strtolower($kind);
+  loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
 
-  loadAsset( $name , $version , $bundle , $kind , $json );
-
-}
+} // End load()
 
 function registerAsset( $bundle , $asset , $version ) {
+  // Exit the function if there is no bundle passed.
+  if ( empty( $bundle ) ) return 0;
+
   $data   = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   $update = FALSE;
   if ( ! file_exists( $data ) ) mkdir( $data );
@@ -79,7 +86,7 @@ function registerAsset( $bundle , $asset , $version ) {
 
   if ( $update ) file_put_contents( "$data/data/registry.json" , json_encode( $registry ) );
 
-}
+} // End registerAsset()
 
 function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $json = "" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
@@ -108,17 +115,17 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
     return doDownload( $json , $version , $data, $kind , $name );
   }
 
-  // We shouldn't be getting here, but we'll do this anyway.
+  // We shouldn't be here, but we'll do this anyway.
   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know.";
   return FALSE;
 
-}
+} // End loadAsset()
 
 function doDownload( $json , $version , $data , $kind , $name ) {
   // The json variable contains everything we should need to complete this
   // process.
-  $json = json_decode( $json , ARRAY_A );
-
+  $json  = json_decode( $json , ARRAY_A );
+  $cache = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
 
   // We're going to make the file tree if it doesn't already exist. See
   // helper function below for the recursion-ish technique.
@@ -140,8 +147,11 @@ function doDownload( $json , $version , $data , $kind , $name ) {
     // DO ZIP LOGIC HERE
   }
 
-}
+} // End doDownload()
 
+/**
+ * Installs the Alfred Bundler utility.
+ **/
 function installUtility() {
   // We have to install the utility.
   // Well, we need to move this to the cache directory...
@@ -160,9 +170,12 @@ function installUtility() {
   exec( "curl -sL '$installer' > '$cache/installer/installer.sh' && echo 'test'" );
   // Run the installer
   exec( "sh '$cache/installer/installer.sh'" );
-}
 
-// Just a helper function
+} // End installUtility()
+
+/**
+ * Makes all the directories in a path if they do not already exist.
+ **/
 function makeTree( $dir ) {
   $parts = explode( "/" , $dir );
   foreach ( $parts as $part ) {
@@ -175,4 +188,4 @@ function makeTree( $dir ) {
       }
     }
   }
-}
+} // End makeTree()
