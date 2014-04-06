@@ -48,7 +48,7 @@ function downloadFile( $file , $option = "default" ) {
   }
 
   file_put_contents( "$data/assets/$lang/$name/$option/invoke", $invoke );
-  
+
   return $return;
 
 }

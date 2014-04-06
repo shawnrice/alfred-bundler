@@ -1,5 +1,6 @@
 #!/bin/sh
 
+################################################################################
 # In 10.8, Apple introduced something called "Gatekeeper," which is that
 # annoying thing that will warn you when opening up an unsigned application in
 # 10.8, and, really annoying, in 10.9, it will not let you open anything not
@@ -8,6 +9,7 @@
 # exceptions. This script checks to see if Gatekeeper will deny an app from
 # opening and ask permission if it will. Otherwise, it exits with a hunky-dorey
 # status.
+################################################################################
 
 # This script is called internally from the bundler, so you shouldn't ever need
 # to call it. However, it's nice of you to have opened this file and read this
@@ -103,6 +105,7 @@ fi
 
 exit 0
 
+################################################################################
 # Internal notes:
 # Commands to use later to "deauthorize"
 # Full list of labels
@@ -114,3 +117,6 @@ exit 0
 # spctl --status
 # Disables the label, which, effectively, de-authorizes it
 # spctl --disable --label "LABEL"
+# Delete the label
+# spctl --remove --label "LABEL"
+################################################################################
