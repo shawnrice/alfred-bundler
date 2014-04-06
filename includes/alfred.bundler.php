@@ -43,7 +43,12 @@ if ( ! file_exists( "$data" ) ) {
 
 /**
  *  This is the only function the workflow author needs to invoke.
+ *  If the asset to be loaded is a PHP library, then you just need to call the function,
+ *  and the files will be required automatically.
  *
+ *  If you are loading a "utility" application, then the function will return the full
+ *  path to the function so that you can invoke it.
+ *  
  **/
 function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
   if ( file_exists( "info.plist" ) ) {
@@ -53,9 +58,24 @@ function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
     $bundle = "";
   }
 
-  return loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
+  if ( $kind == "php" ) {
+    $assets = loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
+    foreach ($assets as $asset ) {
+      require_once( $asset );
+    }
+    return TRUE;
+  } else if ( $kind == "utilities" ) {
+    $asset = loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
+    $asset = str_replace(' ' , '\ ' , $asset[0]);
+    return $asset;
+  } else {
+    return loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
+  }
 
-} // End load()
+  // We shouldn't get here.
+  return FALSE;
+
+} // End __load()
 
 function registerAsset( $bundle , $asset , $version ) {
   // Exit the function if there is no bundle passed.

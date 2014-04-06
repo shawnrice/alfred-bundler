@@ -46,7 +46,7 @@ unzip -oq "$data/assets/utilities/terminal-notifier.zip" -d "$data/assets/utilit
 rm "$data/assets/utilities/terminal-notifier.zip"
 
 # Create the "invoke" file
-echo "$data/assets/utilities/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
+echo "terminal-notifier.app/Contents/MacOS/terminal-notifier" \
 > "$data/assets/utilities/terminal-notifier/default/invoke"
 
 # Send a message to the user via the terminal-notifier
