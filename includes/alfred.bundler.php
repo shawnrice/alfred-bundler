@@ -100,14 +100,14 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
     $invoke = file_get_contents( "$data/assets/$kind/$name/$version/invoke" );
     $invoke = explode( "\n" , $invoke );
     foreach ( $invoke as $k => $v ) {
-      $invoke[$k] = "$data/$v";
+      $invoke[$k] = "$data/assets/$kind/$name/$version/$v";
     }
     return $invoke;
   }
   // File doesn't exist, so let's look to see if it's in the defaults.
   if ( file_exists( "$data/meta/defaults/$name.json" ) ) {
 
-    $info = json_decode( file_get_contents( "$data/meta/defaults/$name.json" ) , ARRAY_A);
+    $info = json_decode( file_get_contents( "$data/meta/defaults/$name.json" ) , TRUE);
     $versions = array_keys( $info['versions'] );
     $json = file_get_contents( "$data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
@@ -129,7 +129,7 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
 function doDownload( $json , $version , $data , $kind , $name ) {
   // The json variable contains everything we should need to complete this
   // process.
-  $json  = json_decode( $json , ARRAY_A );
+  $json  = json_decode( $json , TRUE );
   $cache = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
 
   // We're going to make the file tree if it doesn't already exist. See
