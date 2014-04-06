@@ -6,14 +6,14 @@
 "versions":{
   "default":{
     "version":"default",
-    "files":{  
-        "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
+    "files":{
+     "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
     }
   },
   "1.5.0":{
     "version":"1.5.0",
     "files":{
-      "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
+     "one":"https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/master/terminal-notifier/terminal-notifier.app.zip?raw=true"
     }
   }
  }

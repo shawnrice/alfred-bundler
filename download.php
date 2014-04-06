@@ -15,8 +15,6 @@ function downloadFile( $file , $option = "default" ) {
   $HOME     = exec( 'echo $HOME' );
   $data     = "$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   $cache    = "$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
-  // $file     = "$data/meta/defaults/Alp.json";
-  //$file     = "$data/meta/defaults/Alfred-Workflow.json";
   $file     = "$data/meta/defaults/$file.json";
   $json     = json_decode( file_get_contents( $file ), ARRAY_A );
   $name     = $json[ 'name' ];
@@ -72,8 +70,8 @@ function direct_download( $dir , $files , $data ) {
     mkdir( "$dir" );
   }
   foreach ( $files as $file ) {
-    $f=pathinfo( parse_url( "$file", PHP_URL_PATH) );
-    $return = exec( "curl -L '$file' > '$dir/" . $f['basename'] . "'" );
+    $f = pathinfo( parse_url( "$file", PHP_URL_PATH ) );
+    $return = exec( "curl -sL '$file' > '$dir/" . $f['basename'] . "'" );
   }
   return TRUE;
 }
@@ -83,17 +81,34 @@ function download_zip( $dir , $url , $folder , $data , $cache ) {
   $id = uniqid();
   mkdir( "$cache/$id" );
   exec( "curl -sL '$url' > '$cache/$id/$id.zip'" );
-  exec( "unzip -o '$cache/$id/$id.zip' -d '$cache/$id'" );
-  if ( file_exists("$dir")) delTree($dir);
-  exec( "mv -f '$cache/$id/$folder' '$dir'");
+  exec( "unzip -qo '$cache/$id/$id.zip' -d '$cache/$id'" );
+  if ( file_exists( "$dir" ) ) delTree( $dir );
+  exec( "mv -f '$cache/$id/$folder' '$dir'" );
   return TRUE;
 }
 
 // For convenience, from the PHP docs
-function delTree($dir) {
-   $files = array_diff(scandir($dir), array('.','..'));
+function delTree( $dir ) {
+   $files = array_diff( scandir( $dir ), array( '.' , '..' ) );
     foreach ($files as $file) {
-      (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+      ( is_dir( "$dir/$file" ) ) ? delTree( "$dir/$file" ) : unlink( "$dir/$file" );
     }
-  return rmdir($dir);
+  return rmdir( $dir );
 }
+
+/**
+ * Makes all the directories in a path if they do not already exist.
+ **/
+function makeTree( $dir ) {
+  $parts = explode( "/" , $dir );
+  foreach ( $parts as $part ) {
+    if ( ! empty( $part ) ) {
+      $path .= "/$part";
+    }
+    if ( ! file_exists( $path ) ) {
+      if ( ! empty( $path ) ) {
+        mkdir( $path );
+      }
+    }
+  }
+} // End makeTree()

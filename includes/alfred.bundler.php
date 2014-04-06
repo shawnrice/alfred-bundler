@@ -45,7 +45,7 @@ if ( ! file_exists( "$data" ) ) {
  *  This is the only function the workflow author needs to invoke.
  *
  **/
-function load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
+function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
   if ( file_exists( "info.plist" ) ) {
     // Grab the bundle ID from the plist file.
     $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
@@ -184,7 +184,7 @@ function makeTree( $dir ) {
     }
     if ( ! file_exists( $path ) ) {
       if ( ! empty( $path ) ) {
-        mkdir($path);
+        mkdir( $path );
       }
     }
   }
