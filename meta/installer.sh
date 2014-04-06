@@ -40,8 +40,7 @@ rm master.zip
 mv -f alfred-bundler-initial/* "$data"
 
 # Grab the Terminal-Notifier utility, and install it to the data directory
-curl -sL "https://github.com/Ritashugisha/AlfredWorkflowResourcePack/blob/\
-master/terminal-notifier/terminal-notifier.app.zip?raw=true" > "$data/assets/utilities\
+curl -sL "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true" > "$data/assets/utilities\
 /terminal-notifier.zip"
 unzip -oq "$data/assets/utilities/terminal-notifier.zip" -d "$data/assets/utilities/terminal-notifier/default/"
 rm "$data/assets/utilities/terminal-notifier.zip"
