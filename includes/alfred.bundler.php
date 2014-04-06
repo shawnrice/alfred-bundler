@@ -53,7 +53,7 @@ function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
     $bundle = "";
   }
 
-  loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
+  return loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
 
 } // End load()
 
@@ -61,12 +61,12 @@ function registerAsset( $bundle , $asset , $version ) {
   // Exit the function if there is no bundle passed.
   if ( empty( $bundle ) ) return 0;
 
-  $data   = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+  $data   = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
   $update = FALSE;
   if ( ! file_exists( $data ) ) mkdir( $data );
   if ( ! file_exists( "$data/data" ) ) mkdir( "$data/data" );
   if ( file_exists( "$data/data/registry.json" ) ) {
-    $registry = json_decode( file_get_contents( "$data/data/registry.json" ) , ARRAY_A );
+    $registry = json_decode( file_get_contents( "$data/data/registry.json" ) , TRUE );
   }
 
   if ( isset( $registry ) && is_array( $registry ) ) {
@@ -97,7 +97,12 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
   // First: see if the file exists.
   if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
     // It exists, so just return the invoke parameters.
-    return file_get_contents( "$data/assets/$kind/$name/$version/invoke" );
+    $invoke = file_get_contents( "$data/assets/$kind/$name/$version/invoke" );
+    $invoke = explode( "\n" , $invoke );
+    foreach ( $invoke as $k => $v ) {
+      $invoke[$k] = "$data/$v";
+    }
+    return $invoke;
   }
   // File doesn't exist, so let's look to see if it's in the defaults.
   if ( file_exists( "$data/meta/defaults/$name.json" ) ) {

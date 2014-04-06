@@ -2,7 +2,7 @@
 "name":"Workflows",
 "language":"php",
 "method":"download",
-"invoke": "Workflows.php",
+"invoke": "workflows.php",
 "versions":{
   "default":{
     "version":"default",
