@@ -111,15 +111,24 @@ function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $js
     $versions = array_keys( $info['versions'] );
     $json = file_get_contents( "$data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
-      return doDownload( $json , $version , $data, $kind , $name );
+      doDownload( $json , $version , $data, $kind , $name );
     }
   }
   if ( ! empty( $json ) ) {
     // Since the json variable is not empty and the asset doesn't exist, we'll
     // assume it's new.
-    return doDownload( $json , $version , $data, $kind , $name );
+    doDownload( $json , $version , $data, $kind , $name );
   }
-
+  // Let's try this again.
+  if ( file_exists( "$data/assets/$kind/$name/$version/invoke" ) ) {
+    // It exists, so just return the invoke parameters.
+    $invoke = file_get_contents( "$data/assets/$kind/$name/$version/invoke" );
+    $invoke = explode( "\n" , $invoke );
+    foreach ( $invoke as $k => $v ) {
+      $invoke[$k] = "$data/assets/$kind/$name/$version/$v";
+    }
+    return $invoke;
+  }
   // We shouldn't be here, but we'll do this anyway.
   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know.";
   return FALSE;
@@ -183,6 +192,7 @@ function installUtility() {
  **/
 function makeTree( $dir ) {
   $parts = explode( "/" , $dir );
+  $path = "";
   foreach ( $parts as $part ) {
     if ( ! empty( $part ) ) {
       $path .= "/$part";
