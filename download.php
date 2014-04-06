@@ -20,7 +20,7 @@ function downloadFile( $file , $option = "default" ) {
   $name     = $json[ 'name' ];
   $lang     = $json[ 'language' ];
   $method   = $json[ 'method' ];
-
+  $invoke   = $json[ 'invoke' ];
   $versions = array_keys( $json[ 'versions' ] );
 
   if ( in_array( $option, $versions ) ) {
@@ -39,14 +39,16 @@ function downloadFile( $file , $option = "default" ) {
     mkdir( "$data/assets/$lang/$name/$option" );
 
   if ( $method == 'download' ) {
-    if ( $version['zip'] == 'true' ) {
+//    if ( $version['zip'] == 'true' ) {
       // Nothing yet, well, download the zip file. Check function below.
-      $return = download_zip( "$data/assets/$lang/$name/$option" , $version['files']['one'] , 'alp-master/alp' , '' , $cache );
-    } else {
+//      $return = download_zip( "$data/assets/$lang/$name/$option" , $version['files']['one'] , 'alp-master/alp' , '' , $cache );
+//    } else {
       $return = direct_download( "$data/assets/$lang/$name/$option" , $version['files'], "" );
-    }
+//    }
   }
 
+  file_put_contents( "$data/assets/$lang/$name/$option/invoke", $invoke );
+  
   return $return;
 
 }
