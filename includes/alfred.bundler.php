@@ -77,36 +77,7 @@ function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
 
 } // End __load()
 
-function registerAsset( $bundle , $asset , $version ) {
-  // Exit the function if there is no bundle passed.
-  if ( empty( $bundle ) ) return 0;
 
-  $data   = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-  $update = FALSE;
-  if ( ! file_exists( $data ) ) mkdir( $data );
-  if ( ! file_exists( "$data/data" ) ) mkdir( "$data/data" );
-  if ( file_exists( "$data/data/registry.json" ) ) {
-    $registry = json_decode( file_get_contents( "$data/data/registry.json" ) , TRUE );
-  }
-
-  if ( isset( $registry ) && is_array( $registry ) ) {
-    if ( isset( $registry[$bundle] ) ) {
-      if ( ! in_array( "$asset-$version" , $registry[$bundle] ) ) {
-        $registry[$bundle][] = "$asset-$version";
-        $update = TRUE;
-      }
-    } else {
-      $register[$bundle]   = array( "$asset-$version" );
-      $update = TRUE;
-    }
-  } else {
-    $registry = array( $bundle => array("$asset-$version") );
-    $update   = TRUE;
-  }
-
-  if ( $update ) file_put_contents( "$data/data/registry.json" , json_encode( $registry ) );
-
-} // End registerAsset()
 
 function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $json = "" ) {
   $data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
