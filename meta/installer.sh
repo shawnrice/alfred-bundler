@@ -6,11 +6,11 @@
 bundler_version="aries";
 
 # Define locations
-git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
+git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 # For now, we're using the 'initial' branch.
-gitzip="https://github.com/shawnrice/alfred-bundler/archive/initial.zip"
+gitzip="https://github.com/shawnrice/alfred-bundler/archive/$bundler_version.zip"
 
 # Make the directory structure
 if [ ! -d "$data" ]; then
@@ -36,11 +36,14 @@ if [ ! -d "$cache/installer" ]; then
 fi
 
 # Grab the zip of the Github repo, unpack it, and move it to the data folder
-curl -sL "$gitzip" > "$cache/installer/master.zip"
+curl -sL "$gitzip" > "$cache/installer/$bundler_version.zip"
 cd "$cache/installer"
-unzip -oq "master.zip"
-rm master.zip
-mv -f alfred-bundler-initial/* "$data"
+unzip -oq "$bundler_version.zip"
+rm "$bundler_version.zip"
+mv -f "alfred-bundler-$bundler_version"/* "$data"
+rm -fR "alfred-bundler-$bundler_version"
+cd ..
+rm -fR installer
 
 # Grab the Terminal-Notifier utility, and install it to the data directory
 curl -sL "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true" > "$data/assets/utilities\

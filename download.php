@@ -12,7 +12,7 @@
 // Define the global bundler version.
 $bundler_version="aries";
 
-function downloadFile( $file , $option = "default" ) {
+function downloadFile( $file , $version = "default" ) {
 
   global $bundler_version;
 
@@ -20,7 +20,7 @@ function downloadFile( $file , $option = "default" ) {
   $data     = "$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
   $cache    = "$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
   $file     = "$data/meta/defaults/$file.json";
-  $json     = json_decode( file_get_contents( $file ), ARRAY_A );
+  $json     = json_decode( file_get_contents( $file ), TRUE );
   $name     = $json[ 'name' ];
   $lang     = $json[ 'language' ];
   $method   = $json[ 'method' ];
@@ -33,14 +33,8 @@ function downloadFile( $file , $option = "default" ) {
     return FALSE;
   }
 
-  if ( ! file_exists( "$data/assets" ) )
-    mkdir( "$data/assets" );
-  if ( ! file_exists( "$data/assets/$lang" ) )
-    mkdir( "$data/assets/$lang" );
-  if ( ! file_exists( "$data/assets/$lang/$name" ) )
-    mkdir( "$data/assets/$lang/$name" );
   if ( ! file_exists("$data/assets/$lang/$name/$option") )
-    mkdir( "$data/assets/$lang/$name/$option" );
+    makeTree( "$data/assets/$lang/$name/$option" );
 
   if ( $method == 'download' ) {
 //    if ( $version['zip'] == 'true' ) {
@@ -59,20 +53,6 @@ function downloadFile( $file , $option = "default" ) {
 
 function direct_download( $dir , $files , $data ) {
   if ( ! file_exists("$dir") ) {
-    // Whoops. The commented out code goes awesomely haywire.
-//     $dirs = explode( "/" , $dir );
-//     $di="";
-//     foreach( $dirs as $k => $d) {
-//       for ($i=0; $i < (count($dirs) + 1); $i++ ) {
-//         $di .= $dirs[$i];
-//         if ( ! file_exists( "$di" ) ) {
-//           mkdir("$di");
-//           echo "$di
-// ";
-//         }
-//         $di .= "/";
-//       }
-//     }
     mkdir( "$dir" );
   }
   foreach ( $files as $file ) {
@@ -100,20 +80,19 @@ function delTree( $dir ) {
       ( is_dir( "$dir/$file" ) ) ? delTree( "$dir/$file" ) : unlink( "$dir/$file" );
     }
   return rmdir( $dir );
-}
+} // End delTree()
 
 /**
  * Makes all the directories in a path if they do not already exist.
  **/
 function makeTree( $dir ) {
   $parts = explode( "/" , $dir );
+  $path  = '';
   foreach ( $parts as $part ) {
     if ( ! empty( $part ) ) {
       $path .= "/$part";
-    }
-    if ( ! file_exists( $path ) ) {
-      if ( ! empty( $path ) ) {
-        mkdir( $path );
+      if ( ! file_exists( $path ) ) {
+          mkdir( $path );
       }
     }
   }

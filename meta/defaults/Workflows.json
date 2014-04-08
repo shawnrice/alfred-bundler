@@ -1,17 +1,19 @@
 {
 "name":"Workflows",
-"language":"php",
-"method":"download",
-"invoke": "workflows.php",
+"type":"php",
 "versions":{
   "default":{
     "version":"default",
+    "get-method":"download",
+    "invoke": "workflows.php",
     "files":{
       "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
      }
   },
   "3.3":{
    "version":"3.3",
+   "get-method":"download",
+   "invoke": "workflows.php",
    "files":{
     "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
    }

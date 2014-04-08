@@ -1,32 +1,28 @@
 {
 "name":"CFPropertyList-php",
-"language":"php",
-"install": "cp CFPropertyList/classes/CFPropertyList",
+"type":"php",
 "versions":{
   "default":{
    "version":"default",
    "get-method":"zip",
+   "install": {
+    "1" : "cp -fR CFPropertyList/classes/CFPropertyList"
+   },
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
    "files":{
-    "one":"https://github.com/rodneyrehm/CFPropertyList/archive/master.zip"
+    "1":"https://github.com/rodneyrehm/CFPropertyList/archive/master.zip"
    }
   },
   "3.3":{
    "version":"2.0",
    "get-method":"zip",
+   "install": {
+    "1" : "cp -fR CFPropertyList/classes/CFPropertyList"
+   },
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
    "files":{
-    "one":"https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip"
+    "1":"https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip"
    }
   }
  }
 }
-/*https://github.com/rodneyrehm/CFPropertyList/archive/master.zip
-https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip
-
-
-install -- copy CFPropertyList/classes/CFPropertyList
-invoke -- require_once('CFPropertyList/classes/CFPropertyList/CFPropertyList.php');
-invoke -- namespace CFPropertyList;
-
-Notes. This JSON won't work yet.*/

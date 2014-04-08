@@ -5,12 +5,13 @@
  *  future to allow for the uninstallation of orphaned assets.
  *
  **/
+
 // Define the global bundler version.
 $bundler_version="aries";
 
 if ( count( $argv ) != 4 ) {
   echo "Invoke the registry script with only three arguments.";
-  return 5;
+  die();
 }
 
 $bundle  = $argv[1];
@@ -34,20 +35,28 @@ function registerAsset( $bundle , $asset , $version ) {
   }
 
   if ( isset( $registry ) && is_array( $registry ) ) {
-    if ( isset( $registry[$bundle] ) ) {
-      if ( ! in_array( "$asset-$version" , $registry[$bundle] ) ) {
-        $registry[$bundle][] = "$asset-$version";
+    if ( isset( $registry[ $asset ] ) ) {
+      if ( ! in_array( $version , $registry[ $asset ] ) ) {
+        $registry[ $asset ][ $version ] = array();
+        $update = TRUE;
+      }
+      if ( ! in_array( $bundle , $registry[ $asset ][ $version ] ) ) {
+        $registry[ $asset ][ $version ][] = $bundle;
         $update = TRUE;
       }
     } else {
-      $register[$bundle]   = array( "$asset-$version" );
+      $registry[$asset] = array();
+      $registry[ $asset ][ $version ] = array( $bundle );
       $update = TRUE;
     }
   } else {
-    $registry = array( $bundle => array("$asset-$version") );
-    $update   = TRUE;
+    $registry = array();
+    $registry[ $asset ] = array();
+    $registry[ $asset ][ $version ] = array();
+    $registry[ $asset ][ $version ][] = $bundle;
+    $update = TRUE;
   }
 
-  if ( $update ) file_put_contents( "$data/data/registry.json" , json_encode( $registry ) );
+  if ( $update ) file_put_contents( "$data/data/registry.json" , utf8_encode( json_encode( $registry ) ) );
 
 } // End registerAsset()
