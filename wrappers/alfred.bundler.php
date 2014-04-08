@@ -104,8 +104,8 @@ function __installBundler() {
   // Download the installer
   // I'm throwing in the second bash command to delay the execution of the next
   // exec() command. I'm not sure if that's necessary.
-  exec( "curl -sL '$installer' > '$cache/installer/installer.sh' && echo '..'" );
+  exec( "curl -sL '$installer' > '$__cache/installer/installer.sh' && echo '..'" );
   // Run the installer
-  exec( "sh '$cache/installer/installer.sh' && echo '..' " );
+  exec( "sh '$__cache/installer/installer.sh' && echo '..' " );
 
 } // End installUtility()
