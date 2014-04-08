@@ -12,7 +12,6 @@ function __makeTree( $dir ) {
     }
     if ( ! file_exists( $path ) ) {
       if ( ! empty( $path ) ) {
-        echo $path;
         mkdir( $path );
       }
     }
