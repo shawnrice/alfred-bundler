@@ -8,6 +8,9 @@
     "invoke": "workflows.php",
     "files":{
       "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+     },
+     "install":{
+      "1":"cp -f '__CACHE__/workflows.php' '__DATA__'"
      }
   },
   "3.3":{
@@ -16,6 +19,9 @@
    "invoke": "workflows.php",
    "files":{
     "one":"https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php"
+   },
+   "install":{
+    "1":"cp -f '__CACHE__/workflows.php' '__DATA__'"
    }
   }
  }

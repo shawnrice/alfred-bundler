@@ -8,6 +8,9 @@
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{
      "1":"https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true"
+    },
+    "install":{
+     "1":"cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
     }
   },
   "1.5.0":{
@@ -16,6 +19,9 @@
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{
      "1":"https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true"
+    },
+    "install":{
+     "1":"cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
     }
   }
  }
