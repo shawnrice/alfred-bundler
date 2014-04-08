@@ -8,10 +8,11 @@ function __makeTree( $dir ) {
   $path = '';
   foreach ( $parts as $part ) {
     if ( ! empty( $part ) ) {
-      $path .= '/$part';
+      $path .= "/$part";
     }
     if ( ! file_exists( $path ) ) {
       if ( ! empty( $path ) ) {
+        echo $path;
         mkdir( $path );
       }
     }
@@ -22,7 +23,7 @@ function __makeTree( $dir ) {
 function __delTree( $dir ) {
    $files = array_diff( scandir( $dir ), array( '.' , '..' ) );
     foreach ($files as $file) {
-      ( is_dir( "$dir/$file" ) ) ? delTree( "$dir/$file" ) : unlink( "$dir/$file" );
+      ( is_dir( "$dir/$file" ) ) ? __delTree( "$dir/$file" ) : unlink( "$dir/$file" );
     }
   return rmdir( $dir );
 } // End delTree()

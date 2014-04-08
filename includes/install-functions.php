@@ -25,12 +25,12 @@ function __installAsset( $json , $version ) {
   }
  }
 
- $get     = $json[ $version ][ 'get-method' ];
- $invoke  = $json[ $version ][ 'invoke' ];
- $install = $json[ $version ][ 'install' ];
+ $get     = $json[ 'versions' ][ $version ][ 'get-method' ];
+ $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
+ $install = $json[ 'versions' ][ $version ][ 'install' ];
 
  // Download the file(s).
- foreach ( $json[ '$versions' ][ $version ][ 'files' ] as $url ) {
+ foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
   $file = __doDownload( $url );
   // File not found on the internets... DIE.
   if ( $file == '5' ) return FALSE;

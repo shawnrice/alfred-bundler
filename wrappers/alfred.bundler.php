@@ -91,7 +91,7 @@ function __installBundler() {
 
   global $bundler_version, $__data;
 
-  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version/meta/installer.sh";
+  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh";
   $__cache   = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
   // Make the directories
@@ -104,8 +104,8 @@ function __installBundler() {
   // Download the installer
   // I'm throwing in the second bash command to delay the execution of the next
   // exec() command. I'm not sure if that's necessary.
-  exec( "curl -sL '$installer' > '$__cache/installer/installer.sh' && echo '..'" );
+  exec( "curl -sL '$installer' > '$__cache/installer/installer.sh'" );
   // Run the installer
-  exec( "sh '$__cache/installer/installer.sh' && echo '..' " );
+  exec( "sh '$__cache/installer/installer.sh'" );
 
 } // End installUtility()
