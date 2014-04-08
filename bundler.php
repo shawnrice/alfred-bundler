@@ -30,12 +30,12 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     foreach ( $invoke as $k => $v ) {
       $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
     }
+    echo "We return invoke";
     return $invoke;
   }
 
   // Asset doesn't exist, so let's look to see if it's in the defaults.
   if ( file_exists( "$__data/meta/defaults/$name.json" ) && empty( $json ) ) {
-
     $info = json_decode( file_get_contents( "$__data/meta/defaults/$name.json" ) , TRUE);
     $versions = array_keys( $info[ 'versions' ] );
     $json = file_get_contents( "$__data/meta/defaults/$name.json" );
@@ -48,9 +48,9 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     __installAsset( $json , $version );
   }
   // Let's try this again.
-  if ( file_exists( "$__data/assets/$kind/$name/$version/invoke" ) ) {
+  if ( file_exists( "$__data/assets/$type/$name/$version/invoke" ) ) {
     // It exists, so just return the invoke parameters.
-    $invoke = file_get_contents( "$__data/assets/$kind/$name/$version/invoke" );
+    $invoke = file_get_contents( "$__data/assets/$type/$name/$version/invoke" );
     $invoke = explode( "\n" , $invoke );
     foreach ( $invoke as $k => $v ) {
       if ( $v == 'null' ) {
@@ -60,7 +60,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
         // with nothing.
         $v = '';
       }
-      $invoke[$k] = "$__data/assets/$kind/$name/$version/$v";
+      $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
     }
     return $invoke;
   }

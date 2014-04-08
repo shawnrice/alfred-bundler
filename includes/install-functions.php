@@ -74,6 +74,7 @@ function __installAsset( $json , $version ) {
 
 function __doDownload( $url ) {
  global $__cache;
+ __makeTree( $__cache );
  $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
  exec( "curl -sL '$url' > '$__cache/" . $file[ 'basename' ] . "'" );
  if ( file_get_contents( "$__cache/" . $file[ 'basename' ] ) == 'Not Found' ) {
