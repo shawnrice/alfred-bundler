@@ -89,15 +89,14 @@ function __load( $name , $version = 'default' , $type = 'php' , $json = '' ) {
 function __installBundler() {
   // Install the Alfred Bundler
 
-  global $bundler_version;
+  global $bundler_version, $__data;
 
   $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version/meta/installer.sh";
-  $__data    = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
   $__cache   = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
   // Make the directories
-  if ( ! file_exists( $cache ) ) {
-    mkdir( $cache );
+  if ( ! file_exists( $__cache ) ) {
+    mkdir( $__cache );
   }
   if ( ! file_exists( "$__cache/installer" ) ) {
     mkdir( "$__cache/installer" );

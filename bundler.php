@@ -14,7 +14,7 @@ if ( ! isset( $bundler_version ) ) {
 }
 
 // Since this is a PHP bundler, we'll assume that the default type is PHP.
-function loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $json = '' ) {
+function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $json = '' ) {
 
   global $bundler_version;
   $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
@@ -40,7 +40,7 @@ function loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $js
     $versions = array_keys( $info[ 'versions' ] );
     $json = file_get_contents( "$__data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
-      doDownload( $json , $version , $__data, $kind , $name );
+      __doDownload( $json , $version , $__data, $kind , $name );
     }
   } else if ( ! empty( $json ) ) {
     // Since the json variable is not empty and the asset doesn't exist, we'll
@@ -63,35 +63,6 @@ function loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $js
 
 } // End loadAsset()
 
-function doDownload( $json , $version , $__data , $kind , $name ) {
-  // The json variable contains everything we should need to complete this
-  // process.
-  $json  = json_decode( $json , TRUE );
-  $cache = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
-
-  // We're going to make the file tree if it doesn't already exist. See
-  // helper function below for the recursion-ish technique.
-  makeTree( "$__data/assets/$kind/$name/$version" );
-
-  $dir = "$__data/assets/$kind/$name/$version";
-  // Add the invoke commands
-  file_put_contents( "$dir/invoke" , $json['invoke'] );
-  $method = $json['method'];
-
-  if ( $method == "download" ) {
-    if (count($json['versions'][$version]['files']) == 1) {
-      $url = current($json['versions'][$version]['files']);
-    }
-    $file = pathinfo( parse_url( $url , PHP_URL_PATH ) );
-    exec( "curl -sL '" . $url . "' > '$dir/" . $file['basename'] . "'");
-  } else if ( $method == 'zip' ) {
-    exec( "unzip -q '$dir/" . $file['basename'] . "'");
-    // DO ZIP LOGIC HERE
-  }
-
-} // End doDownload()
-
-
 function __installAsset( $json , $version ) {
  global $bundler_version, $__data, $__cache;
 
@@ -103,7 +74,7 @@ function __installAsset( $json , $version ) {
  // Check to see if the version asked for is in the json; else, fallback to
  // default if exists; if not, throw error.
  if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
-  if ( ! isset( $json['versions'][ 'default' ] ) ) {
+  if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
    echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
    return FALSE;
   } else {
@@ -115,33 +86,53 @@ function __installAsset( $json , $version ) {
  $invoke  = $json[ $version ][ 'invoke' ];
  $install = $json[ $version ][ 'install' ];
 
+ // Download the file(s).
+ foreach ( $json[ '$versions' ][ $version ][ 'files' ] as $url ) {
+  $file = __doDownload( $url );
+  // File not found on the internets... DIE.
+  if ( $file == '5' ) return FALSE;
+ }
+
+ if ( $get == 'zip' ) {
+  // Unzip the file into the cache directory, silently.
+  exec( "unzip -qo '$__cache/$file' -d '$__cache'" );
+ } else if ( $get == 'tgz' || $get == 'tar.gz' ) {
+  // Untar the file into the cache directory, silently.
+  exec( "tar xzf '$__cache/$file' -C '$__cache'");
+ }
+
+ // For now, any other methods should be taken care of in the install
+ // instructions (in the JSON).
+
+ // Follow the installation instructions provided in the JSON file.
+ // This probably should be changed to work in accordance with the
+ // multiple file downloads above. However; well, that's for another
+ // version. Right now, the installation procedures should just be
+ // written out fully with what's above.
+ if ( is_array( $install ) ) {
+  foreach ( $install as $i ) {
+   // Replace the strings in the INSTALL json with the proper values.
+   $i = str_replace( "__FILE__" , $file , $i );
+   $i = str_replace( "__DATA__" , "$__data/assets/$type/$name/$version", $i );
+   exec( "$i" );
+  }
+ }
+
+ // Make the invoke file.
+ file_put_contents( "$__data/assets/$type/$name/$version/invoke" , $invoke );
+
+ __delTree( $__cache ); // Cleanup by deleting the cache directory.
+
 }
 
-function doDownload( $url ) {
+function __doDownload( $url ) {
  global $__cache;
  $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
- $return = exec( "curl -sL '$url' > '$__cache/" . $file['basename'] . "'" );
-}
-
-function doDirect( $url ) {
- global $__cache, $__data;
- exec( "curl -sL $url > '$__cache'");
-}
-
-function doZip( $url ) {
- global $__cache, $__data;
- exec( "curl -sL $url > '$__cache'");
- 
-}
-
-function doTgz( $url ) {
- global $__cache, $__data;
- exec( "curl -sL $url > '$__cache'");
- 
-}
-
-function doDmb( $url ) {
- global $__cache, $__data;
- exec( "curl -sL $url > '$__cache'");
- 
+ exec( "curl -sL '$url' > '$__cache/" . $file['basename'] . "'" );
+ if ( file_get_contents( "$__cache/$file" ) == 'Not Found' ) {
+  echo "BUNDLER ERROR: Bad URL";
+  return 5;
+ } else {
+  return $file['basename'];
+ }
 }

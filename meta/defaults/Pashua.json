@@ -1,2 +1,20 @@
-curl -sL http://www.bluem.net/files/Pashua.dmg > 
-hdiutil attach -nobrowse -quiet Pashua.dmg; cp -fR /Volumes/Pashua/Documentation.html /Users/Sven/Desktop/; cp -fR /Volumes/Pashua/Pashua.app /Users/Sven/Desktop/; hdiutil detach  -quiet /Volumes/Pashua
+{
+"name":"Pashua",
+"type":"utility",
+"versions":{
+  "default":{
+    "version":"default",
+    "get-method":"dmg",
+    "invoke": "null",
+    "files":{
+     "1":"http://www.bluem.net/files/Pashua.dmg"
+     },
+    "install":{
+      "1":"hdiutil attach -nobrowse -quiet __FILE__",
+      "2":"cp -f /Volumes/Pashua/Documentation.html __DATA__",
+      "3":"cp -fR /Volumes/Pashua/Pashua.app __DATA__",
+      "4":"hdiutil detach -quiet /Volumes/Pashua"
+    }
+  }
+ }
+}
