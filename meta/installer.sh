@@ -19,14 +19,14 @@ fi
 if [ ! -d "$data/assets" ]; then
   mkdir "$data/assets"
 fi
-if [ ! -d "$data/assets/utilities" ]; then
-  mkdir "$data/assets/utilities"
+if [ ! -d "$data/assets/utility" ]; then
+  mkdir "$data/assets/utility"
 fi
-if [ ! -d "$data/assets/utilities/terminal-notifier" ]; then
-  mkdir "$data/assets/utilities/terminal-notifier"
+if [ ! -d "$data/assets/utility/terminal-notifier" ]; then
+  mkdir "$data/assets/utility/terminal-notifier"
 fi
-if [ ! -d "$data/assets/utilities/terminal-notifier/default" ]; then
-  mkdir "$data/assets/utilities/terminal-notifier/default"
+if [ ! -d "$data/assets/utility/terminal-notifier/default" ]; then
+  mkdir "$data/assets/utility/terminal-notifier/default"
 fi
 if [ ! -d "$cache" ]; then
   mkdir "$cache"
@@ -46,17 +46,19 @@ cd ..
 rm -fR installer
 
 # Grab the Terminal-Notifier utility, and install it to the data directory
-curl -sL "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true" > "$data/assets/utilities\
-/terminal-notifier.zip"
-unzip -oq "$data/assets/utilities/terminal-notifier.zip" -d "$data/assets/utilities/terminal-notifier/default/"
-rm "$data/assets/utilities/terminal-notifier.zip"
+curl -sL "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true" > "$cache/terminal-notifier.zip"
+cd "$cache"
+unzip -oq "terminal-notifier.zip"
+cp -fR terminal-notifier.app "$data/assets/utility/terminal-notifier/default"
+rm -fR "$cache/terminal*"
+cd - > /dev/null
 
 # Create the "invoke" file
 echo "terminal-notifier.app/Contents/MacOS/terminal-notifier" \
-> "$data/assets/utilities/terminal-notifier/default/invoke"
+> "$data/assets/utility/terminal-notifier/default/invoke"
 
 # Send a message to the user via the terminal-notifier
-`"$data/assets/utilities/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
+`"$data/assets/utility/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
 -title 'Alfred Bundler Installation' -message 'A workflow that you use has \
 requested its installation.'`
 
