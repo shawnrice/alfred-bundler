@@ -9,8 +9,12 @@
  *
  *
  **/
-// Define the global bundler version.
-$bundler_version="aries";
+
+if ( ! isset( $bundler_version ) ) {
+  // Define the global bundler versions.
+  $bundler_version       = file_get_contents( "$__data/meta/version_major" );
+  $bundler_minor_version = file_get_contents( "$__data/meta/version_minor" );
+}
 
 function downloadFile( $file , $version = "default" ) {
 
@@ -72,28 +76,3 @@ function download_zip( $dir , $url , $folder , $data , $cache ) {
   exec( "mv -f '$cache/$id/$folder' '$dir'" );
   return TRUE;
 }
-
-// For convenience, from the PHP docs
-function delTree( $dir ) {
-   $files = array_diff( scandir( $dir ), array( '.' , '..' ) );
-    foreach ($files as $file) {
-      ( is_dir( "$dir/$file" ) ) ? delTree( "$dir/$file" ) : unlink( "$dir/$file" );
-    }
-  return rmdir( $dir );
-} // End delTree()
-
-/**
- * Makes all the directories in a path if they do not already exist.
- **/
-function makeTree( $dir ) {
-  $parts = explode( "/" , $dir );
-  $path  = '';
-  foreach ( $parts as $part ) {
-    if ( ! empty( $part ) ) {
-      $path .= "/$part";
-      if ( ! file_exists( $path ) ) {
-          mkdir( $path );
-      }
-    }
-  }
-} // End makeTree()

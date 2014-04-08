@@ -1,35 +1,48 @@
 <?php
 
+require_once( 'includes/registry-functions.php' );
+require_once( 'includes/helper-functions.php' );
+
+$__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+$__cache = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
 
-function loadAsset( $name , $version = "default" , $bundle , $kind = "php" , $json = "" ) {
+if ( ! isset( $bundler_version ) ) {
+  // Define the global bundler versions.
+  $bundler_version       = file_get_contents( "$__data/meta/version_major" );
+  $bundler_minor_version = file_get_contents( "$__data/meta/version_minor" );
+}
+
+// Since this is a PHP bundler, we'll assume that the default type is PHP.
+function loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $json = '' ) {
+
   global $bundler_version;
   $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 
-  if ( empty( $version ) ) $version = "default"; // This shouldn't be needed....
+  if ( empty( $version ) ) $version = 'default'; // This shouldn't be needed....
   if ( ! empty( $bundle ) ) registerAsset( $bundle , $name , $version );
 
   // First: see if the file exists.
-  if ( file_exists( "$__data/assets/$kind/$name/$version/invoke" ) ) {
+  if ( file_exists( "$__data/assets/$type/$name/$version/invoke" ) ) {
     // It exists, so just return the invoke parameters.
-    $invoke = file_get_contents( "$__data/assets/$kind/$name/$version/invoke" );
+    $invoke = file_get_contents( "$__data/assets/$type/$name/$version/invoke" );
     $invoke = explode( "\n" , $invoke );
     foreach ( $invoke as $k => $v ) {
-      $invoke[$k] = "$__data/assets/$kind/$name/$version/$v";
+      $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
     }
     return $invoke;
   }
-  // File doesn't exist, so let's look to see if it's in the defaults.
-  if ( file_exists( "$__data/meta/defaults/$name.json" ) ) {
+
+  // Asset doesn't exist, so let's look to see if it's in the defaults.
+  if ( file_exists( "$__data/meta/defaults/$name.json" ) && empty( $json ) ) {
 
     $info = json_decode( file_get_contents( "$__data/meta/defaults/$name.json" ) , TRUE);
-    $versions = array_keys( $info['versions'] );
+    $versions = array_keys( $info[ 'versions' ] );
     $json = file_get_contents( "$__data/meta/defaults/$name.json" );
     if ( in_array( $version , $versions ) ) {
       doDownload( $json , $version , $__data, $kind , $name );
     }
-  }
-  if ( ! empty( $json ) ) {
+  } else if ( ! empty( $json ) ) {
     // Since the json variable is not empty and the asset doesn't exist, we'll
     // assume it's new.
     doDownload( $json , $version , $__data, $kind , $name );
@@ -78,52 +91,57 @@ function doDownload( $json , $version , $__data , $kind , $name ) {
 
 } // End doDownload()
 
-/**
- * Installs the Alfred Bundler utility.
- **/
-function __installBundler() {
-  // Install the Alfred Bundler
 
-  global $bundler_version;
+function __installAsset( $json , $version ) {
+ global $bundler_version, $__data, $__cache;
 
-  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version/meta/installer.sh";
-  $__data    = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-  $__cache     = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
+ $json = json_decode( $json , TRUE );
 
-  // Make the directories
-  if ( ! file_exists( $cache ) ) {
-    mkdir( $cache );
+ $name = $json[ 'name' ];
+ $type = $json[ 'type' ];
+
+ // Check to see if the version asked for is in the json; else, fallback to
+ // default if exists; if not, throw error.
+ if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
+  if ( ! isset( $json['versions'][ 'default' ] ) ) {
+   echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
+   return FALSE;
+  } else {
+   $version = 'default';
   }
-  if ( ! file_exists( "$__cache/installer" ) ) {
-    mkdir( "$__cache/installer" );
-  }
-  // Download the installer
-  // I'm throwing in the second bash command to delay the execution of the next
-  // exec() command. I'm not sure if that's necessary.
-  exec( "curl -sL '$installer' > '$cache/installer/installer.sh' && echo '..'" );
-  // Run the installer
-  exec( "sh '$cache/installer/installer.sh' && echo '..' " );
+ }
 
-} // End installUtility()
+ $get     = $json[ $version ][ 'get-method' ];
+ $invoke  = $json[ $version ][ 'invoke' ];
+ $install = $json[ $version ][ 'install' ];
 
-/*******************************************************************************
- *
- ******************************************************************************/
+}
 
-/**
- * Makes all the directories in a path if they do not already exist.
- **/
-function makeTree( $dir ) {
-  $parts = explode( '/' , $dir );
-  $path = '';
-  foreach ( $parts as $part ) {
-    if ( ! empty( $part ) ) {
-      $path .= '/$part';
-    }
-    if ( ! file_exists( $path ) ) {
-      if ( ! empty( $path ) ) {
-        mkdir( $path );
-      }
-    }
-  }
-} // End makeTree()
+function doDownload( $url ) {
+ global $__cache;
+ $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
+ $return = exec( "curl -sL '$url' > '$__cache/" . $file['basename'] . "'" );
+}
+
+function doDirect( $url ) {
+ global $__cache, $__data;
+ exec( "curl -sL $url > '$__cache'");
+}
+
+function doZip( $url ) {
+ global $__cache, $__data;
+ exec( "curl -sL $url > '$__cache'");
+ 
+}
+
+function doTgz( $url ) {
+ global $__cache, $__data;
+ exec( "curl -sL $url > '$__cache'");
+ 
+}
+
+function doDmb( $url ) {
+ global $__cache, $__data;
+ exec( "curl -sL $url > '$__cache'");
+ 
+}

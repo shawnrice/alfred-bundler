@@ -35,8 +35,8 @@
 ***/
 
 // Define the global bundler version.
-$bundler_version="aries";
-$bundler_minor_version='.1';
+$bundler_version       = "aries";
+$bundler_minor_version = '.1';
 
 // Let's just make sure that the utility exists before we try to use it.
 $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
@@ -44,6 +44,7 @@ if ( ! file_exists( "$__data" ) ) {
   __installBundler();
 }
 
+// This file will be there because it either was or we just installed it.
 require_once( "$__data/bundler.php" );
 
 /**
@@ -81,3 +82,31 @@ function __load( $name , $version = 'default' , $type = 'php' , $json = '' ) {
   return FALSE;
 
 } // End __load()
+
+/**
+ * Installs the Alfred Bundler utility.
+ **/
+function __installBundler() {
+  // Install the Alfred Bundler
+
+  global $bundler_version;
+
+  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version/meta/installer.sh";
+  $__data    = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+  $__cache   = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
+
+  // Make the directories
+  if ( ! file_exists( $cache ) ) {
+    mkdir( $cache );
+  }
+  if ( ! file_exists( "$__cache/installer" ) ) {
+    mkdir( "$__cache/installer" );
+  }
+  // Download the installer
+  // I'm throwing in the second bash command to delay the execution of the next
+  // exec() command. I'm not sure if that's necessary.
+  exec( "curl -sL '$installer' > '$cache/installer/installer.sh' && echo '..'" );
+  // Run the installer
+  exec( "sh '$cache/installer/installer.sh' && echo '..' " );
+
+} // End installUtility()
