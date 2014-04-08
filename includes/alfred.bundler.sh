@@ -4,6 +4,7 @@
 # Define the global bundler version.
 bundler_version="aries";
 
+
 function load {
  if [ -f "$data/$1" ]; then
   a=1
