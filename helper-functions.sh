@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Define the global bundler version.
+bundler_version="aries";
+
 ################################################################################
 # Global Variables
 ################################################################################
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
-cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler"
+data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
+cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 now=`date "+%s"`
 
 
@@ -21,7 +24,7 @@ function dir {
 
 # Just grabs something via cURL
 function get {
-  curl -sL "$1" "$2"
+  curl -sL "$1" > "$2"
 }
 
 function cleanUp {

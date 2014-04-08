@@ -1,6 +1,5 @@
 <?php
 
-
 /***
   Usage: at minimum, you need to use load( 'asset_name' );
   This minimal usage works IF and ONLY IF the library is found in the
@@ -35,8 +34,11 @@
 
 ***/
 
+// Define the global bundler version.
+$bundler_version="aries";
+
 // Let's just make sure that the utility exists before we try to use it.
-$data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+$data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 if ( ! file_exists( "$data" ) ) {
   installUtility();
 }
@@ -48,14 +50,14 @@ if ( ! file_exists( "$data" ) ) {
  *
  *  If you are loading a "utility" application, then the function will return the full
  *  path to the function so that you can invoke it.
- *  
+ *
  **/
 function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
   if ( file_exists( "info.plist" ) ) {
     // Grab the bundle ID from the plist file.
     $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
   } else {
-    $bundle = "";
+    $bundle = '';
   }
 
   if ( $kind == "php" ) {
@@ -64,7 +66,7 @@ function __load( $name , $version = 'default' , $kind = 'php' , $json = '' ) {
       require_once( $asset );
     }
     return TRUE;
-  } else if ( $kind == "utilities" ) {
+  } else if ( $kind == "utility" ) {
     $asset = loadAsset( $name , $version , $bundle , strtolower($kind) , $json );
     $asset = str_replace(' ' , '\ ' , $asset[0]);
     return $asset;

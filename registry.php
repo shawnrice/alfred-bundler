@@ -5,6 +5,8 @@
  *  future to allow for the uninstallation of orphaned assets.
  *
  **/
+// Define the global bundler version.
+$bundler_version="aries";
 
 if ( count( $argv ) != 4 ) {
   echo "Invoke the registry script with only three arguments.";
@@ -18,10 +20,12 @@ $version = $argv[3];
 registerAsset( $bundle , $asset , $version );
 
 function registerAsset( $bundle , $asset , $version ) {
+  global $bundler_version;
+
   // Exit the function if there is no bundle passed.
   if ( empty( $bundle ) ) return 0;
 
-  $data   = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
+  $data   = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
   $update = FALSE;
   if ( ! file_exists( $data ) ) mkdir( $data );
   if ( ! file_exists( "$data/data" ) ) mkdir( "$data/data" );

@@ -9,12 +9,16 @@
  *
  *
  **/
+// Define the global bundler version.
+$bundler_version="aries";
 
 function downloadFile( $file , $option = "default" ) {
 
+  global $bundler_version;
+
   $HOME     = exec( 'echo $HOME' );
-  $data     = "$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler";
-  $cache    = "$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler";
+  $data     = "$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+  $cache    = "$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
   $file     = "$data/meta/defaults/$file.json";
   $json     = json_decode( file_get_contents( $file ), ARRAY_A );
   $name     = $json[ 'name' ];

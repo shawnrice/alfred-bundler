@@ -2,10 +2,13 @@
 
 # This script installs the Alfred Bundler.
 
+# Define the global bundler version.
+bundler_version="aries";
+
 # Define locations
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/master"
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
-cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler"
+data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
+cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 # For now, we're using the 'initial' branch.
 gitzip="https://github.com/shawnrice/alfred-bundler/archive/initial.zip"
 
