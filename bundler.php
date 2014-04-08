@@ -30,7 +30,6 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     foreach ( $invoke as $k => $v ) {
       $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
     }
-    echo "We return invoke";
     return $invoke;
   }
 
