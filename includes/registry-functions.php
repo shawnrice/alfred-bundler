@@ -23,7 +23,7 @@ function __registerAsset( $bundle , $asset , $version ) {
 
   if ( isset( $registry ) && is_array( $registry ) ) {
     if ( isset( $registry[ $asset ] ) ) {
-      if ( ! in_array( $version , $registry[ $asset ] ) ) {
+      if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
         $registry[ $asset ][ $version ] = array();
         $update = TRUE;
       }
@@ -32,15 +32,11 @@ function __registerAsset( $bundle , $asset , $version ) {
         $update = TRUE;
       }
     } else {
-      $registry[$asset] = array();
-      $registry[ $asset ][ $version ] = array( $bundle );
+      $registry[ $asset ] = array( $version => $bundle );
       $update = TRUE;
     }
   } else {
-    $registry = array();
-    $registry[ $asset ] = array();
-    $registry[ $asset ][ $version ] = array();
-    $registry[ $asset ][ $version ][] = $bundle;
+    $registry = array( $asset => array( $version => $bundle ) );
     $update = TRUE;
   }
 

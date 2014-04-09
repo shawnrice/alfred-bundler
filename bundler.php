@@ -26,6 +26,13 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
   if ( file_exists( "$__data/assets/$type/$name/$version/invoke" ) ) {
     // It exists, so just return the invoke parameters.
     $invoke = file_get_contents( "$__data/assets/$type/$name/$version/invoke" );
+
+    if ( $type == 'utility' ) {
+      // Utilities should have only a single line invoke file, so that's
+      // just fine to consider it a string.
+      exec( "includes/gatekeeper.sh '$name' '$__data/assets/$type/$name/$version/$invoke'");
+    }
+
     $invoke = explode( "\n" , $invoke );
     foreach ( $invoke as $k => $v ) {
       $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
