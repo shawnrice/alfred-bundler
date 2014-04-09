@@ -1,1 +1,17 @@
- 
+{
+"name":"BashWorkflowHandler",
+"type":"bash",
+"versions":{
+  "default":{
+    "version":"default",
+    "get-method":"direct",
+    "invoke": "workflowHandler.sh",
+    "files":{
+      "one":"https://raw.github.com/markokaestner/bash-workflow-handler/master/workflowHandler.sh"
+     },
+     "install":{
+      "1":"cp -f '__CACHE__/workflowHandler.sh' __DATA__"
+     }
+  }
+ }
+}

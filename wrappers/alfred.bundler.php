@@ -55,22 +55,26 @@ require_once( "$__data/bundler.php" );
  *  If you are loading a "utility" application, then the function will return the full
  *  path to the function so that you can invoke it.
  *
+ *  If you are passing your own json, then include it as a file path.
+ *
  **/
 function __load( $name , $version = 'default' , $type = 'php' , $json = '' ) {
-  if ( file_exists( "info.plist" ) ) {
+  if ( file_exists( 'info.plist' ) ) {
     // Grab the bundle ID from the plist file.
     $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'" );
+  } else if ( file_exists( '../info.plist' ) ) {
+    $bundle = exec( "/usr/libexec/PlistBuddy -c 'print :bundleid' '../info.plist'" );
   } else {
     $bundle = '';
   }
 
-  if ( $type == "php" ) {
+  if ( $type == 'php' ) {
     $assets = __loadAsset( $name , $version , $bundle , strtolower($type) , $json );
     foreach ($assets as $asset ) {
       require_once( $asset );
     }
     return TRUE;
-  } else if ( $type == "utility" ) {
+  } else if ( $type == 'utility' ) {
     $asset = __loadAsset( $name , $version , $bundle , strtolower($type) , $json );
     $asset = str_replace(' ' , '\ ' , $asset[0]);
     return $asset;

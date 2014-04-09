@@ -1,0 +1,17 @@
+{
+"name":"GlyphManager",
+"type":"utility",
+"versions":{
+  "default":{
+    "version":"default",
+    "get-method":"direct",
+    "invoke": "GlyphManager",
+    "files":{
+     "1":"https://github.com/Ritashugisha/GlyphManager/blob/master/build/Release/GlyphManager?raw=true"
+    },
+    "install":{
+     "1":"cp -f '__CACHE__/GlyphManager' '__DATA__'"
+    }
+  },
+ }
+}
