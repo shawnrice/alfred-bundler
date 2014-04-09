@@ -31,9 +31,9 @@ fi
 
 # Grab the bundle id.
  if [ -f 'info.plist' ]; then
-  local bundle="/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'"
+  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
  elif [ -f '../info.plist' ]; then
-  local bundle="/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'"
+  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
  else
   local bundle='..'
  fi
@@ -55,8 +55,8 @@ function __installUtility {
 
 # Just a helper function to make a directory if it doesn't exist.
 function dir {
- if [ ! -d $1 ]; then
-  mkdir $1
+ if [ ! -d "$1" ]; then
+  mkdir "$1"
  fi
 }
 

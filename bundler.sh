@@ -21,16 +21,16 @@ function __loadAsset {
       invoke=''
     fi
     echo "$__data/assets/$type/$name/$version/$invoke"
-    if [ ! -z $bundle ]  && [ $bundle != '..' ]; then
+    if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
       php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
     fi
     exit
   fi
   if [ -z "$json" ]; then
     if [ -f "$__data/meta/defaults/$name.json" ]; then
-      result=`php "$__data/includes/installAsset.php" "$__data/meta/defaults/$name.json" "$version"`
-      if [ ! -z $result ]; then
-        echo $result
+      php "$__data/includes/installAsset.php" "$__data/meta/defaults/$name.json" "$version"
+      if [ ! -z "$result" ]; then
+        echo "$result"
         exit
       fi
       if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
@@ -39,7 +39,7 @@ function __loadAsset {
           invoke=''
         fi
         echo "$__data/assets/$type/$name/$version/$invoke"
-        if [ ! -z $bundle ]  && [ $bundle != '..' ]; then
+        if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
           php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
         fi
         exit

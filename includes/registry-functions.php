@@ -1,5 +1,8 @@
 <?php
 
+$bundler_version = "aries";
+$__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+
 if ( ! isset( $bundler_version ) ) {
   // Define the global bundler versions.
   $bundler_version       = file_get_contents( "$__data/meta/version_major" );
@@ -26,6 +29,9 @@ function __registerAsset( $bundle , $asset , $version ) {
       if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
         $registry[ $asset ][ $version ] = array();
         $update = TRUE;
+      }
+      if ( ! is_array( $registry[ $asset ][ $version] ) ) {
+        $registry[ $asset ][ $version ] = array();
       }
       if ( ! in_array( $bundle , $registry[ $asset ][ $version ] ) ) {
         $registry[ $asset ][ $version ][] = $bundle;
