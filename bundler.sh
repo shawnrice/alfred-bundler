@@ -20,6 +20,7 @@ function __loadAsset {
     if [ $invoke = 'null' ]; then
       invoke=''
     fi
+    "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke"
     echo "$__data/assets/$type/$name/$version/$invoke"
     if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
       php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
