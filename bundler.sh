@@ -34,8 +34,12 @@ function __loadAsset {
         exit
       fi
       if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
-        echo `cat "$__data/assets/$type/$name/$version/invoke"`
-        if [ ! -z $bundle ]; then
+        invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
+        if [ $invoke = 'null' ]; then
+          invoke=''
+        fi
+        echo "$__data/assets/$type/$name/$version/$invoke"
+        if [ ! -z $bundle ]  && [ $bundle != '..' ]; then
           php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
         fi
         exit

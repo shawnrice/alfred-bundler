@@ -22,6 +22,13 @@ function __load {
  local type="$3"
  local json="$4"
 
+if [ -z $version ]; then
+ version="default"
+fi
+if [ -z $type ]; then
+ type="bash"
+fi
+
 # Grab the bundle id.
  if [ -f 'info.plist' ]; then
   local bundle="/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'"
@@ -31,7 +38,8 @@ function __load {
   local bundle='..'
  fi
 
- __loadAsset "$name" "$version" "$bundle" "$type" "$json"
+ __asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
+ echo "$__asset"
 
 }
 
