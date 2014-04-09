@@ -59,7 +59,7 @@ function __installAsset( $json , $version ) {
   foreach ( $install as $i ) {
    // Replace the strings in the INSTALL json with the proper values.
    $i = str_replace( "__FILE__" , "'$__cache/$file'" , $i );
-   $i = str_replace( "__CACHE__" , "'$__cache'" , $i );
+   $i = str_replace( "__CACHE__" , "$__cache" , $i );
    $i = str_replace( "__DATA__" , "'$__data/assets/$type/$name/$version/'", $i );
    exec( "$i" );
   }
