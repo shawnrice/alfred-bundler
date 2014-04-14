@@ -73,3 +73,6 @@ fi
 
 # Include the bundler.
 . "$__data/bundler.sh"
+
+# Check for updates.
+sh "$__data/meta/update.sh" > /dev/null 2>&1

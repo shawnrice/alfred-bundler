@@ -22,6 +22,10 @@ if ( ! file_exists( "$__data" ) ) {
 // This file will be there because it either was or we just installed it.
 require_once( "$__data/bundler.php" );
 
+// Check for bundler minor update
+$cmd = "sh '$__data/meta/update.sh' > /dev/null 2>&1";
+exec( $cmd );
+
 /**
  *  This is the only function the workflow author needs to invoke.
  *  If the asset to be loaded is a PHP library, then you just need to call the function,
