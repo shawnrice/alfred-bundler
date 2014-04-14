@@ -3,7 +3,6 @@
 "type":"utility",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"dmg",
     "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
     "files":{
@@ -16,7 +15,6 @@
     }
   },
   "3.0.0-beta7":{
-    "version":"3.0.0-beta7",
     "get-method":"dmg",
     "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
     "files":{
@@ -29,7 +27,6 @@
     }
   },
   "2.1.1":{
-    "version":"2.1.1",
     "get-method":"dmg",
     "invoke": "CocoaDialog.app/Contents/MacOS/CocoaDialog",
     "files":{

@@ -3,7 +3,6 @@
 "type":"bash",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"direct",
     "invoke": "workflowHandler.sh",
     "files":{

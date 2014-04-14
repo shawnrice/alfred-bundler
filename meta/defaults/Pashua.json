@@ -3,7 +3,6 @@
 "type":"utility",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"dmg",
     "invoke": "null",
     "files":{

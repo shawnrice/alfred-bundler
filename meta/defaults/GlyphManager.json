@@ -3,7 +3,6 @@
 "type":"utility",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"direct",
     "invoke": "GlyphManager",
     "files":{

@@ -3,7 +3,6 @@
 "type":"php",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"direct",
     "invoke": "workflows.php",
     "files":{
@@ -14,7 +13,6 @@
      }
   },
   "3.3":{
-   "version":"3.3",
    "get-method":"direct",
    "invoke": "workflows.php",
    "files":{

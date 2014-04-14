@@ -11,10 +11,9 @@
 {
 "name":"ASSET-NAME",     # Do not duplicate an asset name. Check the "meta/defaults"
                          # folder so as not to duplicate.
-"type":"LANAGUAGE|utility", # Currently, only php and utility are fully supported.
+"type":"LANGUAGE|utility", # Currently, only php and utility are fully supported.
 "versions":{
   "default":{            # Versions are keys here but also the first value.
-    "version":"default", # It's best to include a 'default' version.
     "get-method":"zip",  # methods: direct, zip, tar.gz, tgz
     "invoke": "...",     # this is how the workflow invokes it. Often, it's just a path.
     "files":{
@@ -33,7 +32,6 @@
     }
   },
   "1.5.0":{              # a numbered version. Bascially everything below is the same.
-    "version":"1.5.0",
     "get-method":"zip",
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{

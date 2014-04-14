@@ -3,7 +3,6 @@
 "type":"utility",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"direct",
     "invoke": "SetupIconsForTheme",
     "files":{
@@ -14,7 +13,6 @@
     }
   },
   "0.1.0":{
-    "version":"0.1.0",
     "get-method":"direct",
     "invoke": "SetupIconsForTheme",
     "files":{

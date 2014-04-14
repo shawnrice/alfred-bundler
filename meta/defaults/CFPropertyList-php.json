@@ -3,7 +3,6 @@
 "type":"php",
 "versions":{
   "default":{
-   "version":"default",
    "get-method":"zip",
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
    "files":{
@@ -13,8 +12,7 @@
     "1" : "cp -fR CFPropertyList/classes/CFPropertyList"
    },
   },
-  "3.3":{
-   "version":"2.0",
+  "2.0":{
    "get-method":"zip",
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
    "files":{

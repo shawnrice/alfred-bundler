@@ -3,7 +3,6 @@
 "type":"utility",
 "versions":{
   "default":{
-    "version":"default",
     "get-method":"zip",
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{
@@ -14,7 +13,6 @@
     }
   },
   "1.5.0":{
-    "version":"1.5.0",
     "get-method":"zip",
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{
