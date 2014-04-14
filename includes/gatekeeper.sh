@@ -37,7 +37,7 @@ if [[ $version =~ "10.9" ]] || [[ $version =~ "10.8" ]]; then
   # Check to see if Gatekeeper is on.
   if [ "$status" = "assessments enabled" ]; then
     # It's enabled, so we'll see if the file has an exception logged.
-    spctl -a "$path" # > /dev/null 2>&1
+    spctl -a "$path" > /dev/null 2>&1
     if [ `echo "$?"` = "0" ]; then
       echo "okay"
       exit 0
