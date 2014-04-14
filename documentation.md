@@ -108,14 +108,15 @@ At minimum, you just need to include one of the wrappers in your workflow direct
 #### Using the __load() function
 
 Again, all you will need to invoke the bundler is to call a single ``__load`` function, which can take up to four arguments.
+
  1. Asset Name (required)
-  : The name of the asset called. This name needs to match an asset defined in a JSON file and is case sensitive.
+      * The name of the asset called. This name needs to match an asset defined in a JSON file and is case sensitive.
  2. Asset Version (optional)
-  : The version of the asset; defaults to "default"
+      * The version of the asset; defaults to "default"
  3. Type (optional)
-  : The type of the asset being called, either language or utility. If a language, then it will be the name of the language lowercase: php, bash.
+      * The type of the asset being called, either language or utility. If a language, then it will be the name of the language lowercase: php, bash.
  4. JSON file path (optional)
-  : A filepath to a custom JSON file that defines the asset. If you are using one of the default assets, then this is not needed.
+      * A filepath to a custom JSON file that defines the asset. If you are using one of the default assets, then this is not needed.
 
 For the PHP wrapper calling a PHP library, you will need only the name, and the same goes for the Bash wrapper calling a Bash library. However,
 if you want to call anything else, then you will need the first three arguments: Name, Version, and Type. If you want to use a non-default asset,
