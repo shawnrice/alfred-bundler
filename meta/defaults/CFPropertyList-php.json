@@ -3,24 +3,31 @@
 "type":"php",
 "versions":{
   "default":{
-   "get-method":"zip",
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
-   "files":{
-    "1":"https://github.com/rodneyrehm/CFPropertyList/archive/master.zip"
+   "files":[
+    {
+     "url":"https://github.com/rodneyrehm/CFPropertyList/archive/master.zip",
+     "method":"zip",
+     }
+   ]
    },
-   "install": {
-    "1" : "cp -fR CFPropertyList/classes/CFPropertyList"
-   },
+   "install":[
+     "cp -fR CFPropertyList/classes/CFPropertyList",
+    ],
   },
   "2.0":{
-   "get-method":"zip",
    "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
-   "files":{
-    "1":"https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip"
+   "files":[
+    {
+     "url":"https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip",
+     "method":"zip"
+    }
+   ]
+
    },
-   "install": {
-    "1" : "cp -fR CFPropertyList/classes/CFPropertyList"
-   },
+   "install": [
+    "cp -fR CFPropertyList/classes/CFPropertyList"
+   ],
   }
  }
 }

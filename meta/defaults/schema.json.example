@@ -14,32 +14,34 @@
 "type":"LANGUAGE|utility", # Currently, only php and utility are fully supported.
 "versions":{
   "default":{            # Versions are keys here but also the first value.
-    "get-method":"zip",  # methods: direct, zip, tar.gz, tgz
     "invoke": "...",     # this is how the workflow invokes it. Often, it's just a path.
-    "files":{
-     "1":"URL"           # Each separate file to download needs a URL; use a new key
-                         # for each file.
-    },
-    "install":{          # Install instructions. For version "aries" it will be just a
+    "files":[
+     {
+      "url":"URL",
+      "method":"zip",    # methods: direct, zip, tar.gz, tgz
+     },
+    ],
+    "install":[          # Install instructions. For version "aries" it will be just a
                          # list of shell commands. You can use the flags:
                          # __DATA__ for the bundler data directory
                          # __CACHE__ for the bundler cache directory, and
                          # __FILE__ for any particular needed.
                          # with "cp" always use "-f"; and if it is a .app or a folder,
                          # then use "-fR"; don't use mv.
-                         # Write the steps here numbered 1-n... as keys.
-     "1":"cp -f 'SOME FILE' '__DATA__'"
-    }
+     "cp -f 'SOME FILE' '__DATA__'",
+    ],
   },
   "1.5.0":{              # a numbered version. Bascially everything below is the same.
-    "get-method":"zip",
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
-    "files":{
-     "1":"https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true"
-    },
-    "install":{
-     "1":"cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
-    }
-  }
- }
+    "files":[
+     {
+     "url":"https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true",
+     "method":"zip",
+     },
+    ],
+    "install":[
+     "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'",
+    ],
+  },
+ },
 }

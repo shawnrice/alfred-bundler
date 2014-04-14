@@ -1,19 +1,21 @@
 {
-"name":"Pashua",
-"type":"utility",
-"versions":{
+ "name":"Pashua",
+ "type":"utility",
+ "versions":{
   "default":{
-    "get-method":"dmg",
-    "invoke": "null",
-    "files":{
-     "1":"http://www.bluem.net/files/Pashua.dmg"
-     },
-    "install":{
-      "1":"hdiutil attach -nobrowse -quiet __FILE__",
-      "2":"cp -f /Volumes/Pashua/Documentation.html __DATA__",
-      "3":"cp -fR /Volumes/Pashua/Pashua.app __DATA__",
-      "4":"hdiutil detach -quiet /Volumes/Pashua"
+   "invoke": "null",
+   "files":[
+    {
+     "url":"http://www.bluem.net/files/Pashua.dmg",
+     "method":"direct",
     }
-  }
+   ],
+   "install":[
+     "hdiutil attach -nobrowse -quiet __FILE__",
+     "cp -f /Volumes/Pashua/Documentation.html __DATA__",
+     "cp -fR /Volumes/Pashua/Pashua.app __DATA__",
+     "hdiutil detach -quiet /Volumes/Pashua",
+   ],
+  },
  }
 }
