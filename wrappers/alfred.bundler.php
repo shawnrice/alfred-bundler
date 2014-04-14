@@ -1,37 +1,12 @@
 <?php
 
 /***
-  Usage: at minimum, you need to use load( 'asset_name' );
-  This minimal usage works IF and ONLY IF the library is found in the
-  meta/defaults folder as ASSET.json (case sensitive). If you want to use a
-  version other than the newest (when the include files were written), then you
-  need to specify a version. If the library or the library version is not included
-  in the meta/defaults/ASSET.json file, then you need to append custom JSON to
-  let the bundler know where to find the file and how to get it. Look at the
-  meta/defaults/schema.json and the documentation to see how to contruct this JSON.
-  If you think that the library you need should be included as a default (i.e.
-  your use of it is not entirely an edge case), then send a pull request to the
-  github repo with the appropriate json file.
+  Main PHP interface for the Alfred Dependency Bundler. This file should be
+  the only one from the bundler that is distributed with your workflow.
 
-  To use an asset, you need to send the name (case sensitive), version, kind,
-  and custom json -- at most.
+  See documentation on how to use: http://shawnrice.github.io/alfred-bundler/
 
-  You don't have to do anything to install the bundler or include it in anyway
-  other than requiring this file because it will install the bundler if it isn't
-  already there.
-
-  Since this is the PHP bundler, the "kind" defaults to php. If you want to use
-  a helper utility, then use the "utility" argument as the "kind."
-
-  Remember, currently, the bundler is in early development, so there may be...
-  "quirks."
-
-  If you would like to contribute to the project, then find it on github or contact
-  the repo author via the forums or the Packal contact page:
-  http://www.packal.org/contact
-
-  Cheers.
-
+  License: GPLv3
 ***/
 
 // Define the global bundler version.

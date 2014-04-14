@@ -33,7 +33,7 @@ if [ -z $version ]; then
  version="default"
 fi
 if [ -z $type ]; then
- type="bash"
+ type="utility"
 fi
 
 # Grab the bundle id.
@@ -73,3 +73,5 @@ fi
 
 # Include the bundler.
 . "$__data/bundler.sh"
+
+__load "$1" "$2" "$3" "$4"
