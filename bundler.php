@@ -30,7 +30,8 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     if ( $type == 'utility' ) {
       // Utilities should have only a single line invoke file, so that's
       // just fine to consider it a string.
-      exec( "$__data/includes/gatekeeper.sh '$name' '$__data/assets/$type/$name/$version/$invoke'");
+      $cmd = escapeshellcmd("$__data/includes/gatekeeper.sh");
+      exec( "$cmd '$name' '$__data/assets/$type/$name/$version/$invoke'");
     }
 
     $invoke = explode( "\n" , $invoke );

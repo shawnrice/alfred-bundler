@@ -1,33 +1,30 @@
 {
-"name":"CFPropertyList-php",
-"type":"php",
-"versions":{
-  "default":{
-   "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
-   "files":[
-    {
-     "url":"https://github.com/rodneyrehm/CFPropertyList/archive/master.zip",
-     "method":"zip",
-     }
-   ]
-   },
-   "install":[
-     "cp -fR CFPropertyList/classes/CFPropertyList",
-    ],
-  },
-  "2.0":{
-   "invoke": "CFPropertyList/classes/CFPropertyList/CFPropertyList.php",
-   "files":[
-    {
-     "url":"https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip",
-     "method":"zip"
+    "name": "CFPropertyList-php",
+    "type": "php",
+    "versions": {
+        "default": {
+            "invoke": "CFPropertyList/CFPropertyList.php",
+            "files": [
+                {
+                    "url": "https://github.com/rodneyrehm/CFPropertyList/archive/master.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/CFPropertyList-master/classes/CFPropertyList' '__DATA__'"
+            ]
+        },
+        "2.0": {
+            "invoke": "CFPropertyList/CFPropertyList.php",
+            "files": [
+                {
+                    "url": "https://github.com/rodneyrehm/CFPropertyList/archive/v2.0.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/CFPropertyList-2.0/classes/CFPropertyList' '__DATA__'"
+            ]
+        }
     }
-   ]
-
-   },
-   "install": [
-    "cp -fR CFPropertyList/classes/CFPropertyList"
-   ],
-  }
- }
 }

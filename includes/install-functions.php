@@ -12,13 +12,11 @@ $__cache = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2
 
 function __installAsset( $json , $version ) {
  global $bundler_version, $__data, $__cache;
-
  if ( file_exists( $json ) ) {
   $json = file_get_contents( $json );
  }
 
  $json = json_decode( $json , TRUE );
-
  $name = $json[ 'name' ];
  $type = $json[ 'type' ];
 
@@ -33,23 +31,22 @@ function __installAsset( $json , $version ) {
   }
  }
 
- $get     = $json[ 'versions' ][ $version ][ 'get-method' ];
+
  $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
  $install = $json[ 'versions' ][ $version ][ 'install' ];
 
  // Download the file(s).
  foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
-  $file = __doDownload( $url );
-  // File not found on the internets... DIE.
+  $file = __doDownload( $url[ 'url' ] );
   if ( $file == '5' ) return FALSE;
- }
-
- if ( $get == 'zip' ) {
-  // Unzip the file into the cache directory, silently.
-  exec( "unzip -qo '$__cache/$file' -d '$__cache'" );
- } else if ( $get == 'tgz' || $get == 'tar.gz' ) {
-  // Untar the file into the cache directory, silently.
-  exec( "tar xzf '$__cache/$file' -C '$__cache'");
+  // File not found on the internets... DIE.
+  if ( $url['method'] == 'zip' ) {
+   // Unzip the file into the cache directory, silently.
+   exec( "unzip -qo '$__cache/$file' -d '$__cache'" );
+  } else if ( $url['method'] == 'tgz' || $url['method'] == 'tar.gz' ) {
+   // Untar the file into the cache directory, silently.
+   exec( "tar xzf '$__cache/$file' -C '$__cache'");
+  }
  }
 
  // For now, any other methods should be taken care of in the install
@@ -66,13 +63,13 @@ function __installAsset( $json , $version ) {
  if ( is_array( $install ) ) {
   foreach ( $install as $i ) {
    // Replace the strings in the INSTALL json with the proper values.
-   $i = str_replace( "__FILE__" , "'$__cache/$file'" , $i );
+   $i = str_replace( "__FILE__"  , "$__cache/$file" , $i );
    $i = str_replace( "__CACHE__" , "$__cache" , $i );
-   $i = str_replace( "__DATA__" , "'$__data/assets/$type/$name/$version/'", $i );
+   $i = str_replace( "__DATA__"  , "$__data/assets/$type/$name/$version/", $i );
    exec( "$i" );
   }
  }
-
+ 
  // Make the invoke file.
  file_put_contents( "$__data/assets/$type/$name/$version/invoke" , $invoke );
 

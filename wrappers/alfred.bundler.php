@@ -36,7 +36,7 @@
 
 // Define the global bundler version.
 $bundler_version       = "aries";
-$bundler_minor_version = '.1';
+$bundler_minor_version = '1';
 
 // Let's just make sure that the utility exists before we try to use it.
 $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";

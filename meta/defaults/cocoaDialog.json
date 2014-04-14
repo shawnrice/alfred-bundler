@@ -1,48 +1,48 @@
 {
- "name":"cocoaDialog",
- "type":"utility",
- "versions":{
-  "default":{
-    "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
-    "files":[
-     {
-     "url":"https://github.com/downloads/mstratman/cocoadialog/cocoaDialog_3.0.0-beta7.dmg",
-     "method":"direct",
-     }
-    ],
-    "install":[
-     "hdiutil attach -nobrowse -quiet __FILE__",
-     "cp -fR /Volumes/cocoaDialog.app/CocoaDialog.app __DATA__",
-     "hdiutil detach -quiet /Volumes/cocoaDialog.app",
-    ]
-  },
-  "3.0.0-beta7":{
-    "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
-    "files":[
-     {
-     "url":"https://github.com/downloads/mstratman/cocoadialog/cocoaDialog_3.0.0-beta7.dmg",
-     "method":"direct",
-     }
-    ],
-    "install":[
-     "hdiutil attach -nobrowse -quiet __FILE__",
-     "cp -fR /Volumes/cocoaDialog.app/CocoaDialog.app __DATA__",
-     "hdiutil detach -quiet /Volumes/cocoaDialog.app",
-    ]
-  },
-  "2.1.1":{
-   "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
-   "files":[
-    {
-    "url":"https://github.com/downloads/mstratman/cocoadialog/CocoaDialog-2.1.1.dmg",
-    "method":"direct",
+    "name": "cocoaDialog",
+    "type": "utility",
+    "versions": {
+        "default": {
+            "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
+            "files": [
+                {
+                    "url": "https://github.com/downloads/mstratman/cocoadialog/cocoaDialog_3.0.0-beta7.dmg",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "hdiutil attach -nobrowse -quiet '__FILE__'",
+                "cp -fR /Volumes/cocoaDialog.app/CocoaDialog.app '__DATA__'",
+                "hdiutil detach -quiet /Volumes/cocoaDialog.app"
+            ]
+        },
+        "3.0.0-beta7": {
+            "invoke": "CocoaDialog.app/Contents/MacOS/cocoaDialog",
+            "files": [
+                {
+                    "url": "https://github.com/downloads/mstratman/cocoadialog/cocoaDialog_3.0.0-beta7.dmg",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "hdiutil attach -nobrowse -quiet '__FILE__'",
+                "cp -fR /Volumes/cocoaDialog.app/CocoaDialog.app '__DATA__'",
+                "hdiutil detach -quiet /Volumes/cocoaDialog.app"
+            ]
+        },
+        "2.1.1": {
+            "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
+            "files": [
+                {
+                    "url": "https://github.com/downloads/mstratman/cocoadialog/CocoaDialog-2.1.1.dmg",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "hdiutil attach -nobrowse -quiet '__FILE__'",
+                "cp -fR /Volumes/CocoaDialog/CocoaDialog.app '__DATA__'",
+                "hdiutil detach -quiet /Volumes/CocoaDialog"
+            ]
+        }
     }
-   ],
-   "install":[
-    "hdiutil attach -nobrowse -quiet __FILE__",
-    "cp -fR /Volumes/CocoaDialog/CocoaDialog.app __DATA__",
-    "hdiutil detach -quiet /Volumes/CocoaDialog",
-   ],
-  }
- }
 }

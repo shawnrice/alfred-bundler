@@ -1,0 +1,18 @@
+{
+    "name": "php5.5.5-cli",
+    "type": "utility",
+    "versions": {
+        "default": {
+            "invoke": "php5.5.5-cli",
+            "files": [
+                {
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/php-5.5.5-cli.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/php-5.5.5-cli' '__DATA__'"
+            ]
+        }
+    }
+}
