@@ -51,8 +51,7 @@ function __load( $name , $version = 'default' , $type = 'php' , $json = '' ) {
     return TRUE;
   } else if ( $type == 'utility' ) {
     $asset = __loadAsset( $name , $version , $bundle , strtolower($type) , $json );
-    $asset = str_replace(' ' , '\ ' , $asset[0]);
-    return $asset;
+    return str_replace(' ' , '\ ' , $asset[0]);
   } else {
     return __loadAsset( $name , $version , $bundle , strtolower($type) , $json );
   }
@@ -87,4 +86,4 @@ function __installBundler() {
   // Run the installer
   exec( "sh '$__cache/installer/installer.sh'" );
 
-} // End installUtility()
+} // End __installBundler()

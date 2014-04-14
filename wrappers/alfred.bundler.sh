@@ -51,7 +51,7 @@ fi
 }
 
 # This just downloads the install script and starts it up.
-function __installUtility {
+function __installBundler {
   local installer="https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh"
   dir "$__cache"
   dir "$__cache/installer"
@@ -68,7 +68,7 @@ function dir {
 }
 
 if [ ! -f "$__data/bundler.sh" ]; then
- __installUtility
+ __installBundler
 fi
 
 # Include the bundler.
