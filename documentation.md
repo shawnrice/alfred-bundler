@@ -134,7 +134,7 @@ You could also call it with a longer syntax.
 
 ````
 require_once('alfred.bundler.php');
-__load('Workflows', '3.3', 'php');
+__load('Workflows', '0.3.3', 'php');
 ````
 
 #### Loading a utility with PHP
