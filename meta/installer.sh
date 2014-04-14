@@ -7,8 +7,8 @@ bundler_version="aries";
 
 # Define locations
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
-cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
+__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
+__cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 # For now, we're using the 'initial' branch.
 gitzip="https://github.com/shawnrice/alfred-bundler/archive/$bundler_version.zip"
 
