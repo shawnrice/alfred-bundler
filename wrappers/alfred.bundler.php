@@ -72,7 +72,7 @@ function __installBundler() {
   // Install the Alfred Bundler
 
   global $bundler_version, $__data;
-
+echo "here";
   $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh";
   $__cache   = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
