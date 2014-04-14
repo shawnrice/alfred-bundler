@@ -73,22 +73,22 @@ The following assets are currently "included" with the bundler.
 
 **PHP**
 
- 1. Workflows.php (v3.3)
- * CFPropertyList (v2.0)
+ 1. [Workflows.php](http://dferg.us/workflows-class/) (v0.3.3)
+ * [CFPropertyList](https://github.com/rodneyrehm/CFPropertyList) (v2.0)
 
 **Bash**
 
- 1. BashWorkflowHandler
+ 1. [BashWorkflowHandler](https://github.com/markokaestner/bash-workflow-handler)
 
 **Utilities**
 
- 1. SetupIconsForTheme
- * GlyphManager
- * Terminal-Notifier (v1.5.0)
- * CocoaDialog
+ 1. [SetupIconsForTheme](https://github.com/clintxs/alfred-icons)
+ * [GlyphManager](https://github.com/Ritashugisha/GlyphManager)
+ * [Terminal-Notifier](https://github.com/alloy/terminal-notifier) (v1.5.0)
+ * [CocoaDialog](http://mstratman.github.io/cocoadialog/)
     * v3.0.0-beta7
     * v2.1.1
- * Pashua
+ * [Pashua](http://www.bluem.net/en/mac/pashua/)
  * PHP5.5.5-CLI
  * Viewer (an automator application that shows a pop-up HUD)
 
@@ -99,20 +99,34 @@ _If there is a utility that you think should be included as a default, then subm
 
 At minimum, you just need to include one of the wrappers in your workflow directory (either in the root or in a subfolder), and then load the assets with the appropriate ``__load`` function.
 
-Download the wrappers:
+#### Download the wrappers:
 
  * [PHP](https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.php)
  * [Bash](https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.sh)
  * Other (Use for any other language)
 
+#### Using the __load() function
+
+Again, all you will need to invoke the bundler is to call a single ``__load`` function, which can take up to four arguments.
+ 1. Asset Name (required)
+  : The name of the asset called. This name needs to match an asset defined in a JSON file and is case sensitive.
+ 2. Asset Version (optional)
+  : The version of the asset; defaults to "default"
+ 3. Type (optional)
+  : The type of the asset being called, either language or utility. If a language, then it will be the name of the language lowercase: php, bash.
+ 4. JSON file path (optional)
+  : A filepath to a custom JSON file that defines the asset. If you are using one of the default assets, then this is not needed.
+
+For the PHP wrapper calling a PHP library, you will need only the name, and the same goes for the Bash wrapper calling a Bash library. However,
+if you want to call anything else, then you will need the first three arguments: Name, Version, and Type. If you want to use a non-default asset,
+then you must include a filepath to a JSON file that has the appropriate schema. See examples for ``__load`` and the schema below.
+
 #### Loading PHP library with PHP
 
-The following code loads the "default" version of David Ferguson's Workflows.php library (v3.3).
+The following code loads the "default" version of David Ferguson's Workflows.php library (v0.3.3).
 
 ````
 require_once('alfred.bundler.php');
-````
-````
 __load( 'Workflows' );
 ````
 
@@ -120,8 +134,6 @@ You could also call it with a longer syntax.
 
 ````
 require_once('alfred.bundler.php');
-````
-````
 __load('Workflows', '3.3', 'php');
 ````
 
@@ -130,15 +142,10 @@ __load('Workflows', '3.3', 'php');
 
 ````
 require_once('alfred.bundler.php');
-````
-````
-$tn = __load('terminal-notifier' , 'default' , 'utility' );
-````
 
-````
+$tn = __load('terminal-notifier' , 'default' , 'utility' );
+
 // Execute it
-````
-````
 exec( "$tn -title 'Bundler Test' -message 'Terminal Notifier called from inside the PHP Workflow.'" );
 ````
 
@@ -148,11 +155,8 @@ exec( "$tn -title 'Bundler Test' -message 'Terminal Notifier called from inside 
 
 ````
 . alfred.bundler.sh
-````
-````
+
 BashWorkflowHandler=`__load BashWorkflowHandler`
-````
-````
 . "$BashWorkflowHandler"
 ````
 
@@ -160,8 +164,6 @@ BashWorkflowHandler=`__load BashWorkflowHandler`
 
 ````
 tn=`__load Terminal-Notifier default utility`
-````
-````
 "$tn" -title 'Bundler Test' -message 'Terminal Notifier called from inside the Bash Workflow.'
 ````
 
@@ -178,8 +180,6 @@ This is fun, but it ensures the latest copy of the wrapper.
 
 ````
 if ( ! file_exists('alfred.bundler.php') )
-````
-````
   exec( 'curl -sL "https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.php" > "alfred.bundler.php"' );
 ````
 ## Custom Assets
@@ -192,10 +192,9 @@ Here is a sample JSON file:
 {
 "name":"ASSET-NAME",     # Do not duplicate an asset name. Check the "meta/defaults"
                          # folder so as not to duplicate.
-"type":"LANAGUAGE|utility", # Currently, only php and utility are fully supported.
+"type":"LANGUAGE|utility", # Currently, only php and utility are fully supported.
 "versions":{
   "default":{            # Versions are keys here but also the first value.
-    "version":"default", # It's best to include a 'default' version.
     "get-method":"zip",  # methods: direct, zip, tar.gz, tgz
     "invoke": "...",     # this is how the workflow invokes it. Often, it's just a path.
     "files":{
@@ -210,11 +209,10 @@ Here is a sample JSON file:
                          # with "cp" always use "-f"; and if it is a .app or a folder,
                          # then use "-fR"; don't use mv.
                          # Write the steps here numbered 1-n... as keys.
-     "1":"cp -f 'SOME FILE' '__DATA__'"
+     "1":"cp -f '__CACHE__/SOME FILE' '__DATA__'"
     }
   },
   "1.5.0":{              # a numbered version. Bascially everything below is the same.
-    "version":"1.5.0",
     "get-method":"zip",
     "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
     "files":{
