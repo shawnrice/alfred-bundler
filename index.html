@@ -198,10 +198,10 @@ Here is a sample JSON file:
 {
 "name":"ASSET-NAME",     # Do not duplicate an asset name. Check the "meta/defaults"
                          # folder so as not to duplicate.
-"type":"LANGUAGE|utility", # Currently, only php and utility are fully supported.
+"type":"LANGUAGE|utility", # Currently, only php, bash, and utility are fully supported.
 "versions":{
   "default":{            # Versions are keys here but also the first value.
-    "get-method":"zip",  # methods: direct, zip, tar.gz, tgz
+    "get-method":"zip",  # methods: direct, zip, tar.gz, tgz, dmg
     "invoke": "...",     # this is how the workflow invokes it. Often, it's just a path.
     "files":{
      "1":"URL"           # Each separate file to download needs a URL; use a new key
