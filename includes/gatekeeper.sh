@@ -22,6 +22,7 @@
 
 name="$1"
 path="$2"
+bundler_version="aries";
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   echo "ERROR: Use with args 'name' 'path'."
@@ -29,7 +30,7 @@ if [[ -z "$1" ]] || [[ -z "$2" ]]; then
 fi
 
 version=`sw_vers -productVersion`
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler"
+data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 
 # Check for Mavericks or Mountain Lion
 if [[ $version =~ "10.9" ]] || [[ $version =~ "10.8" ]]; then
@@ -59,7 +60,7 @@ fi
 #   (3) the requested app isn't whitelisted.
 
 # Change the following to the correct data path
-icon="/Users/Sven/Documents/Alfred2 Workflows/alfred-bundler/meta/icons/bundle.icns"
+icon="$data/meta/icons/bundle.icns"
 icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-`
 
 # Construct the Applescript dialog
