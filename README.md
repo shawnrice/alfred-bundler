@@ -5,10 +5,10 @@ a utility / workflow to handle dependencies
 
 A utility for to help Alfred 2 workflows manage shared dependencies.
 
-[See documentation](https://shawnrice.github.io/alfred-bundler).
+## [See documentation](https://shawnrice.github.io/alfred-bundler).
 
 ## Versioning
-I hate astrology[http://en.wikipedia.org/wiki/Zodiac], so I'm using the Zodiac
+I hate (astrology)[http://en.wikipedia.org/wiki/Zodiac], so I'm using the Zodiac
 signs for major releases. Hence, the schedule, which I don't expect to get far
 down will be:
   1. __Aries__ (current)
