@@ -1,0 +1,18 @@
+{
+    "name": "ASSETNAME",
+    "type": "TYPE",
+    "versions": {
+        "default": {
+            "invoke": "COMMAND",
+            "files": [
+                {
+                    "url": "URL",
+                    "method": "METHOD"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/FILE' '__DATA__'"
+            ]
+        }
+    }
+}

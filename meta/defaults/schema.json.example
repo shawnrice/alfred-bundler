@@ -18,8 +18,8 @@
     "files":[
      {
       "url":"URL",
-      "method":"zip",    # methods: direct, zip, tar.gz, tgz
-     },
+      "method":"zip"    # methods: direct, zip, tar.gz, tgz
+     }
     ],
     "install":[          # Install instructions. For version "aries" it will be just a
                          # list of shell commands. You can use the flags:
@@ -28,20 +28,20 @@
                          # __FILE__ for any particular needed.
                          # with "cp" always use "-f"; and if it is a .app or a folder,
                          # then use "-fR"; don't use mv.
-     "cp -f 'SOME FILE' '__DATA__'",
-    ],
+     "cp -f 'SOME FILE' '__DATA__'"
+    ]
   },
   "1.5.0":{              # a numbered version. Bascially everything below is the same.
-    "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
+    "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier"
     "files":[
      {
      "url":"https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true",
-     "method":"zip",
-     },
+     "method":"zip"
+     }
     ],
     "install":[
-     "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'",
-    ],
-  },
- },
+     "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
+    ]
+  }
+ }
 }
