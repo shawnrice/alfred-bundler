@@ -43,6 +43,11 @@ function __loadAsset {
         if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
           php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
         fi
+        if [ $type = 'utility' ]; then
+          if [ ! -z $invoke ]; then
+            sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke"
+          fi
+        fi
         exit
       fi
     fi
