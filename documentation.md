@@ -103,7 +103,7 @@ At minimum, you just need to include one of the wrappers in your workflow direct
 
  * [PHP](https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.php)
  * [Bash](https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.sh)
- * Other (Use for any other language)
+ * [Other](https://raw.githubusercontent.com/shawnrice/alfred-bundler/aries/wrappers/alfred.bundler.misc.sh) (Use for any other language)
 
 #### Using the __load() function
 
@@ -121,6 +121,9 @@ Again, all you will need to invoke the bundler is to call a single ``__load`` fu
 For the PHP wrapper calling a PHP library, you will need only the name, and the same goes for the Bash wrapper calling a Bash library. However,
 if you want to call anything else, then you will need the first three arguments: Name, Version, and Type. If you want to use a non-default asset,
 then you must include a filepath to a JSON file that has the appropriate schema. See examples for ``__load`` and the schema below.
+
+__To use the bundler with a language other than PHP or Bash, use the "misc" wrapper and invoke it via the shell with the first three arguments in quoted form:
+``sh alfred.bundler.misc.sh 'name' 'version' 'type'``. Add the fourth argument if you are using custom JSON.__
 
 #### Loading PHP library with PHP
 
