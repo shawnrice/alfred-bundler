@@ -65,7 +65,7 @@ icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-`
 
 # Construct the Applescript dialog
 read -d '' script <<-"_EOF_"
-display dialog "A workflow that you have downloaded has implemented the Alfred Bundler to download dependencies, and it wants to use an unsigned application.
+display dialog "A workflow that you have downloaded uses the Alfred Bundler to install required support software, and it wants to use "$name."
 
 Will you allow it?
 
@@ -73,6 +73,7 @@ If you press 'Allow,' then you will be prompted to enter your password, which wi
 " buttons {"Allow","Deny"} default button 1 with title "Alfred Bundler" with icon file "$icon"
 _EOF_
 script=`echo "$script" | sed 's|$icon|'"$icon"'|g'`
+script=`echo "$script" | sed 's|$name|'"$name"'|g'`
 response=`osascript -e "$script"`
 
 if [[ $response =~ "Deny" ]]; then
