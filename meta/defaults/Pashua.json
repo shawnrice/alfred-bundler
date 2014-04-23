@@ -3,7 +3,7 @@
     "type": "utility",
     "versions": {
         "default": {
-            "invoke": "null",
+            "invoke": "Pashua.app/Contents/MacOS/Pashua",
             "files": [
                 {
                     "url": "http://www.bluem.net/files/Pashua.dmg",
