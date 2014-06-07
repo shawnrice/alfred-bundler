@@ -117,8 +117,8 @@ def _bootstrap():
     and install them if not.
 
     NOTE: This will not actuall install the bundler. That will happen the
-    first time `~bundler.load()`, `~bundler.utility()`, `~bundler.asset()` or
-    `~bundler.init()` or `~bundler._load_pip()` is called.
+    first time `~bundler.utility()`, `~bundler.init()` or
+    `~bundler._load_pip()` is called.
 
     :returns: ``None``
 
@@ -139,15 +139,13 @@ def _bootstrap():
                                          'from GitHub.')
 
 
-def load(name, version='default', type='utility', json_path=None):
+def utility(name, version='default', json_path=None):
     """Get path to specified utility or asset, installing it if necessary.
 
     :param name: Name of the utility/asset to install
     :type name: ``unicode`` or ``str``
     :param version: Desired version of the utility/asset.
     :type version: ``unicode`` or ``str``
-    :param type: ``asset`` or ``utility``
-    :type type: ``unicode`` or ``str``
     :param json_path: Path to bundler configuration file
     :type json_path: ``unicode`` or ``str``
     :returns: Path to utility
@@ -159,18 +157,8 @@ def load(name, version='default', type='utility', json_path=None):
     # Call bash wrapper with specified arguments
     json_path = json_path or ''
     output = subprocess.check_output(['/bin/bash', HELPER_PATH, name,
-                                      version, type, json_path])
+                                      version, 'utility', json_path])
     return output.strip()
-
-
-def asset(name, version='default', json_path=None):
-    """Wrapper around `~bundler.load()` to load an asset"""
-    return load(name, version, type='asset', json_path=json_path)
-
-
-def utility(name, version='default', json_path=None):
-    """Wrapper around `~bundler.load()` to load a utility"""
-    return load(name, version, type='utility', json_path=json_path)
 
 
 def init(requirements=None):
