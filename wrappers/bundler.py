@@ -17,6 +17,8 @@ import os
 import plistlib
 from urllib import urlretrieve
 import subprocess
+import json
+import hashlib
 
 # Used to bump Pip recipe
 __version__ = '0.1'
@@ -198,6 +200,30 @@ def init(requirements=None):
         os.makedirs(install_dir)
 
     requirements = requirements or _find_file('requirements.txt')
+    req_metadata_path = os.path.join(install_dir, 'requirements.json')
+    last_updated = 0
+    last_hash = ''
+
+    # Load cached metadata if it exists
+    if os.path.exists(req_metadata_path):
+        with open(req_metadata_path, 'rb') as file:
+            metadata = json.load(file, encoding='utf-8')
+        last_updated = metadata.get('updated', 0)
+        last_hash = metadata.get('hash', '')
+
+    # compare requirements.txt to saved metadata
+    req_mtime = os.stat(requirements).st_mtime
+    if req_mtime > metadata.get('updated', 0):
+        # compare MD5 hash
+        m = hashlib.md5()
+        with open(requirements, 'rb') as file:
+            m.update(file.read())
+        h = m.hexdigest()
+        if h != metadata.get('hash', ''):  # requirements.txt has changed
+            do_install = True
+
 
     # Call `pip`
     _load_pip()
+    args = ['install', '-r', requirements]
+    pip.main(args)
