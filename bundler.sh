@@ -17,7 +17,7 @@ function __loadAsset {
 
   if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
     invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
-    if [ $invoke = 'null' ]; then
+    if [ "$invoke" = 'null' ]; then
       invoke=''
     fi
     if [ "$type" = "utility" ]; then
@@ -30,29 +30,34 @@ function __loadAsset {
     exit
   fi
   if [ -z "$json" ]; then
-    if [ -f "$__data/meta/defaults/$name.json" ]; then
-      php "$__data/includes/installAsset.php" "$__data/meta/defaults/$name.json" "$version"
-      if [ ! -z "$result" ]; then
-        echo "$result"
-        exit
-      fi
-      if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
-        invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
-        if [ $invoke = 'null' ]; then
-          invoke=''
-        fi
-        echo "$__data/assets/$type/$name/$version/$invoke"
-        if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
-          php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
-        fi
-        if [ $type = 'utility' ]; then
-          if [ ! -z $invoke ]; then
-            sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
-          fi
-        fi
-        exit
-      fi
+    json="$__data/meta/defaults/$name.json"
+  fi
+  if [ -f "$json" ]; then
+    php "$__data/includes/installAsset.php" "$json" "$version"
+    if [ ! -z "$result" ]; then
+      echo "$result"
+      exit
     fi
+    if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
+      invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
+      if [ "$invoke" = 'null' ]; then
+        invoke=''
+      fi
+      echo "$__data/assets/$type/$name/$version/$invoke"
+      if [[ ! -z "$bundle" ]] && [[ "$bundle" != '..' ]]; then
+        php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
+      fi
+      if [ $type = 'utility' ]; then
+        if [ ! -z "$invoke" ]; then
+          sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
+        fi
+      fi
+      exit
+    fi
+  else
+    echo "JSON file does not exist : $json"
+    exit 1
   fi
   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know."
+  exit 1
 }

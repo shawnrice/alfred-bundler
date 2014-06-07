@@ -39,7 +39,7 @@ HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
 # the bundler.sh file in the repo
 HELPER_PATH = os.path.join(HELPER_DIR, 'bundler.sh')
 # Root directory under which workflow-specific Python libraries are installed
-PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python-libs')
+PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Path to locally cached version of Pip JSON recipe
 PIP_JSON_PATH = os.path.join(HELPER_DIR, 'pip-{}.json'.format(__version__))
 # JSON recipe for installing Pip
@@ -199,5 +199,5 @@ def init(requirements=None):
 
     requirements = requirements or _find_file('requirements.txt')
 
-    # Call ``pip``
+    # Call `pip`
     _load_pip()
