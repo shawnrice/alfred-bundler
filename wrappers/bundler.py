@@ -37,7 +37,7 @@ HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
 # The bundler script we will call to get paths to utilities and
 # install them if necessary. This is actually the bash wrapper, not
 # the bundler.sh file in the repo
-HELPER_PATH = os.path.join(HELPER_DIR, 'bundler.sh')
+HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Path to locally cached version of Pip JSON recipe
