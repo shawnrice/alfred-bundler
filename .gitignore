@@ -1,0 +1,4 @@
+build-pydocs.sh
+/pydoc/
+/wrappers/requirements.txt
+/wrappers/info.plist
