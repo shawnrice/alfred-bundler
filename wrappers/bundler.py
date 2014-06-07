@@ -48,10 +48,12 @@ PIP_JSON_URL = ('https://raw.githubusercontent.com/deanishe/'
 
 
 def _find_file(filename, start_dir=None):
-    """Find file named ``filename`` in the current directory tree.
+    """Find file named ``filename`` in the directory tree at ``start_dir``.
 
     Climb up directory tree until ``filename`` is found. Raises IOError
     if file is not found.
+
+    If ``start_dir`` is ``None``, start at current working directory.
 
     :param filename: Name of the file to search for
     :type filename: ``unicode`` or ``str``
@@ -62,6 +64,7 @@ def _find_file(filename, start_dir=None):
     :rtype: ``unicode`` or ``str``
 
     """
+
     curdir = start_dir or os.getcwd()
     filepath = None
     while True:
@@ -166,6 +169,11 @@ def utility(name, version='default', json_path=None):
         # behaved properly
         raise subprocess.CalledProcessError(-1, cmd, path)
     return path
+
+
+def asset(name, version='default', json_path=None):
+    """Synonym for `~bundler.utility()`"""
+    return utility(name, version, json_path)
 
 
 def init(requirements=None):
