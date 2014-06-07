@@ -17,6 +17,8 @@ import os
 import plistlib
 from urllib import urlretrieve
 import subprocess
+import json
+import hashlib
 
 # Used to bump Pip recipe
 __version__ = '0.1'
@@ -29,8 +31,10 @@ DATA_DIR = os.path.expanduser(
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
+# Root directory under which workflow-specific Python libraries are installed
+PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
-HELPER_DIR = os.path.join(DATA_DIR, 'python-helpers')
+HELPER_DIR = os.path.join(PYTHON_LIB_DIR, 'bundler-helpers')
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/wrappers/alfred.bundler.misc.sh'.format(BUNDLER_VERSION))
@@ -38,8 +42,6 @@ HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
 # install them if necessary. This is actually the bash wrapper, not
 # the bundler.sh file in the repo
 HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
-# Root directory under which workflow-specific Python libraries are installed
-PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Path to locally cached version of Pip JSON recipe
 PIP_JSON_PATH = os.path.join(HELPER_DIR, 'pip-{}.json'.format(__version__))
 # JSON recipe for installing Pip
@@ -93,8 +95,8 @@ def _bundle_id():
     return plist.get('bundleid', None)
 
 
-def _load_pip():
-    """Import ``pip``, installing it if necessary.
+def _add_pip_path():
+    """Install ``pip`` if necessary and add its directory to ``sys.path``
 
     :returns: ``None``
 
@@ -112,7 +114,6 @@ def _load_pip():
     print('pip_path : {}'.format(pip_path))
 
     sys.path.insert(0, pip_path)
-    import pip
 
 
 def _bootstrap():
@@ -198,6 +199,44 @@ def init(requirements=None):
         os.makedirs(install_dir)
 
     requirements = requirements or _find_file('requirements.txt')
+    req_metadata_path = os.path.join(install_dir, 'requirements.json')
+    last_updated = 0
+    last_hash = ''
+    metadata_changed = False
+    metadata = {}
 
-    # Call `pip`
-    _load_pip()
+    # Load cached metadata if it exists
+    if os.path.exists(req_metadata_path):
+        with open(req_metadata_path, 'rb') as file:
+            metadata = json.load(file, encoding='utf-8')
+        last_updated = metadata.get('updated', 0)
+        last_hash = metadata.get('hash', '')
+
+    # compare requirements.txt to saved metadata
+    req_mtime = os.stat(requirements).st_mtime
+    if req_mtime > last_updated:
+        metadata['updated'] = req_mtime
+        metadata_changed = True
+
+        # compare MD5 hash
+        m = hashlib.md5()
+        with open(requirements, 'rb') as file:
+            m.update(file.read())
+        h = m.hexdigest()
+
+        if h != last_hash:  # requirements.txt has changed
+            metadata['hash'] = h
+            _add_pip_path()
+            import pip
+            args = ['install',
+                    '--upgrade',
+                    '--requirement', requirements,
+                    '--target', install_dir]
+            pip.main(args)
+
+    if metadata_changed:  # Save new metadata
+        with open(req_metadata_path, 'wb') as file:
+            json.dump(metadata, file, encoding='utf-8', indent=2)
+
+    # Add workflow library directory to front of `sys.path`
+    sys.path.insert(0, install_dir)
