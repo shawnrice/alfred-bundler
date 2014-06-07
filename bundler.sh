@@ -27,7 +27,7 @@ function __loadAsset {
     if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
       php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
     fi
-    exit
+    return 0
   fi
   if [ -z "$json" ]; then
     json="$__data/meta/defaults/$name.json"
@@ -36,7 +36,7 @@ function __loadAsset {
     php "$__data/includes/installAsset.php" "$json" "$version"
     if [ ! -z "$result" ]; then
       echo "$result"
-      exit
+      return 0
     fi
     if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
       invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
@@ -52,12 +52,12 @@ function __loadAsset {
           sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
         fi
       fi
-      exit
+      return 0
     fi
   else
     echo "JSON file does not exist : $json"
-    exit 1
+    return 1
   fi
   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know."
-  exit 1
+  return 1
 }
