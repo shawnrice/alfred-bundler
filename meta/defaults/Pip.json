@@ -3,7 +3,6 @@
   "type": "utility",
   "versions": {
     "default": {
-      "invoke": "get-pip.py",
       "files": [
         {
           "url": "https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py",
