@@ -212,7 +212,7 @@ def _bootstrap():
     """Check if bundler bash wrapper and ``pip`` are installed
     and install them if not.
 
-    NOTE: This will not actuall install the bundler. That will happen the
+    NOTE: This will not actually install the bundler. That will happen the
     first time :func:`~bundler.utility()`, `~bundler.init()` or
     :func:`~bundler._add_pip_path()` is called.
 
