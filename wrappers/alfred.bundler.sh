@@ -46,8 +46,9 @@ fi
  fi
 
  __asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
+ status=$?
  echo "$__asset"
-
+ exit "$status"
 }
 
 # This just downloads the install script and starts it up.
@@ -76,3 +77,6 @@ fi
 
 # Check for updates.
 sh "$__data/meta/update.sh" > /dev/null 2>&1
+
+__load "$1" "$2" "$3" "$4"
+exit $?
