@@ -115,6 +115,8 @@ from urllib import urlretrieve
 import subprocess
 import json
 import hashlib
+import cPickle
+from functools import partial
 
 # Used to bump Pip recipe
 __version__ = '0.1'
@@ -131,6 +133,9 @@ CACHE_DIR = os.path.expanduser(
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, 'bundler-helpers')
+# Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
+# at the moment
+UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/wrappers/alfred.bundler.misc.sh'.format(BUNDLER_VERSION))
@@ -143,6 +148,46 @@ PIP_JSON_PATH = os.path.join(HELPER_DIR, 'pip-{}.json'.format(__version__))
 # JSON recipe for installing Pip
 PIP_JSON_URL = ('https://raw.githubusercontent.com/deanishe/'
                 'alfred-bundler/aries/meta/defaults/Pip.json')
+
+
+class cached(object):
+    """Decorator. Caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned
+    (not reevaluated).
+
+    Adapted from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
+    """
+
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+
+        if os.path.exists(UTIL_CACHE_PATH):
+            with open(UTIL_CACHE_PATH, 'rb') as file:
+                self.cache = cPickle.load(file)
+
+    def __call__(self, *args, **kwargs):
+
+        key = (args, frozenset(kwargs.items()))
+
+        path = self.cache.get(key, None)
+
+        # If file has disappeared, call function again
+        if path is None or not os.path.exists(path):
+            # Cache results
+            path = self.func(*args, **kwargs)
+            self.cache[key] = path
+            with open(UTIL_CACHE_PATH, 'wb') as file:
+                cPickle.dump(self.cache, file, protocol=2)
+            return path
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+    def __get__(self, obj, objtype):
+        """Support instance methods."""
+        return partial(self.__call__, obj)
 
 
 def _find_file(filename, start_dir=None):
@@ -220,12 +265,13 @@ def _bootstrap():
 
     """
 
+    # Create local directories if they don't exist
+    for dirpath in (HELPER_DIR, CACHE_DIR, PYTHON_LIB_DIR):
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+
     if os.path.exists(HELPER_PATH):  # Already installed
         return
-
-    # Create local directory if necessary
-    if not os.path.exists(HELPER_DIR):
-        os.makedirs(HELPER_DIR)
 
     # Install installer.sh from GitHub
     urlretrieve(HELPER_URL, HELPER_PATH)
@@ -235,6 +281,7 @@ def _bootstrap():
                                          'from GitHub.')
 
 
+@cached
 def utility(name, version='default', json_path=None):
     """Get path to specified utility or asset, installing it first if necessary.
 
@@ -263,6 +310,7 @@ def utility(name, version='default', json_path=None):
     """
 
     _bootstrap()
+
     # Call bash wrapper with specified arguments
     json_path = json_path or ''
     cmd = ['/bin/bash', HELPER_PATH, name, version, 'utility', json_path]
@@ -295,7 +343,9 @@ def init(requirements=None):
     :returns: ``None``
 
     """
+
     _bootstrap()
+
     bundle_id = _bundle_id()
     if not bundle_id:
         raise ValueError('You *must* set a bundle ID in your workflow '
