@@ -24,7 +24,10 @@ one_to_two() {
 	# Updated Files
 	curl -sL "$__git/wrappers/alfred.bundler.sh" > "$__data/wrappers/alfred.bundler.sh"
 	curl -sL "$__git/wrappers/alfred.bundler.misc.sh" > "$__data/wrappers/alfred.bundler.misc.sh"
-	curl -sL "$__git/meta/update.sh" > "$__data/update.sh"
+	curl -sL "$__git/meta/update.sh" > "$__data/meta/update.sh"
+	curl -sL "$__git/bundler.sh" > "$__data/bundler.sh"
+	curl -sL "$__git/bundler.php" > "$__data/bundler.php"
+	curl -sL "$__git/includes/gatekeeper.sh" > "$__data/includes/gatekeeper.sh"
 
 
 	# Update the minor version
