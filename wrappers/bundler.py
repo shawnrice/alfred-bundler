@@ -121,6 +121,8 @@ from functools import partial
 # Used to bump Pip recipe
 __version__ = '0.1'
 
+# Used for notifications, paths
+BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
 # Bundler paths
 BUNDLER_VERSION = 'aries'
 DATA_DIR = os.path.expanduser(
@@ -132,7 +134,7 @@ CACHE_DIR = os.path.expanduser(
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
-HELPER_DIR = os.path.join(PYTHON_LIB_DIR, 'bundler-helpers')
+HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
@@ -179,7 +181,8 @@ class cached(object):
             self.cache[key] = path
             with open(UTIL_CACHE_PATH, 'wb') as file:
                 cPickle.dump(self.cache, file, protocol=2)
-            return path
+
+        return path
 
     def __repr__(self):
         """Return the function's docstring."""
@@ -381,8 +384,27 @@ def init(requirements=None):
             m.update(file.read())
         h = m.hexdigest()
 
-        if h != last_hash:  # requirements.txt has changed
+        if h != last_hash:  # requirements.txt has changed, let's install
+            # Update metadata
             metadata['hash'] = h
+
+            # Notify user of updates
+            notifier = utility('terminal-notifier')
+
+            cmd = [notifier,
+                   '-title', 'Installing workflow dependencies',
+                   '-message', 'Your worklow will run momentarily']
+
+            try:
+                icon = _find_file('icon.png')
+                cmd += ['-contentImage', icon]
+            except IOError:
+                pass
+
+            print(cmd)
+            subprocess.call(cmd)
+
+            # Install dependencies with Pip
             _add_pip_path()
             import pip
             args = ['install',
