@@ -39,15 +39,15 @@ in order to take advantage of automatic dependency installation.
 Usage
 ======
 
+Simply include this ``bundler.py`` file (from the Alfred Bundler's ``wrappers``
+directory) alongside your workflow's Python code where it can be imported.
+
 The Python Bundler provides two main features: the ability to use common
 utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
 or `Pashua <http://www.bluem.net/en/mac/pashua/>`_) simply by asking for
 them by name (they will automatically be installed if necessary), and the
 ability to automatically install and update any Python libraries required
 by your workflows.
-
-Simply include this ``bundler.py`` file (from the Alfred Bundler's ``wrappers``
-directory) alongside your workflow's Python code where it can be imported.
 
 Using utilities/assets
 ----------------------
