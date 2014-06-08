@@ -267,13 +267,7 @@ def utility(name, version='default', json_path=None):
     json_path = json_path or ''
     cmd = ['/bin/bash', HELPER_PATH, name, version, 'utility', json_path]
     path = subprocess.check_output(cmd).strip().decode('utf-8')
-    # bundler.sh is broken and returns an error message if something goes
-    # wrong instead of exiting uncleanly, so check that path exists, else
-    # treat it as an error message
-    if not os.path.exists(path):  # Is probably an error message
-        # Simulate error that would be raised if `bundler.sh`
-        # behaved properly
-        raise subprocess.CalledProcessError(-1, cmd, path)
+
     return path
 
 
