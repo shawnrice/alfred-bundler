@@ -16,7 +16,7 @@ __checkUpdate() {
   if [ ! -f "$__data/alfred.bundler/data/update-cache" ]; then
       # Update the update-check file for a week from today.
       echo "$date" > "$__data/alfred.bundler-$bundler_version/data/update-cache"
-      return 0
+      exit 0
   else
     if [  $__date -lt `cat "$__data/alfred.bundler-$bundler_version/data/update-cache"` ]; then
       __remoteVersion=`curl "$__git/meta/version_minor"`

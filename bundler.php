@@ -30,8 +30,12 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     if ( ( $type == 'utility' ) && ( ! empty( $invoke ) ) && ( $invoke != 'null' ) ) {
       // Utilities should have only a single line invoke file, so that's
       // just fine to consider it a string.
-      $invoke = str_replace("\n", "", $invoke);
-      exec( "sh '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$invoke'");
+      $invoke = str_replace("\n", '', $invoke);
+      if ( strpos( $invoke, '.app' ) !== FALSE ) {
+        // Invoke Gatekeeper only when the utility is a .app.
+        exec( "sh '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$invoke'");
+      }
+
     }
 
     $invoke = explode( "\n" , $invoke );

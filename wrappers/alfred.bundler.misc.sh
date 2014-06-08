@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Main Bash interface for the Alfred Dependency Bundler. This file should be
-# the only one from the bundler that is distributed with your workflow.
+# Interface for other implementations of the Alfred Dependency Bundler to graft onto.
+# This file should be the only one from the bundler that is distributed with your workflow.
 #
 # See documentation on how to use: http://shawnrice.github.io/alfred-bundler/
 #
@@ -48,7 +48,7 @@ fi
  __asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
  status=$?
  echo "$__asset"
- return $status
+ exit "$status"
 }
 
 # This just downloads the install script and starts it up.
