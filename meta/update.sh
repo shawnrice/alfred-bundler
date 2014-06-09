@@ -1,33 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 
 bundler_version="aries"
-__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 
 __checkUpdate() {
-  __git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
+  local git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
+  local data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
+  local nextupdate=$(date -v+1w "+%s")  # in one week's time
+  local now=$(date "+%s")
+  local remoteVersion
+  local localVersion
 
-  if [ ! -d "$__data/data" ]; then
-    mkdir "$__data/data"
+  if [ ! -d "${data}/data" ]; then
+    mkdir "${data}/data"
   fi
 
-  __date=`date "+%s"`
-  __week=604800 # This is one week in seconds
-  let __date=$__date+$__week
-
-  if [ ! -f "$__data/data/update-cache" ]; then
+  if [ ! -f "${data}/data/update-cache" ]; then
       # Update the update-check file for a week from today.
-      echo "$__date" > "$__data/data/update-cache"
+      echo "${nextupdate}" > "${data}/data/update-cache"
       exit 0
   else
-    if [  $__date -lt $(cat "$__data/data/update-cache") ]; then
-      __remoteVersion=`curl "$__git/meta/version_minor"`
-      if [ ! -z $__remoteVersion ]; then
-        if [ `cat "$__data/meta/version_minor"` != "$remoteVersion" ]; then
+    if [  $now -gt $(cat "${data}/data/update-cache") ]; then
+      remoteVersion=`curl "${git}/meta/version_minor"`
+      if [ ! -z "${remoteVersion}" ]; then
+        localVersion=$(cat "${data}/meta/version_minor")
+        if [ "$localVersion" != "$remoteVersion" ]; then
           __doUpdate
         fi
 
         # Update the update-check file for a week from today.
-        echo "$date" > "$__data/data/update-cache"
+        echo "${nextupdate}" > "${data}/data/update-cache"
       fi
     fi
   fi
@@ -35,13 +36,28 @@ __checkUpdate() {
 
 __doUpdate() {
   # I need to have this point to an updater script instead of an installer
-  __git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
-  __cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
+  local git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/${bundler_version}"
+  local cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
+  local url
+  local file
+  local dirpath
 
-  file="$__git/meta/updates/update-the-bundler.sh"
-  curl -sL "$file" > `echo $__cache | sed "s|$__git|$__cache|g"`
+  url="${git}/meta/updates/update-the-bundler.sh"
+  # Create filename from URL
+  file=$(echo $url | sed -e "s|${git}|${cache}|g")
+  # Create directory if it doesn't exist
+  dirpath=$(dirname "${file}")
+  [[ ! -d "${dirpath}" ]] && mkdir -p "${dirpath}"
 
-  sh "$__cache/update-the-bundler.sh"
+  # Download and run update script
+  curl -sSL "${url}" > "${file}"
+
+  if [[ $? -gt 0 ]]; then
+    echo "Update failed" >&2
+    return 1
+  else
+    /bin/bash "${file}"
+  fi
 }
 
 __checkUpdate
