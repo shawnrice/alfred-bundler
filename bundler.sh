@@ -16,11 +16,11 @@ function __loadAsset {
   local json="$5"
 
   if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
-    invoke=$(echo `cat "$__data/assets/$type/$name/$version/invoke"`)
+    invoke=$(cat "$__data/assets/$type/$name/$version/invoke")
     if [ "$invoke" = 'null' ]; then
       invoke=''
     fi
-    if [ "$type" = "utility" ]; then
+    if [ "$type" = 'utility' ]; then
       if [[ "$invoke" =~ \.app ]]; then 
         # Call Gatekeeper for the utility on if '.app' is in the name
         sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke"  > /dev/null
