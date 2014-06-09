@@ -578,7 +578,7 @@ def init(requirements=None):
                     '--upgrade',
                     '--requirement', requirements,
                     '--target', install_dir]
-            print('pip args : {}'.format(args))
+
             pip.main(args)
 
     if metadata_changed:  # Save new metadata
