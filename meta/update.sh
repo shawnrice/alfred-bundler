@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 bundler_version="aries"
 
@@ -20,7 +20,7 @@ __checkUpdate() {
       exit 0
   else
     if [  $now -gt $(cat "${data}/data/update-cache") ]; then
-      remoteVersion=`curl "${git}/meta/version_minor"`
+      remoteVersion=$(curl -sSL "${git}/meta/version_minor")
       if [ ! -z "${remoteVersion}" ]; then
         localVersion=$(cat "${data}/meta/version_minor")
         if [ "$localVersion" != "$remoteVersion" ]; then
