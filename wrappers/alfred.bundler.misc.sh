@@ -21,13 +21,14 @@ function __load {
 
  if [ -z "$1" ]; then
   echo "You need to pass at minimum one argument to use the __load function."
-  exit 1
+  return 1
  fi
 
  local name="$1"
  local version="$2"
  local type="$3"
  local json="$4"
+ local asset
 
 if [ -z $version ]; then
  version="default"
@@ -45,16 +46,15 @@ fi
   local bundle='..'
  fi
 
- __asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
+ asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
  status=$?
- echo "$__asset"
- exit "$status"
+ echo "$asset"
+ return $status
 }
 
 # This just downloads the install script and starts it up.
 function __installBundler {
   local installer="https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh"
-  dir "$__cache"
   dir "$__cache/installer"
   dir "$__data"
   curl -sL "$installer" > "$__cache/installer/installer.sh"
@@ -64,7 +64,7 @@ function __installBundler {
 # Just a helper function to make a directory if it doesn't exist.
 function dir {
  if [ ! -d "$1" ]; then
-  mkdir "$1"
+  mkdir -p "$1"
  fi
 }
 
