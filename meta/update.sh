@@ -24,14 +24,18 @@ __checkUpdate() {
       if [ ! -z "${remoteVersion}" ]; then
         localVersion=$(cat "${data}/meta/version_minor")
         if [ "$localVersion" != "$remoteVersion" ]; then
-          __doUpdate
+          status=__doUpdate
+          if [[ $status -eq 0 ]]; then
+            # Update the update-check file for a week from today.
+            echo "${nextupdate}" > "${data}/data/update-cache"
+          else
+            return $status
+          fi
         fi
-
-        # Update the update-check file for a week from today.
-        echo "${nextupdate}" > "${data}/data/update-cache"
       fi
     fi
   fi
+  return 0
 }
 
 __doUpdate() {
@@ -51,13 +55,16 @@ __doUpdate() {
 
   # Download and run update script
   curl -sSL "${url}" > "${file}"
-
-  if [[ $? -gt 0 ]]; then
+  status=$?
+  if [[ $status -gt 0 ]]; then
     echo "Update failed" >&2
-    return 1
+    return $status
   else
+    # Run update-the-bundler.sh
     /bin/bash "${file}"
+    return $?
   fi
 }
 
 __checkUpdate
+exit $?
