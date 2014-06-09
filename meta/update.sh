@@ -17,7 +17,7 @@ __checkUpdate() {
   if [ ! -f "${data}/data/update-cache" ]; then
       # Update the update-check file for a week from today.
       echo "${nextupdate}" > "${data}/data/update-cache"
-      exit 0
+      return 0
   else
     if [  $now -gt $(cat "${data}/data/update-cache") ]; then
       remoteVersion=$(curl -sSL "${git}/meta/version_minor")
@@ -29,13 +29,13 @@ __checkUpdate() {
             # Update the update-check file for a week from today.
             echo "${nextupdate}" > "${data}/data/update-cache"
           else
-            exit $status
+            return $status
           fi
         fi
       fi
     fi
   fi
-  exit 0
+  return 0
 }
 
 __doUpdate() {
@@ -58,13 +58,11 @@ __doUpdate() {
   status=$?
   if [[ $status -gt 0 ]]; then
     echo "Update failed" >&2
-    echo $status
-    exit $?
+    return $status
   else
     # Run update-the-bundler.sh
     /bin/bash "${file}"
-    echo $?
-    exit $?
+    return $?
   fi
 }
 
