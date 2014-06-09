@@ -108,18 +108,17 @@ Alfred Bundler Methods
 
 from __future__ import print_function, unicode_literals
 
-import sys
+import cPickle
+import functools
+import hashlib
+import json
 import os
 import plistlib
-import urllib2
-import urllib
-import subprocess
-from time import time
-import json
-import hashlib
-import cPickle
-from functools import partial
 import shutil
+import subprocess
+import sys
+import time
+import urllib2
 
 VERSION = '0.1'
 
@@ -204,7 +203,7 @@ class cached(object):
 
     def __get__(self, obj, objtype):
         """Support instance methods."""
-        return partial(self.__call__, obj)
+        return functools.partial(self.__call__, obj)
 
 
 def _find_file(filename, start_dir=None):
@@ -272,16 +271,80 @@ def _notify(title, message):
 # Installation/update functions
 #-----------------------------------------------------------------------
 
+def _load_update_metadata():
+    """Load update metadata from cache
+
+    :returns: metadata ``dict``
+
+    """
+
+    metadata = {}
+    if os.path.exists(UPDATE_JSON_PATH):
+        with open(UPDATE_JSON_PATH, 'rb') as file:
+            metadata = json.load(file, encoding='utf-8')
+    return metadata
+
+
+def _save_update_metadata(metadata):
+    """Save ``metadata`` ``dict`` to cache
+
+    :param metadata: metadata to save
+    :type metadata: ``dict``
+
+    """
+
+    with open(UPDATE_JSON_PATH, 'wb') as file:
+        json.dump(metadata, file, encoding='utf-8', indent=2)
+
+
+def _download_if_updated(url, filepath, ignore_missing=False):
+    """Replace ``filepath`` with file at ``url`` if it has been updated
+    as determined by ``etag`` read from ``UPDATE_JSON_PATH``.
+
+    :param url: URL to remote resource
+    :type url: ``unicode`` or ``str``
+    :param filepath: Local filepath to save URL at
+    :type filepath: ``unicode`` or ``str``
+    :param ignore_missing: If ``True``, do not automatically download the
+        file just because it is missing.
+    :type ignore_missing: ``boolean``
+    :returns: ``True`` if updated, else ``False``
+    :rtype: ``boolean``
+
+    """
+
+    update_data = _load_update_metadata()
+    # Get previous ETag for this URL
+    previous_etag = update_data.setdefault('etags', {}).get(url, None)
+
+    response = urllib2.urlopen(url)
+
+    if response.getcode() != 200:
+        raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
+                      response.getcode()), url)
+
+    current_etag = response.info().get('Etag')
+
+    force_download = not os.path.exists(filepath) and not ignore_missing
+
+    if current_etag != previous_etag or force_download:
+        with open(filepath, 'wb') as file:
+            file.write(response.read())
+
+        update_data['etags'][url] = current_etag
+        _save_update_metadata(update_data)
+
+        return True
+
+    return False
+
+
 def _update():
     """Check for periodical updates of bundler and pip"""
 
-    update_pip = False
-    update_data = {}
-    if os.path.exists(UPDATE_JSON_PATH):
-        with open(UPDATE_JSON_PATH, 'rb') as file:
-            update_data = json.load(file, encoding='utf-8')
+    update_data = _load_update_metadata()
 
-    if time() - update_data.get('updated', 0) < UPDATE_INTERVAL:
+    if time.time() - update_data.get('updated', 0) < UPDATE_INTERVAL:
         return
 
     _notify('Workflow libraries are being updated',
@@ -291,37 +354,10 @@ def _update():
     cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
     proc = subprocess.Popen(cmd)
 
-    # See if pip has been updated
-    response = urllib2.urlopen(PIP_INSTALLER_URL)
-    response.close()
+    _install_pip()
 
-    if response.getcode() != 200:
-        print('Error updating pip. Server returned {}'.format(
-              response.getcode()), file=sys.stderr)
-    else:
-        etag = response.info().get('Etag')
-        if etag != update_data.get('pip_etag'):  # Pip has been updated
-            # Pip seems unable to upgrade itself when using --target
-            # (it installs itself within itself, then crashes).
-            # As a result, we'll just try to install the whole thing
-            # again.
-            update_pip = True
-            # # Tell pip to update itself
-            # curdir = os.getcwd()
-            # os.chdir(HELPER_DIR)
-            # cmd = ['/usr/bin/python', '-m', 'pip']
-            # cmd += ['install',
-            #         '--upgrade',
-            #         '--target', '.',
-            #         'pip']
-            # print('pip args : {}'.format(cmd))
-            # retcode = subprocess.call(cmd)
-            # if retcode:
-            #     print('Error updating pip. Script returned {}'.format(
-            #           retcode), file=sys.stderr)
-            # os.chdir(curdir)
-            # update_data['pip_etag'] = etag
-            # update_data['pip_updated'] = time()
+    # Wrapper script
+    _download_if_updated(HELPER_URL, HELPER_PATH)
 
     # Wait for `update.sh` to complete
     retcode = proc.wait()
@@ -329,13 +365,9 @@ def _update():
         print('Error updating bundler. `update.sh` returned {}'.format(
               retcode), file=sys.stderr)
 
-    update_data['updated'] = time()
-
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(update_data, file, encoding='utf-8', indent=2)
-
-    if update_pip:
-        _install_pip()
+    update_data = _load_update_metadata()
+    update_data['updated'] = time.time()
+    _save_update_metadata(update_data)
 
 
 def _install_pip():
@@ -344,51 +376,39 @@ def _install_pip():
 
     """
 
-    # Download pip installer
+    ignore_missing = False
+    if os.path.exists(os.path.join(HELPER_DIR, 'pip')):
+        ignore_missing = True
+
     installer_path = os.path.join(HELPER_DIR, 'get-pip.py')
-    response = urllib2.urlopen(PIP_INSTALLER_URL)
+    updated = _download_if_updated(PIP_INSTALLER_URL,
+                                   installer_path,
+                                   ignore_missing)
 
-    if response.getcode() != 200:
-        raise IOError(2, 'Error retrieving Pip from GitHub', 'get-pip.py')
+    if updated:
+        assert os.path.exists(installer_path), \
+            'Error retrieving Pip installer from GitHub.'
+        # Remove existing pip
+        for filename in os.listdir(HELPER_DIR):
+            if filename.startswith('pip'):
+                p = os.path.join(HELPER_DIR, filename)
+                if os.path.isdir(p):
+                    shutil.rmtree(p)
 
-    # Save and run pip installer
-    with open(installer_path, 'wb') as file:
-        file.write(response.read())
+        cmd = ['/usr/bin/python', installer_path, '--target', HELPER_DIR]
 
-    assert os.path.exists(installer_path), \
-        'Error retrieving Pip installer from GitHub.'
-
-    # Remove existing pip
-    for filename in os.listdir(HELPER_DIR):
-        if filename.startswith('pip'):
-            p = os.path.join(HELPER_DIR, filename)
-            if os.path.isdir(p):
-                shutil.rmtree(p)
-
-    cmd = ['/usr/bin/python', installer_path, '--target', HELPER_DIR]
-
-    subprocess.check_output(cmd)
+        subprocess.check_output(cmd)
 
     assert os.path.exists(os.path.join(HELPER_DIR, 'pip')), \
         'Pip  installation failed'
 
-    # Remove installer
+    update_data = _load_update_metadata()
+    update_data['pip_updated'] = time.time()
+
+    _save_update_metadata(update_data)
+
     if os.path.exists(installer_path):
         os.unlink(installer_path)
-
-    # Cache ETag header for later updates
-    etag = response.info().get('Etag')
-
-    update_data = {}
-    if os.path.exists(UPDATE_JSON_PATH):
-        with open(UPDATE_JSON_PATH, 'rb') as file:
-            update_data = json.load(file, encoding='utf-8')
-
-    update_data['pip_etag'] = etag
-    update_data['pip_updated'] = time()
-
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(update_data, file, encoding='utf-8', indent=2)
 
 
 def _add_pip_path():
@@ -426,15 +446,15 @@ def _bootstrap():
     if os.path.exists(HELPER_PATH):  # Already installed
         return
 
-    # Install installer.sh from GitHub
-    urllib.urlretrieve(HELPER_URL, HELPER_PATH)
+    # Install bash wrapper from GitHub
+    _download_if_updated(HELPER_URL, HELPER_PATH)
 
     assert os.path.exists(HELPER_PATH), \
         'Error bootstrapping bundler. Could not download helper script.'
 
-    update_data = {'updated': time()}
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(update_data, file, encoding='utf-8', indent=2)
+    update_data = _load_update_metadata()
+    update_data['updated'] = time.time()
+    _save_update_metadata(update_data)
 
 
 ########################################################################
@@ -558,7 +578,7 @@ def init(requirements=None):
                     '--upgrade',
                     '--requirement', requirements,
                     '--target', install_dir]
-
+            print('pip args : {}'.format(args))
             pip.main(args)
 
     if metadata_changed:  # Save new metadata
