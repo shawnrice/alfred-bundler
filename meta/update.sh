@@ -21,7 +21,7 @@ __checkUpdate() {
     if [  $__date -lt `cat "$__data/alfred.bundler-$bundler_version/data/update-cache"` ]; then
       __remoteVersion=`curl "$__git/meta/version_minor"`
       if [ ! -z $__remoteVersion ]; then
-        if [ `cat "$__data/alfred.bundler-$bundle_version/meta/version_minor"` != "$remoteVersion" ];
+        if [ `cat "$__data/alfred.bundler-$bundle_version/meta/version_minor"` != "$remoteVersion" ]; then
           __doUpdate
         fi
 

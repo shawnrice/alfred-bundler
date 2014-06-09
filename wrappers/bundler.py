@@ -111,18 +111,24 @@ from __future__ import print_function, unicode_literals
 import sys
 import os
 import plistlib
-from urllib import urlretrieve
+import urllib2
+import urllib
 import subprocess
+from time import time
 import json
 import hashlib
 import cPickle
 from functools import partial
+import shutil
 
-# Used to bump Pip recipe
-__version__ = '0.1'
+VERSION = '0.1'
+
+# How often to check for updates
+UPDATE_INTERVAL = 604800  # 1 week
 
 # Used for notifications, paths
 BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
+
 # Bundler paths
 BUNDLER_VERSION = 'aries'
 DATA_DIR = os.path.expanduser(
@@ -131,6 +137,9 @@ DATA_DIR = os.path.expanduser(
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
+# Script that updates the bundler
+BUNDLER_UPDATE_SCRIPT = os.path.join(DATA_DIR, 'meta', 'update.sh')
+
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
@@ -138,6 +147,7 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/wrappers/alfred.bundler.misc.sh'.format(BUNDLER_VERSION))
@@ -145,12 +155,16 @@ HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
 # install them if necessary. This is actually the bash wrapper, not
 # the bundler.sh file in the repo
 HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
-# Path to locally cached version of Pip JSON recipe
-PIP_JSON_PATH = os.path.join(HELPER_DIR, 'pip-{}.json'.format(__version__))
-# JSON recipe for installing Pip
-PIP_JSON_URL = ('https://raw.githubusercontent.com/deanishe/'
-                'alfred-bundler/aries/meta/defaults/Pip.json')
+# Path to file storing update metadata (last update check, etc.)
+UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
+# URL of Pip installer (`get-pip.py`)
+PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
+                     'develop/contrib/get-pip.py')
 
+
+########################################################################
+# Helper classes/functions
+########################################################################
 
 class cached(object):
     """Decorator. Caches a function's return value each time it is called.
@@ -239,21 +253,158 @@ def _bundle_id():
     return plist.get('bundleid', None)
 
 
+def _notify(title, message):
+    """Post a notification"""
+    notifier = utility('terminal-notifier')
+
+    cmd = [notifier, '-title', title, '-message', message]
+
+    try:
+        icon = _find_file('icon.png')
+        cmd += ['-contentImage', icon]
+    except IOError:
+        pass
+
+    subprocess.call(cmd)
+
+
+#-----------------------------------------------------------------------
+# Installation/update functions
+#-----------------------------------------------------------------------
+
+def _update():
+    """Check for periodical updates of bundler and pip"""
+
+    update_pip = False
+    update_data = {}
+    if os.path.exists(UPDATE_JSON_PATH):
+        with open(UPDATE_JSON_PATH, 'rb') as file:
+            update_data = json.load(file, encoding='utf-8')
+
+    if time() - update_data.get('updated', 0) < UPDATE_INTERVAL:
+        return
+
+    _notify('Workflow libraries are being updated',
+            'Your workflow will continue momentarily')
+
+    # Call bundler updater
+    cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
+    proc = subprocess.Popen(cmd)
+
+    # See if pip has been updated
+    response = urllib2.urlopen(PIP_INSTALLER_URL)
+    response.close()
+
+    if response.getcode() != 200:
+        print('Error updating pip. Server returned {}'.format(
+              response.getcode()), file=sys.stderr)
+    else:
+        etag = response.info().get('Etag')
+        if etag != update_data.get('pip_etag'):  # Pip has been updated
+            # Pip seems unable to upgrade itself when using --target
+            # (it installs itself within itself, then crashes).
+            # As a result, we'll just try to install the whole thing
+            # again.
+            update_pip = True
+            # # Tell pip to update itself
+            # curdir = os.getcwd()
+            # os.chdir(HELPER_DIR)
+            # cmd = ['/usr/bin/python', '-m', 'pip']
+            # cmd += ['install',
+            #         '--upgrade',
+            #         '--target', '.',
+            #         'pip']
+            # print('pip args : {}'.format(cmd))
+            # retcode = subprocess.call(cmd)
+            # if retcode:
+            #     print('Error updating pip. Script returned {}'.format(
+            #           retcode), file=sys.stderr)
+            # os.chdir(curdir)
+            # update_data['pip_etag'] = etag
+            # update_data['pip_updated'] = time()
+
+    # Wait for `update.sh` to complete
+    retcode = proc.wait()
+    if retcode:
+        print('Error updating bundler. `update.sh` returned {}'.format(
+              retcode), file=sys.stderr)
+
+    update_data['updated'] = time()
+
+    with open(UPDATE_JSON_PATH, 'wb') as file:
+        json.dump(update_data, file, encoding='utf-8', indent=2)
+
+    if update_pip:
+        _install_pip()
+
+
+def _install_pip():
+    """Retrieve ``get-pip.py`` script and install ``pip`` in
+    ``PYTHON_LIB_DIR``
+
+    """
+
+    # Download pip installer
+    installer_path = os.path.join(HELPER_DIR, 'get-pip.py')
+    response = urllib2.urlopen(PIP_INSTALLER_URL)
+
+    if response.getcode() != 200:
+        raise IOError(2, 'Error retrieving Pip from GitHub', 'get-pip.py')
+
+    # Save and run pip installer
+    with open(installer_path, 'wb') as file:
+        file.write(response.read())
+
+    assert os.path.exists(installer_path), \
+        'Error retrieving Pip installer from GitHub.'
+
+    # Remove existing pip
+    for filename in os.listdir(HELPER_DIR):
+        if filename.startswith('pip'):
+            p = os.path.join(HELPER_DIR, filename)
+            if os.path.isdir(p):
+                shutil.rmtree(p)
+
+    cmd = ['/usr/bin/python', installer_path, '--target', HELPER_DIR]
+
+    subprocess.check_output(cmd)
+
+    assert os.path.exists(os.path.join(HELPER_DIR, 'pip')), \
+        'Pip  installation failed'
+
+    # Remove installer
+    if os.path.exists(installer_path):
+        os.unlink(installer_path)
+
+    # Cache ETag header for later updates
+    etag = response.info().get('Etag')
+    # print('Etag : {}'.format(etag))
+
+    update_data = {}
+    if os.path.exists(UPDATE_JSON_PATH):
+        with open(UPDATE_JSON_PATH, 'rb') as file:
+            update_data = json.load(file, encoding='utf-8')
+
+    update_data['pip_etag'] = etag
+    update_data['pip_updated'] = time()
+
+    with open(UPDATE_JSON_PATH, 'wb') as file:
+        json.dump(update_data, file, encoding='utf-8', indent=2)
+
+
 def _add_pip_path():
     """Install ``pip`` if necessary and add its directory to ``sys.path``
 
     :returns: ``None``
 
     """
-    if not os.path.exists(PIP_JSON_PATH):
-        urlretrieve(PIP_JSON_URL, PIP_JSON_PATH)
 
-    assert os.path.exists(PIP_JSON_PATH), ('Error retrieving Pip recipe '
-                                           'from GitHub.')
+    if not os.path.exists(os.path.join(HELPER_DIR, 'pip')):
+        # Pip's not installed, let's install it
+        _install_pip()
 
-    pip_path = utility('Pip', json_path=PIP_JSON_PATH)
-
-    sys.path.insert(0, pip_path)
+    if HELPER_DIR not in sys.path:
+        sys.path.insert(0, HELPER_DIR)
 
 
 def _bootstrap():
@@ -269,7 +420,7 @@ def _bootstrap():
     """
 
     # Create local directories if they don't exist
-    for dirpath in (HELPER_DIR, CACHE_DIR, PYTHON_LIB_DIR):
+    for dirpath in (HELPER_DIR, CACHE_DIR):
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
 
@@ -277,12 +428,19 @@ def _bootstrap():
         return
 
     # Install installer.sh from GitHub
-    urlretrieve(HELPER_URL, HELPER_PATH)
+    urllib.urlretrieve(HELPER_URL, HELPER_PATH)
 
-    assert os.path.exists(HELPER_PATH), ('Error bootstrapping bundler. '
-                                         'Could not download helper script '
-                                         'from GitHub.')
+    assert os.path.exists(HELPER_PATH), \
+        'Error bootstrapping bundler. Could not download helper script.'
 
+    update_data = {'updated': time()}
+    with open(UPDATE_JSON_PATH, 'wb') as file:
+        json.dump(update_data, file, encoding='utf-8', indent=2)
+
+
+########################################################################
+# API functions
+########################################################################
 
 @cached
 def utility(name, version='default', json_path=None):
@@ -313,6 +471,7 @@ def utility(name, version='default', json_path=None):
     """
 
     _bootstrap()
+    _update()
 
     # Call bash wrapper with specified arguments
     json_path = json_path or ''
@@ -348,6 +507,7 @@ def init(requirements=None):
     """
 
     _bootstrap()
+    _update()
 
     bundle_id = _bundle_id()
     if not bundle_id:
@@ -389,20 +549,8 @@ def init(requirements=None):
             metadata['hash'] = h
 
             # Notify user of updates
-            notifier = utility('terminal-notifier')
-
-            cmd = [notifier,
-                   '-title', 'Installing workflow dependencies',
-                   '-message', 'Your worklow will run momentarily']
-
-            try:
-                icon = _find_file('icon.png')
-                cmd += ['-contentImage', icon]
-            except IOError:
-                pass
-
-            print(cmd)
-            subprocess.call(cmd)
+            _notify('Installing workflow dependencies',
+                    'Your worklow will run momentarily')
 
             # Install dependencies with Pip
             _add_pip_path()
@@ -411,6 +559,7 @@ def init(requirements=None):
                     '--upgrade',
                     '--requirement', requirements,
                     '--target', install_dir]
+            print('pip args : {}'.format(args))
             pip.main(args)
 
     if metadata_changed:  # Save new metadata
