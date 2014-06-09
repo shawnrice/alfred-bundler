@@ -378,7 +378,6 @@ def _install_pip():
 
     # Cache ETag header for later updates
     etag = response.info().get('Etag')
-    # print('Etag : {}'.format(etag))
 
     update_data = {}
     if os.path.exists(UPDATE_JSON_PATH):
@@ -559,7 +558,7 @@ def init(requirements=None):
                     '--upgrade',
                     '--requirement', requirements,
                     '--target', install_dir]
-            print('pip args : {}'.format(args))
+
             pip.main(args)
 
     if metadata_changed:  # Save new metadata
