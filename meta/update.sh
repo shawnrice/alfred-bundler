@@ -1,32 +1,34 @@
 #!/bin/sh
 
 bundler_version="aries"
+__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 
 __checkUpdate() {
   __git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
 
-  if [ ! -d "$data/alfred.bundler-$bundler_version/data"]; then
-    mkdir "$data/alfred.bundler-$bundler_version/data"
+  if [ ! -d "$__data/data" ]; then
+    mkdir "$__data/data"
   fi
 
   __date=`date "+%s"`
   __week=604800 # This is one week in seconds
   let __date=$__date+$__week
 
-  if [ ! -f "$__data/alfred.bundler/data/update-cache" ]; then
+  if [ ! -f "$__data/data/update-cache" ]; then
       # Update the update-check file for a week from today.
-      echo "$date" > "$__data/alfred.bundler-$bundler_version/data/update-cache"
+      echo "$__date" > "$__data/data/update-cache"
       exit 0
   else
-    if [  $__date -lt `cat "$__data/alfred.bundler-$bundler_version/data/update-cache"` ]; then
+    if [  $__date -lt $(cat "$__data/data/update-cache") ]; then
       __remoteVersion=`curl "$__git/meta/version_minor"`
       if [ ! -z $__remoteVersion ]; then
-        if [ `cat "$__data/alfred.bundler-$bundle_version/meta/version_minor"` != "$remoteVersion" ]; then
+        if [ `cat "$__data/meta/version_minor"` != "$remoteVersion" ]; then
           __doUpdate
         fi
 
         # Update the update-check file for a week from today.
-        echo "$date" > "$__data/alfred.bundler-$bundler_version/data/update-cache"
+        echo "$date" > "$__data/data/update-cache"
+      fi
     fi
   fi
 }
