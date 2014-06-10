@@ -33,7 +33,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
       $invoke = str_replace("\n", '', $invoke);
       if ( strpos( $invoke, '.app' ) !== FALSE ) {
         // Invoke Gatekeeper only when the utility is a .app.
-        exec( "sh '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$invoke'");
+        exec( "sh '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'");
       }
 
     }
