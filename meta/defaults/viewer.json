@@ -3,7 +3,7 @@
     "type": "utility",
     "versions": {
         "default": {
-            "invoke": "viewer.app --args",
+            "invoke": "viewer.app",
             "files": [
                 {
                     "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/viewer.app.zip",

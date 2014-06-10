@@ -5,34 +5,55 @@ newest=2
 
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __git="https://github.com/shawnrice/alfred-bundler/raw/aries"
+newest=`curl -sL "https://github.com/shawnrice/alfred-bundler/raw/aries/meta/version_minor"`
+current=`cat "__data/meta/version_minor"`
+
+## Let's now write a function that will go through each list and then do them all. Or something.
 
 #### Upgrade Path Functions
 #### We can just run them sequentially... maybe.
 
+dlFiles=()
+delFiles=()
 ###
 # From Aries 1 to Aries 2
+# 
 one_to_two() {
 
 	# Remove Files
-	rm "$__data/includes/download.php"
-	rm "$__data/meta/defaults/php-5.5.5-cli.json"
+	delFiles+=("includes/download.php")
+	delFiles+=("meta/defaults/php-5.5.5-cli.json")
 
 	# New Files
-	curl -sL "$__git/meta/defaults/Pip.json" > "$__data/meta/defaults/Pip.json"
-	curl -sL "$__git/wrappers/bundler.py" > "$__data/wrappers/bundler.py"
+	dlFiles+=("meta/defaults/Pip.json")
+	dlFiles+=("wrappers/bundler.py")
 
 	# Updated Files
-	curl -sL "$__git/wrappers/alfred.bundler.sh" > "$__data/wrappers/alfred.bundler.sh"
-	curl -sL "$__git/wrappers/alfred.bundler.misc.sh" > "$__data/wrappers/alfred.bundler.misc.sh"
-	curl -sL "$__git/meta/update.sh" > "$__data/meta/update.sh"
-	curl -sL "$__git/bundler.sh" > "$__data/bundler.sh"
-	curl -sL "$__git/bundler.php" > "$__data/bundler.php"
-	curl -sL "$__git/includes/gatekeeper.sh" > "$__data/includes/gatekeeper.sh"
-
+	dlFiles+=("wrappers/alfred.bundler.sh")
+	dlFiles+=("wrappers/alfred.bundler.misc.sh")
+	dlFiles+=("meta/update.sh")
+	dlFiles+=("bundler.sh")
+	dlFiles+=("bundler.php")
+	dlFiles+=("meta/defaults/viewer.json")
+	dlFiles+=("includes/gatekeeper.sh")
 
 	# Update the minor version
-	curl -sL "$__git/meta/version_minor" > "$__data/meta/version_minor"
+	dlFiles+=("meta/version_minor")
 
 	# Update the file manifest
-	curl -sL "$__git/manifest" > "$__data/manifest"
+	dlFiles+=("manifest")
+}
+
+### Let's define some helper functions.
+
+downloadFile() {
+	file="$1"
+	curl -sL "$__git/$file" > "$__data/$file"
+}
+
+deleteFile() {
+	file="$1"
+	if [ -f "$__data/$file" ]; then
+		rm "$__data/$file"
+	fi
 }
