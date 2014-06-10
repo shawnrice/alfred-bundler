@@ -23,7 +23,7 @@ function __loadAsset {
     if [ "$type" = 'utility' ]; then
       if [[ "$invoke" =~ \.app ]]; then 
         # Call Gatekeeper for the utility on if '.app' is in the name
-        sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke"  > /dev/null
+        sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
       fi
     fi
     echo "$__data/assets/$type/$name/$version/$invoke"
