@@ -40,7 +40,8 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
   if [ "$status" = "assessments enabled" ]; then
     # It's enabled, so we'll see if the file has an exception logged.
     label="alfred-bundle-$name"
-    gatekeeper=`spctl --list --label "$label" > /dev/null 2>&1; echo $?`
+    gatekeeper=`spctl -a "$path" > /dev/null 2>&1; echo $?`
+    # gatekeeper=`spctl --list --label "$label" > /dev/null 2>&1; echo $?`
     if [ "$gatekeeper" = "0" ]; then
       echo "okay"
       exit 0
@@ -85,22 +86,23 @@ script=`echo "$script" | sed 's|$name|'"$name"'|g'`
 
 response=`osascript -e "$script"`
 
-if [[ $response =~ "Deny" ]]; then
-  # The user has denied access to the app, so we're going to, well, exit and die.
-  echo "denied"
-  exit 1
-fi
+# if [[ $response =~ "Deny" ]]; then
+#   # The user has denied access to the app, so we're going to, well, exit and die.
+#   echo "denied"
+#   exit 1
+# fi
 
-label="alfred-bundle-$name"
-gatekeeper=`spctl --list --label "$label"`
+label="alfred-bundle-$name" 
+gatekeeper=$(spctl --list --label "$label" > /dev/null 2>&1; echo $?)
 
-if [ "$gatekeeper" = "error: no matches for search or update operation" ]; then
+if [ "$gatekeeper" = "1" ]; then
   # No label was found, so we'll add one then enable it.
-  spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-$name"
-  if [ `echo "$?"` = "1" ]; then
+  status=`spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-$name"; echo $?`
+  if [ "$status" = "1" ]; then
     echo "denied"
     exit 1
   fi
+
   # If we put the following commented out command on the same line, then we need enter the password only once.
   # test=`spctl --enable --label "alfred-bundle-$name"`
   # if [ "$test" = "error: no matches for search or update operation" ]; then
