@@ -38,8 +38,8 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
   # Check to see if Gatekeeper is on.
   if [ "$status" = "assessments enabled" ]; then
     # It's enabled, so we'll see if the file has an exception logged.
-    spctl -a "$path" > /dev/null 2>&1
-    if [ `echo "$?"` = "0" ]; then
+    test=`spctl -a "$path" > /dev/null 2>&1; echo $?`
+    if [ "$test" = "0" ]; then
       echo "okay"
       exit 0
     fi
@@ -53,6 +53,12 @@ else
   echo "false"
   exit 0
 fi
+
+# label="alfred-bundle-$name"
+# gatekeeper=`spctl --list --label "$label"`
+# if [ "$gatekeeper" != "error: no matches for search or update operation" ]; then
+#   exit 0
+# fi
 
 # At this point,  we know that
 #   (1) we're using either Mavericks or Mountain Lion;
