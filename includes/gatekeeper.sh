@@ -33,7 +33,7 @@ version=`sw_vers -productVersion`
 data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 
 # Check for Mavericks or Mountain Lion
-if [[ $version =~ "10.9" ]] || [[ $version =~ "10.8" ]]; then
+if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8" ]]; then
   status=`spctl --status`
   # Check to see if Gatekeeper is on.
   if [ "$status" = "assessments enabled" ]; then
@@ -80,30 +80,32 @@ response=`osascript -e "$script"`
 if [[ $response =~ "Deny" ]]; then
   # The user has denied access to the app, so we're going to, well, exit and die.
   echo "denied"
-  exit 2
+  exit 1
 fi
 
 label="alfred-bundle-$name"
-spctl --list --label "$label" > /dev/null 2>&1
-if [ `echo $?` = "1" ]; then
+gatekeeper=`spctl --list --label "$label"`
+
+if [ "$gatekeeper" = "error: no matches for search or update operation" ]; then
   # No label was found, so we'll add one then enable it.
   spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1
   if [ `echo "$?"` = "1" ]; then
     echo "denied"
-    exit 2
+    exit 1
   fi
   spctl --enable --label "alfred-bundle-$name"
   if [ `echo "$?"` = "1" ]; then
     echo "denied"
-    exit 2
+    exit 1
   fi
-else
-  # We found the label, so we'll just re-enable it.
-  spctl --enable --label "alfred-bundle-$name"
-  if [ `echo "$?"` = "1" ]; then
-    echo "denied"
-    exit 2
-  fi
+# else
+#   I don't think that this is necessary, but so I'll go ahead and comment it out.
+#   # We found the label, so we'll just re-enable it.
+#   spctl --enable --label "alfred-bundle-$name"
+#   if [ `echo "$?"` = "1" ]; then
+#     echo "denied"
+#     exit 1
+#   fi
 fi
 
 exit 0
