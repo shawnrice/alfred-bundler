@@ -21,9 +21,6 @@ function __loadAsset {
   local key
   local path
 
-  # Create cache directory if it doesn't exist
-  [[ ! -d "${bd_asset_cache}" ]] && mkdir -p "${bd_asset_cache}"
-
   # Cache path for this call
   key=$(md5 -q -s "${name}-${version}-${bundle}-${type}-${json}")
   cachepath="${bd_asset_cache}/${key}"
@@ -36,6 +33,9 @@ function __loadAsset {
       return 0
     fi
   fi
+
+  # Create cache directory if it doesn't exist
+  [[ ! -d "${bd_asset_cache}" ]] && mkdir -p "${bd_asset_cache}"
 
   # No valid cache, call real function and cache that result
   path=$(__loadAssetInner "${name}" "${version}" "${bundle}" "${type}" "${json}")
