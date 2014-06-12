@@ -2,7 +2,51 @@
 
 . "$__data/includes/helper-functions.sh"
 
+bd_asset_cache="$__data/data/call-cache"
+
+# Caching wrapper around the real function
 function __loadAsset {
+  # $1 -- asset name
+  # $2 -- version
+  # $3 -- bundle
+  # $4 -- type
+  # $5 -- json (file-path)
+
+  local name="$1"
+  local version="$2"
+  local bundle="$3"
+  local type="$4"
+  local json="$5"
+  local cachepath
+  local key
+  local path
+
+  # Create cache directory if it doesn't exist
+  [[ ! -d "${bd_asset_cache}" ]] && mkdir -p "${bd_asset_cache}"
+
+  # Cache path for this call
+  key=$(md5 -q -s "${name}-${version}-${bundle}-${type}-${json}")
+  cachepath="${bd_asset_cache}/${key}"
+
+  # Load result from cache if it exists
+  if [[ -f "${cachepath}" ]]; then
+    path=$(cat "${cachepath}")
+    if [[ -f "${path}" ]]; then
+      echo "$path"
+      return 0
+    fi
+  fi
+
+  # No valid cache, call real function and cache that result
+  path=$(__loadAssetInner "${name}" "${version}" "${bundle}" "${type}" "${json}")
+  status=$?
+  [[ $status -gt 0 ]] && return $status
+  echo "${path}" > "${cachepath}"
+  echo "${path}"
+  return 0
+}
+
+function __loadAssetInner {
   # $1 -- asset name
   # $2 -- version
   # $3 -- bundle
@@ -21,7 +65,7 @@ function __loadAsset {
       invoke=''
     fi
     if [ "$type" = 'utility' ]; then
-      if [[ "$invoke" =~ \.app ]]; then 
+      if [[ "$invoke" =~ \.app ]]; then
         # Call Gatekeeper for the utility on if '.app' is in the name
         sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
       fi
@@ -55,7 +99,7 @@ function __loadAsset {
       fi
       if [ $type = 'utility' ]; then
         if [ ! -z "$invoke" ]; then
-          if [[ "$invoke" =~ \.app ]]; then 
+          if [[ "$invoke" =~ \.app ]]; then
             # Call Gatekeeper for the utility on if '.app' is in the name
             sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
           fi
