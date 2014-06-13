@@ -69,7 +69,7 @@ function __loadAssetInner {
         # Call Gatekeeper for the utility on if '.app' is in the name
         bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
         status=$?
-        [[ $status -gt 0 ]] && return $status
+        [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
       fi
     fi
     echo "$__data/assets/$type/$name/$version/$invoke"
@@ -105,7 +105,7 @@ function __loadAssetInner {
             # Call Gatekeeper for the utility on if '.app' is in the name
             bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
             status=$?
-            [[ $status -gt 0 ]] && return $status
+            [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
           fi
         fi
       fi
