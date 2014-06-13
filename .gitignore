@@ -5,3 +5,4 @@ build-pydocs.sh
 /wrappers/benchmark.py
 /wrappers/icon.png
 benchmark.sh
+benchmark.php
