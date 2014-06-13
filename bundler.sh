@@ -28,7 +28,7 @@ function __loadAsset {
   # Load result from cache if it exists
   if [[ -f "${cachepath}" ]]; then
     path=$(cat "${cachepath}")
-    if [[ -f "${path}" ]]; then
+    if [[ -f "${path}" ]] || [[ -d "${path}" ]]; then
       echo "$path"
       return 0
     fi
