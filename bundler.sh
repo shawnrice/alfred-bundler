@@ -67,7 +67,9 @@ function __loadAssetInner {
     if [ "$type" = 'utility' ]; then
       if [[ "$invoke" =~ \.app ]]; then
         # Call Gatekeeper for the utility on if '.app' is in the name
-        sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
+        bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
+        status=$?
+        [[ $status -gt 0 ]] && return $status
       fi
     fi
     echo "$__data/assets/$type/$name/$version/$invoke"
@@ -101,7 +103,9 @@ function __loadAssetInner {
         if [ ! -z "$invoke" ]; then
           if [[ "$invoke" =~ \.app ]]; then
             # Call Gatekeeper for the utility on if '.app' is in the name
-            sh "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
+            bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
+            status=$?
+            [[ $status -gt 0 ]] && return $status
           fi
         fi
       fi

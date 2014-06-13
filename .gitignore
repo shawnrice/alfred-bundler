@@ -4,3 +4,4 @@ build-pydocs.sh
 /wrappers/info.plist
 /wrappers/benchmark.py
 /wrappers/icon.png
+benchmark.sh

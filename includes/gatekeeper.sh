@@ -86,11 +86,11 @@ script=`echo "$script" | sed 's|$name|'"$name"'|g'`
 
 response=`osascript -e "$script"`
 
-# if [[ $response =~ "Deny" ]]; then
-#   # The user has denied access to the app, so we're going to, well, exit and die.
-#   echo "denied"
-#   exit 1
-# fi
+if [[ $response =~ "Deny" ]]; then
+  # The user has denied access to the app, so we're going to, well, exit and die.
+  echo "denied"
+  exit 1
+fi
 
 label="alfred-bundle-$name" 
 gatekeeper=$(spctl --list --label "$label" > /dev/null 2>&1; echo $?)
@@ -103,12 +103,14 @@ if [ "$gatekeeper" = "1" ]; then
     exit 1
   fi
 
-  # If we put the following commented out command on the same line, then we need enter the password only once.
-  # test=`spctl --enable --label "alfred-bundle-$name"`
-  # if [ "$test" = "error: no matches for search or update operation" ]; then
-  #   echo "denied"
-  #   exit 1
-  # fi
+# This is old, but we'll leave it in -- commented out -- in case we need to roll back ever.
+# 
+# If we put the following commented out command on the same line, then we need enter the password only once.
+# test=`spctl --enable --label "alfred-bundle-$name"`
+# if [ "$test" = "error: no matches for search or update operation" ]; then
+#   echo "denied"
+#   exit 1
+# fi
 # else
 #   I don't think that this is necessary, but so I'll go ahead and comment it out.
 #   # We found the label, so we'll just re-enable it.
