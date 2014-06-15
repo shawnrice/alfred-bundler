@@ -22,7 +22,7 @@ function __loadAsset {
   local path
 
   # Cache path for this call
-  key=$(md5 -q -s "${name}-${version}-${bundle}-${type}-${json}")
+  key=$(md5 -q -s "${name}-${version}-${type}-${json}")
   cachepath="${bd_asset_cache}/${key}"
 
   # Load result from cache if it exists
