@@ -65,9 +65,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
           file_put_contents( "$cachepath", "$__data/assets/$type/$name/$version/$invoke" );
           return array( "$__data/assets/$type/$name/$version/$invoke" );          
         }
-
       }
-
     }
 
     $invoke = explode( "\n" , $invoke );
