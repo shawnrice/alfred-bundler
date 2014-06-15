@@ -6,11 +6,8 @@ bundler_version="aries";
 
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __git="https://github.com/shawnrice/alfred-bundler/raw/aries"
-# newest=`curl -sL "https://github.com/shawnrice/alfred-bundler/raw/aries/meta/version_minor"`
+newest=`curl -sL "https://github.com/shawnrice/alfred-bundler/raw/aries/meta/version_minor"`
 current=`cat "$__data/meta/version_minor"`
-
-# For testing purposes
-newest=2
 
 numberTranslation=('zero' 'one' 'two' 'three' 'four' 'five' 'six' 'seven' 'eight' 'nine' 'ten')
 
@@ -47,19 +44,15 @@ one_to_two() {
 	# Update the minor version
 	downloadQueue+=' meta/version_minor'
 
-	# Update the file manifest
-	downloadQueue+=' manifest'
 }
 
 ###
 # From Aries 2 to Aries 3
 # Just for testing purposes
  
-two_to_three() {
-	deleteQueue+=' another/file'
-	downloadQueue+=' yetanother/file'
-	downloadQueue+=' meta/defaults/Pip.json'
-}
+#two_to_three() {
+	# Not needed yet.
+#}
 
 ### Let's define some helper functions.
 
@@ -68,16 +61,14 @@ two_to_three() {
 
 downloadFile() {
 	file="$1"
-	# curl -sL "$__git/$file" > "$__data/$file"
 	echo "curl -sL '$__git/$file' > '$__data/$file'"
 }
 
 deleteFile() {
 	file="$1"
-	# if [ -f "$__data/$file" ]; then
-	# 	rm "$__data/$file"
-	# fi
-	echo "rm '$__data/$file'"
+	if [ -f "$__data/$file" ]; then
+		rm "$__data/$file"
+	fi
 }
 
 #### Start Script
