@@ -29,6 +29,7 @@ one_to_two() {
 	# Remove Files
 	deleteQueue+=' includes/download.php'
 	deleteQueue+=' meta/defaults/php-5.5.5-cli.json'
+	deleteQueue+=' manifest'
 
 	# New Files
 	downloadQueue+=' meta/defaults/Pip.json'
