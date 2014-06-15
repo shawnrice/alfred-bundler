@@ -18,7 +18,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
 
   global $bundler_version;
   $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-
+  
   if ( empty( $version ) ) $version = 'default'; // This shouldn't be needed....
   if ( ! empty( $bundle ) ) __registerAsset( $bundle , $name , $version );
 
@@ -30,10 +30,42 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     if ( ( $type == 'utility' ) && ( ! empty( $invoke ) ) && ( $invoke != 'null' ) ) {
       // Utilities should have only a single line invoke file, so that's
       // just fine to consider it a string.
+       
+      /////////////////////////////////////////////////////////////////////////////////
+      // Let's start the caching checks
+
+      $bd_asset_cache = "$__data/data/call-cache";
+
+      // Make sure the directory exists
+      if ( ! ( file_exists( $bd_asset_cache ) && is_dir( $bd_asset_cache ) ) )
+        mkdir( $bd_asset_cache );
+
+      // Cache path for this call
+      $key = md5( "$name-$version-$type-$json" );
+      $cachepath = "$bd_asset_cache/$key";
+
+      if ( file_exists( "$cachepath" ) ) {
+        $path = file_get_contents( "$bd_asset_cache/$key" );
+        if ( file_exists( "$path" ) ) {
+          // The cache has been found, and we have the asset there already.
+          return array( $path );
+        }
+      }
+
+      // The cache hasn't been found, so we'll call gatekeeper
+      
       $invoke = str_replace("\n", '', $invoke);
       if ( strpos( $invoke, '.app' ) !== FALSE ) {
         // Invoke Gatekeeper only when the utility is a .app.
-        exec( "sh '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'");
+        exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'", $output, $return );
+        if ( $output == 'denied' ) {
+          return $output;
+        }
+        else if ( $return == 'okay' ) {
+          file_put_contents( "$cachepath", "$__data/assets/$type/$name/$version/$invoke" );
+          return array( "$__data/assets/$type/$name/$version/$invoke" );          
+        }
+
       }
 
     }
