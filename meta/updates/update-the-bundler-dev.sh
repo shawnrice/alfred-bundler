@@ -28,6 +28,13 @@ status=$?
 
 cd "$__cache/update-bundler"
 unzip -q bundler-update.zip
+# Check to make sure it was a valid zip, otherwise, exit
+status=$?
+if [[ $status -gt 0 ]]; then
+	cd -
+	rm -fR "$__cache/update-bundler"
+	exit $status
+fi
 cd - 
 
 cd "$__data"
