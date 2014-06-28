@@ -3,6 +3,31 @@
 . "$__data/includes/helper-functions.sh"
 
 bd_asset_cache="$__data/data/call-cache"
+bd_icon_server_url='http://icons.deanishe.net/icon'
+
+function __loadIcon {
+  local font="$1"
+  local colour="$2"
+  local icon="$3"
+  local filepath="${__data}/assets/icons/${font}/${colour}/${icon}.png"
+  local url="${bd_icon_server_url}/${font}/${colour}/${icon}"
+
+  # Return path to locally-cached icon if it exists
+  if [[ -f "$filepath" ]]; then
+    echo "$filepath"
+    return 0
+  fi
+
+  # Download the icon from the server and then return the path
+  curl -sSL "${url}" > "${filepath}"
+  status=$?
+  [[ $status -gt 0 ]] && {
+    echo "Error retrieving icon ${font}/${colour}/${icon} (${url}). cURL exited with ${status}" > /dev/stderr
+    return status
+  }
+  echo "$filepath"
+  return 0
+}
 
 # Caching wrapper around the real function
 function __loadAsset {
