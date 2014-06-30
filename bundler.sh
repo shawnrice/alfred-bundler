@@ -5,29 +5,6 @@
 bd_asset_cache="$__data/data/call-cache"
 bd_icon_server_url='http://icons.deanishe.net/icon'
 
-function __loadIcon {
-  local font="$1"
-  local colour="$2"
-  local icon="$3"
-  local filepath="${__data}/assets/icons/${font}/${colour}/${icon}.png"
-  local url="${bd_icon_server_url}/${font}/${colour}/${icon}"
-
-  # Return path to locally-cached icon if it exists
-  if [[ -f "$filepath" ]]; then
-    echo "$filepath"
-    return 0
-  fi
-
-  # Download the icon from the server and then return the path
-  curl -sSL "${url}" > "${filepath}"
-  status=$?
-  [[ $status -gt 0 ]] && {
-    echo "Error retrieving icon ${font}/${colour}/${icon} (${url}). cURL exited with ${status}" > /dev/stderr
-    return status
-  }
-  echo "$filepath"
-  return 0
-}
 
 # Caching wrapper around the real function
 function __loadAsset {
@@ -45,6 +22,47 @@ function __loadAsset {
   local cachepath
   local key
   local path
+  local status
+
+  # Icons
+  #------------------------------------------------------------
+
+  if [[ "${type}" = 'icon' ]]; then
+    local icon="$1"
+    local font="$2"
+    local colour="$5"
+    local url=
+
+    local icondir="${__data}/assets/icons/${font}/${colour}"
+    local path="${icondir}/${icon}.png"
+
+    # Return path to file if it exists
+    if [[ -f "$path" ]]; then
+      echo "$path"
+      return 0
+    fi
+
+    # Download icon from web service and cache it
+    url="${bd_icon_server_url}/${font}/${colour}/${icon}"
+
+    # Create parent directory if necessary
+    [[ ! -d "${icondir}" ]] && mkdir -p "${icondir}"
+
+    curl -fsSL "$url" > "${path}"
+    status=$?
+
+    if [[ $status -eq 0 ]]; then
+      echo "${path}"
+    else
+      # Delete empty/corrupt file if it exists
+      [[ -f "$path" ]] && rm -f "$path"
+      echo "Error retrieving ${url}. cURL exited with ${status}"
+    fi
+    return $status
+  fi
+
+  # Other assets
+  #------------------------------------------------------------
 
   # Cache path for this call
   key=$(md5 -q -s "${name}-${version}-${type}-${json}")
