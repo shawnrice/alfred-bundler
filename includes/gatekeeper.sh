@@ -3,12 +3,10 @@
 ################################################################################
 # In 10.8, Apple introduced something called "Gatekeeper," which is that
 # annoying thing that will warn you when opening up an unsigned application in
-# 10.8, and, really annoying, in 10.9, it will not let you open anything not
-# from the Apple App Store unless you change the settings. Since we can't rely
-# on a user to have changed these settings, then we might have to seek
-# exceptions. This script checks to see if Gatekeeper will deny an app from
-# opening and ask permission if it will. Otherwise, it exits with a hunky-dorey
-# status.
+# 10.8+. Since we can't rely on a user to have changed these settings, then we 
+# might have to seek exceptions. This script checks to see if Gatekeeper will 
+# deny an app from opening and ask permission if it will. Otherwise, it exits 
+# with a hunky-dorey status.
 ################################################################################
 
 # This script is called internally from the bundler, so you shouldn't ever need
@@ -20,8 +18,8 @@
 #    1 : Failure to invoke script properly.
 #    2 : User denied request, alas.
 
-name="$1"
-path="$2"
+name="$1" # Name of utility
+path="$2" # Full path to utility
 bundler_version="aries";
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
@@ -37,7 +35,11 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
   status=`spctl --status`
 
   # Check to see if Gatekeeper is on.
-  if [ "$status" = "assessments enabled" ]; then
+  if [ "$status" != "assessments enabled" ]; then
+    # Gatekeeper is off. Do nothing.
+    echo "off"
+    exit 0
+  else
     # It's enabled, so we'll see if the file has an exception logged.
     label="alfred-bundle-$name"
     gatekeeper=`spctl -a "$path" > /dev/null 2>&1; echo $?`
@@ -46,10 +48,6 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
       echo "okay"
       exit 0
     fi
-  else
-    # Gatekeeper is off. Do nothing.
-    echo "off"
-    exit 0
   fi
 else
   # Pre-10.7, Gatekeeper doesn't exist
@@ -97,7 +95,7 @@ gatekeeper=$(spctl --list --label "$label" > /dev/null 2>&1; echo $?)
 
 if [ "$gatekeeper" = "1" ]; then
   # No label was found, so we'll add one then enable it.
-  status=`spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-$name"; echo $?`
+  status=$(spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-$name"; echo $?)
   if [ "$status" = "1" ]; then
     echo "denied"
     exit 1
