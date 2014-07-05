@@ -119,6 +119,7 @@ import subprocess
 import sys
 import time
 import urllib2
+from urllib import urlretrieve
 
 VERSION = '0.1'
 
@@ -146,6 +147,10 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
+# Where icons will be cached
+ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
+API_URL = 'http://icons.deanishe.net/icon/{font}/{colour}/{icon}'
 
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
@@ -460,6 +465,28 @@ def _bootstrap():
 ########################################################################
 # API functions
 ########################################################################
+
+
+def icon(icon, font, colour):
+    """Get path to specified icon, downloading it first if necessary
+
+    `icon` is the name of the font character, `font` is the name of the font,
+    `colour` is a CSS colour of format 'xxxxxx' (without preceding #).
+
+    See http://icons.deanishe.net to view available icons.
+
+    """
+
+    icondir = os.path.join(ICON_CACHE, font, colour)
+    path = os.path.join(icondir, '{}.png'.format(icon))
+    if os.path.exists(path):
+        return path
+    if not os.path.exists(icondir):
+        os.makedirs(icondir, 0755)
+    url = API_URL.format(font=font, colour=colour, icon=icon)
+    urlretrieve(url, path)
+    return path
+
 
 @cached
 def utility(name, version='default', json_path=None):
