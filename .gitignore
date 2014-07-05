@@ -7,6 +7,7 @@ build-pydocs.sh
 benchmark.sh
 benchmark.php
 bash-php-benchmark.sh
+test.php
 benchmark_icons.py
 icons.json
 test.php
