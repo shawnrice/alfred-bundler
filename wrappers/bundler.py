@@ -470,8 +470,14 @@ def _bootstrap():
 def icon(icon, font, colour):
     """Get path to specified icon, downloading it first if necessary
 
-    `icon` is the name of the font character, `font` is the name of the font,
-    `colour` is a CSS colour of format 'xxxxxx' (without preceding #).
+    :param icon: name of the font character
+    :type icon: ``unicode`` or ``str``
+    :param font: name of the font
+    :type font: ``unicode`` or ``str``
+    :param colour: CSS colour in format "xxxxxx" (no preceding #)
+    :type colour: ``unicode`` or ``str``
+    :returns: path to icon file
+    :rtype: ``unicode``
 
     See http://icons.deanishe.net to view available icons.
 
