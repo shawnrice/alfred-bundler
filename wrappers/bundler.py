@@ -97,9 +97,7 @@ which can catch workflow errors and warn the user (amongst other cool stuff).
 
 Any problems with the Bundler may be raised on
 `Alfred's forum <http://www.alfredforum.com/topic/4255-alfred-dependency-downloader-framework/>`_
-or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_. **Note:**
-This Python version currently only exists in `this fork <https://github.com/deanishe/alfred-bundler>`_, so it's
-currently better to raise problems specific to the Python version there.
+or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_.
 
 Alfred Bundler Methods
 ======================
