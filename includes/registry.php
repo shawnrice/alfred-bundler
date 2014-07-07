@@ -9,7 +9,7 @@
 require_once( 'registry-functions.php' );
 
 $bundler_version = "aries";
-$__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+$__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 
 if ( ! isset( $bundler_version ) ) {
   // Define the global bundler versions.
