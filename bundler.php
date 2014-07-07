@@ -22,7 +22,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
   if ( $type == 'icon' ) { // Deal with icons first
     // We didn't plan, originally, to have icons work with the bundler, so this is a bit of a hack.
     // The next major version of the bundler will have better icon support.
-    if ( ! ( isset( $version ) && isset( $json ) ) // We need all the arguments here.
+    if ( ! ( isset( $version ) && isset( $json ) ) ) // We need all the arguments here.
       die( 'Need to pass all arguments' );
 
     $icon               = $name;
@@ -30,7 +30,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     $color              = $json;
 
 
-    $iconDir            = "$__data/assets/icons/$font/$color"
+    $iconDir            = "$__data/assets/icons/$font/$color";
     $path               = "$__data/assets/icons/$font/$color/$icon";
 
     if ( file_exists( $path ) ) // See if the file is already there.
@@ -42,7 +42,6 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     }
 
     $bd_icon_server_url = 'http://icons.deanishe.net/icon';
-    $iconURL = ;
 
     // Rewrite to a proper cURL request
     $icon = file_get_contents( "$bd_icon_server_url/$font/$colour/$icon" );
