@@ -3,8 +3,8 @@
 require_once( 'includes/registry-functions.php' );
 require_once( 'includes/install-functions.php' );
 
-$__data  = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-$__cache = exec( 'echo $HOME' ) . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
+$__data  = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+$__cache = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
 
 if ( ! isset( $bundler_version ) ) {
@@ -17,8 +17,44 @@ if ( ! isset( $bundler_version ) ) {
 function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $json = '' ) {
 
   global $bundler_version;
-  $__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-  
+  $__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+
+  if ( $type == 'icon' ) { // Deal with icons first
+    // We didn't plan, originally, to have icons work with the bundler, so this is a bit of a hack.
+    // The next major version of the bundler will have better icon support.
+    if ( ! ( isset( $version ) && isset( $json ) ) // We need all the arguments here.
+      die( 'Need to pass all arguments' );
+
+    $icon               = $name;
+    $font               = $version;
+    $color              = $json;
+
+
+    $iconDir            = "$__data/assets/icons/$font/$color"
+    $path               = "$__data/assets/icons/$font/$color/$icon";
+
+    if ( file_exists( $path ) ) // See if the file is already there.
+      return $path;
+ 
+    if ( ! file_exists( $iconDir ) ) {
+      if ( ! mkdir( $iconDir, 0775, TRUE ) ) // Make the icon directory and those below it if necessary.
+        die( 'Failed to make directory' );
+    }
+
+    $bd_icon_server_url = 'http://icons.deanishe.net/icon';
+    $iconURL = ;
+
+    // Rewrite to a proper cURL request
+    $icon = file_get_contents( "$bd_icon_server_url/$font/$colour/$icon" );
+    if ( $icon === FALSE )
+      die( 'Failed to get icon' ); // Problem getting icon
+
+    file_put_contents( $path, $icon );
+
+    // We have the icon file. It's saved, so just send the path back now.
+    return $path;
+  }
+
   if (   empty( $version ) ) $version = 'default'; // This shouldn't be needed....
   if ( ! empty( $bundle  ) ) __registerAsset( $bundle , $name , $version );
 
