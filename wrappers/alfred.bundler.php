@@ -14,7 +14,7 @@ $bundler_version       = "aries";
 $bundler_minor_version = '1';
 
 // Let's just make sure that the utility exists before we try to use it.
-$__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+$__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 if ( ! file_exists( "$__data" ) ) {
   __installBundler();
 }
@@ -74,7 +74,7 @@ function __installBundler() {
   global $bundler_version, $__data;
 echo "here";
   $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh";
-  $__cache   = exec('echo $HOME') . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
+  $__cache   = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
   // Make the directories
   if ( ! file_exists( $__cache ) ) {
