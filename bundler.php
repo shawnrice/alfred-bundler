@@ -31,7 +31,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
 
 
     $iconDir            = "$__data/assets/icons/$font/$color";
-    $path               = "$__data/assets/icons/$font/$color/$icon";
+    $path               = "$__data/assets/icons/$font/$color/$icon.png";
 
     if ( file_exists( $path ) ) // See if the file is already there.
       return $path;
@@ -44,7 +44,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     $bd_icon_server_url = 'http://icons.deanishe.net/icon';
 
     // Rewrite to a proper cURL request
-    $icon = file_get_contents( "$bd_icon_server_url/$font/$colour/$icon" );
+    $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
     if ( $icon === FALSE )
       die( 'Failed to get icon' ); // Problem getting icon
 
