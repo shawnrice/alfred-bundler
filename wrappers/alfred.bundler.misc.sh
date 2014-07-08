@@ -14,42 +14,42 @@ __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-
 __cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 
 function __load {
- # $1 -- asset name
- # $2 -- version
- # $3 -- type
- # $4 -- json -- this is a file path
+  # $1 -- asset name
+  # $2 -- version
+  # $3 -- type
+  # $4 -- json -- this is a file path
 
- if [ -z "$1" ]; then
-  echo "You need to pass at minimum one argument to use the __load function."
-  return 1
- fi
+  if [ -z "$1" ]; then
+    echo "You need to pass at minimum one argument to use the __load function."
+    return 1
+  fi
 
- local name="$1"
- local version="$2"
- local type="$3"
- local json="$4"
- local asset
+  local name="$1"
+  local version="$2"
+  local type="$3"
+  local json="$4"
+  local asset
 
-if [ -z $version ]; then
- version="default"
-fi
-if [ -z $type ]; then
- type="utility"
-fi
+  if [ -z $version ]; then
+    version="default"
+  fi
+  if [ -z $type ]; then
+    type="utility"
+  fi
 
 # Grab the bundle id.
- if [ -f 'info.plist' ]; then
-  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
- elif [ -f '../info.plist' ]; then
-  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
- else
-  local bundle='..'
- fi
+  if [ -f 'info.plist' ]; then
+    local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
+  elif [ -f '../info.plist' ]; then
+    local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
+  else
+    local bundle='..'
+  fi
 
- asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
- status=$?
- echo "$asset"
- return $status
+  asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
+  status=$?
+  echo "$asset"
+  return $status
 }
 
 # This just downloads the install script and starts it up.
@@ -63,13 +63,13 @@ function __installBundler {
 
 # Just a helper function to make a directory if it doesn't exist.
 function dir {
- if [ ! -d "$1" ]; then
-  mkdir -p "$1"
- fi
+  if [ ! -d "$1" ]; then
+    mkdir -p "$1"
+  fi
 }
 
 if [ ! -f "$__data/bundler.sh" ]; then
- __installBundler
+  __installBundler
 fi
 
 # Include the bundler.

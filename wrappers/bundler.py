@@ -97,9 +97,7 @@ which can catch workflow errors and warn the user (amongst other cool stuff).
 
 Any problems with the Bundler may be raised on
 `Alfred's forum <http://www.alfredforum.com/topic/4255-alfred-dependency-downloader-framework/>`_
-or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_. **Note:**
-This Python version currently only exists in `this fork <https://github.com/deanishe/alfred-bundler>`_, so it's
-currently better to raise problems specific to the Python version there.
+or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_.
 
 Alfred Bundler Methods
 ======================
@@ -119,6 +117,7 @@ import subprocess
 import sys
 import time
 import urllib2
+from urllib import urlretrieve
 
 VERSION = '0.1'
 
@@ -146,6 +145,10 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
+# Where icons will be cached
+ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
+API_URL = 'http://icons.deanishe.net/icon/{font}/{colour}/{icon}'
 
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
@@ -460,6 +463,34 @@ def _bootstrap():
 ########################################################################
 # API functions
 ########################################################################
+
+
+def icon(icon, font, colour):
+    """Get path to specified icon, downloading it first if necessary
+
+    :param icon: name of the font character
+    :type icon: ``unicode`` or ``str``
+    :param font: name of the font
+    :type font: ``unicode`` or ``str``
+    :param colour: CSS colour in format "xxxxxx" (no preceding #)
+    :type colour: ``unicode`` or ``str``
+    :returns: path to icon file
+    :rtype: ``unicode``
+
+    See http://icons.deanishe.net to view available icons.
+
+    """
+
+    icondir = os.path.join(ICON_CACHE, font, colour)
+    path = os.path.join(icondir, '{}.png'.format(icon))
+    if os.path.exists(path):
+        return path
+    if not os.path.exists(icondir):
+        os.makedirs(icondir, 0755)
+    url = API_URL.format(font=font, colour=colour, icon=icon)
+    urlretrieve(url, path)
+    return path
+
 
 @cached
 def utility(name, version='default', json_path=None):

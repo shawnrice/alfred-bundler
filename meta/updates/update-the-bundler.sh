@@ -83,15 +83,15 @@ done
 downloadQueue=`echo "${downloadQueue[@]}" | tr ' ' '\n' <<< "${downloadQueue[@]}" | sort -u | tr '\n' ' '`
 deleteQueue=`echo "${deleteQueue[@]}" | tr ' ' '\n' <<< "${deleteQueue[@]}" | sort -u | tr '\n' ' '`
 
-echo ''
-echo "Download Queue"
-echo "------------"
+# echo ''
+# echo "Download Queue"
+# echo "------------"
 for file in $downloadQueue; do
 	downloadFile "$file"
 done
-echo ''
-echo "Delete Queue"
-echo "------------"
+# echo ''
+# echo "Delete Queue"
+# echo "------------"
 for file in $deleteQueue; do
 	deleteFile "$file"
 done

@@ -1,7 +1,7 @@
 <?php
 
 $bundler_version = "aries";
-$__data = exec('echo $HOME') . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+$__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 
 if ( ! isset( $bundler_version ) ) {
   // Define the global bundler versions.
@@ -16,7 +16,7 @@ function __registerAsset( $bundle , $asset , $version ) {
   // Exit the function if there is no bundle passed.
   if ( empty( $bundle ) ) return 0;
 
-  $data   = exec( 'echo $HOME' ) . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
+  $data   = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
   $update = FALSE;
   if ( ! file_exists( $data ) ) mkdir( $data );
   if ( ! file_exists( "$data/data" ) ) mkdir( "$data/data" );
