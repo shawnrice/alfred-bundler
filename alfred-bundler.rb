@@ -41,7 +41,6 @@ end
 def _load(name, version, type, json='')
 	unless json.nil?
 		puts "The file does not exist" unless File.exists?(json)
-	# FileUtils.mkdir(rubydir) unless File.directory?(rubydir)
 	end
 
 	# This is the function to load an asset
@@ -54,8 +53,6 @@ end
 def _load_asset_inner()
 	# This is done even more internally
 end
-
-# _load( 'name', 'version', 'type', '/Users/Sven/Desktop' )
 
 name = 'align-center'
 color = 'dd11ee'
