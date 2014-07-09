@@ -1,7 +1,10 @@
 #!/bin/ruby
 
-# This is very experimental code written by someone who doesn't know ruby.
+# This is very experimental code written by some people who don't really know ruby well.
 # Watch it develop.
+
+# Can we split this into two files like the other bundlers? Then we can abstract it all the
+# more in order to make this work out well.
 
 require 'json'
 require 'fileutils'
@@ -11,6 +14,10 @@ $ab_major_version = 'aries'
 $ab_data_dir = File.expand_path(
 	"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-#{$ab_major_version}")
 
+
+# Can we move this hardcoded URL into the backend? If we want to start to code in "mirror" backups,
+# then we should move this to the backend if possible. Actually, we should move all URLs to the
+# backend.
 # URL template for creating icon URLs. Add `font`, `color`, `name`s
 $ab_icon_url = 'http://icons.deanishe.net/icon/%s/%s/%s'
 
@@ -36,6 +43,12 @@ end
 
 def install_bundler()
 # This is the function to install the bundler
+
+# Bundler Install URLs
+# I added a bundler backup at Bitbucket: https://bitbucket.org/shawnrice/alfred-bundler
+install_urls = [ 'https://github.com/shawnrice/alfred-bundler/tree/aries' ]
+# https://github.com/shawnrice/alfred-bundler/blob/aries/meta/installer.sh
+# https://bitbucket.org/shawnrice/alfred-bundler/get/7c0f71f72bfc.zip
 end
 
 def _load(name, version, type, json='')
