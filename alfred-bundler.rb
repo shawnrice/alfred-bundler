@@ -12,18 +12,6 @@ require 'json'
 require 'fileutils'
 require 'open-uri'
 
-###
-require 'open-uri'
-
-def server_test( server )
-  begin
-    true if open( server )
-  rescue
-    false
-  end
-end
-###
-
 module Alfred
 
 	class Bundler
@@ -34,6 +22,15 @@ module Alfred
 				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
 			@cache = File.expand_path(
 				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
+		end
+
+		# Checks to see if a server is available
+		def server_test( server )
+		  begin
+		    true if open( server )
+		  rescue
+		    false
+		  end
 		end
 
 		# Function to get icons from the icon server
@@ -164,6 +161,7 @@ module Alfred
 				require name
 			elsif type == "utility"
 				load_asset( name, version, type )
+				exit
 			end
 		end
 
@@ -180,19 +178,19 @@ module Alfred
 			
 			success = system(command)
 		  	success && $?.exitstatus == 0
-
 		end
 
 		# This is done internally
 		def load_asset( name, version, type, bundle='', json='' )
 
+			# Need to add the path caching here
 			if type == "utility"
 				command = "'" + @data + "/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
 				success = system(command)
 				success && $?.exitstatus == 0
 			end
 		end
-		
+
 	end
 
 end
