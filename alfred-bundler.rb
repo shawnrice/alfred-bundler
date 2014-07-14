@@ -32,6 +32,8 @@ module Alfred
 			@major_version = "aries"
 			@data = File.expand_path(
 				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-@major_version")
+			@cache = File.expand_path(
+				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-@major_version")
 		end
 
 		# Function to get icons from the icon server
@@ -99,23 +101,27 @@ module Alfred
 					break x
 				end
 			end
-			url
+			FileUtils.mkpath(@cache) unless File.directory?(@cache)
+			# Pausing this until we decide to stay with zip or move to git
 		end
 
+		# This is the function to load an asset
 		def _load(name, version, type, json='')
 			unless json.nil?
 				puts "The file does not exist" unless File.exists?(json)
 			end
 
-			# This is the function to load an asset
+			
 		end
 
+		# This is done internally
 		def _load_asset()
-			# This is done internally
+			
 		end
 
+		# This is done even more internally
 		def _load_asset_inner()
-			# This is done even more internally
+			
 		end
 
 	end
