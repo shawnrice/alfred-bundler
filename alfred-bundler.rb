@@ -28,51 +28,50 @@ end
 
 module AlfredBundler
 
-	# Function to get icons from the icon server
-	def get_icon(font, color, name)
+	class Icon
+		# Function to get icons from the icon server
+		def get_icon(font, color, name)
 
-		# Construct the icon directory
-		icon_dir = File.join($ab_data_dir, 'assets/icons', font, color)
+			# Construct the icon directory
+			icon_dir = File.join($ab_data_dir, 'assets/icons', font, color)
 
-		#  Make the icon directory if it doesn't exist
-		FileUtils.mkpath(icon_dir) unless File.directory?(icon_dir)
+			#  Make the icon directory if it doesn't exist
+			FileUtils.mkpath(icon_dir) unless File.directory?(icon_dir)
 
-		# Construct the icon path
-		icon_path = File.join(icon_dir, name + '.png')
+			# Construct the icon path
+			icon_path = File.join(icon_dir, name + '.png')
 
-		# The file exists, so we'll just return the path
-		return icon_path if File.exists?(icon_path)
+			# The file exists, so we'll just return the path
+			return icon_path if File.exists?(icon_path)
 
-		# The file doesn't exist, so we'll have to go through the effort to get it
+			# The file doesn't exist, so we'll have to go through the effort to get it
 
-		# A list of icon servers so that we can have fallbacks
-		icon_servers = IO.readlines("meta/icon_servers")
+			# A list of icon servers so that we can have fallbacks
+			icon_servers = IO.readlines("meta/icon_servers")
 
-		# Loop through the list of servers until we find one that is working
-		icon_servers.each do |x|
-			if server_test( x )
-				server = x
-				break
-			else
-				server = false
+
+			# Loop through the list of servers until we find one that is working
+			server = icon_servers.each do |x|
+				if server_test( x )
+					break x
+				end
 			end
-		end
-
-		# So, none of the servers were reachable. So, we exit, disgracefully.
-		unless server
-			return false
-		end
-		# Finish constructing the URL
-		server = "#{server}/icon/%s/%s/%s"
-		icon_url = $server % [font, color, name]
-		
-		unless 
-			# Get the file if it doesn't exist
-			open(icon_path, 'wb') do |file|
-				file << open(icon_url).read
+			
+			# So, none of the servers were reachable. So, we exit, disgracefully.
+			unless :server
+				return false
 			end
+			# Finish constructing the URL
+			icon_url = "#{server}/icon/#{font}/#{color}/#{name}"
+			
+			unless 
+				# Get the file if it doesn't exist
+				open(icon_path, 'wb') do |file|
+					file << open(icon_url).read
+				end
+			end
+			icon_path
 		end
-		icon_path
 	end
 
 	def install_bundler()
@@ -114,14 +113,16 @@ end
 # $ab_icon_url = 'http://icons.deanishe.net/icon/%s/%s/%s'
 
 
-# name = 'align-center'
-# color = 'dd11ee'
-# font = 'fontawesome'
+name = 'align-center'
+color = '2321ee'
+font = 'fontawesome'
 
-# puts get_icon(font, color, name)
+icon = AlfredBundler::Icon.new
+
+puts icon.get_icon(font, color, name)
 
 # puts check_server( "github.com" )
-puts server_test( "http://icons.deanishe.net" )
+# puts server_test( "http://icons.deanishe.net" )
 # http://icons.deanishe.net
 
 
