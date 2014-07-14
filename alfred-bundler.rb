@@ -135,6 +135,19 @@ module Alfred
 				puts "The file does not exist" unless File.exists?(json)
 			end
 
+			# Install the CFPropertyList for us to use if necessary
+			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-aries/assets/ruby/gems/gems")
+			install_gem( "CFPropertyList", "default" ) unless Dir["#{gems}/CFPropertyList-*"][0]
+			$LOAD_PATH.unshift Dir["#{gems}/CFPropertyList-*/lib"][0]
+			require 'CFPropertyList'
+			
+			# Get the bundle id of the workflow
+			if ( File.exists?('info.plist') )
+				plist = CFPropertyList::List.new(:file => "info.plist")
+				data = CFPropertyList.native_types(plist.value)
+				bundle = data["bundleid"]
+			end
+
 			# Let's look in the Bundler's gems directory if the type is a gem
 			if type == "gem"
 				# Gems folder
@@ -149,6 +162,8 @@ module Alfred
 				install_gem(name, version) unless File.exists?(dir)
 				$LOAD_PATH.unshift dir
 				require name
+			elsif type == "utility"
+				load_asset( name, version, type )
 			end
 		end
 
@@ -169,15 +184,15 @@ module Alfred
 		end
 
 		# This is done internally
-		def load_asset()
-			
-		end
+		def load_asset( name, version, type, bundle='', json='' )
 
-		# This is done even more internally
-		def load_asset_inner()
-			
+			if type == "utility"
+				command = "'" + @data + "/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
+				success = system(command)
+				success && $?.exitstatus == 0
+			end
 		end
-
+		
 	end
 
 end
@@ -189,7 +204,8 @@ font = 'fontawesome'
 
 icon = Alfred::Bundler.new
 
-puts icon.load( 'zip', 'default', 'gem' )
+# puts icon.load( 'zip', 'default', 'gem' )
+puts icon.load( 'Pashua', 'default', 'utility' )
 # puts icon.load( 'zip', 'default', 'gem' )
 # puts icon.install_bundler
 # puts icon.get_icon(font, color, name)
