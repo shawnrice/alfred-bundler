@@ -25,16 +25,16 @@ module Alfred
 		end
 
 		# Checks to see if a server is available
-		def server_test( server )
+		def server_test(server)
 		  begin
-		    true if open( server )
+		    true if open(server)
 		  rescue
 		    false
 		  end
 		end
 
 		# Function to get icons from the icon server
-		def get_icon(font, color, name)
+		def icon(font, color, name)
 
 			# Construct the icon directory
 			icon_dir = File.join(@data, 'assets/icons', font, color)
@@ -56,19 +56,19 @@ module Alfred
 
 			# Loop through the list of servers until we find one that is working
 			server = icon_servers.each do |x|
-				if server_test( x )
+				if server_test(x)
 					break x
 				end
 			end
-			
+
 			# So, none of the servers were reachable. So, we exit, disgracefully.
 			unless :server
 				return false
 			end
 			# Finish constructing the URL
 			icon_url = "#{server}/icon/#{font}/#{color}/#{name}"
-			
-			unless 
+
+			unless
 				# Get the file if it doesn't exist
 				open(icon_path, 'wb') do |file|
 					file << open(icon_url).read
@@ -76,14 +76,14 @@ module Alfred
 			end
 			icon_path
 		end
-	
+
 		# This is the function to install the bundler
 		def install_bundler()
 			# Make the bundler path
 			FileUtils.mkpath(@data) unless File.directory?(@data)
 
 			# Check for an Internet connection
-			unless server_test( "http://www.google.com" )
+			unless server_test("http://www.google.com")
 				abort("ERROR: Cannot install Alfred Bundler because there is no Internet connection.")
 			end
 
@@ -100,12 +100,12 @@ module Alfred
 			end
 			FileUtils.mkpath(@cache) unless File.directory?(@cache)
 			# Pausing this until we decide to stay with zip or move to git
-			
+
 			# Get the file if it doesn't exist
-			open( @cache + "/bundler.zip", 'wb') do |file|
+			open(@cache + "/bundler.zip", 'wb') do |file|
 				file << open(url).read
 			end
-			zip = unzip( "bundler.zip", @cache )
+			zip = unzip("bundler.zip", @cache)
 
 			unless :zip
 				abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
@@ -124,7 +124,7 @@ module Alfred
 		  success = system(command)
 		  success && $?.exitstatus == 0
 		end
-		 
+
 
 		# This is the function to load an asset
 		def load(name, version, type, json='')
@@ -134,12 +134,12 @@ module Alfred
 
 			# Install the CFPropertyList for us to use if necessary
 			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-aries/assets/ruby/gems/gems")
-			install_gem( "CFPropertyList", "default" ) unless Dir["#{gems}/CFPropertyList-*"][0]
+			install_gem("CFPropertyList", "default") unless Dir["#{gems}/CFPropertyList-*"][0]
 			$LOAD_PATH.unshift Dir["#{gems}/CFPropertyList-*/lib"][0]
 			require 'CFPropertyList'
-			
+
 			# Get the bundle id of the workflow
-			if ( File.exists?('info.plist') )
+			if File.exists?('info.plist')
 				plist = CFPropertyList::List.new(:file => "info.plist")
 				data = CFPropertyList.native_types(plist.value)
 				bundle = data["bundleid"]
@@ -160,13 +160,13 @@ module Alfred
 				$LOAD_PATH.unshift dir
 				require name
 			elsif type == "utility"
-				load_asset( name, version, type )
+				load_asset(name, version, type)
 				exit
 			end
 		end
 
 		# Function to install a gem
-		def install_gem( name, version )
+		def install_gem(name, version)
 			# The Bundler Gems path
 			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-aries/assets/ruby/gems")
 			FileUtils.mkpath(gems) unless File.directory?(gems)
@@ -175,13 +175,13 @@ module Alfred
 			else
 				command = "gem install -v #{version} -i \"#{gems}\" #{name}"
 			end
-			
+
 			success = system(command)
 		  	success && $?.exitstatus == 0
 		end
 
 		# This is done internally
-		def load_asset( name, version, type, bundle='', json='' )
+		def load_asset(name, version, type, bundle='', json='')
 
 			# Need to add the path caching here
 			if type == "utility"
@@ -196,13 +196,15 @@ module Alfred
 end
 
 
-name = 'align-center'
-color = '2321ee'
-font = 'fontawesome'
+if __FILE__ == $0
+	name = 'align-center'
+	color = '2321ee'
+	font = 'fontawesome'
 
-icon = Alfred::Bundler.new
+	bundler = Alfred::Bundler.new
 
-puts icon.load( 'Pashua', 'default', 'utility' )
-# puts icon.load( 'zip', 'default', 'gem' )
-# puts icon.install_bundler
-# puts icon.get_icon(font, color, name)
+	puts bundler.load('Pashua', 'default', 'utility')
+	# puts icon.load('zip', 'default', 'gem')
+	# puts icon.install_bundler
+	# puts icon.get_icon(font, color, name)
+end
