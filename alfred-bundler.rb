@@ -1,5 +1,7 @@
 #!/bin/ruby
 
+
+
 # This is very experimental code written by some people who don't really know ruby well.
 # Watch it develop.
 
@@ -9,8 +11,6 @@
 require 'json'
 require 'fileutils'
 require 'open-uri'
-
-
 
 ###
 require 'open-uri'
@@ -130,21 +130,51 @@ module Alfred
 		 
 
 		# This is the function to load an asset
-		def _load(name, version, type, json='')
-			unless json.nil?
+		def load(name, version, type, json='')
+			unless json.empty?
 				puts "The file does not exist" unless File.exists?(json)
 			end
 
+			# Let's look in the Bundler's gems directory if the type is a gem
+			if type == "gem"
+				# Gems folder
+				gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-aries/assets/ruby/gems/gems")
+				# If the version is default, then we'll see if one exists
+				if version == "default"
+					dir = Dir["#{gems}/#{name}-*/lib"][0]
+				else
+					dir = "#{gems}/#{name}-#{version}/lib"
+				end
+				# We need to put some error checking in here
+				install_gem(name, version) unless File.exists?(dir)
+				$LOAD_PATH.unshift dir
+				require name
+			end
+		end
+
+		# Function to install a gem
+		def install_gem( name, version )
+			# The Bundler Gems path
+			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-aries/assets/ruby/gems")
+			FileUtils.mkpath(gems) unless File.directory?(gems)
+			if version == "default"
+				command = "gem install -i \"#{gems}\" #{name}"
+			else
+				command = "gem install -v #{version} -i \"#{gems}\" #{name}"
+			end
 			
+			success = system(command)
+		  	success && $?.exitstatus == 0
+
 		end
 
 		# This is done internally
-		def _load_asset()
+		def load_asset()
 			
 		end
 
 		# This is done even more internally
-		def _load_asset_inner()
+		def load_asset_inner()
 			
 		end
 
@@ -158,7 +188,10 @@ color = '2321ee'
 font = 'fontawesome'
 
 icon = Alfred::Bundler.new
-puts icon.install_bundler
+
+puts icon.load( 'zip', 'default', 'gem' )
+# puts icon.load( 'zip', 'default', 'gem' )
+# puts icon.install_bundler
 # puts icon.get_icon(font, color, name)
 
 # puts check_server( "github.com" )
