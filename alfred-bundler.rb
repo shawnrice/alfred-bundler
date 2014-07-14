@@ -31,9 +31,9 @@ module Alfred
 		def initialize
 			@major_version = "aries"
 			@data = File.expand_path(
-				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-@major_version")
+				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
 			@cache = File.expand_path(
-				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-@major_version")
+				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
 		end
 
 		# Function to get icons from the icon server
@@ -103,7 +103,31 @@ module Alfred
 			end
 			FileUtils.mkpath(@cache) unless File.directory?(@cache)
 			# Pausing this until we decide to stay with zip or move to git
+			
+			# Get the file if it doesn't exist
+			open( @cache + "/bundler.zip", 'wb') do |file|
+				file << open(url).read
+			end
+			zip = unzip( "bundler.zip", @cache )
+
+			unless :zip
+				abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
+			end
+
+			# Theoretically, this will install the bundler
+			command = "bash '" + @cache + "/alfred-bundler-" + @major_version + "/meta/installer.sh'"
+			success = system(command)
+			success && $?.exitstatus == 0
 		end
+
+		# This is real fucking inelegant, but we can't assume that the
+		# native gems are available to unzip files, so we'll go through the system
+		def unzip(file, destination)
+		  command = "cd \"#{destination}\"; unzip -oq #{file}; cd -"
+		  success = system(command)
+		  success && $?.exitstatus == 0
+		end
+		 
 
 		# This is the function to load an asset
 		def _load(name, version, type, json='')
