@@ -202,15 +202,7 @@ font = 'fontawesome'
 
 icon = Alfred::Bundler.new
 
-# puts icon.load( 'zip', 'default', 'gem' )
 puts icon.load( 'Pashua', 'default', 'utility' )
 # puts icon.load( 'zip', 'default', 'gem' )
 # puts icon.install_bundler
 # puts icon.get_icon(font, color, name)
-
-# puts check_server( "github.com" )
-# puts server_test( "http://icons.deanishe.net" )
-# http://icons.deanishe.net
-
-
-
