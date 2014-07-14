@@ -78,13 +78,28 @@ module Alfred
 			icon_path
 		end
 	
-
+		# This is the function to install the bundler
 		def install_bundler()
-			# This is the function to install the bundler
+			# Make the bundler path
+			FileUtils.mkpath(@data) unless File.directory?(@data)
+
+			# Check for an Internet connection
+			unless server_test( "http://www.google.com" )
+				abort("ERROR: Cannot install Alfred Bundler because there is no Internet connection.")
+			end
+
+			require 'uri'
 
 			# Bundler Install URLs
 			# I added a bundler backup at Bitbucket: https://bitbucket.org/shawnrice/alfred-bundler
 			bundler_urls = IO.readlines("meta/bundler_servers")
+			url = bundler_urls.each do |x|
+				server = URI.parse(x)
+				if server_test("#{server.scheme}://#{server.host}")
+					break x
+				end
+			end
+			url
 		end
 
 		def _load(name, version, type, json='')
@@ -108,22 +123,13 @@ module Alfred
 end
 
 
-
-
-# Can we move this hardcoded URL into the backend? If we want to start to code in "mirror" backups,
-# then we should move this to the backend if possible. Actually, we should move all URLs to the
-# backend.
-# URL template for creating icon URLs. Add `font`, `color`, `name`s
-# $ab_icon_url = 'http://icons.deanishe.net/icon/%s/%s/%s'
-
-
 name = 'align-center'
 color = '2321ee'
 font = 'fontawesome'
 
 icon = Alfred::Bundler.new
-
-puts icon.get_icon(font, color, name)
+puts icon.install_bundler
+# puts icon.get_icon(font, color, name)
 
 # puts check_server( "github.com" )
 # puts server_test( "http://icons.deanishe.net" )
