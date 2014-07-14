@@ -26,9 +26,9 @@ def server_test( server )
 end
 ###
 
-module AlfredBundler
+module Alfred
 
-	class Icon
+	class Bundler
 		# Function to get icons from the icon server
 		def get_icon(font, color, name)
 
@@ -117,7 +117,7 @@ name = 'align-center'
 color = '2321ee'
 font = 'fontawesome'
 
-icon = AlfredBundler::Icon.new
+icon = Alfred::Bundler.new
 
 puts icon.get_icon(font, color, name)
 
