@@ -117,8 +117,12 @@ module AlfredBundler
 		success && $?.exitstatus == 0
 	end
 
-	def utility(name, version, json='')
+	def load_utility(name, version, json='')
 		load(name, version, 'utility', json='')
+	end
+
+	def load_gem(name, version='default', json='')
+		load(name, version, 'gem', json='')
 	end
 
 	# This is the function to load an asset
