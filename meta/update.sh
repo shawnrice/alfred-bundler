@@ -1,6 +1,14 @@
 #!/bin/bash
 
-bundler_version=$(cat version_major)
+# Path to base of bundler directory
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
+
+# Define the global bundler version.
+if [ -f "$path/meta/version_major" ]; then
+  bundler_version=$(cat "$path/meta/version_major")
+else
+  bundler_version='devel'
+fi
 
 __checkUpdate() {
   local git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"

@@ -6,7 +6,9 @@
 
 require_once( 'helper-functions.php' );
 
-$bundler_version = file_get_contents( realpath( __FILE__ . '/../meta/version_major' ) );
+// This file lives at __data/includes/install-functions.php
+$bundler_version = trim( file_get_contents( realpath( dirname( __FILE__ ) . '/../meta/version_major' ) ) );
+
 $__data  = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 $__cache = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
@@ -51,7 +53,7 @@ function __installAsset( $json , $version ) {
 
  // For now, any other methods should be taken care of in the install
  // instructions (in the JSON).
-
+file_put_contents( "/Users/Sven/Desktop/debug3.txt", "$__data/assets/$type/$name/$version" );
  // Make sure that the directory structure exists before we try to put anything there.
  __makeTree( "$__data/assets/$type/$name/$version" );
 

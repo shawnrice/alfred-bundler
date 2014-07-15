@@ -10,7 +10,7 @@
 ***/
 
 // Define the global bundler version.
-$bundler_version       = "aries";
+$bundler_version       = "devel";
 $bundler_minor_version = '1';
 
 // Let's just make sure that the utility exists before we try to use it.

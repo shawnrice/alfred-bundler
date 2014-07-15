@@ -10,7 +10,6 @@
 # Path to base of bundler directory
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
 
-
 # Define the global bundler version.
 if [ -f "$path/meta/version_major" ]; then
   bundler_version=$(cat "$path/meta/version_major")
@@ -53,7 +52,6 @@ function __load {
   else
     local bundle='..'
   fi
-
   asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
   status=$?
   echo "$asset"
@@ -81,8 +79,8 @@ if [ ! -f "$__data/bundler.sh" ]; then
 fi
 
 # Include the bundler.
-. "$__data/bundler.sh"
-
+# . "$__data/bundler.sh"
+. "bundler.sh"
 # Check for updates.
 sh "$__data/meta/update.sh" > /dev/null 2>&1
 

@@ -9,8 +9,8 @@ $__cache = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2
 
 if ( ! isset( $bundler_version ) ) {
   // Define the global bundler versions.
-  $bundler_version       = file_get_contents( "$__data/meta/version_major" );
-  $bundler_minor_version = file_get_contents( "$__data/meta/version_minor" );
+  $bundler_version       = trim( file_get_contents( "$__data/meta/version_major" ) );
+  $bundler_minor_version = trim( file_get_contents( "$__data/meta/version_minor" ) );
 }
 
 // Since this is a PHP bundler, we'll assume that the default type is PHP.
@@ -35,7 +35,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
 
     if ( file_exists( $path ) ) // See if the file is already there.
       return $path;
- 
+
     if ( ! file_exists( $iconDir ) ) {
       if ( ! mkdir( $iconDir, 0775, TRUE ) ) // Make the icon directory and those below it if necessary.
         die( 'Failed to make directory' );
@@ -65,7 +65,7 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
     if ( ( $type == 'utility' ) && ( ! empty( $invoke ) ) && ( $invoke != 'null' ) ) {
       // Utilities should have only a single line invoke file, so that's
       // just fine to consider it a string.
-       
+
       /////////////////////////////////////////////////////////////////////////////////
       // Let's start the caching checks
 
@@ -92,13 +92,13 @@ function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $
       if ( strpos( $invoke, '.app' ) !== FALSE ) {
         // Invoke Gatekeeper only when the utility is a .app.
         // ech
-        
+
         exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'", $output, $return );
         if ( $return !== 0 ) {
           return $output[0];
         } else if ( $return == 0 ) {
           file_put_contents( "$bd_asset_cache/$key", "$__data/assets/$type/$name/$version/$invoke" );
-          return array( "$__data/assets/$type/$name/$version/$invoke" );          
+          return array( "$__data/assets/$type/$name/$version/$invoke" );
         }
       }
     }
