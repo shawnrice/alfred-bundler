@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "$__data/includes/helper-functions.sh"
+. "$__data/bundler/includes/helper-functions.sh"
 
 bd_asset_cache="$__data/data/call-cache"
 bd_icon_server_url='http://icons.deanishe.net/icon'
@@ -33,7 +33,7 @@ function __loadAsset {
     local colour="$5"
     local url=
 
-    local icondir="${__data}/assets/icons/${font}/${colour}"
+    local icondir="${__data}/data/assets/icons/${font}/${colour}"
     local path="${icondir}/${icon}.png"
 
     # Return path to file if it exists
@@ -102,51 +102,51 @@ function __loadAssetInner {
   local type="$4"
   local json="$5"
 
-  if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
-    invoke=$(cat "$__data/assets/$type/$name/$version/invoke")
+  if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
+    invoke=$(cat "$__data/data/assets/$type/$name/$version/invoke")
     if [ "$invoke" = 'null' ]; then
       invoke=''
     fi
     if [ "$type" = 'utility' ]; then
       if [[ "$invoke" =~ \.app ]]; then
         # Call Gatekeeper for the utility on if '.app' is in the name
-        bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$name.app"  > /dev/null
+        bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$name.app"  > /dev/null
         status=$?
         [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
       fi
     fi
-    echo "$__data/assets/$type/$name/$version/$invoke"
+    echo "$__data/data/assets/$type/$name/$version/$invoke"
     if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
-      php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
+      php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
     fi
     return 0
   fi
   # There is no JSON passed to us, so find it in the defaults.
   if [ -z "$json" ]; then
-    json="$__data/meta/defaults/$name.json"
+    json="$__data/bundler/meta/defaults/$name.json"
   fi
   # The $json variable should contain either the path to the default or the user-provided path.
   if [ -f "$json" ]; then
     # Take advantage of the PHP script to install the asset.
-    php "$__data/includes/installAsset.php" "$json" "$version"
+    php "$__data/bundler/includes/installAsset.php" "$json" "$version"
     if [ ! -z "$result" ]; then
       echo "$result"
       return 0
     fi
-    if [ -f "$__data/assets/$type/$name/$version/invoke" ]; then
-      invoke=`cat "$__data/assets/$type/$name/$version/invoke"`
+    if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
+      invoke=`cat "$__data/data/assets/$type/$name/$version/invoke"`
       if [ "$invoke" = 'null' ]; then
         invoke=''
       fi
-      echo "$__data/assets/$type/$name/$version/$invoke"
+      echo "$__data/data/assets/$type/$name/$version/$invoke"
       if [[ ! -z "$bundle" ]] && [[ "$bundle" != '..' ]]; then
-        php "$__data/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
+        php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
       fi
       if [ $type = 'utility' ]; then
         if [ ! -z "$invoke" ]; then
           if [[ "$invoke" =~ \.app ]]; then
             # Call Gatekeeper for the utility on if '.app' is in the name
-            bash "$__data/includes/gatekeeper.sh" "$name" "$__data/assets/$type/$name/$version/$invoke" > /dev/null
+            bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$invoke" > /dev/null
             status=$?
             [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
           fi
