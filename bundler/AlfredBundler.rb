@@ -8,12 +8,14 @@
 # Can we split this into two files like the other bundlers? Then we can abstract it all the
 # more in order to make this work out well.
 
-require 'json'
-require 'fileutils'
-require 'open-uri'
+# require 'json'
+# require 'fileutils'
+# require 'open-uri'
 
 module AlfredBundler
-
+	def hello
+		print "Hello"
+	end
 =begin
 	class Bundler
 
@@ -197,15 +199,15 @@ module AlfredBundler
 end
 
 
-if __FILE__ == $0
-	name = 'align-center'
-	color = '2321ee'
-	font = 'fontawesome'
-
-	bundler = Alfred::Bundler.new
-
-	puts bundler.load('Pashua', 'default', 'utility')
-	# puts icon.load('zip', 'default', 'gem')
-	# puts icon.install_bundler
-	# puts icon.get_icon(font, color, name)
-end
+# if __FILE__ == $0
+# 	name = 'align-center'
+# 	color = '2321ee'
+# 	font = 'fontawesome'
+#
+# 	bundler = Alfred::Bundler.new
+#
+# 	puts bundler.load('Pashua', 'default', 'utility')
+# 	# puts icon.load('zip', 'default', 'gem')
+# 	# puts icon.install_bundler
+# 	# puts icon.get_icon(font, color, name)
+# end
