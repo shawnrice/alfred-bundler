@@ -1,6 +1,7 @@
 {
     "name": "Pashua",
     "type": "utility",
+    "description": "show interactive dialogs",
     "versions": {
         "default": {
             "invoke": "Pashua.app/Contents/MacOS/Pashua",

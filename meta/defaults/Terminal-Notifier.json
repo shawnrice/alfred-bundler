@@ -1,6 +1,7 @@
 {
     "name": "Terminal-Notifier",
     "type": "utility",
+    "description": "send notifications",
     "versions": {
         "default": {
             "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
