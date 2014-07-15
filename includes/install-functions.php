@@ -6,7 +6,7 @@
 
 require_once( 'helper-functions.php' );
 
-$bundler_version = 'aries';
+$bundler_version = file_get_contents('../meta/version_major');
 $__data  = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 $__cache = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
@@ -69,7 +69,7 @@ function __installAsset( $json , $version ) {
    exec( "$i" );
   }
  }
- 
+
  // Make the invoke file.
  file_put_contents( "$__data/assets/$type/$name/$version/invoke" , $invoke );
 

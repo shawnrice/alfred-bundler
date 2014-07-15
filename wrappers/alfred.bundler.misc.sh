@@ -7,9 +7,11 @@
 #
 # License: GPLv3
 
-
+# Path to this file
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 # Define the global bundler version.
-bundler_version="aries";
+bundler_version=$(cat "$path/version_major")
+
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 

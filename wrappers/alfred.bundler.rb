@@ -27,7 +27,7 @@ module Alfred
 			install_bundler	unless File.exists?(@data + "/AlfredBundler.rb")
 			$LOAD_PATH.unshift @data
 			require 'AlfredBundler'
-			include 'AlfredBundler'
+			# include 'AlfredBundler'
 		end
 
 		# Checks to see if a server is available
