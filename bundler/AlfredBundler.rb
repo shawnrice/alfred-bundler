@@ -163,4 +163,6 @@ module AlfredBundler
 		end
 		return false
 	end
+
+	private :install_gem, :load_asset, :server_test
 end
