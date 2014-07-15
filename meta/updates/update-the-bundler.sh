@@ -2,7 +2,7 @@
 
 # This is the update script.
 
-bundler_version=$(cat ../version_major);
+bundler_version=$(cat ../version_major)
 
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __git="https://github.com/shawnrice/alfred-bundler/raw/aries"
