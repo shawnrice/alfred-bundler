@@ -74,7 +74,7 @@ module AlfredBundler
 		success && $?.exitstatus == 0
 	end
 
-	def load_utility(name, version, json='')
+	def load_utility(name, version='default', json='')
 		load(name, version, 'utility', json='')
 	end
 
@@ -123,7 +123,8 @@ module AlfredBundler
 			require name
 			# This returns TRUE, but we need to get rid of that
 		elsif type == "utility"
-			return load_asset(name, version, type)
+			path = load_asset(name, version, type)
+			return path
 		end
 	end
 
@@ -138,18 +139,19 @@ module AlfredBundler
 			command = "gem install -v #{version} -i \"#{gems}\" #{name}"
 		end
 
-		success = system(command)
-		success && $?.exitstatus == 0
+		# We need to doublecheck the security of this one...
+		return `#{command}`
+		# success = system(command)
+		# success && $?.exitstatus == 0
 	end
 
 	# This is done internally
 	def load_asset(name, version, type, bundle='', json='')
-
 		# Need to add the path caching here
 		if type == "utility"
 			command = "'" + @data + "/bundler/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
-			success = system(command)
-			success && $?.exitstatus == 0
+			return `#{command}`
 		end
+		return false
 	end
 end
