@@ -127,20 +127,20 @@ module AlfredBundler
 		# Let's look in the Bundler's gems directory if the type is a gem
 		if type == "gem"
 			# Gems folder
-			gems = @gem_dir + "/gems"
-			
+
 			# If the version is default, then we'll see if one exists
 			if version == "default"
-				dir = Dir["#{gems}/#{name}-*/lib"][0]
+				dir = Dir["#{@gem_dir}/gems/#{name}-*/lib"][0]
 			else
-				dir = "#{gems}/#{name}-#{version}/lib"
+				dir = "#{@gem_dir}/gems/#{name}-#{version}/lib"
 			end
 
 			# This is redundant and stopgap -- find a more elegant way
 			if dir.nil?
 				install_gem(name, version)
-				dir = Dir["#{gems}/#{name}-*/lib"][0]
+				dir = Dir["#{@gem_dir}/gems/#{name}-*/lib"][0]
 			end
+
 			# We need to put some error checking in here
 			install_gem(name, version) unless File.exists?(dir)
 			$LOAD_PATH.unshift dir
@@ -155,12 +155,12 @@ module AlfredBundler
 	# Function to install a gem
 	def install_gem(name, version)
 		# The Bundler Gems path
-		gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems")
-		FileUtils.mkpath(gems) unless File.directory?(gems)
+		# gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems")
+		FileUtils.mkpath(@gem_dir) unless File.directory?(@gem_dir)
 		if version == "default"
-			command = "gem install -i \"#{gems}\" #{name}"
+			command = "gem install -i \"#{@gem_dir}\" #{name}"
 		else
-			command = "gem install -v #{version} -i \"#{gems}\" #{name}"
+			command = "gem install -v #{version} -i \"#{@gem_dir}\" #{name}"
 		end
 
 		# We need to doublecheck the security of this one...

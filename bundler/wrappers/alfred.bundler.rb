@@ -95,17 +95,23 @@ end
 
 
 if __FILE__ == $0
-	name = 'align-center'
+	name  = 'align-center'
 	color = '2321ee'
-	font = 'fontawesome'
+	font  = 'fontawesome'
 
 	bundler = Alfred::Bundler.new
 	# puts bundler.hello
 	# puts bundler.load('Pashua', 'default', 'utility')
 	# puts bundler.load_utility('Pashua', 'default')
-	# bundler.load_gem('zip')
-	bundler.load_gem('zip', '2.0.2')
+
+	# bundler.load_gem('zip', '2.0.2')
 	# puts icon.install_bundler
-	# puts icon.get_icon(font, color, name)
+	puts bundler.icon(font, color, name)
 	# bundler.load_gems([['zip'], ['test', 2]]) # This will fail because there is no test gem v 2
+	#
+	#
+	#
+
+	# THE FOLLOWING GEM BREAKS -- WHY?
+	# bundler.load_gem('rspec')
 end
