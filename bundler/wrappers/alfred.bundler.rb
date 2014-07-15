@@ -14,13 +14,22 @@ require 'open-uri'
 
 # This is the function to install the bundler
 def install_alfred_bundler()
+
+	ab_major_version = "devel"
+	ab_data = File.expand_path(
+		"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + ab_major_version)
+	ab_cache = File.expand_path(
+		"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + ab_major_version)
+
 	# Make the bundler path
-	FileUtils.mkpath(@data) unless File.directory?(@data)
+	FileUtils.mkpath(ab_data) unless File.directory?(ab_data)
+
+	#### THE FOLLOWING CHECK WILL FAIL BECAUSE IT HASN'T BEEN LOADED
 
 	# Check for an Internet connection
-	unless server_test("http://www.google.com")
-		abort("ERROR: Cannot install Alfred Bundler because there is no Internet connection.")
-	end
+	# unless server_test("http://www.google.com")
+		# abort("ERROR: Cannot install Alfred Bundler because there is no Internet connection.")
+	# end
 
 	require 'uri'
 
@@ -32,18 +41,20 @@ def install_alfred_bundler()
 									"https://bitbucket.org/shawnrice/alfred-bundler/get/devel.zip"]
 	url = bundler_urls.each do |x|
 		server = URI.parse(x)
-		if server_test("#{server.scheme}://#{server.host}")
+		# if server_test("#{server.scheme}://#{server.host}")
 			break x
-		end
+		# end
 	end
-	FileUtils.mkpath(@cache) unless File.directory?(@cache)
+	FileUtils.mkpath(ab_cache) unless File.directory?(ab_cache)
 	# Pausing this until we decide to stay with zip or move to git
 
 	# Get the file if it doesn't exist
-	open(@cache + "/bundler.zip", 'wb') do |file|
+	open(ab_cache + "/bundler.zip", 'wb') do |file|
 		file << open(url).read
 	end
-	zip = unzip("bundler.zip", @cache)
+	# zip = unzip("bundler.zip", ab_cache)
+	command = "cd \"#{ab_cache}\"; unzip -oq bundler.zip; cd -"
+	system(command)
 
 	unless :zip
 		abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
