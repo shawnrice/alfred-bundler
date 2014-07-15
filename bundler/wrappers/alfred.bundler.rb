@@ -12,33 +12,35 @@ require 'json'
 require 'fileutils'
 require 'open-uri'
 
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..')
+require 'AlfredBundler'
+
 module Alfred
 
 	class Bundler
-
-
-
+		include AlfredBundler
+		# @major_version = "devel"
+		# @data = File.expand_path(
+		# 	"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
+		# @cache = File.expand_path(
+		# 	"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
 		def initialize
 			@major_version = "devel"
 			@data = File.expand_path(
 				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
 			@cache = File.expand_path(
 				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
-
-				# Should there be a better test?
-				install_bundler	unless File.exists?(@data + "/bundler/AlfredBundler.rb")
-
-				$LOAD_PATH.unshift @data + "/bundler"
-				# $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..')
-				require 'AlfredBundler'
-
-
 			# The below line is just for easier development purposes
+			#
+			# Should there be a better test?
+			install_bundler	unless File.exists?(@data + "/bundler/AlfredBundler.rb")
+
+			# $LOAD_PATH.unshift @data + "/bundler"
+			# $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..')
+			# require 'AlfredBundler'
 
 		end
 
-
-		include AlfredBundler
 
 		# This is the function to install the bundler
 		def install_bundler()
