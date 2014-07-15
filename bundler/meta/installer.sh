@@ -51,7 +51,7 @@ cd ..
 rm -fR installer
 
 # Grab the Terminal-Notifier utility, and install it to the data directory
-curl -sL "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true" > "$__cache/terminal-notifier.zip"
+curl -sL "https://github.com/shawnrice/Alfred-Helpers/raw/master/terminal-notifier-1.6.0.app.zip" > "$__cache/terminal-notifier.zip"
 cd "$__cache"
 unzip -oq "terminal-notifier.zip"
 cp -fR terminal-notifier.app "$__data/data/assets/utility/terminal-notifier/default"
