@@ -84,11 +84,25 @@ module AlfredBundler
 	end
 
 	def load_utility(name, version='default', json='')
-		load(name, version, 'utility', json='')
+		return load(name, version, 'utility', json='')
 	end
 
 	def load_gem(name, version='default', json='')
-		load(name, version, 'gem', json='')
+		return load(name, version, 'gem', json='')
+	end
+
+	# This is just an idea to load multiple gems at once
+	def load_gems( gems )
+		gems.each do |x|
+			args = x.count
+			if args == 1
+				load_gem(x[0])
+			elsif args == 2
+				load_gem(x[0], x[1])
+			else
+				abort("ERROR: Overloading the load_gems method")
+			end
+		end
 	end
 
 	# This is the function to load an asset
@@ -113,7 +127,8 @@ module AlfredBundler
 		# Let's look in the Bundler's gems directory if the type is a gem
 		if type == "gem"
 			# Gems folder
-			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems/gems")
+			gems = @gem_dir + "/gems"
+			
 			# If the version is default, then we'll see if one exists
 			if version == "default"
 				dir = Dir["#{gems}/#{name}-*/lib"][0]

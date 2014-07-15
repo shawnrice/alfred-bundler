@@ -2,6 +2,7 @@
 
 
 
+
 # This is very experimental code written by some people who don't really know ruby well.
 # Watch it develop.
 
@@ -26,10 +27,13 @@ module Alfred
 		# 	"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
 		def initialize
 			@major_version = "devel"
-			@data = File.expand_path(
-				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
-			@cache = File.expand_path(
-				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
+			@home = File.expand_path("~/")
+			@data = @home + "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version
+			@cache = @home + "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version
+
+			# Add our local gem repository
+			@gem_dir = @data + "/data/assets/ruby/gems"
+			$LOAD_PATH.unshift @gem_dir
 			# The below line is just for easier development purposes
 			#
 			# Should there be a better test?
@@ -98,8 +102,10 @@ if __FILE__ == $0
 	bundler = Alfred::Bundler.new
 	# puts bundler.hello
 	# puts bundler.load('Pashua', 'default', 'utility')
-	puts bundler.load_utility('Pashua', 'default')
-	puts bundler.load_gem('zip')
+	# puts bundler.load_utility('Pashua', 'default')
+	# bundler.load_gem('zip')
+	bundler.load_gem('zip', '2.0.2')
 	# puts icon.install_bundler
 	# puts icon.get_icon(font, color, name)
+	# bundler.load_gems([['zip'], ['test', 2]]) # This will fail because there is no test gem v 2
 end
