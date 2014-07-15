@@ -1,4 +1,4 @@
-alfred-bundler
+Alfred Bundler -- DEVELOPMENT VERSION
 ==============
 
 a utility / workflow to handle dependencies
@@ -6,6 +6,7 @@ a utility / workflow to handle dependencies
 A utility for to help Alfred 2 workflows manage shared dependencies.
 
 ## [See documentation](https://shawnrice.github.io/alfred-bundler).
+
 
 ## Versioning
 I hate [astrology](http://en.wikipedia.org/wiki/Zodiac), so I'm using the Zodiac
@@ -25,6 +26,10 @@ down will be:
   12. Pisces
 
 Copyright (C) 2014 Shawn Patrick Rice
+
+## Contributors
+Shawn Patrick Rice
+Dean Jackson
 
 ## GPLv3 License
 
