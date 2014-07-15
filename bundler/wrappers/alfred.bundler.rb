@@ -49,8 +49,7 @@ if __FILE__ == $0
 	# puts bundler.hello
 	# puts bundler.load('Pashua', 'default', 'utility')
 	puts bundler.load_utility('Pashua', 'default')
-
-	# puts bundler.load('zip', 'default', 'gem')
+	puts bundler.load_gem('zip')
 	# puts icon.install_bundler
 	# puts icon.get_icon(font, color, name)
 end
