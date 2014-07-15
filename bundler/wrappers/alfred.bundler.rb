@@ -15,14 +15,14 @@ require 'open-uri'
 # This is the function to install the bundler
 def install_alfred_bundler()
 
-	ab_major_version = "devel"
-	ab_data = File.expand_path(
-		"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + ab_major_version)
-	ab_cache = File.expand_path(
-		"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + ab_major_version)
+	major_version = "devel"
+	data = File.expand_path(
+		"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + major_version)
+	cache = File.expand_path(
+		"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + major_version)
 
 	# Make the bundler path
-	FileUtils.mkpath(ab_data) unless File.directory?(ab_data)
+	FileUtils.mkpath(data) unless File.directory?(data)
 
 	#### THE FOLLOWING CHECK WILL FAIL BECAUSE IT HASN'T BEEN LOADED
 
@@ -45,15 +45,15 @@ def install_alfred_bundler()
 			break x
 		# end
 	end
-	FileUtils.mkpath(ab_cache) unless File.directory?(ab_cache)
+	FileUtils.mkpath(cache) unless File.directory?(cache)
 	# Pausing this until we decide to stay with zip or move to git
 
 	# Get the file if it doesn't exist
-	open(ab_cache + "/bundler.zip", 'wb') do |file|
+	open(cache + "/bundler.zip", 'wb') do |file|
 		file << open(url).read
 	end
-	# zip = unzip("bundler.zip", ab_cache)
-	command = "cd \"#{ab_cache}\"; unzip -oq bundler.zip; cd -"
+	# zip = unzip("bundler.zip", cache)
+	command = "cd \"#{cache}\"; unzip -oq bundler.zip; cd -"
 	system(command)
 
 	unless :zip
