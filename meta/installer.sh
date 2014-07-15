@@ -5,7 +5,7 @@
 # Path to this file
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd -P )"
 # Define the global bundler version.
-bundler_version=$(cat "$path/version_major")
+bundler_version=$(cat "$path/meta/version_major")
 
 echo $bundler_version
 # Define locations
