@@ -100,18 +100,22 @@ if __FILE__ == $0
 	font  = 'fontawesome'
 
 	bundler = Alfred::Bundler.new
-	# puts bundler.hello
+
+
+	### TEST CASES
+	########################
+
+
+	# PASSING
+
 	# puts bundler.load('Pashua', 'default', 'utility')
 	# puts bundler.load_utility('Pashua', 'default')
-
 	# bundler.load_gem('zip', '2.0.2')
-	# puts icon.install_bundler
-	puts bundler.icon(font, color, name)
-	# bundler.load_gems([['zip'], ['test', 2]]) # This will fail because there is no test gem v 2
-	#
-	#
-	#
 
-	# THE FOLLOWING GEM BREAKS -- WHY?
+	puts bundler.icon(font, color, name)
+
+	# FAILING
+
 	# bundler.load_gem('rspec')
+	# bundler.load_gems([['zip'], ['test', 2]]) # This will fail because there is no test gem v 2
 end
