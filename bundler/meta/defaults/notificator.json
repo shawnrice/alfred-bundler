@@ -11,7 +11,7 @@
                 }
             ],
             "install": [
-                "cp -fR '__CACHE__/notificator.app' '__DATA__'"
+                "cp -fR '__CACHE__/notificator-master/notificator.app' '__DATA__'"
             ]
         }
     }
