@@ -1,0 +1,18 @@
+{
+    "name": "notificator",
+    "type": "utility",
+    "versions": {
+        "default": {
+            "invoke": "notificator.app/Contents/Resources/Scripts/notificator",
+            "files": [
+                {
+                    "url": "https://github.com/vitorgalvao/notificator/archive/master.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/notificator.app' '__DATA__'"
+            ]
+        }
+    }
+}

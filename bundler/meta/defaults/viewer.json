@@ -1,0 +1,18 @@
+{
+    "name": "viewer",
+    "type": "utility",
+    "versions": {
+        "default": {
+            "invoke": "viewer.app",
+            "files": [
+                {
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/viewer.app.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/viewer.app' '__DATA__'"
+            ]
+        }
+    }
+}
