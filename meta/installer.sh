@@ -4,7 +4,7 @@
 
 # Define the global bundler version.
 bundler_version=$(cat version_major)
-
+echo $bundler_version
 # Define locations
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"

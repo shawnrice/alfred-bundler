@@ -14,6 +14,7 @@ require 'open-uri'
 
 module Alfred
 
+=begin
 	class Bundler
 
 		def initialize
@@ -192,7 +193,7 @@ module Alfred
 		end
 
 	end
-
+=end
 end
 
 
