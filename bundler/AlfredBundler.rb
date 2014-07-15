@@ -14,13 +14,13 @@
 
 module AlfredBundler
 
-	def initialize
-		@major_version = "devel"
-		@data = File.expand_path(
-			"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
-		@cache = File.expand_path(
-			"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
-	end
+	# def initialize
+	# 	@major_version = "devel"
+	# 	@data = File.expand_path(
+	# 		"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
+	# 	@cache = File.expand_path(
+	# 		"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
+	# end
 
 	# Checks to see if a server is available
 	def server_test(server)
