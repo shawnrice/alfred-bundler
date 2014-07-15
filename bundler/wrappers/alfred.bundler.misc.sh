@@ -74,15 +74,15 @@ function dir {
   fi
 }
 
-if [ ! -f "$__data/bundler.sh" ]; then
+if [ ! -f "$__data/bundler/bundler.sh" ]; then
   __installBundler
 fi
 
 # Include the bundler.
-# . "$__data/bundler.sh"
-. "bundler.sh"
+. "$__data/bundler/bundler.sh"
+
 # Check for updates.
-sh "$__data/meta/update.sh" > /dev/null 2>&1
+sh "$__data/bundler/meta/update.sh" > /dev/null 2>&1
 
 __load "$1" "$2" "$3" "$4"
 exit $?

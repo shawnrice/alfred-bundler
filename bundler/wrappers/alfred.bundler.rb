@@ -24,8 +24,8 @@ module Alfred
 				"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
 
 			# Should there be a better test?
-			install_bundler	unless File.exists?(@data + "/AlfredBundler.rb")
-			$LOAD_PATH.unshift @data
+			install_bundler	unless File.exists?(@data + "/bundler/AlfredBundler.rb")
+			$LOAD_PATH.unshift @data + "/bundler"
 			require 'AlfredBundler'
 			# include 'AlfredBundler'
 		end
@@ -43,7 +43,7 @@ module Alfred
 		def icon(font, color, name)
 
 			# Construct the icon directory
-			icon_dir = File.join(@data, 'assets/icons', font, color)
+			icon_dir = File.join(@data, 'data/assets/icons', font, color)
 
 			#  Make the icon directory if it doesn't exist
 			FileUtils.mkpath(icon_dir) unless File.directory?(icon_dir)
@@ -57,7 +57,7 @@ module Alfred
 			# The file doesn't exist, so we'll have to go through the effort to get it
 
 			# A list of icon servers so that we can have fallbacks
-			icon_servers = IO.readlines("meta/icon_servers")
+			icon_servers = IO.readlines("bundler/meta/icon_servers")
 
 
 			# Loop through the list of servers until we find one that is working
@@ -142,7 +142,7 @@ module Alfred
 			end
 
 			# Install the CFPropertyList for us to use if necessary
-			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/assets/ruby/gems/gems")
+			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems/gems")
 			install_gem("CFPropertyList", "default") unless Dir["#{gems}/CFPropertyList-*"][0]
 			$LOAD_PATH.unshift Dir["#{gems}/CFPropertyList-*/lib"][0]
 			require 'CFPropertyList'
@@ -157,7 +157,7 @@ module Alfred
 			# Let's look in the Bundler's gems directory if the type is a gem
 			if type == "gem"
 				# Gems folder
-				gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/assets/ruby/gems/gems")
+				gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems/gems")
 				# If the version is default, then we'll see if one exists
 				if version == "default"
 					dir = Dir["#{gems}/#{name}-*/lib"][0]
@@ -177,7 +177,7 @@ module Alfred
 		# Function to install a gem
 		def install_gem(name, version)
 			# The Bundler Gems path
-			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/assets/ruby/gems")
+			gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems")
 			FileUtils.mkpath(gems) unless File.directory?(gems)
 			if version == "default"
 				command = "gem install -i \"#{gems}\" #{name}"
@@ -194,7 +194,7 @@ module Alfred
 
 			# Need to add the path caching here
 			if type == "utility"
-				command = "'" + @data + "/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
+				command = "'" + @data + "/bundler/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
 				success = system(command)
 				success && $?.exitstatus == 0
 			end
