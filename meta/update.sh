@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bundler_version="aries"
+bundler_version=$(cat version_major)
 
 __checkUpdate() {
   local git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"

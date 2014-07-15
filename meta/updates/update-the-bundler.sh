@@ -2,7 +2,7 @@
 
 # This is the update script.
 
-bundler_version="aries";
+bundler_version=$(cat ../version_major);
 
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __git="https://github.com/shawnrice/alfred-bundler/raw/aries"
@@ -20,7 +20,7 @@ deleteQueue=()
 
 ###
 # From Aries 1 to Aries 2
-# 
+#
 one_to_two() {
 
 	# Remove Files
@@ -49,7 +49,7 @@ one_to_two() {
 ###
 # From Aries 2 to Aries 3
 # Just for testing purposes
- 
+
 #two_to_three() {
 	# Not needed yet.
 #}

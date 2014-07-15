@@ -17,7 +17,7 @@ module Alfred
 	class Bundler
 
 		def initialize
-			@major_version = "aries"
+			@major_version = "devel"
 			@data = File.expand_path(
 				"~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version)
 			@cache = File.expand_path(

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the global bundler version.
-bundler_version="aries";
+bundler_version=$(cat ../version_major)
 
 # Define the data and cache directories for the bundler
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
@@ -68,7 +68,7 @@ function updateBundler() {
 		rm -fR "$__cache/update-bundler"
 		return $status
 	fi
-	cd - 
+	cd -
 
 	# Backup the data and assets directories so that we can restore them
 	cd "$__data"

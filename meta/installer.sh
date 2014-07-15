@@ -3,7 +3,7 @@
 # This script installs the Alfred Bundler.
 
 # Define the global bundler version.
-bundler_version="aries";
+bundler_version=$(cat version_major)
 
 # Define locations
 git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
