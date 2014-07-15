@@ -47,7 +47,8 @@ if __FILE__ == $0
 
 	bundler = Alfred::Bundler.new
 	# puts bundler.hello
-	puts bundler.load('Pashua', 'default', 'utility')
+	# puts bundler.load('Pashua', 'default', 'utility')
+	puts bundler.utility('Pashua', 'default')
 	# puts bundler.load('zip', 'default', 'gem')
 	# puts icon.install_bundler
 	# puts icon.get_icon(font, color, name)

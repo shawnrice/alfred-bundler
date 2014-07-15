@@ -117,6 +117,9 @@ module AlfredBundler
 		success && $?.exitstatus == 0
 	end
 
+	def utility(name, version, json='')
+		load(name, version, 'utility', json='')
+	end
 
 	# This is the function to load an asset
 	def load(name, version, type, json='')
@@ -175,7 +178,7 @@ module AlfredBundler
 		end
 
 		success = system(command)
-			success && $?.exitstatus == 0
+		success && $?.exitstatus == 0
 	end
 
 	# This is done internally
