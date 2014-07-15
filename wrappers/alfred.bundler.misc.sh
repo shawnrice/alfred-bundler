@@ -7,10 +7,16 @@
 #
 # License: GPLv3
 
-# Path to this file
-path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+# Path to base of bundler directory
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
+
+
 # Define the global bundler version.
-bundler_version=$(cat "$path/version_major")
+if [ -f "$path/meta/version_major" ]; then
+  bundler_version=$(cat "$path/meta/version_major")
+else
+  bundler_version='devel'
+fi
 
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"

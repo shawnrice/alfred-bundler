@@ -1,7 +1,15 @@
 #!/bin/sh
 
+# Path to base of bundler directory
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
+
+
 # Define the global bundler version.
-bundler_version="aries";
+if [ -f "$path/meta/version_major" ]; then
+  bundler_version=$(cat "$path/meta/version_major")
+else
+  bundler_version='devel'
+fi
 
 ################################################################################
 # Global Variables
