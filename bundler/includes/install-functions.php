@@ -53,9 +53,8 @@ function __installAsset( $json , $version ) {
 
  // For now, any other methods should be taken care of in the install
  // instructions (in the JSON).
-file_put_contents( "/Users/Sven/Desktop/debug3.txt", "$__data/assets/$type/$name/$version" );
  // Make sure that the directory structure exists before we try to put anything there.
- __makeTree( "$__data/assets/$type/$name/$version" );
+ __makeTree( "$__data/data/assets/$type/$name/$version" );
 
  // Follow the installation instructions provided in the JSON file.
  // This probably should be changed to work in accordance with the
@@ -67,13 +66,13 @@ file_put_contents( "/Users/Sven/Desktop/debug3.txt", "$__data/assets/$type/$name
    // Replace the strings in the INSTALL json with the proper values.
    $i = str_replace( "__FILE__"  , "$__cache/$file" , $i );
    $i = str_replace( "__CACHE__" , "$__cache" , $i );
-   $i = str_replace( "__DATA__"  , "$__data/assets/$type/$name/$version/", $i );
+   $i = str_replace( "__DATA__"  , "$__data/data/assets/$type/$name/$version/", $i );
    exec( "$i" );
   }
  }
 
  // Make the invoke file.
- file_put_contents( "$__data/assets/$type/$name/$version/invoke" , $invoke );
+ file_put_contents( "$__data/data/assets/$type/$name/$version/invoke" , $invoke );
 
  __delTree( $__cache ); // Cleanup by deleting the cache directory.
 

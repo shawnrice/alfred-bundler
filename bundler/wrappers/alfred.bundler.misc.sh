@@ -60,7 +60,7 @@ function __load {
 
 # This just downloads the install script and starts it up.
 function __installBundler {
-  local installer="https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh"
+  local installer="https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/bundler/meta/installer.sh"
   dir "$__cache/installer"
   dir "$__data"
   curl -sL "$installer" > "$__cache/installer/installer.sh"

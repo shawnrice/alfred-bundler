@@ -8,7 +8,9 @@
 
 require_once( 'registry-functions.php' );
 
-$bundler_version = "aries";
+// This file lives at __data/includes/install-functions.php
+$bundler_version = trim( file_get_contents( realpath( dirname( __FILE__ ) . '/../meta/version_major' ) ) );
+
 $__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 
 if ( ! isset( $bundler_version ) ) {

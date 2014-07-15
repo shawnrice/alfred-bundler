@@ -121,7 +121,7 @@ module Alfred
 			end
 
 			# Theoretically, this will install the bundler
-			command = "bash '" + @cache + "/alfred-bundler-" + @major_version + "/meta/installer.sh'"
+			command = "bash '" + @cache + "/alfred-bundler-" + @major_version + "/bundler/meta/installer.sh'"
 			success = system(command)
 			success && $?.exitstatus == 0
 		end

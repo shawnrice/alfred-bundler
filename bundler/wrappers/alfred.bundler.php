@@ -20,10 +20,10 @@ if ( ! file_exists( "$__data" ) ) {
 }
 
 // This file will be there because it either was or we just installed it.
-require_once( "$__data/bundler.php" );
+require_once( "$__data/bundler/bundler.php" );
 
 // Check for bundler minor update
-$cmd = "sh '$__data/meta/update.sh' > /dev/null 2>&1";
+$cmd = "sh '$__data/bundler/meta/update.sh' > /dev/null 2>&1";
 exec( $cmd );
 
 /**
@@ -73,7 +73,7 @@ function __installBundler() {
 
   global $bundler_version, $__data;
 echo "here";
-  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/meta/installer.sh";
+  $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/bundler/meta/installer.sh";
   $__cache   = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
   // Make the directories

@@ -3,9 +3,9 @@
 ################################################################################
 # In 10.8, Apple introduced something called "Gatekeeper," which is that
 # annoying thing that will warn you when opening up an unsigned application in
-# 10.8+. Since we can't rely on a user to have changed these settings, then we 
-# might have to seek exceptions. This script checks to see if Gatekeeper will 
-# deny an app from opening and ask permission if it will. Otherwise, it exits 
+# 10.8+. Since we can't rely on a user to have changed these settings, then we
+# might have to seek exceptions. This script checks to see if Gatekeeper will
+# deny an app from opening and ask permission if it will. Otherwise, it exits
 # with a hunky-dorey status.
 ################################################################################
 
@@ -18,9 +18,13 @@
 #    1 : Failure to invoke script properly.
 #    2 : User denied request, alas.
 
+# Path to this file
+path="$( cd "$( dirname "${BASH_SOURCE[0]}"/../ )" && pwd -P )"
+# Define the global bundler version.
+bundler_version=$(cat "$path/version_major")
+
 name="$1" # Name of utility
 path="$2" # Full path to utility
-bundler_version="aries";
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   echo "ERROR: Use with args 'name' 'path'."
@@ -67,7 +71,7 @@ fi
 #   (3) the requested app isn't whitelisted.
 
 # Change the following to the correct data path
-icon="$data/meta/icons/bundle.icns"
+icon="$data/bundler/meta/icons/bundle.icns"
 icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-`
 
 # Construct the Applescript dialog
@@ -90,7 +94,7 @@ if [[ $response =~ "Deny" ]]; then
   exit 1
 fi
 
-label="alfred-bundle-$name" 
+label="alfred-bundle-$name"
 gatekeeper=$(spctl --list --label "$label" > /dev/null 2>&1; echo $?)
 
 if [ "$gatekeeper" = "1" ]; then
@@ -102,7 +106,7 @@ if [ "$gatekeeper" = "1" ]; then
   fi
 
 # This is old, but we'll leave it in -- commented out -- in case we need to roll back ever.
-# 
+#
 # If we put the following commented out command on the same line, then we need enter the password only once.
 # test=`spctl --enable --label "alfred-bundle-$name"`
 # if [ "$test" = "error: no matches for search or update operation" ]; then

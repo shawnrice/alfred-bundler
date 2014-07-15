@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#### NOT WORKING REDEFINE ALL THE PATHS
 # This is the update script.
 
 bundler_version=$(cat ../version_major)

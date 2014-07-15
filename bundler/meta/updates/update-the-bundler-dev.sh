@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#### NOT WORKING REDEFINE ALL THE PATHS
 # Define the global bundler version.
 bundler_version=$(cat ../version_major)
 
@@ -23,8 +24,8 @@ ping -t 1 -c 1 www.google.com 2>&1>/dev/null
 [[ $? -ne 0 ]] && exit 1
 
 # We have Internet. Continue.
-newest=`curl -sL "https://github.com/shawnrice/alfred-bundler/raw/aries/meta/version_minor"`
-current=`cat "$__data/meta/version_minor"`
+newest=`curl -sL "https://github.com/shawnrice/alfred-bundler/raw/aries/bundler/meta/version_minor"`
+current=`cat "$__data/meta/bundler/version_minor"`
 
 # The version check should have already happened, but we'll run it again for good measure.
 [[ $newest -le $current ]] && exit 0
