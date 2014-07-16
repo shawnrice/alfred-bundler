@@ -16,11 +16,14 @@ $bundler_minor_version = '1';
 // Let's just make sure that the utility exists before we try to use it.
 $__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 if ( ! file_exists( "$__data" ) ) {
-  __installBundler();
+  $success = __installBundler();
+  if ( $success !== TRUE ) {
+    exit( 'ERROR: failed to install Alfred Bundler -- ' . $success );
+  }
 }
 
 // This file will be there because it either was or we just installed it.
-require_once( "$__data/bundler/bundler.php" );
+require_once( "$__data/bundler/AlfredBundler.php" );
 
 // Check for bundler minor update
 $cmd = "sh '$__data/bundler/meta/update.sh' > /dev/null 2>&1";
