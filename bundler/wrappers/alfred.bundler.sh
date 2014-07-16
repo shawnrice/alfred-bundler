@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Main Bash interface for the Alfred Dependency Bundler. This file should be
 # the only one from the bundler that is distributed with your workflow.

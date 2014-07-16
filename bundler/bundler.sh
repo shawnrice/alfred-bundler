@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . "$__data/bundler/includes/helper-functions.sh"
 

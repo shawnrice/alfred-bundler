@@ -25,10 +25,35 @@ if ( ! file_exists( "$__data" ) ) {
 // This file will be there because it either was or we just installed it.
 require_once( "$__data/bundler/AlfredBundler.php" );
 
-// Check for bundler minor update
-$cmd = "sh '$__data/bundler/meta/update.sh' > /dev/null 2>&1";
-exec( $cmd );
+// Update logic for the bundler
+// ----------------------------
+// Unfortunately, Apple doesn't let us have the pcntl functions natively, so
+// we'll take a different route and spoof this sort of thing. Here is a not
+// very well developed implementation of forking the update process.
+//
+// if ( ! function_exists('pcntl_fork') )
+//   die('PCNTL functions not available on this PHP installation');
+// else {
+//   $pid = pcntl_fork();
+//
+//   switch($pid) {
+//       case -1:
+//           print "Could not fork!\n";
+//           exit;
+//       case 0:
+//           // Check for bundler minor update
+//           $cmd = "sh '$__data/bundler/meta/update.sh' > /dev/null 2>&1";
+//           exec( $cmd );
+//           break;
+//       default:
+//           print "In parent!\n";
+//   }
+// }
 
+// Call the wrapper to update itself
+exec( "bash '$__data/bundler/meta/update-wrapper.sh'" );
+
+die();
 /**
  *  This is the only function the workflow author needs to invoke.
  *  If the asset to be loaded is a PHP library, then you just need to call the function,
