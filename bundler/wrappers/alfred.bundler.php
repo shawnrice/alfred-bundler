@@ -9,6 +9,8 @@
   License: GPLv3
 ***/
 
+// Can I add in composer support?
+
 // Define the global bundler version.
 $bundler_version       = "devel";
 $bundler_minor_version = '1';
@@ -50,10 +52,11 @@ require_once( "$__data/bundler/AlfredBundler.php" );
 //   }
 // }
 
-// Call the wrapper to update itself
+// Call the wrapper to update itself, this will fork the process to make sure
+// that we do not need to wait and slow down results.
 exec( "bash '$__data/bundler/meta/update-wrapper.sh'" );
 
-die();
+
 /**
  *  This is the only function the workflow author needs to invoke.
  *  If the asset to be loaded is a PHP library, then you just need to call the function,
@@ -100,7 +103,7 @@ function __installBundler() {
   // Install the Alfred Bundler
 
   global $bundler_version, $__data;
-echo "here";
+
   $installer = "https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/bundler/meta/installer.sh";
   $__cache   = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
 
@@ -114,6 +117,7 @@ echo "here";
   // Download the installer
   // I'm throwing in the second bash command to delay the execution of the next
   // exec() command. I'm not sure if that's necessary.
+  // https://github.com/shawnrice/alfred-bundler/archive/devel-latest.zip
   exec( "curl -sL '$installer' > '$__cache/installer/installer.sh'" );
   // Run the installer
   exec( "sh '$__cache/installer/installer.sh'" );
