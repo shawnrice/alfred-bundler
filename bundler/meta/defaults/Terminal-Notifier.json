@@ -7,7 +7,7 @@
             "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
             "files": [
                 {
-                    "url": "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true",
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/terminal-notifier-1.6.0.app.zip",
                     "method": "zip"
                 }
             ],

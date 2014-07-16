@@ -111,7 +111,19 @@ if __FILE__ == $0
 	# puts bundler.load('Pashua', 'default', 'utility')
 	# puts bundler.load_utility('Pashua', 'default')
 	# bundler.load_gem('zip', '2.0.2')
+	icon = File.join( File.expand_path(File.dirname(__FILE__)), '..', 'meta', 'icons', 'bundle.icns')
 
+	# For some reason, this doesn't work when there are spaces in the paths — either
+	# quoted or escaped
+	bundler_icon = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/bundler/meta/icons/bundle.icns")
+	puts bundler_icon
+	options = {
+		"sender" => "com.runningwithcrayons.Alfred-2",
+		"subtitle" => "This is a subtitle",
+		"appIcon" => bundler_icon
+	}
+
+	bundler.notify('Title','Message', options)
 	puts bundler.icon(font, color, name)
 
 	# FAILING

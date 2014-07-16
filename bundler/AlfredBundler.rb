@@ -174,9 +174,116 @@ module AlfredBundler
 		# Need to add the path caching here
 		if type == "utility"
 			command = "'" + @data + "/bundler/wrappers/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
-			return `#{command}`
+			return `#{command}`.strip
 		end
 		return false
+	end
+
+
+	# This is a bunch of code for a nice little easter egg.
+	def notify(title, message, options)
+		require 'Shellwords'
+
+		path = load_utility('Terminal-Notifier')
+
+		unless options["sender"].nil?
+			sender = "-sender '" + options["sender"] + "'"
+		else
+			sender = ""
+		end
+
+		unless options["appIcon"].nil?
+			appIcon = "-appIcon '" + options["appIcon"] + "'"
+		else
+			appIcon = ""
+		end
+
+		unless options["contentImage"].nil?
+			contentImage = "-contentImage '" + options["contentImage"] + "'"
+		else
+			contentImage = ""
+		end
+
+		unless options["subtitle"].nil?
+			subtitle = "-subtitle '" + options["subtitle"] + "'"
+		else
+			subtitle = ""
+		end
+
+		unless options["group"].nil?
+			group = "-group '" + options["group"] + "'"
+		else
+			group = ""
+		end
+
+		unless options["sound"].nil?
+			sound = "-sound '" + options["sound"] + "'"
+		else
+			sound = ""
+		end
+
+		unless options["remove"].nil?
+			remove = "-remove '" + options["remove"] + "'"
+		else
+			remove = ""
+		end
+
+		unless options["list"].nil?
+			list = "-list '" + options["list"] + "'"
+		else
+			list = ""
+		end
+
+		unless options["activate"].nil?
+			activate = "-activate '" + options["activate"] + "'"
+		else
+			activate = ""
+		end
+
+		unless options["open"].nil?
+			openURL = "-open '" + options["open"] + "'"
+		else
+			openURL = ""
+		end
+
+		unless options["execute"].nil?
+			execute = "-execute '" + options["execute"] + "'"
+		else
+			execute = ""
+		end
+
+		# unless icon.empty?
+		# 	if (File.exists?(icon) && File.extname(icon) == '.icns')
+		# 		icon_moved = true
+		# 		tmp_icon_path = @cache + '/tmp-icon'
+		# 		FileUtils.mkpath(tmp_icon_path) unless File.directory?(tmp_icon_path)
+		# 		tn_icon = File.path(File.dirname(path) + '/../Resources/Terminal.icns')
+		# 		tn_icon_path = File.dirname(tn_icon)
+		#
+		# 		puts tn_icon_path + '/' + File.basename(icon)
+		#
+		#
+		# 		FileUtils.move tn_icon, tmp_icon_path
+		#
+		# 		FileUtils.copy icon, tn_icon_path
+		# 		FileUtils.move tn_icon_path + '/' + File.basename(icon), tn_icon_path + '/Terminal.icns'
+		# 		abort
+		# 	end
+		# end
+		# icon = '/Users/Sven/Documents/Alfred2 Workflows/alfred-bundler/bundler/meta/icons/bundle.png'
+		# command = "#{Shellwords.escape(path)} -t '#{title}' -m '#{message}'"
+		# -contentImage '/Users/Sven/Desktop/mics.png'
+		# com.runningwithcrayons.Alfred-2
+		command = "#{Shellwords.escape(path)} -title '#{title}' -message '#{message}' "
+		command = "#{command} #{execute} #{openURL} #{activate} #{remove} #{sound} "
+		command = "#{command} #{list} #{subtitle} #{contentImage} #{appIcon} #{sender}"
+
+		system(command)
+
+		# if :icon_moved
+		# 	FileUtils.remove tn_icon
+		# 	FileUtils.copy tmp_icon_path, tn_icon_path
+		# end
 	end
 
 	private :install_gem, :load_asset, :server_test
