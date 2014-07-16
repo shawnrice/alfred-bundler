@@ -1,3 +1,4 @@
+bashtests.sh
 build-pydocs.sh
 /pydoc/
 /wrappers/requirements.txt

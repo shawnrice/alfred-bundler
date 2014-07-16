@@ -1,18 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script installs the Alfred Bundler.
 
 # Path to this file
-path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 # Define the global bundler version.
-bundler_version=$(cat "$path/version_major")
+bundler_version=$(cat "$path/meta/version_major")
+
 
 # Define locations
-git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/$bundler_version"
-__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
-__cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
+git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/${bundler_version}"
+__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${bundler_version}"
+__cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${bundler_version}"
 # For now, we're using the 'initial' branch.
 gitzip="https://github.com/shawnrice/alfred-bundler/archive/$bundler_version.zip"
+
+echo $__data
+exit
 
 # Make the directory structure
 if [ ! -d "$__data" ]; then
