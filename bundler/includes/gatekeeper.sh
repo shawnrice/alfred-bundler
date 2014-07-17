@@ -24,8 +24,9 @@ path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 # Define the global bundler version.
 bundler_version=$(cat "$path/meta/version_major")
 
-name="$1" # Name of utility
-path="$2" # Full path to utility
+name="$1"     # Name of utility
+path="$2"     # Full path to utility
+message="$3"  # Description of what the utility does
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   echo "ERROR: Use with args 'name' 'path'."
@@ -67,13 +68,19 @@ fi
 # fi
 
 # At this point,  we know that
-#   (1) we're using either Mavericks or Mountain Lion;
+#   (1) we're using either Mavericks or Mountain Lion (or Yosemite);
 #   (2) Gatekeeper is enabled; and
 #   (3) the requested app isn't whitelisted.
 
 # Change the following to the correct data path
 icon="$data/bundler/meta/icons/bundle.icns"
 icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-`
+
+######
+######
+### Add in message from JSON
+######
+######
 
 # Construct the Applescript dialog
 read -d '' script <<-"_EOF_"
@@ -105,23 +112,6 @@ if [ "$gatekeeper" = "1" ]; then
     echo "denied"
     exit 1
   fi
-
-# This is old, but we'll leave it in -- commented out -- in case we need to roll back ever.
-#
-# If we put the following commented out command on the same line, then we need enter the password only once.
-# test=`spctl --enable --label "alfred-bundle-$name"`
-# if [ "$test" = "error: no matches for search or update operation" ]; then
-#   echo "denied"
-#   exit 1
-# fi
-# else
-#   I don't think that this is necessary, but so I'll go ahead and comment it out.
-#   # We found the label, so we'll just re-enable it.
-#   spctl --enable --label "alfred-bundle-$name"
-#   if [ `echo "$?"` = "1" ]; then
-#     echo "denied"
-#     exit 1
-#   fi
 fi
 
 exit 0
