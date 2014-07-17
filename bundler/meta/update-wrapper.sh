@@ -13,5 +13,5 @@
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
 
 # Execute the update script entirely in the background
-nohup /bin/bash "$path/meta/update.sh" 1>&2 &> /dev/null 1>&2 &> /dev/null &
+nohup /bin/bash "${path}/meta/update.sh" 1>&2 &> /dev/null 1>&2 &> /dev/null &
 exit
