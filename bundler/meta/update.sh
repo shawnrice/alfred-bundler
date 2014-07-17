@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+##### INTERNAL NOTE -- FINISH COMMENTING
+
 # This script checks for updates. The bundler is divided into major and minor
 # releases. The major releases are the named releases (Aries, Taurus, etc...),
 # and the minor versions are integers. The wrapper for each major version will
@@ -128,6 +131,13 @@ function do_update() {
 
   # Log success
   log "$(date) -- INFO: Bundler updated to ${major_version} v${minor_version}."
+
+  # So, if the update-the-bundler script exists, then we'll run it. This script
+  # updates any necessary background data structures
+  if [ -f "${path}/meta/updates/update-the-bundler.sh" ]; then
+    nohup /bin/bash "${path}/meta/updates/update-the-bundler.sh" 1>&2 &> /dev/null 1>&2 &> /dev/null &
+  fi
+
   return 0
 } # END DO_UPDATE()
 
