@@ -15,6 +15,7 @@ class AlfredBundler {
     private $data;
     private $cache;
     private $major_version;
+    private $plist;
 
     public function __construct() {
 
@@ -22,11 +23,14 @@ class AlfredBundler {
       $this->data  = "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}";
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
 
+// Have a fallback on this one
+      $this->plist = __DIR__ . '/info.plist';
+
       if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
           require_once( __DIR__ . '/../AlfredBundler.php' );
     //    For development purposes
     //    require_once( "{$this->data}/bundler/AlfredBundler.php" );
-        $this->bundler = new AlfredBundlerInternalClass();
+        $this->bundler = new AlfredBundlerInternalClass( $this->plist );
       } else {
         $this->install_bundler();
       }
@@ -79,7 +83,7 @@ class AlfredBundler {
               "{$this->data}/bundler" );
 
       require_once( "{$this->data}/bundler/AlfredBundler.php" );
-      $this->bundler = new AlfredBundlerInternalClass();
+      $this->bundler = new AlfredBundlerInternalClass( $this->plist );
 
       return TRUE; // The bundler should be in place now
     }
@@ -124,15 +128,29 @@ class AlfredBundler {
         return call_user_func_array( array( $this->bundler, $method ), $args );
     }
 
+    // private function readPlist( $plist, $key ) {
+    //   if ( ! file_exists( $plist ) )
+    //     return FALSE;
+    //
+    //   return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
+    // }
+
 }
 
 $bundle = new AlfredBundler;
 
+// echo $bundle->load();
+// die();
+
 // Icon test
-$name  = 'align-center';
-$color = '2321ee';
-$font  = 'fontawesome';
-echo $bundle->icon( $name, $font, $color );
+// echo $bundle->icon( 'align-center', 'fontawesome', 'acc321' );
+
+// Composer test !!! Not working ... need to write the composer install package
+// logic. Composer is slow, so this will always be very slow on first load.
+$success = $bundle->composer( array(
+  "monolog/monolog" => "1.10.*@dev"
+));
+
 // // Define the global bundler version.
 // $bundler_version       = "devel";
 // $bundler_minor_version = '1';

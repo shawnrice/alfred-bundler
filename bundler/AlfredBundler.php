@@ -5,14 +5,18 @@ class AlfredBundlerInternalClass {
     private $data;
     private $cache;
     private $major_version;
+    private $plist;
+    private $bundle;
 
-    public function __construct() {
+    public function __construct( $plist ) {
 
       $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
       $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
 
-      $this->data  = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
-      $this->cache = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
+      $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
+      $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
+      $this->plist  = $plist;
+      $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
 
     }
 
@@ -21,9 +25,6 @@ class AlfredBundlerInternalClass {
       $iconServers = explode( PHP_EOL, file_get_contents( __DIR__ . "/meta/icon_servers" ) );
       $iconDir = "{$this->data}/data/assets/icons";
       $iconPath = "{$iconDir}/{$font}/{$color}/{$name}.png";
-
-      return $iconPath;
-
 
       // If the icon has already been downloaded, then just return the path
       if ( file_exists( $iconPath ) )
@@ -36,11 +37,13 @@ class AlfredBundlerInternalClass {
         // test the server somehow....
       endforeach;
 
-      $t = new AlfredBundler;
-      $success = $t->download( "{$server}/{$font}/{$color}/{$name}", $iconPath );
+      $success = $this->download( "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
+
       if ( $success === TRUE )
         return $iconPath;
-      unset( $t );
+      return false;
+
+
       // Rewrite to a proper cURL request
           $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
           if ( $icon === FALSE )
@@ -53,17 +56,104 @@ class AlfredBundlerInternalClass {
 
     }
 
-    public function loadUtility( $name, $version, $json = '' ) {
+    public function utility( $name, $version, $json = '' ) {
 
     }
 
-    public function loadLibrary() {
+    public function library( $name, $version, $json = '' ) {
 
     }
 
     // How am I going to do this?
-    public function loadComposer() {
+    public function composer( $packages ) {
+      $composerDir = "{$this->data}/data/assets/php/composer";
+      if ( ! file_exists( $composerDir ) )
+        mkdir( $composerDir, 0755, TRUE );
 
+      if ( ! file_exists( "{$composerDir}/composer.phar" ) )
+        $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
+        // Add check to make sure the that file is complete above...
+
+      if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) )
+        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+      else {
+        if ( $this->installComposerPackage( $packages ) === TRUE )
+          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+          return TRUE;
+        else {
+          // Do some sort of log and throw an error
+          return FALSE;
+        }
+      }
+    }
+
+    /**
+     * [installComposerPackage description]
+     * @param {array} $json list of composer ready packages with versions
+     */
+    private function installComposerPackage( $packages ) {
+
+// Process
+// php composer.phar install -d "/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/php/composer/tmp"
+// Composer could not find a composer.json file in /Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/php/composer/tmp
+// So, here is the install recipe:
+// (1) create cache install dir --
+// (2) create composer.json file in that dir
+// (3) run 'php composer.phar install' on that composer.json file
+// (4) rename all packages and extensions to (get the versions from vendor/composer/installed.json)
+//     (a) vendor/{$VENDOR}/{$PACKAGE}-{$VERSION}
+//     (b) extensions/{$EXTENSION}-{$VERSION} ----- OR WE DON'T SUPPORT EXTENSIONS HERE -- YES!
+// (5) move vendor/composer to bundles/{$BUNDLEID}/composer
+// (6) move vendor/autoload.php to bundles/{$BUNDLEID}/autoload.php
+// (6) Alter the following files:
+        // autoload_psr4.php
+        // autoload_namespaces.php
+        // autoload_files.php
+        // autoload_classmap.php
+  // (a) Change $vendorDir and $baseDir in each.
+  // (b) Alter $vendorDir . '$vendor/$package' to '$vendor/$package-$version' in each
+
+    }
+
+    public function load() {
+      return $this->bundle;
+    }
+
+    private function readPlist( $plist, $key ) {
+      if ( ! file_exists( $plist ) )
+        return FALSE;
+
+      return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
+    }
+
+    public function download( $url, $file, $timeout = '3' ) {
+      // Check the URL here
+
+      // Make sure that the download directory exists
+      if ( ! ( file_exists( dirname( $file ) ) && is_dir( dirname( $file ) ) ) )
+        return FALSE;
+
+      $ch = curl_init( $url );
+      $fp = fopen( $file , "w");
+
+      curl_setopt_array( $ch, array(
+        CURLOPT_FILE => $fp,
+        CURLOPT_HEADER => FALSE,
+        CURLOPT_FOLLOWLOCATION => TRUE,
+        CURLOPT_CONNECTTIMEOUT => $timeout
+      ) );
+
+
+      // Curl error codes: http://curl.haxx.se/libcurl/c/libcurl-errors.html
+      if ( curl_exec( $ch ) === FALSE ) {
+        curl_close( $ch );
+        fclose( $fp );
+        return curl_error( $ch) ;
+      }
+
+      curl_close( $ch );
+      fclose( $fp );
+      return TRUE;
     }
 
 }
@@ -71,6 +161,27 @@ class AlfredBundlerInternalClass {
 
 // Also get packages from https://packagist.org/
 // To do this, we have to use composer, but I'm not exactly sure how....
+
+// for composer... (1) download composer as a utility
+//
+
+$composer = array(
+
+
+);
+
+// {
+//     "name": "you/themename",
+//     "type": "wordpress-theme",
+//     "require": {
+//         "composer/installers": "~1.0"
+//     },
+//     "extra": {
+//         "installer-paths": {
+//             "sites/example.com/modules/{$name}": ["vendor/package"]
+//         }
+//     }
+// }
 
 // OLD VERSION
 
