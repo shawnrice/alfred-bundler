@@ -62,8 +62,8 @@ module Alfred
 			# I added a bundler backup at Bitbucket: https://bitbucket.org/shawnrice/alfred-bundler
 			# bundler_urls = IO.readlines("meta/bundler_servers")
 			# Bundler URLs have to be hard coded in the wrapper
-			bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/devel.zip",
-											"https://bitbucket.org/shawnrice/alfred-bundler/get/devel.zip"]
+			bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @major_version + "-latest.zip",
+											"https://bitbucket.org/shawnrice/alfred-bundler/get/" + @major_version + "-latest.zip"]
 			url = bundler_urls.each do |x|
 				server = URI.parse(x)
 				if server_test("#{server.scheme}://#{server.host}")
