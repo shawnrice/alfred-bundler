@@ -9,8 +9,8 @@ class AlfredBundlerInternalClass {
 
     public function __construct() {
 
-      $this->major_version = file_get_contents( __DIR__ . '/bundler/meta/version_major' );
-      $this->minor_version = file_get_contents( __DIR__ . '/bundler/meta/version_minor' );
+      $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
+      $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
 
       $this->data  = "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}";
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
