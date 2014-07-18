@@ -1,6 +1,7 @@
 bashtests.sh
 phptests.php
 include.php
+bundler/wrappers/info.plist
 build-pydocs.sh
 /pydoc/
 /wrappers/requirements.txt
