@@ -90,6 +90,7 @@ class AlfredBundlerInternalClass {
     /**
      * [installComposerPackage description]
      * @param {array} $json list of composer ready packages with versions
+     * @TODO: Write this damn function
      */
     private function installComposerPackage( $packages ) {
 
@@ -112,6 +113,19 @@ class AlfredBundlerInternalClass {
         // autoload_classmap.php
   // (a) Change $vendorDir and $baseDir in each.
   // (b) Alter $vendorDir . '$vendor/$package' to '$vendor/$package-$version' in each
+
+// $installDir = "{$this->cache}/{$this->bundle}/composer";
+// Step #1
+// if ( ! file_exists( $installDir ) )
+//   mkdir( "{$installDir}/composer", 0775, TRUE )
+//
+// Step #2
+// $json = json_encode( array( "require" => $packages ) );
+// file_put_contents( "{$installDir}/composer.json", $json );
+//
+// Step #3
+// $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
+// exec( $cmd );
 
     }
 
@@ -156,6 +170,122 @@ class AlfredBundlerInternalClass {
       return TRUE;
     }
 
+
+
+
+    private function installAsset( $json, $version ) {
+      if ( ! file_exists( $json ) ) {
+        echo "Error: cannot install asset because the JSON file is not present";
+        return FALSE;
+      }
+
+      // @TODO: Add error checking to make sure that the file is good JSON
+      $json = json_decode( file_get_contents( $json ) );
+
+      $installDir = "{$this->data}/data/assets/{$json->type}/{$json->name}/{$version}";
+      // Make the installation directory if it doesn't exist
+      if ( ! file_exists( $installDir ) )
+        mkdir( $installDir, 0775, TRUE );
+
+      // Make the temporary directory
+      $tmpDir = "{$this->cache}/installers";
+      if ( ! file_exists( $tmpDir ) )
+        mkdir( $tmpDir, 0775, TRUE );
+
+// if ( file_exists( $json ) ) {
+//  $json = file_get_contents( $json );
+// }
+//
+// $json = json_decode( $json , TRUE );
+// $name = $json[ 'name' ];
+// $type = $json[ 'type' ];
+//
+// // Check to see if the version asked for is in the json; else, fallback to
+// // default if exists; if not, throw error.
+// if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
+//  if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
+//   echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
+//   return FALSE;
+//  } else {
+//   $version = 'default';
+//  }
+// }
+// $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
+// $install = $json[ 'versions' ][ $version ][ 'install' ];
+//
+// // Download the file(s).
+// foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
+//  $file = __doDownload( $url[ 'url' ] );
+//  if ( $file == '5' ) return FALSE;
+//  // File not found on the internets... DIE.
+//  if ( $url['method'] == 'zip' ) {
+//   // Unzip the file into the cache directory, silently.
+//   exec( "unzip -qo '$__cache/$file' -d '$__cache'" );
+//  } else if ( $url['method'] == 'tgz' || $url['method'] == 'tar.gz' ) {
+//   // Untar the file into the cache directory, silently.
+//   exec( "tar xzf '$__cache/$file' -C '$__cache'");
+//  }
+// }
+// $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
+// if ( is_array( $install ) ) {
+//  foreach ( $install as $i ) {
+//   // Replace the strings in the INSTALL json with the proper values.
+//   $i = str_replace( "__FILE__"  , "$__cache/$file" , $i );
+//   $i = str_replace( "__CACHE__" , "$__cache" , $i );
+//   $i = str_replace( "__DATA__"  , "$__data/data/assets/$type/$name/$version/", $i );
+//   exec( "$i" );
+//  }
+// }
+
+      $url = $json->versions->$version->files->url;
+      $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
+      $success = $this->download( $url, "{$tmpDir}/{$file}" );
+
+
+    }
+
+    /**
+     * Prepends a datestamped message to a log file
+     *
+     * @param  {string} $log     path to log file
+     * @param  {string} $message message to write to log
+     * @return {[type]}          [description]
+     */
+    private function log( $log, $message ) {
+      // Set date/time to avoid warnings/errors.
+      if ( ! ini_get('date.timezone') ) {
+        $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+        ini_set( 'date.timezone', $tz );
+      }
+
+      if ( ! file_exists( $log ) ) {
+        if ( ! file_exists( dirname( $log ) ) )
+          mkdir( dirname( $log ), 0775, TRUE );
+          $file = array();
+      } else {
+        // This is needed because, Macs don't read EOLs well.
+        if ( ! ini_get( 'auto_detect_line_endings' ) )
+          ini_set( 'auto_detect_line_endings', TRUE );
+
+        $file = file( $log );
+        // @TODO: set variable for max log length
+        // Check if the logfile is longer than 500 lines. If so, then trim the
+        // last 50 of those.
+        if ( count( $file ) >= 500 ) {
+          for ( $i = 450, $i < 500, $i++ ) :
+            unset( $file[ $i ] );
+          endfor;
+        }
+
+      }
+
+      $message = date( "D M d H:i:s T Y -- " ) . $message;
+      array_unshift( $file, $message );
+
+      file_put_contents( $log, implode( '', $file ) );
+    }
+
+
 }
 
 
@@ -173,9 +303,7 @@ $composer = array(
 // {
 //     "name": "you/themename",
 //     "type": "wordpress-theme",
-//     "require": {
-//         "composer/installers": "~1.0"
-//     },
+
 //     "extra": {
 //         "installer-paths": {
 //             "sites/example.com/modules/{$name}": ["vendor/package"]
