@@ -5,70 +5,61 @@
 # Path to this file
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 # Define the global bundler version.
-bundler_version=$(cat "$path/meta/version_major")
+major_version=$(cat "${path}/meta/version_major")
 
 
 # Define locations
-git="https://raw.githubusercontent.com/shawnrice/alfred-bundler/blob/${bundler_version}"
-__data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${bundler_version}"
-__cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${bundler_version}"
-# For now, we're using the 'initial' branch.
-gitzip="https://github.com/shawnrice/alfred-bundler/archive/$bundler_version.zip"
-
-echo $__data
-exit
+data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
+cache="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${major_version}"
 
 # Make the directory structure
-if [ ! -d "$__data" ]; then
-  mkdir "$__data"
+if [ ! -d "${data}" ]; then
+  mkdir "${data}"
 fi
-if [ ! -d "$__data/data" ]; then
-  mkdir "$__data/data"
+if [ ! -d "${data}/data" ]; then
+  mkdir "${data}/data"
 fi
-if [ ! -d "$__data/data/assets" ]; then
-  mkdir "$__data/data/assets"
+if [ ! -d "${data}/data/assets" ]; then
+  mkdir "${data}/data/assets"
 fi
-if [ ! -d "$__data/data/assets/utility" ]; then
-  mkdir "$__data/data/assets/utility"
+if [ ! -d "${data}/data/assets/utility" ]; then
+  mkdir "${data}/data/assets/utility"
 fi
-if [ ! -d "$__data/data/assets/utility/terminal-notifier" ]; then
-  mkdir "$__data/data/assets/utility/terminal-notifier"
+if [ ! -d "${data}/data/assets/utility/terminal-notifier" ]; then
+  mkdir "${data}/data/assets/utility/terminal-notifier"
 fi
-if [ ! -d "$__data/data/assets/utility/terminal-notifier/default" ]; then
-  mkdir "$__data/data/assets/utility/terminal-notifier/default"
+if [ ! -d "${data}/data/assets/utility/terminal-notifier/default" ]; then
+  mkdir "${data}/data/assets/utility/terminal-notifier/default"
 fi
-if [ ! -d "$__cache" ]; then
-  mkdir "$__cache"
+if [ ! -d "${cache}" ]; then
+  mkdir "${cache}"
 fi
-if [ ! -d "$__cache/installer" ]; then
-  mkdir "$__cache/installer"
+if [ ! -d "${cache}/installer" ]; then
+  mkdir "${cache}/installer"
 fi
 
-# Grab the zip of the Github repo, unpack it, and move it to the data folder
-curl -sL "$gitzip" > "$__cache/installer/$bundler_version.zip"
-cd "$__cache/installer"
-unzip -oq "$bundler_version.zip"
-rm "$bundler_version.zip"
-mv -f "alfred-bundler-$bundler_version"/* "$__data"
-rm -fR "alfred-bundler-$bundler_version"
-cd ..
-rm -fR installer
 
-# Grab the Terminal-Notifier utility, and install it to the data directory
-curl -sL "https://github.com/shawnrice/Alfred-Helpers/raw/master/terminal-notifier-1.6.0.app.zip" > "$__cache/terminal-notifier.zip"
-cd "$__cache"
-unzip -oq "terminal-notifier.zip"
-cp -fR terminal-notifier.app "$__data/data/assets/utility/terminal-notifier/default"
-rm -fR "$__cache/terminal*"
-cd - > /dev/null
+# Use the misc wrapper to load Terminal Notifier
+tn=$(bash "${path}/wrappers/alfred.bundler.misc.sh" "Terminal-Notifier")
 
-# Create the "invoke" file
-echo "terminal-notifier.app/Contents/MacOS/terminal-notifier" \
-> "$__data/data/assets/utility/terminal-notifier/default/invoke"
 
 # Send a message to the user via the terminal-notifier
-`"$__data/data/assets/utility/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
+`"${data}/data/assets/utility/terminal-notifier/default/terminal-notifier.app/Contents/MacOS/terminal-notifier" \
 -title 'Alfred Bundler Installation' -message 'A workflow that you use has \
 requested its installation.'`
 
 # That's it. We're installed.
+
+exit
+
+#### BELOW HERE IS OLD CODE BUT WILL NOT BE EXECUTED
+
+# Grab the zip of the Github repo, unpack it, and move it to the data folder
+curl -sL "$gitzip" > "${cache}/installer/$major_version.zip"
+cd "${cache}/installer"
+unzip -oq "$major_version.zip"
+rm "$major_version.zip"
+mv -f "alfred-bundler-$major_version"/* "${data}"
+rm -fR "alfred-bundler-$major_version"
+cd ..
+rm -fR installer

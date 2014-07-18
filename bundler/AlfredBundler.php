@@ -1,7 +1,6 @@
 <?php
 
 class AlfredBundlerInternalClass {
-    public $a;
 
     private $data;
     private $cache;
@@ -12,15 +11,45 @@ class AlfredBundlerInternalClass {
       $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
       $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
 
-      $this->data  = "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}";
-      $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
+      $this->data  = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
+      $this->cache = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
 
-      $this->a = 'a';
     }
 
 
-    public function loadIcon( $name, $font, $color ) {
-      $iconServers = explode( PHP_EOL, file_get_contents( "{$this->data}/meta/icon_servers" ) );
+    public function icon( $name, $font, $color ) {
+      $iconServers = explode( PHP_EOL, file_get_contents( __DIR__ . "/meta/icon_servers" ) );
+      $iconDir = "{$this->data}/data/assets/icons";
+      $iconPath = "{$iconDir}/{$font}/{$color}/{$name}.png";
+
+      return $iconPath;
+
+
+      // If the icon has already been downloaded, then just return the path
+      if ( file_exists( $iconPath ) )
+        return $iconPath;
+
+      if ( ! file_exists( "{$iconDir}/{$font}/{$color}" ) )
+        mkdir( "{$iconDir}/{$font}/{$color}", 0775, TRUE );
+
+      foreach( $iconServers as $server ) :
+        // test the server somehow....
+      endforeach;
+
+      $t = new AlfredBundler;
+      $success = $t->download( "{$server}/{$font}/{$color}/{$name}", $iconPath );
+      if ( $success === TRUE )
+        return $iconPath;
+      unset( $t );
+      // Rewrite to a proper cURL request
+          $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
+          if ( $icon === FALSE )
+            die( 'Failed to get icon' ); // Problem getting icon
+
+          file_put_contents( $path, $icon );
+
+          // We have the icon file. It's saved, so just send the path back now.
+          return $path;
 
     }
 

@@ -1,4 +1,6 @@
 bashtests.sh
+phptests.php
+include.php
 build-pydocs.sh
 /pydoc/
 /wrappers/requirements.txt

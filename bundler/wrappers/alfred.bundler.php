@@ -23,7 +23,9 @@ class AlfredBundler {
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
 
       if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
-        require_once( "{$this->data}/bundler/AlfredBundler.php" );
+          require_once( __DIR__ . '/../AlfredBundler.php' );
+    //    For development purposes
+    //    require_once( "{$this->data}/bundler/AlfredBundler.php" );
         $this->bundler = new AlfredBundlerInternalClass();
       } else {
         $this->install_bundler();
@@ -72,6 +74,7 @@ class AlfredBundler {
         return FALSE; // Add in error reporting
 
       // Move the bundler into place
+      // Bitbucket will call this folder something else... dammit.
       rename( "{$this->cache}/alfred-bundler-{$this->major_version}-latest/bundler",
               "{$this->data}/bundler" );
 
@@ -100,11 +103,12 @@ class AlfredBundler {
 
 
       // Curl error codes: http://curl.haxx.se/libcurl/c/libcurl-errors.html
-      if ( curl_exec( $ch ) === FALSE) {
-        echo 'Curl error: ' . curl_error($ch);
-      } else {
-        echo 'Operation completed without any errors';
+      if ( curl_exec( $ch ) === FALSE ) {
+        curl_close( $ch );
+        fclose( $fp );
+        return curl_error( $ch) ;
       }
+
       curl_close( $ch );
       fclose( $fp );
       return TRUE;
@@ -124,6 +128,11 @@ class AlfredBundler {
 
 $bundle = new AlfredBundler;
 
+// Icon test
+$name  = 'align-center';
+$color = '2321ee';
+$font  = 'fontawesome';
+echo $bundle->icon( $name, $font, $color );
 // // Define the global bundler version.
 // $bundler_version       = "devel";
 // $bundler_minor_version = '1';
