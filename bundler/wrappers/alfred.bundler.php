@@ -9,7 +9,6 @@
   License: GPLv3
 ***/
 
-// Can I add in composer support?
 
 // Define the global bundler version.
 $bundler_version       = "devel";
