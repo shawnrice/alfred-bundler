@@ -1,7 +1,5 @@
 <?php
 
-
-<?php
 class AlfredBundlerInternalClass {
     public $a;
 
@@ -20,13 +18,25 @@ class AlfredBundlerInternalClass {
       $this->a = 'a';
     }
 
-    public function getA() {
-      return $this->major_version;
+
+    public function loadIcon( $name, $font, $color ) {
+      $iconServers = explode( PHP_EOL, file_get_contents( "{$this->data}/meta/icon_servers" ) );
+
     }
 
-    public function showfirst() {
-      echo $this->major_version;
+    public function loadUtility( $name, $version, $json = '' ) {
+
     }
+
+    public function loadLibrary() {
+
+    }
+
+    // How am I going to do this?
+    public function loadComposer() {
+
+    }
+
 }
 
 
