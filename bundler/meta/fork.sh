@@ -12,7 +12,7 @@ for arg in "$@" ; do
   args="${args} '$arg'"
 done
 
-# Execute the update script entirely in the background
+# Execute the script entirely in the background
 nohup ${args} 1>&2 &> /dev/null 1>&2 &> /dev/null &
 
 exit
