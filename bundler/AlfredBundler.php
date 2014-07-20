@@ -2,65 +2,331 @@
 
 class AlfredBundlerInternalClass {
 
-    private $data;
-    private $cache;
-    private $major_version;
-    private $plist;
-    private $bundle;
+  private $data;
+  private $cache;
+  private $major_version;
+  private $plist;
+  private $bundle;
+  private $background;
 
-    public function __construct( $plist ) {
+  public function __construct( $plist ) {
 
-      $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
-      $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
+    $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
+    $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
 
-      $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
-      $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
-      $this->plist  = $plist;
-      $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
+    $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
+    $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
+    $this->plist  = $plist;
+    $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
 
+    // For background icon functions:
+    // To determine the value, we're using a modified version of Clint Strong's
+    // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
+    // The new binary just returns 'light' or 'dark' after processing the current
+    // theme file.
+    if ( file_exists( __DIR__ . "/includes/LightOrDark" ) )
+      $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
+    else
+      $this->background = FALSE;
+
+  }
+
+
+/*******************************************************************************
+ * BEGIN ICON FUNCTIONS
+ * ****************************************************************************/
+
+  /**
+   * [icon description]
+   * @param  {[type]} $name   [description]
+   * @param  {[type]} $font   [description]
+   * @param  {[type]} $color  [description]
+   * @param  {[type]} $alter =             FALSE [description]
+   * @return {[type]}         [description]
+   */
+  public function icon( $name, $font, $color, $alter = FALSE ) {
+
+    // Check to see if the 'alter' flag is true, if so, try to return the
+    // appropriate light/dark icon.
+    if ( $alter === TRUE ) {
+      if ( $this->background !== FALSE ) {
+        if ( $this->checkColor( $color ) == $this->background ) {
+            if ( $this->background == 'dark' ) $color = $this->lightenColor( $color );
+            else $color = $this->lightenColor( $color );
+        }
+      }
     }
 
+    $iconServers = explode( PHP_EOL, file_get_contents( __DIR__ . "/meta/icon_servers" ) );
+    $iconDir = "{$this->data}/data/assets/icons";
+    $iconPath = "{$iconDir}/{$font}/{$color}/{$name}.png";
 
-    public function icon( $name, $font, $color ) {
-      $iconServers = explode( PHP_EOL, file_get_contents( __DIR__ . "/meta/icon_servers" ) );
-      $iconDir = "{$this->data}/data/assets/icons";
-      $iconPath = "{$iconDir}/{$font}/{$color}/{$name}.png";
+    // If the icon has already been downloaded, then just return the path
+    if ( file_exists( $iconPath ) )
+      return $iconPath;
 
-      // If the icon has already been downloaded, then just return the path
-      if ( file_exists( $iconPath ) )
-        return $iconPath;
+    if ( ! file_exists( "{$iconDir}/{$font}/{$color}" ) )
+      mkdir( "{$iconDir}/{$font}/{$color}", 0775, TRUE );
 
-      if ( ! file_exists( "{$iconDir}/{$font}/{$color}" ) )
-        mkdir( "{$iconDir}/{$font}/{$color}", 0775, TRUE );
+    foreach( $iconServers as $server ) :
+      // test the server somehow....
+    endforeach;
 
-      foreach( $iconServers as $server ) :
-        // test the server somehow....
-      endforeach;
+    $success = $this->download( "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
 
-      $success = $this->download( "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
-
-      if ( $success === TRUE )
-        return $iconPath;
-      return false;
+    if ( $success === TRUE )
+      return $iconPath;
+    return FALSE;
 
 
-      // Rewrite to a proper cURL request
-          $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
-          if ( $icon === FALSE )
-            die( 'Failed to get icon' ); // Problem getting icon
+    // Rewrite to a proper cURL request
+        $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
+        if ( $icon === FALSE )
+          die( 'Failed to get icon' ); // Problem getting icon
 
-          file_put_contents( $path, $icon );
+        file_put_contents( $path, $icon );
 
-          // We have the icon file. It's saved, so just send the path back now.
-          return $path;
+        // We have the icon file. It's saved, so just send the path back now.
+        return $path;
 
+  }
+
+  /**
+   * [checkColor description]
+   * @param {[type]} $color [description]
+   */
+  private function checkColor( $color ) {
+
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE )
+      return FALSE;
+
+  	// See if RGB value is greater than 140, if so, return light, else, return dark
+  	if ( ( ( ( hexdec( substr( $color, 0, 2 ) ) * 299 ) // R
+  		     + ( hexdec( substr( $color, 2, 2 ) ) * 587 ) // G
+  		     + ( hexdec( substr( $color, 4, 2 ) ) * 114 ) // B
+  	  ) / 1000 ) > 140 )
+  		return 'light';
+  	else
+  		return 'dark';
+  }
+
+  private function checkHex( $color ) {
+    $color = str_replace('#', '', $color);
+
+    // Check if string is either three or six characters
+    if ( strlen( $color ) != 3 && strlen( $color ) != 6 )
+      return FALSE; // Not a valid hex value
+    if ( strlen( $color )  == 3 ) {
+      // Check if string has only hex characters
+      if ( ! preg_match( "/([0-9a-f]{3})/", $color) )
+        return FALSE; // Not a valid hex value
+      // Change three character hex to six character hex
+      $color = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $color );
+    } else {
+      // Check if string has only hex characters
+      if ( ! preg_match( "/([0-9a-f]{6})/", $color) )
+        return FALSE; // Not a valid hex value
+    }
+    return $color;
+  }
+
+  function hexToRgb( $color ) {
+		$r = hexdec( substr( $color, 0, 2 ) );
+		$g = hexdec( substr( $color, 2, 2 ) );
+		$b = hexdec( substr( $color, 4, 2 ) );
+		return array( 'r' => $r, 'g' => $g, 'b' => $b );
+	}
+
+	function lightenColor( $color ) {
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE ) return FALSE;
+
+		$rgb = $this->hexToRgb( $color );
+		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
+		if ( $hsv[ 'v' ] < .5 ) {
+			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
+		}
+		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
+
+		return dechex( $rgb[ 'r' ] ) . dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+	}
+
+	function darkenColor( $color ) {
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE ) return FALSE;
+
+		$rgb = $this->hexToRgb( $color );
+		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
+		if ( $hsv[ 'v' ] > .5 ) {
+			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
+		}
+		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
+
+		return dechex( $rgb[ 'r' ] ). dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+	}
+
+	// I don't understand colors. RGB to HSV conversions from
+	// https://stackoverflow.com/questions/3512311/how-to-generate-lighter-darker-color-with-php
+	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
+
+	function rgb_to_hsv( $r, $g, $b )  	  // RGB Values:Number 0-255
+		{                                 // HSV Results:Number 0-1
+		$hsl = array();
+
+		$var_r = ( $r / 255 );
+		$var_g = ( $g / 255 );
+		$var_b = ( $b / 255 );
+
+		$var_min = min( $var_r, $var_g, $var_b );
+		$var_max = max( $var_r, $var_g, $var_b );
+		$del_max = $var_max - $var_min;
+
+		$v = $var_max;
+
+		if ( $del_max == 0 ) {
+			$h = 0;
+			$s = 0;
+		}
+		else {
+			$s = $del_max / $var_max;
+
+			$del_r = ( ( ( $var_max - $var_r ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
+			$del_g = ( ( ( $var_max - $var_g ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
+			$del_b = ( ( ( $var_max - $var_b ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
+
+			if      ( $var_r == $var_max ) $h = $del_b - $del_g;
+			else if ( $var_g == $var_max ) $h = ( 1 / 3 ) + $del_r - $del_b;
+				else if ( $var_b == $var_max ) $h = ( 2 / 3 ) + $del_g - $del_r;
+
+					if ( $h < 0 ) $h++;
+					if ( $h > 1 ) $h--;
+		}
+
+		$hsl['h'] = $h;
+		$hsl['s'] = $s;
+		$hsl['v'] = $v;
+
+		return $hsl;
+	}
+
+	function hsv_to_rgb( $h, $s, $v )  // hsv values:number 0-1
+		{                                 // rgb results:number 0-255
+		$rgb = array();
+
+		if ( $s == 0 ) {
+			$r = $g = $b = $v * 255;
+		}
+		else {
+			$var_h = $h * 6;
+			$var_i = floor( $var_h );
+			$var_1 = $v * ( 1 - $s );
+			$var_2 = $v * ( 1 - $s * ( $var_h - $var_i ) );
+			$var_3 = $v * ( 1 - $s * ( 1 - ( $var_h - $var_i ) ) );
+
+			if       ( $var_i == 0 ) { $var_r = $v     ; $var_g = $var_3  ; $var_b = $var_1 ; }
+			else if  ( $var_i == 1 ) { $var_r = $var_2 ; $var_g = $v      ; $var_b = $var_1 ; }
+			else if  ( $var_i == 2 ) { $var_r = $var_1 ; $var_g = $v      ; $var_b = $var_3 ; }
+			else if  ( $var_i == 3 ) { $var_r = $var_1 ; $var_g = $var_2  ; $var_b = $v     ; }
+			else if  ( $var_i == 4 ) { $var_r = $var_3 ; $var_g = $var_1  ; $var_b = $v     ; }
+			else 					 { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
+
+			$r = $var_r * 255;
+			$g = $var_g * 255;
+			$b = $var_b * 255;
+		}
+
+		$rgb['r'] = $r;
+		$rgb['g'] = $g;
+		$rgb['b'] = $b;
+
+		return $rgb;
+	}
+
+/*******************************************************************************
+ * END ICON FUNCTIONS
+ * ****************************************************************************/
+
+    public function utility( $name, $version = 'default', $json = '' ) {
+      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
+      else
+        return "Not found";
     }
 
-    public function utility( $name, $version, $json = '' ) {
+    public function notify( $title, $message, $options = array() ) {
 
+      if ( isset( $options[ 'sender' ] ) )
+        $sender = "-sender '" . $options['sender'] . "'";
+      else
+        $sender = "";
+
+
+      if ( isset( $options[ 'appIcon' ] ) )
+        $appIcon = "-appIcon '" . $options['appIcon'] . "'";
+      else
+        $appIcon = "";
+
+
+      if ( isset( $options[ 'contentImage' ] ) )
+        $contentImage = "-contentImage '" . $options['contentImage'] . "'";
+      else
+        $contentImage = "";
+
+
+      if ( isset( $options[ 'subtitle' ] ) )
+        $subtitle = "-subtitle '" . $options['subtitle'] . "'";
+      else
+        $subtitle = "";
+
+
+      if ( isset( $options[ 'group' ] ) )
+        $group = "-group '" . $options['group'] . "'";
+      else
+        $group = "";
+
+
+      if ( isset( $options[ 'sound' ] ) )
+        $sound = "-sound '" . $options['sound'] . "'";
+      else
+        $sound = "";
+
+
+      if ( isset( $options[ 'remove' ] ) )
+        $remove = "-remove '" . $options['remove'] . "'";
+      else
+        $remove = "";
+
+
+      if ( isset( $options[ 'list' ] ) )
+        $list = "-list '" . $options['list'] . "'";
+      else
+        $list = "";
+
+
+      if ( isset( $options[ 'activate' ] ) )
+        $activate = "-activate '" . $options['activate'] . "'";
+      else
+        $activate = "";
+
+
+      if ( isset( $options[ 'open' ] ) )
+        $openURL = "-openURL '" . $options['openURL'] . "'";
+      else
+        $openURL = "";
+
+
+      if ( isset( $options[ 'execute' ] ) )
+        $execute = "-execute '" . $options['execute'] . "'";
+      else
+        $execute = "";
+
+
+      $tn = $this->utility( 'Terminal-Notifier', 'default' );
+      exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
     }
 
-    public function library( $name, $version, $json = '' ) {
+    public function library( $name, $version = 'default', $json = '' ) {
 
     }
 
@@ -77,10 +343,10 @@ class AlfredBundlerInternalClass {
       if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) )
         require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
       else {
-        if ( $this->installComposerPackage( $packages ) === TRUE )
+        if ( $this->installComposerPackage( $packages ) === TRUE ) {
           require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
           return TRUE;
-        else {
+        } else {
           // Do some sort of log and throw an error
           return FALSE;
         }
@@ -129,68 +395,87 @@ class AlfredBundlerInternalClass {
 
     }
 
-    public function load() {
-      return $this->bundle;
-    }
-
-    private function readPlist( $plist, $key ) {
-      if ( ! file_exists( $plist ) )
+  public function load( $name, $type, $version, $json = '' ) {
+    // Do registry with the bundle stuff here: $this->bundle;
+    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+      return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+    } else {
+      if ( empty( $json ) ) {
+        if ( file_exists( "{$this->data}/bundler/meta/defaults/{$name}.json" ) ) {
+          if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
+            return file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" );
+          else
+            return FALSE;
+        }
+      } else if ( file_exists( $json ) ) {
+        if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
+          return file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" );
+        else
+          return FALSE;
+      } else {
         return FALSE;
-
-      return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
-    }
-
-    public function download( $url, $file, $timeout = '3' ) {
-      // Check the URL here
-
-      // Make sure that the download directory exists
-      if ( ! ( file_exists( dirname( $file ) ) && is_dir( dirname( $file ) ) ) )
-        return FALSE;
-
-      $ch = curl_init( $url );
-      $fp = fopen( $file , "w");
-
-      curl_setopt_array( $ch, array(
-        CURLOPT_FILE => $fp,
-        CURLOPT_HEADER => FALSE,
-        CURLOPT_FOLLOWLOCATION => TRUE,
-        CURLOPT_CONNECTTIMEOUT => $timeout
-      ) );
-
-
-      // Curl error codes: http://curl.haxx.se/libcurl/c/libcurl-errors.html
-      if ( curl_exec( $ch ) === FALSE ) {
-        curl_close( $ch );
-        fclose( $fp );
-        return curl_error( $ch) ;
       }
+    }
+  }
 
+  private function readPlist( $plist, $key ) {
+    if ( ! file_exists( $plist ) )
+      return FALSE;
+
+    return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
+  }
+
+  public function download( $url, $file, $timeout = '3' ) {
+    // Check the URL here
+
+    // Make sure that the download directory exists
+    if ( ! ( file_exists( dirname( $file ) ) && is_dir( dirname( $file ) ) ) )
+      return FALSE;
+
+    $ch = curl_init( $url );
+    $fp = fopen( $file , "w");
+
+    curl_setopt_array( $ch, array(
+      CURLOPT_FILE => $fp,
+      CURLOPT_HEADER => FALSE,
+      CURLOPT_FOLLOWLOCATION => TRUE,
+      CURLOPT_CONNECTTIMEOUT => $timeout
+    ) );
+
+
+    // Curl error codes: http://curl.haxx.se/libcurl/c/libcurl-errors.html
+    if ( curl_exec( $ch ) === FALSE ) {
       curl_close( $ch );
       fclose( $fp );
-      return TRUE;
+      return curl_error( $ch) ;
     }
 
+    curl_close( $ch );
+    fclose( $fp );
+    return TRUE;
+  }
 
+  private function installAsset( $json, $version ) {
+    if ( ! file_exists( $json ) ) {
+      echo "Error: cannot install asset because the JSON file is not present";
+      return FALSE;
+    }
 
+    // @TODO: Add error checking to make sure that the file is good JSON
+    $json = json_decode( file_get_contents( $json ) );
 
-    private function installAsset( $json, $version ) {
-      if ( ! file_exists( $json ) ) {
-        echo "Error: cannot install asset because the JSON file is not present";
-        return FALSE;
-      }
+    if ( $json == null )
+      return FALSE;
 
-      // @TODO: Add error checking to make sure that the file is good JSON
-      $json = json_decode( file_get_contents( $json ) );
+    $installDir = "{$this->data}/data/assets/{$json->type}/{$json->name}/{$version}";
+    // Make the installation directory if it doesn't exist
+    if ( ! file_exists( $installDir ) )
+      mkdir( $installDir, 0775, TRUE );
 
-      $installDir = "{$this->data}/data/assets/{$json->type}/{$json->name}/{$version}";
-      // Make the installation directory if it doesn't exist
-      if ( ! file_exists( $installDir ) )
-        mkdir( $installDir, 0775, TRUE );
-
-      // Make the temporary directory
-      $tmpDir = "{$this->cache}/installers";
-      if ( ! file_exists( $tmpDir ) )
-        mkdir( $tmpDir, 0775, TRUE );
+    // Make the temporary directory
+    $tmpDir = "{$this->cache}/installers";
+    if ( ! file_exists( $tmpDir ) )
+      mkdir( $tmpDir, 0775, TRUE );
 
 // if ( file_exists( $json ) ) {
 //  $json = file_get_contents( $json );
@@ -237,12 +522,12 @@ class AlfredBundlerInternalClass {
 //  }
 // }
 
-      $url = $json->versions->$version->files->url;
-      $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
-      $success = $this->download( $url, "{$tmpDir}/{$file}" );
+    // $url = $json->versions->$version->files->url;
+    // $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
+    // $success = $this->download( $url, "{$tmpDir}/{$file}" );
 
 
-    }
+  }
 
     /**
      * Prepends a datestamped message to a log file
@@ -272,7 +557,7 @@ class AlfredBundlerInternalClass {
         // Check if the logfile is longer than 500 lines. If so, then trim the
         // last 50 of those.
         if ( count( $file ) >= 500 ) {
-          for ( $i = 450, $i < 500, $i++ ) :
+          for ( $i = 450; $i < 500; $i++ ) :
             unset( $file[ $i ] );
           endfor;
         }
@@ -288,28 +573,6 @@ class AlfredBundlerInternalClass {
 
 }
 
-
-// Also get packages from https://packagist.org/
-// To do this, we have to use composer, but I'm not exactly sure how....
-
-// for composer... (1) download composer as a utility
-//
-
-$composer = array(
-
-
-);
-
-// {
-//     "name": "you/themename",
-//     "type": "wordpress-theme",
-
-//     "extra": {
-//         "installer-paths": {
-//             "sites/example.com/modules/{$name}": ["vendor/package"]
-//         }
-//     }
-// }
 
 // OLD VERSION
 
@@ -332,40 +595,6 @@ $composer = array(
 //   global $bundler_version;
 //   $__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
 //
-//   if ( $type == 'icon' ) { // Deal with icons first
-//     // We didn't plan, originally, to have icons work with the bundler, so this is a bit of a hack.
-//     // The next major version of the bundler will have better icon support.
-//     if ( ! ( isset( $version ) && isset( $json ) ) ) // We need all the arguments here.
-//       die( 'Need to pass all arguments' );
-//
-//     $icon               = $name;
-//     $font               = $version;
-//     $color              = $json;
-//
-//
-//     $iconDir            = "$__data/assets/icons/$font/$color";
-//     $path               = "$__data/assets/icons/$font/$color/$icon.png";
-//
-//     if ( file_exists( $path ) ) // See if the file is already there.
-//       return $path;
-//
-//     if ( ! file_exists( $iconDir ) ) {
-//       if ( ! mkdir( $iconDir, 0775, TRUE ) ) // Make the icon directory and those below it if necessary.
-//         die( 'Failed to make directory' );
-//     }
-//
-//     $bd_icon_server_url = 'http://icons.deanishe.net/icon';
-//
-//     // Rewrite to a proper cURL request
-//     $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
-//     if ( $icon === FALSE )
-//       die( 'Failed to get icon' ); // Problem getting icon
-//
-//     file_put_contents( $path, $icon );
-//
-//     // We have the icon file. It's saved, so just send the path back now.
-//     return $path;
-//   }
 //
 //   if (   empty( $version ) ) $version = 'default'; // This shouldn't be needed....
 //   if ( ! empty( $bundle  ) ) __registerAsset( $bundle , $name , $version );
