@@ -39,8 +39,10 @@ function check_update() {
       echo "${next_update}" > "${data}/data/update-cache"
       return 0
   else
-    if [[ $now -gt $(cat "${data}/data/update-cache") ]]; then
-
+    if [[ $now -lt $(cat "${data}/data/update-cache") ]]; then
+      return 0
+    else
+      
       # Cycle through the list of servers. If there is an error connecting, then we
       # move onto the next server on the list. If we get to one server and receive
       # a 404, then there is no update available. If there is a 200, then an update
@@ -71,7 +73,6 @@ function check_update() {
       fi
       echo "${next_update}" > "${data}/data/update-cache"
       return 0
-    fi
   fi
 
   # We should not be here
