@@ -46,13 +46,18 @@ class AlfredBundlerInternalClass {
    */
   public function icon( $name, $font, $color, $alter = FALSE ) {
 
+    // So, named colors can work, but we're going to test to see if the color is
+    // written in a hex format; if so, we'll make sure that it's in a
+    // non-abbreviated form.
+    if ( $this->checkHex( $color ) )
+      $color = $this->checkHex( $color );
     // Check to see if the 'alter' flag is true, if so, try to return the
     // appropriate light/dark icon.
     if ( $alter === TRUE ) {
       if ( $this->background !== FALSE ) {
         if ( $this->checkColor( $color ) == $this->background ) {
             if ( $this->background == 'dark' ) $color = $this->lightenColor( $color );
-            else $color = $this->lightenColor( $color );
+            else $color = $this->darkenColor( $color );
         }
       }
     }
@@ -248,10 +253,17 @@ class AlfredBundlerInternalClass {
  * ****************************************************************************/
 
     public function utility( $name, $version = 'default', $json = '' ) {
-      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
-      else
-        return "Not found";
+      if ( empty( $json ) ) {
+        if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
+          return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
+        else
+          return $this->load( $name, 'utility', $version );
+      } else {
+        if ( file_exists( $json ) ) {
+          return $this->load( $name, 'utility', $version, $json );
+        }
+      }
+      return FALSE;
     }
 
     public function notify( $title, $message, $options = array() ) {
@@ -326,11 +338,25 @@ class AlfredBundlerInternalClass {
       exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
     }
 
-    public function library( $name, $version = 'default', $json = '' ) {
-
+    // This function should find a better name
+    public function requireLibrary( $name, $version = 'default', $json = '' ) {
+      if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
+        require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+      } else {
+        if ( $this->load( $name, 'php', $version, $json ) )
+          require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+        else {
+          return FALSE;
+        }
+      }
     }
 
     // How am I going to do this?
+    // Also, I need to find a way to make sure that this can change and be
+    // updated.
+    //
+    // Maybe I can create the composer.json file each time and then hash it and
+    // compare it to one that has been created
     public function composer( $packages ) {
       $composerDir = "{$this->data}/data/assets/php/composer";
       if ( ! file_exists( $composerDir ) )
@@ -395,27 +421,35 @@ class AlfredBundlerInternalClass {
 
     }
 
+  /**
+   * Generic function to load an asset
+   * @param  {[type]} $name    [description]
+   * @param  {[type]} $type    [description]
+   * @param  {[type]} $version [description]
+   * @param  {[type]} $json    =             '' [description]
+   * @return {[type]}          [description]
+   */
   public function load( $name, $type, $version, $json = '' ) {
     // Do registry with the bundle stuff here: $this->bundle;
-    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+    // Do gatekeeper and path caching stuff as well
+    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
       return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-    } else {
-      if ( empty( $json ) ) {
-        if ( file_exists( "{$this->data}/bundler/meta/defaults/{$name}.json" ) ) {
-          if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
-            return file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" );
-          else
-            return FALSE;
-        }
-      } else if ( file_exists( $json ) ) {
-        if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
-          return file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" );
-        else
-          return FALSE;
-      } else {
+
+    // Well, we need to install the asset
+
+    if ( empty( $json ) ) {
+      if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+      else
         return FALSE;
-      }
+    } else {
+      if ( $this->installAsset( $json, $version ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+      else
+        return FALSE;
     }
+    // We shouldn't get here
+    return FALSE;
   }
 
   private function readPlist( $plist, $key ) {
@@ -467,7 +501,7 @@ class AlfredBundlerInternalClass {
     if ( $json == null )
       return FALSE;
 
-    $installDir = "{$this->data}/data/assets/{$json->type}/{$json->name}/{$version}";
+    $installDir = "{$this->data}/data/assets/{$json[ 'type' ]}/{$json[ 'name' ]}/{$version}";
     // Make the installation directory if it doesn't exist
     if ( ! file_exists( $installDir ) )
       mkdir( $installDir, 0775, TRUE );
@@ -484,7 +518,8 @@ class AlfredBundlerInternalClass {
     // default if exists; if not, throw error.
     if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
       if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
-        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
+        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version.'";
+        $this->log( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
         return FALSE;
       } else {
         $version = 'default';
@@ -496,12 +531,13 @@ class AlfredBundlerInternalClass {
     // Download the file(s).
     foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
       $file = pathinfo( parse_url( $url[ 'url' ], PHP_URL_PATH ) );
+      $file = $file[ 'basename' ];
       if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) )
         return FALSE; // The download failed, for some reason.
 
       if ( $url[ 'method' ] == 'zip' ) {
         // Unzip the file into the cache directory, silently.
-        exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$cache}'" );
+        exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$tmpDir}'" );
       } else if ( $url[ 'method' ] == 'tgz' || $url[ 'method' ] == 'tar.gz' ) {
         // Untar the file into the cache directory, silently.
         exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'");
@@ -510,14 +546,16 @@ class AlfredBundlerInternalClass {
     if ( is_array( $install ) ) {
       foreach ( $install as $i ) {
         // Replace the strings in the INSTALL json with the proper values.
-        $i = str_replace( "__FILE__"  , "{$tmpDir}/$file", $i );
-        $i = str_replace( "__CACHE__" , "{$tmpDir}/", $i );
-        $i = str_replace( "__DATA__"  , "{$installDir}/", $i );
-        exec( "$i" );
+        $i = str_replace( "__FILE__" , "{$tmpDir}/$file", $i );
+        $i = str_replace( "__CACHE__", "{$tmpDir}/",      $i );
+        $i = str_replace( "__DATA__" , "{$installDir}/",  $i );
+        exec( $i );
       }
     }
     // Add in the invoke file
     file_put_contents( "{$installDir}/invoke", $invoke );
+    $this->log( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
+    return TRUE;
   }
 
     /**
@@ -561,7 +599,7 @@ class AlfredBundlerInternalClass {
       $message = date( "D M d H:i:s T Y -- " ) . $message;
       array_unshift( $file, $message );
 
-      file_put_contents( $log, implode( '', $file ) );
+      file_put_contents( $log, implode( PHP_EOL, $file ) );
     }
 
 
