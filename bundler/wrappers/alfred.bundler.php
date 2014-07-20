@@ -137,6 +137,8 @@ class AlfredBundler {
 
 }
 
+if ( $argv[0] == basename( __FILE__ ) ) {
+
 $bundle = new AlfredBundler;
 
 // echo $bundle->load();
@@ -261,3 +263,4 @@ $success = $bundle->composer( array(
 //   exec( "sh '$__cache/installer/installer.sh'" );
 //
 // } // End __installBundler()
+}
