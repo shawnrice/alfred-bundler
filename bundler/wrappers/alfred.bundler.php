@@ -63,7 +63,6 @@ class AlfredBundler {
       if ( $success !== TRUE )
         return FALSE; // Add in error reporting
 
-    echo "Here";
       $zip = new ZipArchive;
       $resource = $zip->open( "{$this->cache}/bundler.zip" );
       if ( $resource !== TRUE ) {

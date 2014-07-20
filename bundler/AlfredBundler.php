@@ -455,14 +455,14 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-  private function installAsset( $json, $version ) {
+  private function installAsset( $json, $version = 'default' ) {
     if ( ! file_exists( $json ) ) {
       echo "Error: cannot install asset because the JSON file is not present";
       return FALSE;
     }
 
     // @TODO: Add error checking to make sure that the file is good JSON
-    $json = json_decode( file_get_contents( $json ) );
+    $json = json_decode( file_get_contents( $json ), TRUE );
 
     if ( $json == null )
       return FALSE;
@@ -477,66 +477,60 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( $tmpDir ) )
       mkdir( $tmpDir, 0775, TRUE );
 
-// if ( file_exists( $json ) ) {
-//  $json = file_get_contents( $json );
-// }
-//
-// $json = json_decode( $json , TRUE );
-// $name = $json[ 'name' ];
-// $type = $json[ 'type' ];
-//
-// // Check to see if the version asked for is in the json; else, fallback to
-// // default if exists; if not, throw error.
-// if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
-//  if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
-//   echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
-//   return FALSE;
-//  } else {
-//   $version = 'default';
-//  }
-// }
-// $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
-// $install = $json[ 'versions' ][ $version ][ 'install' ];
-//
-// // Download the file(s).
-// foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
-//  $file = __doDownload( $url[ 'url' ] );
-//  if ( $file == '5' ) return FALSE;
-//  // File not found on the internets... DIE.
-//  if ( $url['method'] == 'zip' ) {
-//   // Unzip the file into the cache directory, silently.
-//   exec( "unzip -qo '$__cache/$file' -d '$__cache'" );
-//  } else if ( $url['method'] == 'tgz' || $url['method'] == 'tar.gz' ) {
-//   // Untar the file into the cache directory, silently.
-//   exec( "tar xzf '$__cache/$file' -C '$__cache'");
-//  }
-// }
-// $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
-// if ( is_array( $install ) ) {
-//  foreach ( $install as $i ) {
-//   // Replace the strings in the INSTALL json with the proper values.
-//   $i = str_replace( "__FILE__"  , "$__cache/$file" , $i );
-//   $i = str_replace( "__CACHE__" , "$__cache" , $i );
-//   $i = str_replace( "__DATA__"  , "$__data/data/assets/$type/$name/$version/", $i );
-//   exec( "$i" );
-//  }
-// }
+    $name = $json[ 'name' ];
+    $type = $json[ 'type' ];
 
-    // $url = $json->versions->$version->files->url;
-    // $file = pathinfo( parse_url( "$url", PHP_URL_PATH ) );
-    // $success = $this->download( $url, "{$tmpDir}/{$file}" );
+    // Check to see if the version asked for is in the json; else, fallback to
+    // default if exists; if not, throw error.
+    if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
+      if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
+        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version!'";
+        return FALSE;
+      } else {
+        $version = 'default';
+      }
+    }
+    $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
+    $install = $json[ 'versions' ][ $version ][ 'install' ];
 
+    // Download the file(s).
+    foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
+      $file = pathinfo( parse_url( $url[ 'url' ], PHP_URL_PATH ) );
+      if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) )
+        return FALSE; // The download failed, for some reason.
 
+      if ( $url[ 'method' ] == 'zip' ) {
+        // Unzip the file into the cache directory, silently.
+        exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$cache}'" );
+      } else if ( $url[ 'method' ] == 'tgz' || $url[ 'method' ] == 'tar.gz' ) {
+        // Untar the file into the cache directory, silently.
+        exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'");
+      }
+    }
+    if ( is_array( $install ) ) {
+      foreach ( $install as $i ) {
+        // Replace the strings in the INSTALL json with the proper values.
+        $i = str_replace( "__FILE__"  , "{$tmpDir}/$file", $i );
+        $i = str_replace( "__CACHE__" , "{$tmpDir}/", $i );
+        $i = str_replace( "__DATA__"  , "{$installDir}/", $i );
+        exec( "$i" );
+      }
+    }
+    // Add in the invoke file
+    file_put_contents( "{$installDir}/invoke", $invoke );
   }
 
     /**
      * Prepends a datestamped message to a log file
      *
-     * @param  {string} $log     path to log file
+     * @param  {string} $log     name of log file
      * @param  {string} $message message to write to log
      * @return {[type]}          [description]
      */
     private function log( $log, $message ) {
+
+      $log = "{$this->data}/data/logs/{$log}.log";
+
       // Set date/time to avoid warnings/errors.
       if ( ! ini_get('date.timezone') ) {
         $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
