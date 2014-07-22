@@ -261,229 +261,229 @@ class AlfredBundlerInternalClass {
  * END ICON FUNCTIONS
  * ****************************************************************************/
 
-    public function utility( $name, $version = 'default', $json = '' ) {
-      if ( empty( $json ) ) {
-        if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
-          return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
-        else
-          return $this->load( $name, 'utility', $version );
-      } else {
-        if ( file_exists( $json ) ) {
-          return $this->load( $name, 'utility', $version, $json );
-        }
+  public function utility( $name, $version = 'default', $json = '' ) {
+    if ( empty( $json ) ) {
+      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
+      else
+        return $this->load( $name, 'utility', $version );
+    } else {
+      if ( file_exists( $json ) ) {
+        return $this->load( $name, 'utility', $version, $json );
       }
-      return FALSE;
     }
+    return FALSE;
+  }
 
-    public function notify( $title, $message, $options = array() ) {
+  public function notify( $title, $message, $options = array() ) {
 
-      if ( isset( $options[ 'sender' ] ) )
-        $sender = "-sender '" . $options['sender'] . "'";
-      else
-        $sender = "";
-
-
-      if ( isset( $options[ 'appIcon' ] ) )
-        $appIcon = "-appIcon '" . $options['appIcon'] . "'";
-      else
-        $appIcon = "";
+    if ( isset( $options[ 'sender' ] ) )
+      $sender = "-sender '" . $options['sender'] . "'";
+    else
+      $sender = "";
 
 
-      if ( isset( $options[ 'contentImage' ] ) )
-        $contentImage = "-contentImage '" . $options['contentImage'] . "'";
-      else
-        $contentImage = "";
+    if ( isset( $options[ 'appIcon' ] ) )
+      $appIcon = "-appIcon '" . $options['appIcon'] . "'";
+    else
+      $appIcon = "";
 
 
-      if ( isset( $options[ 'subtitle' ] ) )
-        $subtitle = "-subtitle '" . $options['subtitle'] . "'";
-      else
-        $subtitle = "";
+    if ( isset( $options[ 'contentImage' ] ) )
+      $contentImage = "-contentImage '" . $options['contentImage'] . "'";
+    else
+      $contentImage = "";
 
 
-      if ( isset( $options[ 'group' ] ) )
-        $group = "-group '" . $options['group'] . "'";
-      else
-        $group = "";
+    if ( isset( $options[ 'subtitle' ] ) )
+      $subtitle = "-subtitle '" . $options['subtitle'] . "'";
+    else
+      $subtitle = "";
 
 
-      if ( isset( $options[ 'sound' ] ) )
-        $sound = "-sound '" . $options['sound'] . "'";
-      else
-        $sound = "";
+    if ( isset( $options[ 'group' ] ) )
+      $group = "-group '" . $options['group'] . "'";
+    else
+      $group = "";
 
 
-      if ( isset( $options[ 'remove' ] ) )
-        $remove = "-remove '" . $options['remove'] . "'";
-      else
-        $remove = "";
+    if ( isset( $options[ 'sound' ] ) )
+      $sound = "-sound '" . $options['sound'] . "'";
+    else
+      $sound = "";
 
 
-      if ( isset( $options[ 'list' ] ) )
-        $list = "-list '" . $options['list'] . "'";
-      else
-        $list = "";
+    if ( isset( $options[ 'remove' ] ) )
+      $remove = "-remove '" . $options['remove'] . "'";
+    else
+      $remove = "";
 
 
-      if ( isset( $options[ 'activate' ] ) )
-        $activate = "-activate '" . $options['activate'] . "'";
-      else
-        $activate = "";
+    if ( isset( $options[ 'list' ] ) )
+      $list = "-list '" . $options['list'] . "'";
+    else
+      $list = "";
 
 
-      if ( isset( $options[ 'open' ] ) )
-        $openURL = "-openURL '" . $options['openURL'] . "'";
-      else
-        $openURL = "";
+    if ( isset( $options[ 'activate' ] ) )
+      $activate = "-activate '" . $options['activate'] . "'";
+    else
+      $activate = "";
 
 
-      if ( isset( $options[ 'execute' ] ) )
-        $execute = "-execute '" . $options['execute'] . "'";
-      else
-        $execute = "";
+    if ( isset( $options[ 'open' ] ) )
+      $openURL = "-openURL '" . $options['openURL'] . "'";
+    else
+      $openURL = "";
 
 
-      $tn = $this->utility( 'Terminal-Notifier', 'default' );
-      exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
-    }
+    if ( isset( $options[ 'execute' ] ) )
+      $execute = "-execute '" . $options['execute'] . "'";
+    else
+      $execute = "";
 
-    // This function should find a better name
-    public function library( $name, $version = 'default', $json = '' ) {
-      if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
+
+    $tn = $this->utility( 'Terminal-Notifier', 'default' );
+    exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
+  }
+
+  // This function should find a better name
+  public function library( $name, $version = 'default', $json = '' ) {
+    if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
+      require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+    } else {
+      if ( $this->load( $name, 'php', $version, $json ) )
         require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
-      } else {
-        if ( $this->load( $name, 'php', $version, $json ) )
-          require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
-        else {
-          return FALSE;
-        }
-      }
-    }
-
-    // How am I going to do this?
-    // Also, I need to find a way to make sure that this can change and be
-    // updated.
-    //
-    // Maybe I can create the composer.json file each time and then hash it and
-    // compare it to one that has been created
-    public function composer( $packages ) {
-      $composerDir = "{$this->data}/data/assets/php/composer";
-      if ( ! file_exists( $composerDir ) )
-        mkdir( $composerDir, 0755, TRUE );
-
-      if ( ! file_exists( "{$composerDir}/composer.phar" ) )
-        $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
-        // Add check to make sure the that file is complete above...
-
-      $install = FALSE;
-
-      if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
-        if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
-          $installDir = "{$this->cache}/{$this->bundle}/composer";
-          if ( ! file_exists( $installDir ) )
-            mkdir( "{$installDir}", 0775, TRUE );
-          $json = json_encode( array( "require" => $packages ) );
-          $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
-          file_put_contents( "{$installDir}/composer.json", $json );
-
-          if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
-            require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
-          } else {
-            $install = TRUE;
-            if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-              exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
-            }
-          }
-        }
-      } else {
-        $install = TRUE;
-      }
-
-      if ( $install == TRUE ) {
-        if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-          exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
-        }
-        if ( $this->installComposerPackage( $packages ) === TRUE ) {
-          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
-          return TRUE;
-        } else {
-          $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
-          return FALSE;
-        }
-      }
-    }
-
-    /**
-     * [installComposerPackage description]
-     * @param {array} $json list of composer ready packages with versions
-     * @TODO: Write this damn function
-     */
-    private function installComposerPackage( $packages ) {
-      if ( ! is_array( $packages) ) // The packages variable needs to be an array
+      else {
         return FALSE;
+      }
+    }
+  }
 
-      $installDir = "{$this->cache}/{$this->bundle}/composer";
+  // How am I going to do this?
+  // Also, I need to find a way to make sure that this can change and be
+  // updated.
+  //
+  // Maybe I can create the composer.json file each time and then hash it and
+  // compare it to one that has been created
+  public function composer( $packages ) {
+    $composerDir = "{$this->data}/data/assets/php/composer";
+    if ( ! file_exists( $composerDir ) )
+      mkdir( $composerDir, 0755, TRUE );
 
-      if ( ! file_exists( $installDir ) )
-        mkdir( "{$installDir}", 0775, TRUE );
+    if ( ! file_exists( "{$composerDir}/composer.phar" ) )
+      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
+      // Add check to make sure the that file is complete above...
 
-      $json = json_encode( array( "require" => $packages ) );
-      $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
-      file_put_contents( "{$installDir}/composer.json", $json );
+    $install = FALSE;
 
-      $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
-      exec( $cmd );
+    if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
+      if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+        $installDir = "{$this->cache}/{$this->bundle}/composer";
+        if ( ! file_exists( $installDir ) )
+          mkdir( "{$installDir}", 0775, TRUE );
+        $json = json_encode( array( "require" => $packages ) );
+        $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+        file_put_contents( "{$installDir}/composer.json", $json );
 
-      $packages = json_decode( file_get_contents( "{$installDir}/vendor/composer/installed.json" ), TRUE );
-
-      // Files to be changed
-      $files = array( 'autoload_psr4.php', 'autoload_namespaces.php', 'autoload_files.php', 'autoload_classmap.php' );
-      $destination = "{$this->data}/data/assets/php/composer/vendor";
-      $installed = array();
-
-      foreach( $packages as $package ) :
-
-        $name = explode( '/', $package[ 'name' ] ); // As: vendor/package
-        $vendor = $name[0];                         // vendor
-        $name = $name[1];                           // package name
-        $version = $package[ 'version' ];           // version installed
-        $installed[] = array( 'name' => $name, 'vendor' => $vendor, 'version' => $version );
-
-        foreach( $files as $file ) :
-          if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
-            $f = file( "{$installDir}/vendor/composer/{$file}" );
-            foreach ( $f as $num => $line ) :
-              $line = str_replace( '$vendorDir = dirname(dirname(__FILE__));',  "\$vendorDir = '{$this->data}/data/assets/php/composer/vendor';", $line );
-              $line = str_replace( '$baseDir = dirname($vendorDir);', "\$baseDir = '{$this->data}/data/assets/php/composer';", $line );
-              $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
-              $f[ $num ] = $line;
-            endforeach;
-            file_put_contents( "{$installDir}/vendor/composer/{$file}", implode( '', $f ) );
+        if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        } else {
+          $install = TRUE;
+          if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+            exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
           }
-        endforeach;
+        }
+      }
+    } else {
+      $install = TRUE;
+    }
 
-        if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}") ) {
-          if ( ! file_exists( "{$destination}/{$vendor}" ) )
-            mkdir( "{$destination}/{$vendor}", 0775, TRUE ); // Make the vendor dir if necessary
-          rename( "{$installDir}/vendor/{$vendor}/{$name}", "{$destination}/{$vendor}/{$name}-{$version}" );
+    if ( $install == TRUE ) {
+      if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+        exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+      }
+      if ( $this->installComposerPackage( $packages ) === TRUE ) {
+        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        return TRUE;
+      } else {
+        $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
+        return FALSE;
+      }
+    }
+  }
+
+  /**
+   * [installComposerPackage description]
+   * @param {array} $json list of composer ready packages with versions
+   * @TODO: Write this damn function
+   */
+  private function installComposerPackage( $packages ) {
+    if ( ! is_array( $packages) ) // The packages variable needs to be an array
+      return FALSE;
+
+    $installDir = "{$this->cache}/{$this->bundle}/composer";
+
+    if ( ! file_exists( $installDir ) )
+      mkdir( "{$installDir}", 0775, TRUE );
+
+    $json = json_encode( array( "require" => $packages ) );
+    $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+    file_put_contents( "{$installDir}/composer.json", $json );
+
+    $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
+    exec( $cmd );
+
+    $packages = json_decode( file_get_contents( "{$installDir}/vendor/composer/installed.json" ), TRUE );
+
+    // Files to be changed
+    $files = array( 'autoload_psr4.php', 'autoload_namespaces.php', 'autoload_files.php', 'autoload_classmap.php' );
+    $destination = "{$this->data}/data/assets/php/composer/vendor";
+    $installed = array();
+
+    foreach( $packages as $package ) :
+
+      $name = explode( '/', $package[ 'name' ] ); // As: vendor/package
+      $vendor = $name[0];                         // vendor
+      $name = $name[1];                           // package name
+      $version = $package[ 'version' ];           // version installed
+      $installed[] = array( 'name' => $name, 'vendor' => $vendor, 'version' => $version );
+
+      foreach( $files as $file ) :
+        if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
+          $f = file( "{$installDir}/vendor/composer/{$file}" );
+          foreach ( $f as $num => $line ) :
+            $line = str_replace( '$vendorDir = dirname(dirname(__FILE__));',  "\$vendorDir = '{$this->data}/data/assets/php/composer/vendor';", $line );
+            $line = str_replace( '$baseDir = dirname($vendorDir);', "\$baseDir = '{$this->data}/data/assets/php/composer';", $line );
+            $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
+            $f[ $num ] = $line;
+          endforeach;
+          file_put_contents( "{$installDir}/vendor/composer/{$file}", implode( '', $f ) );
         }
       endforeach;
-      if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}" ) )
-        mkdir( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}", 0775, TRUE );
 
-      if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json" ) ) {
-        $data = str_replace( '\/', '/', json_encode( $installed ) );
-        file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json", $data );
+      if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}") ) {
+        if ( ! file_exists( "{$destination}/{$vendor}" ) )
+          mkdir( "{$destination}/{$vendor}", 0775, TRUE ); // Make the vendor dir if necessary
+        rename( "{$installDir}/vendor/{$vendor}/{$name}", "{$destination}/{$vendor}/{$name}-{$version}" );
       }
+    endforeach;
+    if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}" ) )
+      mkdir( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}", 0775, TRUE );
 
-      rename( "{$installDir}/vendor/composer", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer" );
-      rename( "{$installDir}/vendor/autoload.php", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/autoload.php" );
-      file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json", $json );
-
-      exec( "rm -fR '{$installDir}'" ); // Just so we don't have to remove a full directory with PHP, which is pretty damn slow.
-
-      return FALSE;
+    if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json" ) ) {
+      $data = str_replace( '\/', '/', json_encode( $installed ) );
+      file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json", $data );
     }
+
+    rename( "{$installDir}/vendor/composer", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer" );
+    rename( "{$installDir}/vendor/autoload.php", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/autoload.php" );
+    file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json", $json );
+
+    exec( "rm -fR '{$installDir}'" ); // Just so we don't have to remove a full directory with PHP, which is pretty damn slow.
+
+    return FALSE;
+  }
 
   /**
    * Generic function to load an asset
