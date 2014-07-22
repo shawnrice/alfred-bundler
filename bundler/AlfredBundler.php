@@ -485,7 +485,12 @@ class AlfredBundlerInternalClass {
 		}
 		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
 
-		return dechex( $rgb[ 'r' ] ) . dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+    foreach ( $rgb as $key => $val ) :
+      if ( strlen( dechex( $val ) ) == 1 ) $rgb[ $key ] = '0' . dechex( $val );
+      else $rgb[ $key ] = dechex( $val );
+    endforeach;
+
+    return $rgb[ 'r' ] . $rgb[ 'g' ] . $rgb[ 'b' ];
 	}
 
   /**
@@ -503,7 +508,12 @@ class AlfredBundlerInternalClass {
 		}
 		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
 
-		return dechex( $rgb[ 'r' ] ). dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+    foreach ( $rgb as $key => $val ) :
+      if ( strlen( dechex( $val ) ) == 1 ) $rgb[ $key ] = '0' . dechex( $val );
+      else $rgb[ $key ] = dechex( $val );
+    endforeach;
+
+    return $rgb[ 'r' ] . $rgb[ 'g' ] . $rgb[ 'b' ];
 	}
 
 	// I don't understand colors. RGB to HSV conversions adapted from
@@ -511,11 +521,12 @@ class AlfredBundlerInternalClass {
 	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
 
   /**
-   * [rgb_to_hsv description]
-   * @param  {[type]} $r [description]
-   * @param  {[type]} $g [description]
-   * @param  {[type]} $b [description]
-   * @return {[type]}    [description]
+   * Converts RGB color to HSV color
+   *
+   * @param  {int} $r [description]
+   * @param  {int} $g [description]
+   * @param  {int} $b [description]
+   * @return {array}    [description]
    */
 	function rgb_to_hsv( $r, $g, $b ) {
 
@@ -552,15 +563,16 @@ class AlfredBundlerInternalClass {
       $h += 360.0;
     }
     $h /= 360;
-    return array( 'h' => $h / 360, 's' => $s, 'v' => $v );
+    return array( 'h' => $h, 's' => $s, 'v' => $v );
 	}
 
   /**
-   * [hsv_to_rgb description]
-   * @param  {[type]} $h [description]
-   * @param  {[type]} $s [description]
-   * @param  {[type]} $v [description]
-   * @return {[type]}    [description]
+   * Convert HSV color to RGB
+   *
+   * @param  {float} $h [description]
+   * @param  {float} $s [description]
+   * @param  {float} $v [description]
+   * @return {array}    [description]
    */
 	function hsv_to_rgb( $h, $s, $v ) {
 		$rgb = array();
