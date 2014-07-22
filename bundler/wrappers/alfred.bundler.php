@@ -16,7 +16,6 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
  * @version    Taurus 1
  * @link       http://shawnrice.github.io/alfred-bundler
- * @see        NetOther, Net_Sample::Net_Sample()
  * @since      File available since Aries 1
  */
 
