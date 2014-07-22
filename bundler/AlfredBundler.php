@@ -1,5 +1,34 @@
 <?php
 
+/**
+ * Alfred Bundler PHP API file
+ *
+ * Main PHP interface for the Alfred Dependency Bundler.
+ *
+ * LICENSE: GPLv3 {@link https://www.gnu.org/licenses/gpl-3.0.txt}, or see
+ * LICENSE file in the Alfred Bundler directory.
+ *
+ *
+ * @copyright  Shawn Patrick Rice 2014
+ * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
+ * @version    Taurus 1
+ * @link       http://shawnrice.github.io/alfred-bundler
+ * @since      File available since Aries 1
+ */
+
+
+/**
+ * Internal API Class for Alfred Bundler
+ *
+ * This class is the only one that you should interact with. The rest of the
+ * magic that the bundler performs happens under the hood. Also, the backend
+ * of the bundler (here the 'AlfredBundlerInternalClass') may change; however,
+ * this wrapper will continue to work with the bundler API for the remainder of
+ * this major version.
+ *
+ * @since     Class available since Taurus 1
+ *
+ */
 class AlfredBundlerInternalClass {
 
   private $data;
@@ -9,6 +38,11 @@ class AlfredBundlerInternalClass {
   private $bundle;
   private $background;
 
+  /**
+   * [__construct description]
+   * @param  {[type]} $plist [description]
+   * @return {[type]}        [description]
+   */
   public function __construct( $plist ) {
 
     $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
@@ -21,13 +55,128 @@ class AlfredBundlerInternalClass {
 
   }
 
-  public function bundle() {
-    return $this->bundle;
+  /**
+   * Generic function to load an asset
+   * @param  {[type]} $name    [description]
+   * @param  {[type]} $type    [description]
+   * @param  {[type]} $version [description]
+   * @param  {[type]} $json    =             '' [description]
+   * @return {[type]}          [description]
+   */
+  public function load( $name, $type, $version, $json = '' ) {
+    // Do registry with the bundle stuff here: $this->bundle;
+    // Do gatekeeper and path caching stuff as well
+    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
+      return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+
+    // Well, we need to install the asset
+
+    if ( empty( $json ) ) {
+      if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+      else
+        return FALSE;
+    } else {
+      if ( $this->installAsset( $json, $version ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+      else
+        return FALSE;
+    }
+    // We shouldn't get here
+    return FALSE;
   }
 
-/*******************************************************************************
- * BEGIN ICON FUNCTIONS
- * ****************************************************************************/
+  /**
+   * [utility description]
+   * @param  {[type]} $name    [description]
+   * @param  {[type]} $version =             'default' [description]
+   * @param  {[type]} $json    =             ''        [description]
+   * @return {[type]}          [description]
+   */
+  public function utility( $name, $version = 'default', $json = '' ) {
+    if ( empty( $json ) ) {
+      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
+        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
+      else
+        return $this->load( $name, 'utility', $version );
+    } else {
+      if ( file_exists( $json ) ) {
+        return $this->load( $name, 'utility', $version, $json );
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * [library description]
+   * @param  {[type]} $name    [description]
+   * @param  {[type]} $version =             'default' [description]
+   * @param  {[type]} $json    =             ''        [description]
+   * @return {[type]}          [description]
+   */
+  public function library( $name, $version = 'default', $json = '' ) {
+    if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
+      require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+    } else {
+      if ( $this->load( $name, 'php', $version, $json ) )
+        require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+      else {
+        return FALSE;
+      }
+    }
+  }
+
+  /**
+   * [composer description]
+   * @param  {[type]} $packages [description]
+   * @return {[type]}           [description]
+   */
+  public function composer( $packages ) {
+    $composerDir = "{$this->data}/data/assets/php/composer";
+    if ( ! file_exists( $composerDir ) )
+      mkdir( $composerDir, 0755, TRUE );
+
+    if ( ! file_exists( "{$composerDir}/composer.phar" ) )
+      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
+      // Add check to make sure the that file is complete above...
+
+    $install = FALSE;
+
+    if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
+      if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+        $installDir = "{$this->cache}/{$this->bundle}/composer";
+        if ( ! file_exists( $installDir ) )
+          mkdir( "{$installDir}", 0775, TRUE );
+        $json = json_encode( array( "require" => $packages ) );
+        $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+        file_put_contents( "{$installDir}/composer.json", $json );
+
+        if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        } else {
+          $install = TRUE;
+          if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+            exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+          }
+        }
+      }
+    } else {
+      $install = TRUE;
+    }
+
+    if ( $install == TRUE ) {
+      if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+        exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+      }
+      if ( $this->installComposerPackage( $packages ) === TRUE ) {
+        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        return TRUE;
+      } else {
+        $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
+        return FALSE;
+      }
+    }
+  }
 
   /**
    * [icon description]
@@ -108,309 +257,82 @@ class AlfredBundlerInternalClass {
 
   }
 
-  /**
-   * [checkColor description]
-   * @param {[type]} $color [description]
-   */
-  private function checkColor( $color ) {
+/*******************************************************************************
+ * BEGIN INSTALL FUNCTIONS
+ ******************************************************************************/
 
-    $color = $this->checkHex( $color );
-    if ( $color === FALSE )
+  /**
+   * [installAsset description]
+   * @param {[type]} $json    [description]
+   * @param {[type]} $version =             'default' [description]
+   */
+  private function installAsset( $json, $version = 'default' ) {
+    if ( ! file_exists( $json ) ) {
+      echo "Error: cannot install asset because the JSON file is not present";
+      return FALSE;
+    }
+
+    // @TODO: Add error checking to make sure that the file is good JSON
+    $json = json_decode( file_get_contents( $json ), TRUE );
+
+    if ( $json == null )
       return FALSE;
 
-  	// See if RGB value is greater than 140, if so, return light, else, return dark
-  	if ( ( ( ( hexdec( substr( $color, 0, 2 ) ) * 299 ) // R
-  		     + ( hexdec( substr( $color, 2, 2 ) ) * 587 ) // G
-  		     + ( hexdec( substr( $color, 4, 2 ) ) * 114 ) // B
-  	  ) / 1000 ) > 140 )
-  		return 'light';
-  	else
-  		return 'dark';
-  }
+    $installDir = "{$this->data}/data/assets/{$json[ 'type' ]}/{$json[ 'name' ]}/{$version}";
+    // Make the installation directory if it doesn't exist
+    if ( ! file_exists( $installDir ) )
+      mkdir( $installDir, 0775, TRUE );
 
-  private function checkHex( $color ) {
-    $color = str_replace('#', '', $color);
+    // Make the temporary directory
+    $tmpDir = "{$this->cache}/installers";
+    if ( ! file_exists( $tmpDir ) )
+      mkdir( $tmpDir, 0775, TRUE );
 
-    // Check if string is either three or six characters
-    if ( strlen( $color ) != 3 && strlen( $color ) != 6 )
-      return FALSE; // Not a valid hex value
-    if ( strlen( $color )  == 3 ) {
-      // Check if string has only hex characters
-      if ( ! preg_match( "/([0-9a-f]{3})/", $color) )
-        return FALSE; // Not a valid hex value
-      // Change three character hex to six character hex
-      $color = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $color );
-    } else {
-      // Check if string has only hex characters
-      if ( ! preg_match( "/([0-9a-f]{6})/", $color) )
-        return FALSE; // Not a valid hex value
-    }
-    return $color;
-  }
+    $name = $json[ 'name' ];
+    $type = $json[ 'type' ];
 
-  function hexToRgb( $color ) {
-		$r = hexdec( substr( $color, 0, 2 ) );
-		$g = hexdec( substr( $color, 2, 2 ) );
-		$b = hexdec( substr( $color, 4, 2 ) );
-		return array( 'r' => $r, 'g' => $g, 'b' => $b );
-	}
-
-	function lightenColor( $color ) {
-    $color = $this->checkHex( $color );
-    if ( $color === FALSE ) return FALSE;
-
-		$rgb = $this->hexToRgb( $color );
-		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
-		if ( $hsv[ 'v' ] < .5 ) {
-			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
-		}
-		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
-
-		return dechex( $rgb[ 'r' ] ) . dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
-	}
-
-	function darkenColor( $color ) {
-    $color = $this->checkHex( $color );
-    if ( $color === FALSE ) return FALSE;
-
-		$rgb = $this->hexToRgb( $color );
-		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
-		if ( $hsv[ 'v' ] > .5 ) {
-			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
-		}
-		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
-
-		return dechex( $rgb[ 'r' ] ). dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
-	}
-
-	// I don't understand colors. RGB to HSV conversions from
-	// https://stackoverflow.com/questions/3512311/how-to-generate-lighter-darker-color-with-php
-	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
-
-	function rgb_to_hsv( $r, $g, $b ) {
-
-		$r = ( $r / 255 );
-		$g = ( $g / 255 );
-		$b = ( $b / 255 );
-
-    $max = max( $r, $g, $b );
-		$min = min( $r, $g, $b );
-
-		$delta = $max - $min;
-
-		$v = $max;
-
-    if ( $max != 0.0 )
-      $s = $delta / $max;
-    else
-      $s = 0.0;
-
-    if ( $s == 0.0 )
-      $h = 0.0;
-    else {
-      if ( $r == $max )
-        $h = ( $g - $b ) / $delta;
-      else if ( $g == $max )
-        $h = 2 + ( $b - $r ) / $delta;
-      else if ( $b == $max )
-        $h = 4 + ( $r - $g ) / $delta;
-    }
-
-    $h *= 60.0;
-
-    if ( $h < 0 ) {
-      $h += 360.0;
-    }
-    $h /= 360;
-    return array( 'h' => $h / 360, 's' => $s, 'v' => $v );
-	}
-
-	function hsv_to_rgb( $h, $s, $v ) {
-		$rgb = array();
-
-		if ( $s == 0 ) {
-			$r = $g = $b = $v * 255;
-		}
-		else {
-			$var_h = $h * 6;
-			$var_i = floor( $var_h );
-			$var_1 = $v * ( 1 - $s );
-			$var_2 = $v * ( 1 - $s * ( $var_h - $var_i ) );
-			$var_3 = $v * ( 1 - $s * ( 1 - ( $var_h - $var_i ) ) );
-
-			if       ( $var_i == 0 ) { $var_r = $v     ; $var_g = $var_3  ; $var_b = $var_1 ; }
-			else if  ( $var_i == 1 ) { $var_r = $var_2 ; $var_g = $v      ; $var_b = $var_1 ; }
-			else if  ( $var_i == 2 ) { $var_r = $var_1 ; $var_g = $v      ; $var_b = $var_3 ; }
-			else if  ( $var_i == 3 ) { $var_r = $var_1 ; $var_g = $var_2  ; $var_b = $v     ; }
-			else if  ( $var_i == 4 ) { $var_r = $var_3 ; $var_g = $var_1  ; $var_b = $v     ; }
-			else 					 { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
-
-			$r = $var_r * 255;
-			$g = $var_g * 255;
-			$b = $var_b * 255;
-		}
-
-		$rgb['r'] = $r;
-		$rgb['g'] = $g;
-		$rgb['b'] = $b;
-
-		return $rgb;
-	}
-
-/*******************************************************************************
- * END ICON FUNCTIONS
- * ****************************************************************************/
-
-  public function utility( $name, $version = 'default', $json = '' ) {
-    if ( empty( $json ) ) {
-      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
-      else
-        return $this->load( $name, 'utility', $version );
-    } else {
-      if ( file_exists( $json ) ) {
-        return $this->load( $name, 'utility', $version, $json );
-      }
-    }
-    return FALSE;
-  }
-
-  public function notify( $title, $message, $options = array() ) {
-
-    if ( isset( $options[ 'sender' ] ) )
-      $sender = "-sender '" . $options['sender'] . "'";
-    else
-      $sender = "";
-
-
-    if ( isset( $options[ 'appIcon' ] ) )
-      $appIcon = "-appIcon '" . $options['appIcon'] . "'";
-    else
-      $appIcon = "";
-
-
-    if ( isset( $options[ 'contentImage' ] ) )
-      $contentImage = "-contentImage '" . $options['contentImage'] . "'";
-    else
-      $contentImage = "";
-
-
-    if ( isset( $options[ 'subtitle' ] ) )
-      $subtitle = "-subtitle '" . $options['subtitle'] . "'";
-    else
-      $subtitle = "";
-
-
-    if ( isset( $options[ 'group' ] ) )
-      $group = "-group '" . $options['group'] . "'";
-    else
-      $group = "";
-
-
-    if ( isset( $options[ 'sound' ] ) )
-      $sound = "-sound '" . $options['sound'] . "'";
-    else
-      $sound = "";
-
-
-    if ( isset( $options[ 'remove' ] ) )
-      $remove = "-remove '" . $options['remove'] . "'";
-    else
-      $remove = "";
-
-
-    if ( isset( $options[ 'list' ] ) )
-      $list = "-list '" . $options['list'] . "'";
-    else
-      $list = "";
-
-
-    if ( isset( $options[ 'activate' ] ) )
-      $activate = "-activate '" . $options['activate'] . "'";
-    else
-      $activate = "";
-
-
-    if ( isset( $options[ 'open' ] ) )
-      $openURL = "-openURL '" . $options['openURL'] . "'";
-    else
-      $openURL = "";
-
-
-    if ( isset( $options[ 'execute' ] ) )
-      $execute = "-execute '" . $options['execute'] . "'";
-    else
-      $execute = "";
-
-
-    $tn = $this->utility( 'Terminal-Notifier', 'default' );
-    exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
-  }
-
-  // This function should find a better name
-  public function library( $name, $version = 'default', $json = '' ) {
-    if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
-      require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
-    } else {
-      if ( $this->load( $name, 'php', $version, $json ) )
-        require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
-      else {
+    // Check to see if the version asked for is in the json; else, fallback to
+    // default if exists; if not, throw error.
+    if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
+      if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
+        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version.'";
+        $this->log( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
         return FALSE;
-      }
-    }
-  }
-
-  // How am I going to do this?
-  // Also, I need to find a way to make sure that this can change and be
-  // updated.
-  //
-  // Maybe I can create the composer.json file each time and then hash it and
-  // compare it to one that has been created
-  public function composer( $packages ) {
-    $composerDir = "{$this->data}/data/assets/php/composer";
-    if ( ! file_exists( $composerDir ) )
-      mkdir( $composerDir, 0755, TRUE );
-
-    if ( ! file_exists( "{$composerDir}/composer.phar" ) )
-      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
-      // Add check to make sure the that file is complete above...
-
-    $install = FALSE;
-
-    if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
-      if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
-        $installDir = "{$this->cache}/{$this->bundle}/composer";
-        if ( ! file_exists( $installDir ) )
-          mkdir( "{$installDir}", 0775, TRUE );
-        $json = json_encode( array( "require" => $packages ) );
-        $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
-        file_put_contents( "{$installDir}/composer.json", $json );
-
-        if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
-          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
-        } else {
-          $install = TRUE;
-          if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-            exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
-          }
-        }
-      }
-    } else {
-      $install = TRUE;
-    }
-
-    if ( $install == TRUE ) {
-      if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-        exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
-      }
-      if ( $this->installComposerPackage( $packages ) === TRUE ) {
-        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
-        return TRUE;
       } else {
-        $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
-        return FALSE;
+        $version = 'default';
       }
     }
+    $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
+    $install = $json[ 'versions' ][ $version ][ 'install' ];
+
+    // Download the file(s).
+    foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
+      $file = pathinfo( parse_url( $url[ 'url' ], PHP_URL_PATH ) );
+      $file = $file[ 'basename' ];
+      if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) )
+        return FALSE; // The download failed, for some reason.
+
+      if ( $url[ 'method' ] == 'zip' ) {
+        // Unzip the file into the cache directory, silently.
+        exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$tmpDir}'" );
+      } else if ( $url[ 'method' ] == 'tgz' || $url[ 'method' ] == 'tar.gz' ) {
+        // Untar the file into the cache directory, silently.
+        exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'");
+      }
+    }
+    if ( is_array( $install ) ) {
+      foreach ( $install as $i ) {
+        // Replace the strings in the INSTALL json with the proper values.
+        $i = str_replace( "__FILE__" , "{$tmpDir}/$file", $i );
+        $i = str_replace( "__CACHE__", "{$tmpDir}/",      $i );
+        $i = str_replace( "__DATA__" , "{$installDir}/",  $i );
+        exec( $i );
+      }
+    }
+    // Add in the invoke file
+    file_put_contents( "{$installDir}/invoke", $invoke );
+    $this->log( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
+    return TRUE;
   }
 
   /**
@@ -485,37 +407,214 @@ class AlfredBundlerInternalClass {
     return FALSE;
   }
 
+/*******************************************************************************
+ * END INSTALL FUNCTIONS
+ ******************************************************************************/
+
+/*******************************************************************************
+ * BEGIN ICON FUNCTIONS
+ * ****************************************************************************/
+
   /**
-   * Generic function to load an asset
-   * @param  {[type]} $name    [description]
-   * @param  {[type]} $type    [description]
-   * @param  {[type]} $version [description]
-   * @param  {[type]} $json    =             '' [description]
-   * @return {[type]}          [description]
+   * [checkColor description]
+   * @param {[type]} $color [description]
    */
-  public function load( $name, $type, $version, $json = '' ) {
-    // Do registry with the bundle stuff here: $this->bundle;
-    // Do gatekeeper and path caching stuff as well
-    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
-      return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+  private function checkColor( $color ) {
 
-    // Well, we need to install the asset
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE )
+      return FALSE;
 
-    if ( empty( $json ) ) {
-      if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-      else
-        return FALSE;
-    } else {
-      if ( $this->installAsset( $json, $version ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-      else
-        return FALSE;
-    }
-    // We shouldn't get here
-    return FALSE;
+  	// See if RGB value is greater than 140, if so, return light, else, return dark
+  	if ( ( ( ( hexdec( substr( $color, 0, 2 ) ) * 299 ) // R
+  		     + ( hexdec( substr( $color, 2, 2 ) ) * 587 ) // G
+  		     + ( hexdec( substr( $color, 4, 2 ) ) * 114 ) // B
+  	  ) / 1000 ) > 140 )
+  		return 'light';
+  	else
+  		return 'dark';
   }
 
+  /**
+   * [checkHex description]
+   * @param {[type]} $color [description]
+   */
+  private function checkHex( $color ) {
+    $color = str_replace('#', '', $color);
+
+    // Check if string is either three or six characters
+    if ( strlen( $color ) != 3 && strlen( $color ) != 6 )
+      return FALSE; // Not a valid hex value
+    if ( strlen( $color )  == 3 ) {
+      // Check if string has only hex characters
+      if ( ! preg_match( "/([0-9a-f]{3})/", $color) )
+        return FALSE; // Not a valid hex value
+      // Change three character hex to six character hex
+      $color = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $color );
+    } else {
+      // Check if string has only hex characters
+      if ( ! preg_match( "/([0-9a-f]{6})/", $color) )
+        return FALSE; // Not a valid hex value
+    }
+    return $color;
+  }
+
+  /**
+   * [hexToRgb description]
+   * @param {[type]} $color [description]
+   */
+  function hexToRgb( $color ) {
+		$r = hexdec( substr( $color, 0, 2 ) );
+		$g = hexdec( substr( $color, 2, 2 ) );
+		$b = hexdec( substr( $color, 4, 2 ) );
+		return array( 'r' => $r, 'g' => $g, 'b' => $b );
+	}
+
+  /**
+   * [lightenColor description]
+   * @param {[type]} $color [description]
+   */
+	function lightenColor( $color ) {
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE ) return FALSE;
+
+		$rgb = $this->hexToRgb( $color );
+		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
+		if ( $hsv[ 'v' ] < .5 ) {
+			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
+		}
+		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
+
+		return dechex( $rgb[ 'r' ] ) . dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+	}
+
+  /**
+   * [darkenColor description]
+   * @param {[type]} $color [description]
+   */
+	function darkenColor( $color ) {
+    $color = $this->checkHex( $color );
+    if ( $color === FALSE ) return FALSE;
+
+		$rgb = $this->hexToRgb( $color );
+		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
+		if ( $hsv[ 'v' ] > .5 ) {
+			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
+		}
+		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
+
+		return dechex( $rgb[ 'r' ] ). dechex( $rgb[ 'g' ] ) . dechex( $rgb[ 'b' ] );
+	}
+
+	// I don't understand colors. RGB to HSV conversions adapted from
+	// https://stackoverflow.com/questions/3512311/how-to-generate-lighter-darker-color-with-php
+	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
+
+  /**
+   * [rgb_to_hsv description]
+   * @param  {[type]} $r [description]
+   * @param  {[type]} $g [description]
+   * @param  {[type]} $b [description]
+   * @return {[type]}    [description]
+   */
+	function rgb_to_hsv( $r, $g, $b ) {
+
+		$r = ( $r / 255 );
+		$g = ( $g / 255 );
+		$b = ( $b / 255 );
+
+    $max = max( $r, $g, $b );
+		$min = min( $r, $g, $b );
+
+		$delta = $max - $min;
+
+		$v = $max;
+
+    if ( $max != 0.0 )
+      $s = $delta / $max;
+    else
+      $s = 0.0;
+
+    if ( $s == 0.0 )
+      $h = 0.0;
+    else {
+      if ( $r == $max )
+        $h = ( $g - $b ) / $delta;
+      else if ( $g == $max )
+        $h = 2 + ( $b - $r ) / $delta;
+      else if ( $b == $max )
+        $h = 4 + ( $r - $g ) / $delta;
+    }
+
+    $h *= 60.0;
+
+    if ( $h < 0 ) {
+      $h += 360.0;
+    }
+    $h /= 360;
+    return array( 'h' => $h / 360, 's' => $s, 'v' => $v );
+	}
+
+  /**
+   * [hsv_to_rgb description]
+   * @param  {[type]} $h [description]
+   * @param  {[type]} $s [description]
+   * @param  {[type]} $v [description]
+   * @return {[type]}    [description]
+   */
+	function hsv_to_rgb( $h, $s, $v ) {
+		$rgb = array();
+
+		if ( $s == 0 ) {
+			$r = $g = $b = $v * 255;
+		}
+		else {
+			$var_h = $h * 6;
+			$var_i = floor( $var_h );
+			$var_1 = $v * ( 1 - $s );
+			$var_2 = $v * ( 1 - $s * ( $var_h - $var_i ) );
+			$var_3 = $v * ( 1 - $s * ( 1 - ( $var_h - $var_i ) ) );
+
+			if       ( $var_i == 0 ) { $var_r = $v     ; $var_g = $var_3  ; $var_b = $var_1 ; }
+			else if  ( $var_i == 1 ) { $var_r = $var_2 ; $var_g = $v      ; $var_b = $var_1 ; }
+			else if  ( $var_i == 2 ) { $var_r = $var_1 ; $var_g = $v      ; $var_b = $var_3 ; }
+			else if  ( $var_i == 3 ) { $var_r = $var_1 ; $var_g = $var_2  ; $var_b = $v     ; }
+			else if  ( $var_i == 4 ) { $var_r = $var_3 ; $var_g = $var_1  ; $var_b = $v     ; }
+			else 					 { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
+
+			$r = $var_r * 255;
+			$g = $var_g * 255;
+			$b = $var_b * 255;
+		}
+
+		$rgb['r'] = $r;
+		$rgb['g'] = $g;
+		$rgb['b'] = $b;
+
+		return $rgb;
+	}
+
+/*******************************************************************************
+ * END ICON FUNCTIONS
+ * ****************************************************************************/
+
+/*******************************************************************************
+ * BEGIN HELPER FUNCTIONS
+ ******************************************************************************/
+
+  /**
+   * [bundle description]
+   * @return {[type]} [description]
+   */
+  public function bundle() {
+    return $this->bundle;
+  }
+
+  /**
+   * [readPlist description]
+   * @param {[type]} $plist [description]
+   * @param {[type]} $key   [description]
+   */
   private function readPlist( $plist, $key ) {
     if ( ! file_exists( $plist ) )
       return FALSE;
@@ -523,6 +622,17 @@ class AlfredBundlerInternalClass {
     return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
   }
 
+  /**
+   * Wraps a cURL function to download files
+   *
+   * @param  {string} $url            A URL to the file
+   * @param  {string} $file           The destination file
+   * @param  {int}    $timeout =  '3' A timeout variable (in seconds)
+   * @return {bool}                   True on success and error code / false on failure
+   *
+   * @access public
+   * @since  Taurus 1
+   */
   public function download( $url, $file, $timeout = '3' ) {
     // Check the URL here
 
@@ -553,156 +663,147 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-  private function installAsset( $json, $version = 'default' ) {
-    if ( ! file_exists( $json ) ) {
-      echo "Error: cannot install asset because the JSON file is not present";
-      return FALSE;
+  /**
+   * Prepends a datestamped message to a log file
+   *
+   * @param  {string} $log     name of log file
+   * @param  {string} $message message to write to log
+   * @return {[type]}          [description]
+   */
+  private function log( $log, $message ) {
+
+    $log = "{$this->data}/data/logs/{$log}.log";
+
+    // Set date/time to avoid warnings/errors.
+    if ( ! ini_get('date.timezone') ) {
+      $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+      ini_set( 'date.timezone', $tz );
     }
 
-    // @TODO: Add error checking to make sure that the file is good JSON
-    $json = json_decode( file_get_contents( $json ), TRUE );
+    if ( ! file_exists( $log ) ) {
+      if ( ! file_exists( dirname( $log ) ) )
+        mkdir( dirname( $log ), 0775, TRUE );
+        $file = array();
+    } else {
+      // This is needed because, Macs don't read EOLs well.
+      if ( ! ini_get( 'auto_detect_line_endings' ) )
+        ini_set( 'auto_detect_line_endings', TRUE );
 
-    if ( $json == null )
-      return FALSE;
-
-    $installDir = "{$this->data}/data/assets/{$json[ 'type' ]}/{$json[ 'name' ]}/{$version}";
-    // Make the installation directory if it doesn't exist
-    if ( ! file_exists( $installDir ) )
-      mkdir( $installDir, 0775, TRUE );
-
-    // Make the temporary directory
-    $tmpDir = "{$this->cache}/installers";
-    if ( ! file_exists( $tmpDir ) )
-      mkdir( $tmpDir, 0775, TRUE );
-
-    $name = $json[ 'name' ];
-    $type = $json[ 'type' ];
-
-    // Check to see if the version asked for is in the json; else, fallback to
-    // default if exists; if not, throw error.
-    if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
-      if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
-        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version.'";
-        $this->log( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
-        return FALSE;
-      } else {
-        $version = 'default';
+      $file = file( $log );
+      // @TODO: set variable for max log length
+      // Check if the logfile is longer than 500 lines. If so, then trim the
+      // last 50 of those.
+      if ( count( $file ) >= 500 ) {
+        for ( $i = 450; $i < 500; $i++ ) :
+          unset( $file[ $i ] );
+        endfor;
       }
-    }
-    $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
-    $install = $json[ 'versions' ][ $version ][ 'install' ];
 
-    // Download the file(s).
-    foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
-      $file = pathinfo( parse_url( $url[ 'url' ], PHP_URL_PATH ) );
-      $file = $file[ 'basename' ];
-      if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) )
-        return FALSE; // The download failed, for some reason.
+    }
 
-      if ( $url[ 'method' ] == 'zip' ) {
-        // Unzip the file into the cache directory, silently.
-        exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$tmpDir}'" );
-      } else if ( $url[ 'method' ] == 'tgz' || $url[ 'method' ] == 'tar.gz' ) {
-        // Untar the file into the cache directory, silently.
-        exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'");
-      }
-    }
-    if ( is_array( $install ) ) {
-      foreach ( $install as $i ) {
-        // Replace the strings in the INSTALL json with the proper values.
-        $i = str_replace( "__FILE__" , "{$tmpDir}/$file", $i );
-        $i = str_replace( "__CACHE__", "{$tmpDir}/",      $i );
-        $i = str_replace( "__DATA__" , "{$installDir}/",  $i );
-        exec( $i );
-      }
-    }
-    // Add in the invoke file
-    file_put_contents( "{$installDir}/invoke", $invoke );
-    $this->log( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
-    return TRUE;
+    $message = date( "D M d H:i:s T Y -- " ) . $message;
+    array_unshift( $file, $message );
+
+    file_put_contents( $log, implode( '', $file ) );
   }
 
-    /**
-     * Prepends a datestamped message to a log file
-     *
-     * @param  {string} $log     name of log file
-     * @param  {string} $message message to write to log
-     * @return {[type]}          [description]
-     */
-    private function log( $log, $message ) {
 
-      $log = "{$this->data}/data/logs/{$log}.log";
+/*******************************************************************************
+ * END HELPER FUNCTIONS
+ ******************************************************************************/
 
-      // Set date/time to avoid warnings/errors.
-      if ( ! ini_get('date.timezone') ) {
-        $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
-        ini_set( 'date.timezone', $tz );
-      }
+/*******************************************************************************
+ * BEGIN BONUS FUNCTIONS
+ ******************************************************************************/
+  /**
+   * [notify description]
+   * @param  {[type]} $title   [description]
+   * @param  {[type]} $message [description]
+   * @param  {[type]} $options =             array() [description]
+   * @return {[type]}          [description]
+   */
+  public function notify( $title, $message, $options = array() ) {
 
-      if ( ! file_exists( $log ) ) {
-        if ( ! file_exists( dirname( $log ) ) )
-          mkdir( dirname( $log ), 0775, TRUE );
-          $file = array();
-      } else {
-        // This is needed because, Macs don't read EOLs well.
-        if ( ! ini_get( 'auto_detect_line_endings' ) )
-          ini_set( 'auto_detect_line_endings', TRUE );
+    if ( isset( $options[ 'sender' ] ) )
+      $sender = "-sender '" . $options['sender'] . "'";
+    else
+      $sender = "";
 
-        $file = file( $log );
-        // @TODO: set variable for max log length
-        // Check if the logfile is longer than 500 lines. If so, then trim the
-        // last 50 of those.
-        if ( count( $file ) >= 500 ) {
-          for ( $i = 450; $i < 500; $i++ ) :
-            unset( $file[ $i ] );
-          endfor;
-        }
 
-      }
+    if ( isset( $options[ 'appIcon' ] ) )
+      $appIcon = "-appIcon '" . $options['appIcon'] . "'";
+    else
+      $appIcon = "";
 
-      $message = date( "D M d H:i:s T Y -- " ) . $message;
-      array_unshift( $file, $message );
 
-      file_put_contents( $log, implode( '', $file ) );
-    }
+    if ( isset( $options[ 'contentImage' ] ) )
+      $contentImage = "-contentImage '" . $options['contentImage'] . "'";
+    else
+      $contentImage = "";
 
+
+    if ( isset( $options[ 'subtitle' ] ) )
+      $subtitle = "-subtitle '" . $options['subtitle'] . "'";
+    else
+      $subtitle = "";
+
+
+    if ( isset( $options[ 'group' ] ) )
+      $group = "-group '" . $options['group'] . "'";
+    else
+      $group = "";
+
+
+    if ( isset( $options[ 'sound' ] ) )
+      $sound = "-sound '" . $options['sound'] . "'";
+    else
+      $sound = "";
+
+
+    if ( isset( $options[ 'remove' ] ) )
+      $remove = "-remove '" . $options['remove'] . "'";
+    else
+      $remove = "";
+
+
+    if ( isset( $options[ 'list' ] ) )
+      $list = "-list '" . $options['list'] . "'";
+    else
+      $list = "";
+
+
+    if ( isset( $options[ 'activate' ] ) )
+      $activate = "-activate '" . $options['activate'] . "'";
+    else
+      $activate = "";
+
+
+    if ( isset( $options[ 'open' ] ) )
+      $openURL = "-openURL '" . $options['openURL'] . "'";
+    else
+      $openURL = "";
+
+
+    if ( isset( $options[ 'execute' ] ) )
+      $execute = "-execute '" . $options['execute'] . "'";
+    else
+      $execute = "";
+
+
+    $tn = $this->utility( 'Terminal-Notifier', 'default' );
+    exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
+  }
+
+/*******************************************************************************
+ * END BONUS FUNCTIONS
+ ******************************************************************************/
 
 }
 
 
-// OLD VERSION
 
-// require_once( 'includes/registry-functions.php' );
-// require_once( 'includes/install-functions.php' );
-
-// $__data  = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-// $__cache = $_SERVER[ 'HOME' ] . "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version";
-//
-//
-// if ( ! isset( $bundler_version ) ) {
-//   // Define the global bundler versions.
-//   $bundler_version       = trim( file_get_contents( "$__data/meta/version_major" ) );
-//   $bundler_minor_version = trim( file_get_contents( "$__data/meta/version_minor" ) );
-// }
-//
-// // Since this is a PHP bundler, we'll assume that the default type is PHP.
-// function __loadAsset( $name , $version = 'default' , $bundle , $type = 'php' , $json = '' ) {
-//
-//   global $bundler_version;
-//   $__data = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version";
-//
-//
 //   if (   empty( $version ) ) $version = 'default'; // This shouldn't be needed....
 //   if ( ! empty( $bundle  ) ) __registerAsset( $bundle , $name , $version );
-//
-//   // First: see if the file exists.
-//   if ( file_exists( "$__data/assets/$type/$name/$version/invoke" ) ) {
-//     // It exists, so just return the invoke parameters.
-//     $invoke = file_get_contents( "$__data/assets/$type/$name/$version/invoke" );
-//
-//     if ( ( $type == 'utility' ) && ( ! empty( $invoke ) ) && ( $invoke != 'null' ) ) {
-//       // Utilities should have only a single line invoke file, so that's
-//       // just fine to consider it a string.
 //
 //       /////////////////////////////////////////////////////////////////////////////////
 //       // Let's start the caching checks
@@ -740,47 +841,7 @@ class AlfredBundlerInternalClass {
 //         }
 //       }
 //     }
-//
-//     $invoke = explode( "\n" , $invoke );
-//     foreach ( $invoke as $k => $v ) {
-//       $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
-//     }
-//     return $invoke;
-//   }
-//
-//   // Asset doesn't exist, so let's look to see if it's in the defaults.
-//   if ( ! empty( $json ) ) {
-//     // Since the json variable is not empty and the asset doesn't exist, we'll
-//     // assume it's new.
-//     __installAsset( $json , $version );
-//   } else if ( file_exists( "$__data/meta/defaults/$name.json" ) && empty( $json ) ) {
-//     $info = json_decode( file_get_contents( "$__data/meta/defaults/$name.json" ) , TRUE);
-//     $versions = array_keys( $info[ 'versions' ] );
-//     $json = file_get_contents( "$__data/meta/defaults/$name.json" );
-//     if ( in_array( $version , $versions ) ) {
-//       __installAsset( $json , $version );
-//     }
-//   }
-//
-//   // Let's try this again.
-//   if ( file_exists( "$__data/assets/$type/$name/$version/invoke" ) ) {
-//     // It exists, so just return the invoke parameters.
-//     $invoke = file_get_contents( "$__data/assets/$type/$name/$version/invoke" );
-//     $invoke = explode( "\n" , $invoke );
-//     foreach ( $invoke as $k => $v ) {
-//       if ( $v == 'null' ) {
-//         // Certain utilities might request only the basepath (i.e. Pashua) to be
-//         // invoked. To get around empty 'invoke' files that might trigger errors,
-//         // they are populated with the contents 'null' that we need to replace
-//         // with nothing.
-//         $v = '';
-//       }
-//       $invoke[$k] = "$__data/assets/$type/$name/$version/$v";
-//     }
-//     return $invoke;
-//   }
+
 //   // We shouldn't be here, but we'll do this anyway; well, an invalid asset was called.
 //   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know.";
 //   return FALSE;
-//
-// } // End loadAsset()
