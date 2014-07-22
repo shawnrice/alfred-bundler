@@ -19,16 +19,6 @@ class AlfredBundlerInternalClass {
     $this->plist  = $plist;
     $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
 
-    // For background icon functions:
-    // To determine the value, we're using a modified version of Clint Strong's
-    // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
-    // The new binary just returns 'light' or 'dark' after processing the current
-    // theme file.
-    if ( file_exists( __DIR__ . "/includes/LightOrDark" ) )
-      $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
-    else
-      $this->background = FALSE;
-
   }
 
 
@@ -53,11 +43,30 @@ class AlfredBundlerInternalClass {
       $color = $this->checkHex( $color );
     // Check to see if the 'alter' flag is true, if so, try to return the
     // appropriate light/dark icon.
-    if ( $alter === TRUE ) {
+    if ( $alter !== FALSE ) {
+
+      // For background icon functions:
+      // To determine the value, we're using a modified version of Clint Strong's
+      // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
+      // The new binary just returns 'light' or 'dark' after processing the current
+      // theme file.
+      if ( ! isset( $this->background ) ) {
+        if ( file_exists( __DIR__ . "/includes/LightOrDark" ) )
+          $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
+        else
+          $this->background = FALSE;
+      }
+
       if ( $this->background !== FALSE ) {
         if ( $this->checkColor( $color ) == $this->background ) {
+          if ( $alter !== TRUE ) {
+            // Use fallback color
+            if ( $alter = $this->checkHex( $alter ) )
+              $color = $alter;
+          } else {
             if ( $this->background == 'dark' ) $color = $this->lightenColor( $color );
             else $color = $this->darkenColor( $color );
+          }
         }
       }
     }
@@ -175,48 +184,45 @@ class AlfredBundlerInternalClass {
 	// https://stackoverflow.com/questions/3512311/how-to-generate-lighter-darker-color-with-php
 	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
 
-	function rgb_to_hsv( $r, $g, $b )  	  // RGB Values:Number 0-255
-		{                                 // HSV Results:Number 0-1
-		$hsl = array();
+	function rgb_to_hsv( $r, $g, $b ) {
 
-		$var_r = ( $r / 255 );
-		$var_g = ( $g / 255 );
-		$var_b = ( $b / 255 );
+		$r = ( $r / 255 );
+		$g = ( $g / 255 );
+		$b = ( $b / 255 );
 
-		$var_min = min( $var_r, $var_g, $var_b );
-		$var_max = max( $var_r, $var_g, $var_b );
-		$del_max = $var_max - $var_min;
+    $max = max( $r, $g, $b );
+		$min = min( $r, $g, $b );
 
-		$v = $var_max;
+		$delta = $max - $min;
 
-		if ( $del_max == 0 ) {
-			$h = 0;
-			$s = 0;
-		}
-		else {
-			$s = $del_max / $var_max;
+		$v = $max;
 
-			$del_r = ( ( ( $var_max - $var_r ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
-			$del_g = ( ( ( $var_max - $var_g ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
-			$del_b = ( ( ( $var_max - $var_b ) / 6 ) + ( $del_max / 2 ) ) / $del_max;
+    if ( $max != 0.0 )
+      $s = $delta / $max;
+    else
+      $s = 0.0;
 
-			if      ( $var_r == $var_max ) $h = $del_b - $del_g;
-			else if ( $var_g == $var_max ) $h = ( 1 / 3 ) + $del_r - $del_b;
-				else if ( $var_b == $var_max ) $h = ( 2 / 3 ) + $del_g - $del_r;
+    if ( $s == 0.0 )
+      $h = 0.0;
+    else {
+      if ( $r == $max )
+        $h = ( $g - $b ) / $delta;
+      else if ( $g == $max )
+        $h = 2 + ( $b - $r ) / $delta;
+      else if ( $b == $max )
+        $h = 4 + ( $r - $g ) / $delta;
+    }
 
-					if ( $h < 0 ) $h++;
-					if ( $h > 1 ) $h--;
-		}
+    $h *= 60.0;
 
-		$hsl['h'] = $h;
-		$hsl['s'] = $s;
-		$hsl['v'] = $v;
-
-		return $hsl;
+    if ( $h < 0 ) {
+      $h += 360.0;
+    }
+    $h /= 360;
+    return array( 'h' => $h / 360, 's' => $s, 'v' => $v );
 	}
 
-	function hsv_to_rgb( $h, $s, $v )  // hsv values:number 0-1
-		{                                 // rgb results:number 0-255
+	function hsv_to_rgb( $h, $s, $v ) {
 		$rgb = array();
 
 		if ( $s == 0 ) {
@@ -599,7 +605,7 @@ class AlfredBundlerInternalClass {
       $message = date( "D M d H:i:s T Y -- " ) . $message;
       array_unshift( $file, $message );
 
-      file_put_contents( $log, implode( PHP_EOL, $file ) );
+      file_put_contents( $log, implode( '', $file ) );
     }
 
 
