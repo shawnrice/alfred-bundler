@@ -348,7 +348,7 @@ class AlfredBundlerInternalClass {
     }
 
     // This function should find a better name
-    public function requireLibrary( $name, $version = 'default', $json = '' ) {
+    public function library( $name, $version = 'default', $json = '' ) {
       if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
         require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
       } else {
