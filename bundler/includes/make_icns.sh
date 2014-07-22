@@ -5,8 +5,6 @@
 # Usage :
 # make_icns.sh </path/to/file.png> <output name.icns>
 
-
-
 # Path to me
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
