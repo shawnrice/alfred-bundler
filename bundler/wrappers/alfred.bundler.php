@@ -17,14 +17,18 @@ class AlfredBundler {
     private $major_version;
     private $plist;
 
-    public function __construct() {
+    // Added plist variable for testing purposes
+    public function __construct( $plist = FALSE ) {
 
       $this->major_version = 'devel';
       $this->data  = "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}";
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
 
-// Have a fallback on this one
-      $this->plist = __DIR__ . '/info.plist';
+      // Have a fallback on this one
+      if ( $plist === FALSE )
+        $this->plist = __DIR__ . '/info.plist';
+      else
+        $this->plist = "$plist";
 
       if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
           require_once( __DIR__ . '/../AlfredBundler.php' );
