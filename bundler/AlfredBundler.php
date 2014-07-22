@@ -21,6 +21,9 @@ class AlfredBundlerInternalClass {
 
   }
 
+  public function bundle() {
+    return $this->bundle;
+  }
 
 /*******************************************************************************
  * BEGIN ICON FUNCTIONS
@@ -372,14 +375,39 @@ class AlfredBundlerInternalClass {
         $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
         // Add check to make sure the that file is complete above...
 
-      if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) )
-        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
-      else {
+      $install = FALSE;
+
+      if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
+        if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+          $installDir = "{$this->cache}/{$this->bundle}/composer";
+          if ( ! file_exists( $installDir ) )
+            mkdir( "{$installDir}", 0775, TRUE );
+          $json = json_encode( array( "require" => $packages ) );
+          $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+          file_put_contents( "{$installDir}/composer.json", $json );
+
+          if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+            require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+          } else {
+            $install = TRUE;
+            if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+              exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+            }
+          }
+        }
+      } else {
+        $install = TRUE;
+      }
+
+      if ( $install == TRUE ) {
+        if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
+          exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+        }
         if ( $this->installComposerPackage( $packages ) === TRUE ) {
           require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
           return TRUE;
         } else {
-          // Do some sort of log and throw an error
+          $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
           return FALSE;
         }
       }
@@ -391,40 +419,70 @@ class AlfredBundlerInternalClass {
      * @TODO: Write this damn function
      */
     private function installComposerPackage( $packages ) {
+      if ( ! is_array( $packages) ) // The packages variable needs to be an array
+        return FALSE;
 
-// Process
-// php composer.phar install -d "/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/php/composer/tmp"
-// Composer could not find a composer.json file in /Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/php/composer/tmp
-// So, here is the install recipe:
-// (1) create cache install dir --
-// (2) create composer.json file in that dir
-// (3) run 'php composer.phar install' on that composer.json file
-// (4) rename all packages and extensions to (get the versions from vendor/composer/installed.json)
-//     (a) vendor/{$VENDOR}/{$PACKAGE}-{$VERSION}
-//     (b) extensions/{$EXTENSION}-{$VERSION} ----- OR WE DON'T SUPPORT EXTENSIONS HERE -- YES!
-// (5) move vendor/composer to bundles/{$BUNDLEID}/composer
-// (6) move vendor/autoload.php to bundles/{$BUNDLEID}/autoload.php
-// (6) Alter the following files:
-        // autoload_psr4.php
-        // autoload_namespaces.php
-        // autoload_files.php
-        // autoload_classmap.php
-  // (a) Change $vendorDir and $baseDir in each.
-  // (b) Alter $vendorDir . '$vendor/$package' to '$vendor/$package-$version' in each
+      $installDir = "{$this->cache}/{$this->bundle}/composer";
 
-// $installDir = "{$this->cache}/{$this->bundle}/composer";
-// Step #1
-// if ( ! file_exists( $installDir ) )
-//   mkdir( "{$installDir}/composer", 0775, TRUE )
-//
-// Step #2
-// $json = json_encode( array( "require" => $packages ) );
-// file_put_contents( "{$installDir}/composer.json", $json );
-//
-// Step #3
-// $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
-// exec( $cmd );
+      if ( ! file_exists( $installDir ) )
+        mkdir( "{$installDir}", 0775, TRUE );
 
+      $json = json_encode( array( "require" => $packages ) );
+      $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+      file_put_contents( "{$installDir}/composer.json", $json );
+
+      $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
+      exec( $cmd );
+
+      $packages = json_decode( file_get_contents( "{$installDir}/vendor/composer/installed.json" ), TRUE );
+
+      // Files to be changed
+      $files = array( 'autoload_psr4.php', 'autoload_namespaces.php', 'autoload_files.php', 'autoload_classmap.php' );
+      $destination = "{$this->data}/data/assets/php/composer/vendor";
+      $installed = array();
+
+      foreach( $packages as $package ) :
+
+        $name = explode( '/', $package[ 'name' ] ); // As: vendor/package
+        $vendor = $name[0];                         // vendor
+        $name = $name[1];                           // package name
+        $version = $package[ 'version' ];           // version installed
+        $installed[] = array( 'name' => $name, 'vendor' => $vendor, 'version' => $version );
+
+        foreach( $files as $file ) :
+          if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
+            $f = file( "{$installDir}/vendor/composer/{$file}" );
+            foreach ( $f as $num => $line ) :
+              $line = str_replace( '$vendorDir = dirname(dirname(__FILE__));',  "\$vendorDir = '{$this->data}/data/assets/php/composer/vendor';", $line );
+              $line = str_replace( '$baseDir = dirname($vendorDir);', "\$baseDir = '{$this->data}/data/assets/php/composer';", $line );
+              $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
+              $f[ $num ] = $line;
+            endforeach;
+            file_put_contents( "{$installDir}/vendor/composer/{$file}", implode( '', $f ) );
+          }
+        endforeach;
+
+        if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}") ) {
+          if ( ! file_exists( "{$destination}/{$vendor}" ) )
+            mkdir( "{$destination}/{$vendor}", 0775, TRUE ); // Make the vendor dir if necessary
+          rename( "{$installDir}/vendor/{$vendor}/{$name}", "{$destination}/{$vendor}/{$name}-{$version}" );
+        }
+      endforeach;
+      if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}" ) )
+        mkdir( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}", 0775, TRUE );
+
+      if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json" ) ) {
+        $data = str_replace( '\/', '/', json_encode( $installed ) );
+        file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/packages.json", $data );
+      }
+
+      rename( "{$installDir}/vendor/composer", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer" );
+      rename( "{$installDir}/vendor/autoload.php", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/autoload.php" );
+      file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json", $json );
+
+      exec( "rm -fR '{$installDir}'" ); // Just so we don't have to remove a full directory with PHP, which is pretty damn slow.
+
+      return FALSE;
     }
 
   /**
