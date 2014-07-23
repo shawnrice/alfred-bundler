@@ -95,11 +95,14 @@ class AlfredBundler {
     //    require_once( "{$this->data}/bundler/AlfredBundler.php" );
         $this->bundler = new AlfredBundlerInternalClass( $this->plist );
       } else {
-        if ( $this->install_bundler() === FALSE ) {
+        if ( $this->install_bundler( $plist ) === FALSE ) {
           // The bundler could not install itself, so return false
           return FALSE;
         }
       }
+
+
+
 
       // Call the wrapper to update itself, this will fork the process to make sure
       // that we do not need to wait and slow down results.
@@ -115,7 +118,23 @@ class AlfredBundler {
      * @access private
      * @since  Taurus 1
      */
-    private function install_bundler() {
+    private function install_bundler( $plist ) {
+
+      // Should we put in an AS dialog confirming this?
+      if ( file_exists( $plist ) )
+        $name = "[" . exec( "/usr/libexec/PlistBuddy -c 'Print :name' '{$plist}'" ) . "]";
+      else
+        $name = "A workflow that you just invoked";
+
+      $script = "display dialog \"{%Workflow Name%} needs to install the Alfred Bundler in order to function.\" buttons {\"More Info\",\"Stop\",\"Proceed\"} default button 3 with title \"Alfred Bundler\" with icon Note";
+      $script = str_replace( '{%Workflow Name%}', $name, $script );
+      $confirm = str_replace( 'button returned:', '', exec( "osascript -e '$script'" ) );
+      if ( $confirm == 'More Info' ) {
+        exec( "open http://shawnrice.github.io/alfred-bundler" );
+        die();
+      }
+      if ( $confirm == 'Stop' )
+        die( "User canceled bundler installation." );
 
       // Make the bundler cache directory
       if ( ! file_exists( $this->cache ) )
