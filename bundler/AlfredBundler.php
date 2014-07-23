@@ -213,7 +213,7 @@ class AlfredBundlerInternalClass {
         } else {
           $install = TRUE;
           if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-            exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+            $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
           }
         }
       }
@@ -223,7 +223,7 @@ class AlfredBundlerInternalClass {
 
     if ( $install == TRUE ) {
       if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-        exec( "rm -fR '{$composerDir}/bundles/{$this->bundle}'" );
+        $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
       }
       if ( $this->installComposerPackage( $packages ) === TRUE ) {
         require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
@@ -303,14 +303,14 @@ class AlfredBundlerInternalClass {
 
 
     // Rewrite to a proper cURL request
-        $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
-        if ( $icon === FALSE )
-          die( 'Failed to get icon' ); // Problem getting icon
+    $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
+    if ( $icon === FALSE )
+      die( 'Failed to get icon' ); // Problem getting icon
 
-        file_put_contents( $path, $icon );
+    file_put_contents( $path, $icon );
 
-        // We have the icon file. It's saved, so just send the path back now.
-        return $path;
+    // We have the icon file. It's saved, so just send the path back now.
+    return $path;
 
   }
 
@@ -459,7 +459,7 @@ class AlfredBundlerInternalClass {
     rename( "{$installDir}/vendor/autoload.php", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/autoload.php" );
     file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json", $json );
 
-    exec( "rm -fR '{$installDir}'" ); // Just so we don't have to remove a full directory with PHP, which is pretty damn slow.
+    $this->rrmdir( $installDir );
 
     return FALSE;
   }
@@ -777,6 +777,26 @@ class AlfredBundlerInternalClass {
     file_put_contents( $log, implode( '', $file ) );
   }
 
+
+
+  /**
+  * Recursively removes a folder along with all its files and directories
+  *
+  * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
+  * @param String $path
+  */
+  function rrmdir( $path ) {
+      // Open the source directory to read in files
+         $i = new DirectoryIterator( $path );
+         foreach( $i as $f ) {
+             if( $f->isFile() ) {
+                 unlink( $f->getRealPath() );
+             } else if( ! $f->isDot() && $f->isDir() ) {
+                 rrmdir( $f->getRealPath() );
+             }
+         }
+         rmdir( $path );
+  }
 
 /*******************************************************************************
  * END HELPER FUNCTIONS
