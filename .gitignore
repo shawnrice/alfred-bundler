@@ -14,3 +14,4 @@ bash-php-benchmark.sh
 benchmark_icons.py
 icons.json
 bundler/test_icons.sh
+test_icons.sh
