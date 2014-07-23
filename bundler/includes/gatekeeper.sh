@@ -27,6 +27,7 @@ bundler_version=$(cat "$path/meta/version_major")
 name="$1"     # Name of utility
 path="$2"     # Full path to utility
 message="$3"  # Description of what the utility does
+icon="$4"     # Icon file to create
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   echo "ERROR: Use with args 'name' 'path'."
