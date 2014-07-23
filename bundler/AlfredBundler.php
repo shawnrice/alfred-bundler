@@ -777,8 +777,6 @@ class AlfredBundlerInternalClass {
     file_put_contents( $log, implode( '', $file ) );
   }
 
-
-
   /**
   * Recursively removes a folder along with all its files and directories
   *
@@ -786,16 +784,13 @@ class AlfredBundlerInternalClass {
   * @param String $path
   */
   function rrmdir( $path ) {
-      // Open the source directory to read in files
-         $i = new DirectoryIterator( $path );
-         foreach( $i as $f ) {
-             if( $f->isFile() ) {
-                 unlink( $f->getRealPath() );
-             } else if( ! $f->isDot() && $f->isDir() ) {
-                 rrmdir( $f->getRealPath() );
-             }
-         }
-         rmdir( $path );
+    // Open the source directory to read in files
+    $i = new DirectoryIterator( $path );
+    foreach ( $i as $f ) :
+      if ( $f->isFile() ) unlink( $f->getRealPath() );
+      else if( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
+    endforeach;
+    rmdir( $path );
   }
 
 /*******************************************************************************
