@@ -31,17 +31,70 @@
  */
 class AlfredBundlerInternalClass {
 
-  private $data;
-  private $cache;
-  private $major_version;
-  private $plist;
-  private $bundle;
-  private $background;
+  /**
+  * A filepath to the bundler directory
+  * @access private
+  * @var string
+  */
+  private   $data;
 
   /**
-   * [__construct description]
-   * @param  {[type]} $plist [description]
-   * @return {[type]}        [description]
+  * A filepath to the bundler cache directory
+  * @access private
+  * @var string
+  */
+  private   $cache;
+
+  /**
+  * The MAJOR version of the bundler (which API to use)
+  * @access private
+  * @var string
+  */
+  private   $major_version;
+
+  /**
+  * The MINOR version of the bundler
+  * @access private
+  * @var string
+  */
+  private   $minor_version;
+
+  /**
+  * Filepath to an Alfred info.plist file
+  * @access private
+  * @var string
+  */
+  private   $plist;
+
+  /**
+  * The Bundle ID of the workflow using the bundler
+  * @access private
+  * @var string
+  */
+  private $bundle;
+
+  /**
+  * The name of the workflow using the bundler
+  * @access private
+  * @var string
+  */
+  private $name;
+
+  /**
+  * The background 'color' of the user's current theme in Alfred (light or dark)
+  * @access private
+  * @var string
+  */
+  private $background;
+
+
+  /**
+   * The class constructor
+   *
+   * Sets necessary variables.
+   *
+   * @param  {string} $plist Path to workflow 'info.plist'
+   * @return {bool}          Return 'true' regardless
    */
   public function __construct( $plist ) {
 
@@ -52,7 +105,10 @@ class AlfredBundlerInternalClass {
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->plist  = $plist;
     $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
+    $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
 
+    // Let's just return something
+    return TRUE;
   }
 
   /**
@@ -115,11 +171,12 @@ class AlfredBundlerInternalClass {
    * @return {[type]}          [description]
    */
   public function library( $name, $version = 'default', $json = '' ) {
-    if ( file_exists( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) {
-      require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+    $dir = "{$this->data}/data/assets/php/{$name}/{$version}";
+    if ( file_exists( "{$dir}/invoke" ) ) {
+      require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
     } else {
       if ( $this->load( $name, 'php', $version, $json ) )
-        require_once( trim( file_get_contents( "{$this->data}/data/assets/php/{$name}/{$version}/invoke" ) ) );
+        require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
       else {
         return FALSE;
       }
@@ -441,6 +498,7 @@ class AlfredBundlerInternalClass {
    */
   private function checkHex( $color ) {
     $color = str_replace('#', '', $color);
+    $color = strtolower( $color );
 
     // Check if string is either three or six characters
     if ( strlen( $color ) != 3 && strlen( $color ) != 6 )
