@@ -36,8 +36,9 @@ if [ ! -d "${cache}/icns" ]; then
 fi
 
 # icns="${2%.*}"
-out_file="${2%%.*}"
-out_file="${out_file##*/}" # This is the basename of the output file
+
+out_file="${2##*/}" # This is the basename of the output file
+out_file="${out_file%%.icns}"
 out_dir="${cache}/icns/"    # This is the out directory
 
 i=0
