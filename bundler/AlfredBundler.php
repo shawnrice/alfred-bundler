@@ -156,13 +156,13 @@ class AlfredBundlerInternalClass {
    * @since  Taurus 1
    * @access public
    *
-   * @param  {string} $name      Name of asset
    * @param  {string} $type      Type of asset
+   * @param  {string} $name      Name of asset
    * @param  {string} $version   Version of asset to load
    * @param  {string} $json = '' Path to json file
    * @return {mixed}             Returns path to utility on success, FALSE on failure
    */
-  public function load( $name, $type, $version, $json = '' ) {
+  public function load( $type, $name, $version, $json = '' ) {
 
     // Currently the ways we implement gatekeeper and the registry here are inefficient
     // Fix that.
@@ -252,10 +252,10 @@ class AlfredBundlerInternalClass {
    */
   public function utility( $name, $version = 'default', $json = '' ) {
     if ( empty( $json ) ) {
-        return $this->load( $name, 'utility', $version );
+        return $this->load( 'utility', $name, $version );
     } else {
       if ( file_exists( $json ) ) {
-        return $this->load( $name, 'utility', $version, $json );
+        return $this->load( 'utility', $name, $version, $json );
       }
     }
     return FALSE;
@@ -278,7 +278,7 @@ class AlfredBundlerInternalClass {
       require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
       return TRUE;
     } else {
-      if ( $this->load( $name, 'php', $version, $json ) ) {
+      if ( $this->load( 'php', $name, $version, $json ) ) {
         require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
         return TRUE;
       } else {
@@ -346,13 +346,13 @@ class AlfredBundlerInternalClass {
    *
    * @TODO   Fix argument order
    *
-   * @param  {[type]} $name   [description]
    * @param  {[type]} $font   [description]
+   * @param  {[type]} $name   [description]
    * @param  {[type]} $color  [description]
    * @param  {[type]} $alter =             FALSE [description]
    * @return {[type]}         [description]
    */
-  public function icon( $name, $font, $color = '', $alter = FALSE ) {
+  public function icon( $font, $name, $color = '', $alter = FALSE ) {
 
     // If the requester is asking for a system icon, then see if it exists, if so
     // return it, otherwise, return FALSE.
