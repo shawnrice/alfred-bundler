@@ -19,15 +19,16 @@
 #    2 : User denied request, alas.
 
 # Path to this file
-path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
+me="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 
 # Define the global bundler version.
-bundler_version=$(cat "$path/meta/version_major")
+major_version=$(cat "$me/meta/version_major")
 
 name="$1"     # Name of utility
 path="$2"     # Full path to utility
 message="$3"  # Description of what the utility does
 icon="$4"     # Icon file to create
+bundle="$5"   # Bundle ID for icns file
 
 if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   echo "ERROR: Use with args 'name' 'path'."
@@ -35,7 +36,8 @@ if [[ -z "$1" ]] || [[ -z "$2" ]]; then
 fi
 
 version=`sw_vers -productVersion`
-data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
+data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
+cache="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${major_version}"
 
 # Check for Mavericks or Mountain Lion
 if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8" ]]; then
@@ -73,9 +75,25 @@ fi
 #   (2) Gatekeeper is enabled; and
 #   (3) the requested app isn't whitelisted.
 
+# Create custom icns file
+if [ ! -z "${icon}" ]; then
+  if [ ! -z "${icon}" ]; then
+    bash "${me}/includes/make_icns.sh" "${icon}" "${bundle}.icns"
+    if [[ $? == 0 ]]; then
+      icon="${cache}/icns/${bundle}.icns"
+    else
+      icon="${data}/bundler/meta/icons/bundle.icns"
+    fi
+  else
+    icon="${data}/bundler/meta/icons/bundle.icns"
+  fi
+else
+  icon="${data}/bundler/meta/icons/bundle.icns"
+fi
+
 # Change the following to the correct data path
-icon="$data/bundler/meta/icons/bundle.icns"
-icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-`
+# icon="${data}/bundler/meta/icons/bundle.icns" # Old icon file to use
+icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-` # Change from POSIX path
 
 ######
 ######
