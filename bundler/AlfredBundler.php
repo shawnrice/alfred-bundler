@@ -362,7 +362,6 @@ class AlfredBundlerInternalClass {
     // Check to see if the 'alter' flag is true, if so, try to return the
     // appropriate light/dark icon.
     if ( $alter !== FALSE ) {
-
       // For background icon functions:
       // To determine the value, we're using a modified version of Clint Strong's
       // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
@@ -382,8 +381,8 @@ class AlfredBundlerInternalClass {
             if ( $alter = $this->checkHex( $alter ) )
               $color = $alter;
           } else {
-            if ( $this->background == 'dark' ) $color = $this->lightenColor( $color );
-            else $color = $this->darkenColor( $color );
+            if ( $this->background == 'dark' ) $color = $this->alterBrightness( $color );
+            else $color = $this->alterBrightness( $color );
           }
         }
       }
@@ -653,40 +652,13 @@ class AlfredBundlerInternalClass {
    * @param  {string} $color  Hex color
    * @return {string}         A hex color that has been 'lightened'
    */
-	function lightenColor( $color ) {
+	function alterBrightness( $color ) {
     $color = $this->checkHex( $color );
     if ( $color === FALSE ) return FALSE;
 
 		$rgb = $this->hexToRgb( $color );
 		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
-		if ( $hsv[ 'v' ] < .5 ) {
-			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
-		}
-		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
-
-    foreach ( $rgb as $key => $val ) :
-      if ( strlen( dechex( $val ) ) == 1 ) $rgb[ $key ] = '0' . dechex( $val );
-      else $rgb[ $key ] = dechex( $val );
-    endforeach;
-
-    return $rgb[ 'r' ] . $rgb[ 'g' ] . $rgb[ 'b' ];
-	}
-
-  /**
-   * Darkens a color
-   *
-   * @param  {string} $color  Hex color
-   * @return {string}         A hex color that has been 'darkened'
-   */
-	function darkenColor( $color ) {
-    $color = $this->checkHex( $color );
-    if ( $color === FALSE ) return FALSE;
-
-		$rgb = $this->hexToRgb( $color );
-		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
-		if ( $hsv[ 'v' ] > .5 ) {
-			$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
-		}
+		$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
 		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
 
     foreach ( $rgb as $key => $val ) :
