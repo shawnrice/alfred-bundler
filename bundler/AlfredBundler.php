@@ -112,7 +112,8 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * Generic function to load an asset
+   * Load an asset using a generic function
+   *
    * @param  {string} $name      Name of asset
    * @param  {string} $type      Type of asset
    * @param  {string} $version   Version of asset to load
@@ -144,11 +145,12 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [utility description]
-   * @param  {[type]} $name    [description]
-   * @param  {[type]} $version =             'default' [description]
-   * @param  {[type]} $json    =             ''        [description]
-   * @return {[type]}          [description]
+   * Loads a utility
+   *
+   * @param  {string} $name                Name of utility
+   * @param  {string} $version = 'default' Version of utility
+   * @param  {string} $json    = ''        File path to json
+   * @return {mixed}                       Path to utility on success, FALSE on failure
    */
   public function utility( $name, $version = 'default', $json = '' ) {
     if ( empty( $json ) ) {
@@ -162,29 +164,33 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [library description]
-   * @param  {[type]} $name    [description]
-   * @param  {[type]} $version =             'default' [description]
-   * @param  {[type]} $json    =             ''        [description]
-   * @return {[type]}          [description]
+   * Loads / requires a library
+   *
+   * @param  {string} $name                Name of library
+   * @param  {string} $version = 'default' Version of library
+   * @param  {string} $json    = ''        File path to json
+   * @return {bool}                        TRUE on success, FALSE on failure
    */
   public function library( $name, $version = 'default', $json = '' ) {
     $dir = "{$this->data}/data/assets/php/{$name}/{$version}";
     if ( file_exists( "{$dir}/invoke" ) ) {
       require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
+      return TRUE;
     } else {
-      if ( $this->load( $name, 'php', $version, $json ) )
+      if ( $this->load( $name, 'php', $version, $json ) ) {
         require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
-      else {
+        return TRUE;
+      } else {
         return FALSE;
       }
     }
   }
 
   /**
-   * [composer description]
-   * @param  {[type]} $packages [description]
-   * @return {[type]}           [description]
+   * Loads / requires composer packages
+   *
+   * @param  {array} $packages An array of packages to load in composer
+   * @return {bool}            True on success, false on failure
    */
   public function composer( $packages ) {
     $composerDir = "{$this->data}/data/assets/php/composer";
@@ -208,6 +214,7 @@ class AlfredBundlerInternalClass {
 
         if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
           require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+          return TRUE;
         } else {
           $install = TRUE;
           if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
@@ -234,7 +241,10 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [icon description]
+   * Load an icon with optional fallback
+   *
+   * @TODO   Fix argument order
+   *
    * @param  {[type]} $name   [description]
    * @param  {[type]} $font   [description]
    * @param  {[type]} $color  [description]
@@ -317,9 +327,11 @@ class AlfredBundlerInternalClass {
  ******************************************************************************/
 
   /**
-   * [installAsset description]
-   * @param {[type]} $json    [description]
-   * @param {[type]} $version =             'default' [description]
+   * Installs an asset based on JSON information
+   *
+   * @param  {string} $json                File path to json
+   * @param  {string} $version = 'default' Version of asset to install
+   * @return {bool}                        TRUE on success, FALSE on failure
    */
   private function installAsset( $json, $version = 'default' ) {
     if ( ! file_exists( $json ) ) {
@@ -391,9 +403,10 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [installComposerPackage description]
-   * @param {array} $json list of composer ready packages with versions
-   * @TODO: Write this damn function
+   * Installs composer packages
+   *
+   * @param  {array} $packages List of composer ready packages with versions
+   * @return {bool}            TRUE on success, FALSE on failure
    */
   private function installComposerPackage( $packages ) {
     if ( ! is_array( $packages) ) // The packages variable needs to be an array
@@ -471,12 +484,15 @@ class AlfredBundlerInternalClass {
  * ****************************************************************************/
 
   /**
-   * [checkColor description]
-   * @param {[type]} $color [description]
+   * Determines whether a color is 'light' or 'dark'
+   *
+   * @param  {string} $color     Hex representation of a color
+   * @return {mixed}             Either 'light' or 'dark' or FALSE on fail
    */
   private function checkColor( $color ) {
 
     $color = $this->checkHex( $color );
+    // Check if a valid hex color, if not, return FALSE
     if ( $color === FALSE )
       return FALSE;
 
@@ -491,8 +507,10 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [checkHex description]
-   * @param {[type]} $color [description]
+   * Checks to see if a color is a valid hex and normalizes the hex color
+   *
+   * @param  {string} $color A hex color
+   * @return {mixed}         FALSE on non-hex or hex color (normalized) to six characters and lowercased
    */
   private function checkHex( $color ) {
     $color = str_replace('#', '', $color);
@@ -516,8 +534,10 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [hexToRgb description]
-   * @param {[type]} $color [description]
+   * Converts Hex color to RGB
+   *
+   * @param  {string} $color A hex color
+   * @return {array}         An array of RGB values
    */
   function hexToRgb( $color ) {
 		$r = hexdec( substr( $color, 0, 2 ) );
@@ -527,8 +547,10 @@ class AlfredBundlerInternalClass {
 	}
 
   /**
-   * [lightenColor description]
-   * @param {[type]} $color [description]
+   * Lightens a color
+   *
+   * @param  {string} $color  Hex color
+   * @return {string}         A hex color that has been 'lightened'
    */
 	function lightenColor( $color ) {
     $color = $this->checkHex( $color );
@@ -550,8 +572,10 @@ class AlfredBundlerInternalClass {
 	}
 
   /**
-   * [darkenColor description]
-   * @param {[type]} $color [description]
+   * Darkens a color
+   *
+   * @param  {string} $color  Hex color
+   * @return {string}         A hex color that has been 'darkened'
    */
 	function darkenColor( $color ) {
     $color = $this->checkHex( $color );
@@ -579,10 +603,10 @@ class AlfredBundlerInternalClass {
   /**
    * Converts RGB color to HSV color
    *
-   * @param  {int} $r [description]
-   * @param  {int} $g [description]
-   * @param  {int} $b [description]
-   * @return {array}    [description]
+   * @param  {int} $r   Red value
+   * @param  {int} $g   Green value
+   * @param  {int} $b   Blue value
+   * @return {array}    An array of H S V values
    */
 	function rgb_to_hsv( $r, $g, $b ) {
 
@@ -625,10 +649,10 @@ class AlfredBundlerInternalClass {
   /**
    * Convert HSV color to RGB
    *
-   * @param  {float} $h [description]
-   * @param  {float} $s [description]
-   * @param  {float} $v [description]
-   * @return {array}    [description]
+   * @param  {float} $h H value
+   * @param  {float} $s S value
+   * @param  {float} $v V value
+   * @return {array}    An array of RGB values
    */
 	function hsv_to_rgb( $h, $s, $v ) {
 		$rgb = array();
@@ -671,17 +695,20 @@ class AlfredBundlerInternalClass {
  ******************************************************************************/
 
   /**
-   * [bundle description]
-   * @return {[type]} [description]
+   * Returns bundle id of workflow using bundler
+   *
+   * @return {string} Bundle id
    */
   public function bundle() {
     return $this->bundle;
   }
 
   /**
-   * [readPlist description]
-   * @param {[type]} $plist [description]
-   * @param {[type]} $key   [description]
+   * Reads a plist value using PlistBuddy
+   *
+   * @param  {string} $plist File path to plist
+   * @param  {string} $key   Key of plist to read
+   * @return {mixed}         FALSE if plist doesn't exist, else value of key
    */
   private function readPlist( $plist, $key ) {
     if ( ! file_exists( $plist ) )
@@ -799,11 +826,12 @@ class AlfredBundlerInternalClass {
  * BEGIN BONUS FUNCTIONS
  ******************************************************************************/
   /**
-   * [notify description]
-   * @param  {[type]} $title   [description]
-   * @param  {[type]} $message [description]
-   * @param  {[type]} $options =             array() [description]
-   * @return {[type]}          [description]
+   * Uses Terminal Notifer to display a notification
+   *
+   * @param  {string} $title             Title for notification
+   * @param  {string} $message           Message of notification
+   * @param  {array}  $options = array() An array of options that Terminal Notifer takes
+   * @return {bool}                      TRUE on success, FALSE on failure
    */
   public function notify( $title, $message, $options = array() ) {
 
@@ -874,7 +902,13 @@ class AlfredBundlerInternalClass {
 
 
     $tn = $this->utility( 'Terminal-Notifier' );
-    exec( "'$tn' -title '{$title}' -message '{$message}'");
+    exec( "'$tn' -title '{$title}' -message '{$message}'", $output, $status );
+
+    // Return value based on exit status code
+    if ( $status )
+      return FALSE;
+    else
+      return TRUE;
   }
 
 /*******************************************************************************
