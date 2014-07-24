@@ -93,6 +93,7 @@ class AlfredBundlerInternalClass {
    *
    * Sets necessary variables.
    *
+   * @access public
    * @param  {string} $plist Path to workflow 'info.plist'
    * @return {bool}          Return 'true' regardless
    */
@@ -107,12 +108,53 @@ class AlfredBundlerInternalClass {
     $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
     $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
 
+    $this->setBackground();
+
     // Let's just return something
     return TRUE;
   }
 
   /**
+   * Determines the background color and set $this->background
+   *
+   * This function checks for the existence of a file and considers the contents
+   * versus the modified time of the Alfredpreferences.plist where theme info
+   * is stored. If necessary, it uses a utility to determine the 'light/dark'
+   * status of the current Alfred theme.
+   *
+   * @access public
+   * @since  Taurus 1
+   * @return {bool}  TRUE on success, FALSE on failure
+   */
+  private function setBackground() {
+
+    // The Alfred preferences plist where the theme information is stored
+    $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
+
+    if ( file_exists( "{$this->data}/data/theme_background" ) ) {
+      if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
+        $this->background = file_get_contents( "{$this->data}/data/theme_background" );
+        return TRUE;
+      }
+    }
+
+    if ( file_exists( __DIR__ . "/includes/LightOrDark" ) ) {
+      $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
+      file_put_contents( "{$this->data}/data/theme_background", $this->background );
+      return TRUE;
+    } else {
+      $this->background = FALSE;
+      return FALSE;
+    }
+  }
+
+  /**
    * Load an asset using a generic function
+   *
+   * @TODO Fix registry and gatekeeper calls
+   *
+   * @since  Taurus 1
+   * @access public
    *
    * @param  {string} $name      Name of asset
    * @param  {string} $type      Type of asset
@@ -121,7 +163,37 @@ class AlfredBundlerInternalClass {
    * @return {mixed}             Returns path to utility on success, FALSE on failure
    */
   public function load( $name, $type, $version, $json = '' ) {
-    // Do registry with the bundle stuff here: $this->bundle;
+
+    // Currently the ways we implement gatekeeper and the registry here are inefficient
+    // Fix that.
+
+    $fork     = realpath( dirname( __FILE__ ) . '/meta/fork.sh' );
+    $registry = realpath( dirname( __FILE__ ) . '/meta/registry.php' );
+
+    // Registry script, using the 'fork' wrapper -- we might import this to being native later
+    exec( "bash '{$fork}' '/usr/bin/php' '{$registry}' '{$this->bundle}' '{$name}' '{$version}'" );
+
+    // See if we need to do gatekeeper
+    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+      if ( $type == 'utility' ) {
+        if ( empty( $json ) ) {
+          // Grab the default and see if the gatekeeper flag is set
+        } else {
+          // Load the json and see if the gatekeeper flag is set
+          if ( file_exists( $json ) ) {
+            $json = json_decode( file_get_contents( $json ), TRUE );
+            if ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) {
+              // do gatekeeper
+            } else {
+              // don't do gatekeeper
+            }
+          } else {
+            // no json file exists this is an error... really.
+            return FALSE;
+          }
+        }
+      }
+    }
     // Do gatekeeper and path caching stuff as well
     if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
       return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
@@ -140,12 +212,38 @@ class AlfredBundlerInternalClass {
       else
         return FALSE;
     }
-    // We shouldn't get here
+
+    // We shouldn't get here. If we have, then it's a malformed request.
+    echo "There is a problem with the __implementation__ of the Alfred Bundler. Please let the workflow author know.";
     return FALSE;
+
+    //       $bd_asset_cache = "$__data/data/call-cache";
+    //
+    //       // Make sure the directory exists
+    //       if ( ! ( ( file_exists( $bd_asset_cache ) && is_dir( $bd_asset_cache ) ) ) )
+    //         mkdir( $bd_asset_cache );
+    //
+    //       // Cache path for this call
+    //       $key       = md5( "$name-$version-$type-$json" );
+    //       $cachepath =      "$bd_asset_cache/$key";
+    //
+    //       if ( file_exists( "$cachepath" ) ) {
+    //         $path = file_get_contents( "$cachepath" );
+    //         if ( file_exists( "$path" ) ) {
+    //           // The cache has been found, and we have the asset there already.
+    //           return array( $path );
+    //         }
+    //       }
+
+
+
   }
 
   /**
    * Loads a utility
+   *
+   * @since  Taurus 1
+   * @access public
    *
    * @param  {string} $name                Name of utility
    * @param  {string} $version = 'default' Version of utility
@@ -165,6 +263,9 @@ class AlfredBundlerInternalClass {
 
   /**
    * Loads / requires a library
+   *
+   * @since  Taurus 1
+   * @access public
    *
    * @param  {string} $name                Name of library
    * @param  {string} $version = 'default' Version of library
@@ -806,7 +907,7 @@ class AlfredBundlerInternalClass {
   * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
   * @param String $path
   */
-  function rrmdir( $path ) {
+  public function rrmdir( $path ) {
     // Open the source directory to read in files
     $i = new DirectoryIterator( $path );
     foreach ( $i as $f ) :
@@ -815,6 +916,16 @@ class AlfredBundlerInternalClass {
     endforeach;
     rmdir( $path );
   }
+
+  // public function gatekeeper( $name, $path, $message = '', $icon = '', $bundle = '' ) {
+  //   // Patht to gatekeeper script
+  //   $gatekeeper = realpath( dirname( __FILE__ ) . 'includes/gatekeeper.sh';
+  //
+  //   // Execute the Gatekeeper script
+  //   exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$bundle}'", $output, $status );
+  //
+  //   return $status;
+  // }
 
 /*******************************************************************************
  * END HELPER FUNCTIONS
@@ -917,29 +1028,14 @@ class AlfredBundlerInternalClass {
 
 
 
+
 //   if (   empty( $version ) ) $version = 'default'; // This shouldn't be needed....
 //   if ( ! empty( $bundle  ) ) __registerAsset( $bundle , $name , $version );
 //
 //       /////////////////////////////////////////////////////////////////////////////////
 //       // Let's start the caching checks
 //
-//       $bd_asset_cache = "$__data/data/call-cache";
-//
-//       // Make sure the directory exists
-//       if ( ! ( ( file_exists( $bd_asset_cache ) && is_dir( $bd_asset_cache ) ) ) )
-//         mkdir( $bd_asset_cache );
-//
-//       // Cache path for this call
-//       $key       = md5( "$name-$version-$type-$json" );
-//       $cachepath =      "$bd_asset_cache/$key";
-//
-//       if ( file_exists( "$cachepath" ) ) {
-//         $path = file_get_contents( "$cachepath" );
-//         if ( file_exists( "$path" ) ) {
-//           // The cache has been found, and we have the asset there already.
-//           return array( $path );
-//         }
-//       }
+
 //
 //       // The cache hasn't been found, so we'll call gatekeeper
 //       $invoke = str_replace("\n", '', $invoke);
