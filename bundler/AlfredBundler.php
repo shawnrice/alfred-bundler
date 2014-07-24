@@ -784,14 +784,12 @@ class AlfredBundlerInternalClass {
       if ( ! ini_get( 'auto_detect_line_endings' ) )
         ini_set( 'auto_detect_line_endings', TRUE );
 
-      $file = file( $log );
-      // @TODO: set variable for max log length
+      $file = file( $log, FILE_SKIP_EMPTY_LINES );
+
       // Check if the logfile is longer than 500 lines. If so, then trim the
-      // last 50 of those.
+      // last line.
       if ( count( $file ) >= 500 ) {
-        for ( $i = 450; $i < 500; $i++ ) :
-          unset( $file[ $i ] );
-        endfor;
+          unset( $file[499] );
       }
 
     }
