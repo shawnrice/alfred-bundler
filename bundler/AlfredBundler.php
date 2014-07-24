@@ -352,7 +352,21 @@ class AlfredBundlerInternalClass {
    * @param  {[type]} $alter =             FALSE [description]
    * @return {[type]}         [description]
    */
-  public function icon( $name, $font, $color, $alter = FALSE ) {
+  public function icon( $name, $font, $color = '', $alter = FALSE ) {
+
+    // If the requester is asking for a system icon, then see if it exists, if so
+    // return it, otherwise, return FALSE.
+    if ( $font == 'system' || $font == 'System' ) {
+      if ( file_exists( "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns" ) )
+        return "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns";
+      else
+        return FALSE;
+    }
+
+    if ( empty( $color ) ) {
+      $color = '000000';
+      $alter = TRUE;
+    }
 
     // So, named colors can work, but we're going to test to see if the color is
     // written in a hex format; if so, we'll make sure that it's in a
