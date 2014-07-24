@@ -115,40 +115,6 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * Determines the background color and set $this->background
-   *
-   * This function checks for the existence of a file and considers the contents
-   * versus the modified time of the Alfredpreferences.plist where theme info
-   * is stored. If necessary, it uses a utility to determine the 'light/dark'
-   * status of the current Alfred theme.
-   *
-   * @access public
-   * @since  Taurus 1
-   * @return {bool}  TRUE on success, FALSE on failure
-   */
-  private function setBackground() {
-
-    // The Alfred preferences plist where the theme information is stored
-    $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
-
-    if ( file_exists( "{$this->data}/data/theme_background" ) ) {
-      if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
-        $this->background = file_get_contents( "{$this->data}/data/theme_background" );
-        return TRUE;
-      }
-    }
-
-    if ( file_exists( __DIR__ . "/includes/LightOrDark" ) ) {
-      $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
-      file_put_contents( "{$this->data}/data/theme_background", $this->background );
-      return TRUE;
-    } else {
-      $this->background = FALSE;
-      return FALSE;
-    }
-  }
-
-  /**
    * Load an asset using a generic function
    *
    * @TODO Fix registry and gatekeeper calls
@@ -376,17 +342,6 @@ class AlfredBundlerInternalClass {
     // Check to see if the 'alter' flag is true, if so, try to return the
     // appropriate light/dark icon.
     if ( $alter !== FALSE ) {
-      // For background icon functions:
-      // To determine the value, we're using a modified version of Clint Strong's
-      // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
-      // The new binary just returns 'light' or 'dark' after processing the current
-      // theme file.
-      if ( ! isset( $this->background ) ) {
-        if ( file_exists( __DIR__ . "/includes/LightOrDark" ) )
-          $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
-        else
-          $this->background = FALSE;
-      }
 
       if ( $this->background !== FALSE ) {
         if ( $this->checkColor( $color ) == $this->background ) {
@@ -901,6 +856,46 @@ class AlfredBundlerInternalClass {
       else if( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
     endforeach;
     rmdir( $path );
+  }
+
+  /**
+   * Determines the background color and set $this->background
+   *
+   * This function checks for the existence of a file and considers the contents
+   * versus the modified time of the Alfredpreferences.plist where theme info
+   * is stored. If necessary, it uses a utility to determine the 'light/dark'
+   * status of the current Alfred theme.
+   *
+   * @access public
+   * @since  Taurus 1
+   * @return {bool}  TRUE on success, FALSE on failure
+   */
+  private function setBackground() {
+
+    // For background icon functions:
+    // To determine the value, we're using a modified version of Clint Strong's
+    // SetupIconsForTheme (https://github.com/clintxs/alfred-icons).
+    // The new binary just returns 'light' or 'dark' after processing the current
+    // theme file.
+
+    // The Alfred preferences plist where the theme information is stored
+    $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
+
+    if ( file_exists( "{$this->data}/data/theme_background" ) ) {
+      if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
+        $this->background = file_get_contents( "{$this->data}/data/theme_background" );
+        return TRUE;
+      }
+    }
+
+    if ( file_exists( __DIR__ . "/includes/LightOrDark" ) ) {
+      $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
+      file_put_contents( "{$this->data}/data/theme_background", $this->background );
+      return TRUE;
+    } else {
+      $this->background = FALSE;
+      return FALSE;
+    }
   }
 
   // public function gatekeeper( $name, $path, $message = '', $icon = '', $bundle = '' ) {
