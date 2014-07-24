@@ -797,7 +797,7 @@ class AlfredBundlerInternalClass {
     $message = date( "D M d H:i:s T Y -- " ) . $message;
     array_unshift( $file, $message );
 
-    file_put_contents( $log, implode( '', $file ) );
+    file_put_contents( $log, implode( PHP_EOL, $file ) );
   }
 
   /**
