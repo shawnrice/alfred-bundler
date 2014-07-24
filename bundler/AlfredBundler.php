@@ -71,21 +71,21 @@ class AlfredBundlerInternalClass {
   * @access private
   * @var string
   */
-  private $bundle;
+  private   $bundle;
 
   /**
   * The name of the workflow using the bundler
   * @access private
   * @var string
   */
-  private $name;
+  private   $name;
 
   /**
   * The background 'color' of the user's current theme in Alfred (light or dark)
   * @access private
   * @var string
   */
-  private $background;
+  private   $background;
 
 
   /**
@@ -113,28 +113,29 @@ class AlfredBundlerInternalClass {
 
   /**
    * Generic function to load an asset
-   * @param  {[type]} $name    [description]
-   * @param  {[type]} $type    [description]
-   * @param  {[type]} $version [description]
-   * @param  {[type]} $json    =             '' [description]
-   * @return {[type]}          [description]
+   * @param  {string} $name      Name of asset
+   * @param  {string} $type      Type of asset
+   * @param  {string} $version   Version of asset to load
+   * @param  {string} $json = '' Path to json file
+   * @return {mixed}             Returns path to utility on success, FALSE on failure
    */
   public function load( $name, $type, $version, $json = '' ) {
     // Do registry with the bundle stuff here: $this->bundle;
     // Do gatekeeper and path caching stuff as well
     if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
-      return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+      return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
+        . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
 
     // Well, we need to install the asset
 
     if ( empty( $json ) ) {
       if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+        return "{$this->data}/" . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
       else
         return FALSE;
     } else {
       if ( $this->installAsset( $json, $version ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+        return "{$this->data}/" . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
       else
         return FALSE;
     }
@@ -151,9 +152,6 @@ class AlfredBundlerInternalClass {
    */
   public function utility( $name, $version = 'default', $json = '' ) {
     if ( empty( $json ) ) {
-      if ( file_exists( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) )
-        return trim( file_get_contents( "{$this->data}/data/assets/utility/{$name}/{$version}/invoke" ) );
-      else
         return $this->load( $name, 'utility', $version );
     } else {
       if ( file_exists( $json ) ) {
@@ -875,8 +873,8 @@ class AlfredBundlerInternalClass {
       $execute = "";
 
 
-    $tn = $this->utility( 'Terminal-Notifier', 'default' );
-    exec( "'{$this->data}/data/assets/utility/Terminal-Notifier/default/$tn' -title '{$title}' -message '{$message}'");
+    $tn = $this->utility( 'Terminal-Notifier' );
+    exec( "'$tn' -title '{$title}' -message '{$message}'");
   }
 
 /*******************************************************************************
@@ -916,7 +914,12 @@ class AlfredBundlerInternalClass {
 //       if ( strpos( $invoke, '.app' ) !== FALSE ) {
 //         // Invoke Gatekeeper only when the utility is a .app.
 //         // ech
-//
+//         if ( $this->plist ) {
+//           $icon = dirname( $this->plist );
+//           if ( file_exists( "{$icon}/icon.png" ) ) {
+//             exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app' '{$icon}/icon.png' '{$this->bundle}'", $output, $return );
+//           }
+//         }
 //         exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'", $output, $return );
 //         if ( $return !== 0 ) {
 //           return $output[0];
