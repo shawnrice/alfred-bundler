@@ -143,6 +143,11 @@ class AlfredBundlerInternalClass {
     if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
       if ( $type == 'utility' ) {
         if ( empty( $json ) ) {
+          $json = json_decode( file_get_contents( "{$this->data}/bundler/meta/defaults/{$name}.json" ), TRUE );
+          if ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) {
+            echo "here";
+            $this->gatekeeper( $name, $path, $json[ 'message' ], $icon = realpath( dirname( $this->plist ) ), $this->bundle );
+          }
           // Grab the default and see if the gatekeeper flag is set
         } else {
           // Load the json and see if the gatekeeper flag is set
@@ -182,27 +187,6 @@ class AlfredBundlerInternalClass {
     // We shouldn't get here. If we have, then it's a malformed request.
     echo "There is a problem with the __implementation__ of the Alfred Bundler. Please let the workflow author know.";
     return FALSE;
-
-    //       $bd_asset_cache = "$__data/data/call-cache";
-    //
-    //       // Make sure the directory exists
-    //       if ( ! ( ( file_exists( $bd_asset_cache ) && is_dir( $bd_asset_cache ) ) ) )
-    //         mkdir( $bd_asset_cache );
-    //
-    //       // Cache path for this call
-    //       $key       = md5( "$name-$version-$type-$json" );
-    //       $cachepath =      "$bd_asset_cache/$key";
-    //
-    //       if ( file_exists( "$cachepath" ) ) {
-    //         $path = file_get_contents( "$cachepath" );
-    //         if ( file_exists( "$path" ) ) {
-    //           // The cache has been found, and we have the asset there already.
-    //           return array( $path );
-    //         }
-    //       }
-
-
-
   }
 
   /**
@@ -389,6 +373,31 @@ class AlfredBundlerInternalClass {
     // We have the icon file. It's saved, so just send the path back now.
     return $path;
 
+  }
+
+  /**
+   * Creates the 'icon.png' file into an icns file
+   *
+   * @return {string} Path to generated icns file
+   */
+  public function icns() {
+
+    if ( ! file_exists( $this->plist ) )
+      return FALSE;
+    if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
+      return FALSE;
+
+    if ( file_exists( "{$this->cache}/icns/{$this->bundle}.icns" ) ) {
+      return "{$this->cache}/icns/{$this->bundle}.icns";
+    } else {
+      $script = realpath( "'" . __DIR__ . '/includes/make_icns.sh' . "'" );
+      $icon   = realpath( dirname( "{$this->plist}" ) . "/icon.png" );
+      exec( "bash '{$script}' '{$icon}' '{$this->bundle}.icns'" );
+      if ( file_exists( "{$this->cache}/icns/{$this->bundle}.icns" ) )
+        return "{$this->cache}/icns/{$this->bundle}.icns";
+      else
+        return FALSE;
+    }
   }
 
 /*******************************************************************************
@@ -898,15 +907,34 @@ class AlfredBundlerInternalClass {
     }
   }
 
-  // public function gatekeeper( $name, $path, $message = '', $icon = '', $bundle = '' ) {
-  //   // Patht to gatekeeper script
-  //   $gatekeeper = realpath( dirname( __FILE__ ) . 'includes/gatekeeper.sh';
-  //
-  //   // Execute the Gatekeeper script
-  //   exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$bundle}'", $output, $status );
-  //
-  //   return $status;
-  // }
+  public function gatekeeper( $name, $path, $message = '', $icon = '', $bundle = '' ) {
+
+    $assetCache = "{$this->data}/data/call-cache";
+
+    // Make sure the directory exists
+    if ( ! ( ( file_exists( $assetCache ) && is_dir( $assetCache ) ) ) )
+      mkdir( $assetCache, 0775, TRUE );
+
+    // Cache path for this call
+    $key       = md5( "{$name}-{$version}-{$type}-{$json}" );
+    $cachePath =      "$assetCache/$key";
+
+    if ( file_exists( "$cachePath" ) ) {
+      $path = file_get_contents( "$cachePath" );
+      if ( file_exists( "$path" ) ) {
+        // The cache has been found, and we have the asset there already.
+        return $path;
+      }
+    }
+
+    // Path to gatekeeper script
+    $gatekeeper = realpath( dirname( __FILE__ ) . 'includes/gatekeeper.sh' );
+
+    // Execute the Gatekeeper script
+    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$bundle}'", $output, $status );
+
+    return $status;
+  }
 
 /*******************************************************************************
  * END HELPER FUNCTIONS
