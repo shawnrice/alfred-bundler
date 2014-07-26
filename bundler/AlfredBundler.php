@@ -142,14 +142,31 @@ class AlfredBundlerInternalClass {
     // See if we need to do gatekeeper
     if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
       if ( $type == 'utility' ) {
+
         if ( empty( $json ) ) {
-          $json = json_decode( file_get_contents( "{$this->data}/bundler/meta/defaults/{$name}.json" ), TRUE );
+          $json = json_decode( file_get_contents( __DIR__ . "/meta/defaults/{$name}.json" ), TRUE );
+
           if ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) {
-            echo "here";
-            $this->gatekeeper( $name, $path, $json[ 'message' ], $icon = realpath( dirname( $this->plist ) ), $this->bundle );
+
+            if ( file_exists( realpath( dirname( $this->plist ) ) . "/icon.png" ) )
+              $icon = realpath( dirname( $this->plist ) ) . "/icon.png";
+            else
+              $icon = '';
+
+            $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/" . $json[ 'versions' ][ $version ][ 'invoke' ];
+
+            if ( isset( $json[ 'message' ] ) )
+              $message = $json[ 'message' ];
+            else
+              $message = '';
+
+            $this->gatekeeper( $name, $path, $message, $icon, $this->bundle );
+
           }
+
           // Grab the default and see if the gatekeeper flag is set
         } else {
+
           // Load the json and see if the gatekeeper flag is set
           if ( file_exists( $json ) ) {
             $json = json_decode( file_get_contents( $json ), TRUE );
@@ -165,6 +182,8 @@ class AlfredBundlerInternalClass {
         }
       }
     }
+
+
     // Do gatekeeper and path caching stuff as well
     if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
       return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
@@ -723,7 +742,7 @@ class AlfredBundlerInternalClass {
 			else if  ( $var_i == 2 ) { $var_r = $var_1 ; $var_g = $v      ; $var_b = $var_3 ; }
 			else if  ( $var_i == 3 ) { $var_r = $var_1 ; $var_g = $var_2  ; $var_b = $v     ; }
 			else if  ( $var_i == 4 ) { $var_r = $var_3 ; $var_g = $var_1  ; $var_b = $v     ; }
-			else 					 { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
+			else 					           { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
 
 			$r = $var_r * 255;
 			$g = $var_g * 255;
@@ -855,7 +874,11 @@ class AlfredBundlerInternalClass {
   * Recursively removes a folder along with all its files and directories
   *
   * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
-  * @param String $path
+  *
+  * @access public
+  * @since  Taurus 1
+  *
+  * @param {string} $path Path to directory to remove
   */
   public function rrmdir( $path ) {
     // Open the source directory to read in files
@@ -907,7 +930,7 @@ class AlfredBundlerInternalClass {
     }
   }
 
-  public function gatekeeper( $name, $path, $message = '', $icon = '', $bundle = '' ) {
+  public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
 
     $assetCache = "{$this->data}/data/call-cache";
 
@@ -928,10 +951,10 @@ class AlfredBundlerInternalClass {
     }
 
     // Path to gatekeeper script
-    $gatekeeper = realpath( dirname( __FILE__ ) . 'includes/gatekeeper.sh' );
+    $gatekeeper = realpath( dirname( __FILE__ ) ) . '/includes/gatekeeper.sh';
 
     // Execute the Gatekeeper script
-    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$bundle}'", $output, $status );
+    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
 
     return $status;
   }
@@ -1066,7 +1089,3 @@ class AlfredBundlerInternalClass {
 //         }
 //       }
 //     }
-
-//   // We shouldn't be here, but we'll do this anyway; well, an invalid asset was called.
-//   echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know.";
-//   return FALSE;
