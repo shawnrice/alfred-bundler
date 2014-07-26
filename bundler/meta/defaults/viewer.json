@@ -1,6 +1,8 @@
 {
     "name": "viewer",
     "type": "utility",
+    "gatekeeper": "true",
+    "message": "show interactive dialogs",
     "versions": {
         "default": {
             "invoke": "viewer.app",
