@@ -28,8 +28,19 @@ down will be:
 Copyright (C) 2014 Shawn Patrick Rice
 
 ## Contributors
-Shawn Patrick Rice
-Dean Jackson
+
+* Shawn Patrick Rice
+* Dean Jackson
+
+## Coding Standards
+
+When coding for the bundler, please use the following
+
+* Python should strictly follow [PEP8](http://legacy.python.org/dev/peps/pep-0008/);
+* PHP should mostly follow [Wordpress](http://make.wordpress.org/core/handbook/coding-standards/php/);
+* Ruby should follow [Github's Style Guide](https://github.com/styleguide/ruby); and
+* Bash should mostly follow [Google's Shell Style Guide](https://google-styleguide.googlecode.com/svn/trunk/shell.xml).
+
 
 ## GPLv3 License
 
