@@ -5,7 +5,7 @@ a utility / workflow to handle dependencies
 
 A utility for to help Alfred 2 workflows manage shared dependencies.
 
-## [See documentation](https://shawnrice.github.io/alfred-bundler).
+## [See documentation](https://shawnrice.github.io/alfred-bundler)
 
 
 ## Versioning
@@ -29,8 +29,8 @@ Copyright (C) 2014 Shawn Patrick Rice
 
 ## Contributors
 
-* Shawn Patrick Rice
-* Dean Jackson
+* [Shawn Patrick Rice](https://github.com/shawnrice)
+* [Dean Jackson](https://github.com/deanishe)
 
 ## Coding Standards
 
