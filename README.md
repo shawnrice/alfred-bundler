@@ -13,7 +13,7 @@ I hate [astrology](http://en.wikipedia.org/wiki/Zodiac), so I'm using the Zodiac
 signs for major releases. Hence, the schedule, which I don't expect to get far
 down will be:
   1. __Aries__ (current)
-  2. Taurus
+  2. _Taurus_ (in development)
   3. Gemini
   4. Cancer
   5. Leo
