@@ -784,7 +784,7 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( $plist ) )
       return FALSE;
 
-    return exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$plist}'" );
+    return exec( "/usr/libexec/PlistBuddy -c 'Print :{$key}' '{$plist}'" );
   }
 
   /**
