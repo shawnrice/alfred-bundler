@@ -1116,34 +1116,3 @@ class AlfredBundlerInternalClass {
  ******************************************************************************/
 
 }
-
-
-
-//   if (   empty( $version ) ) $version = 'default'; // This shouldn't be needed....
-//   if ( ! empty( $bundle  ) ) __registerAsset( $bundle , $name , $version );
-//
-//       /////////////////////////////////////////////////////////////////////////////////
-//       // Let's start the caching checks
-//
-
-//
-//       // The cache hasn't been found, so we'll call gatekeeper
-//       $invoke = str_replace("\n", '', $invoke);
-//       if ( strpos( $invoke, '.app' ) !== FALSE ) {
-//         // Invoke Gatekeeper only when the utility is a .app.
-//         // ech
-//         if ( $this->plist ) {
-//           $icon = dirname( $this->plist );
-//           if ( file_exists( "{$icon}/icon.png" ) ) {
-//             exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app' '{$icon}/icon.png' '{$this->bundle}'", $output, $return );
-//           }
-//         }
-//         exec( "bash '$__data/includes/gatekeeper.sh' '$name' '$__data/assets/$type/$name/$version/$name.app'", $output, $return );
-//         if ( $return !== 0 ) {
-//           return $output[0];
-//         } else if ( $return == 0 ) {
-//           file_put_contents( "$bd_asset_cache/$key", "$__data/assets/$type/$name/$version/$invoke" );
-//           return array( "$__data/assets/$type/$name/$version/$invoke" );
-//         }
-//       }
-//     }
