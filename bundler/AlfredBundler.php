@@ -170,14 +170,8 @@ class AlfredBundlerInternalClass {
       }
     }
 
-    // Currently the way we implement the registry here is inefficient
-    // Fix that.
-
-    $fork     = realpath( dirname( __FILE__ ) . '/meta/fork.sh' );
-    $registry = realpath( dirname( __FILE__ ) . '/meta/registry.php' );
-
-    // Registry script, using the 'fork' wrapper -- we might import this to being native later
-    exec( "bash '{$fork}' '/usr/bin/php' '{$registry}' '{$this->bundle}' '{$name}' '{$version}'" );
+    // Register the asset. We don't need to worry about the return.
+    $this->register( $name, $version );
 
     // The file should exist now, but we'll try anyway
     if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
@@ -1016,6 +1010,46 @@ class AlfredBundlerInternalClass {
     
     // So return FALSE as failure.
     return FALSE;
+  }
+
+  public function register( $asset, $version ) {
+
+    // We need the bundle to be set if we are to register the asset
+    if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
+      return FALSE;
+
+    // Load the registry data
+    if ( ! file_exists( "{$this->data}/data/registry.json" ) ) {
+        $registry = array();
+    } else {
+      if ( ! ( json_decode( file_get_contents( "{$this->data}/data/registry.json" ) ) ) ) {
+        // The JSON file is bad -- start over.
+        $registry = array();
+      } else {
+        $registry = json_decode( file_get_contents( "{$this->data}/data/registry.json" ), TRUE );
+      }
+    }
+
+   if ( isset( $registry[ $asset ] ) ) {
+      if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
+        $registry[ $asset ][ $version ] = array();
+        $update = TRUE;
+      }
+      if ( ! is_array( $registry[ $asset ][ $version] ) ) {
+        $registry[ $asset ][ $version ] = array();
+      }
+      if ( ! in_array( $this->bundle , $registry[ $asset ][ $version ] ) ) {
+        $registry[ $asset ][ $version ][] = $this->bundle;
+        $update = TRUE;
+      }
+    } else {
+      $registry[ $asset ] = array( $version => $this->bundle );
+      $update = TRUE;
+    }
+
+    if ( $update ) file_put_contents( "{$this->data}/data/registry.json" , utf8_encode( json_encode( $registry ) ) );
+
+    return TRUE;
   }
 
 /*******************************************************************************
