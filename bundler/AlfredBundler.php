@@ -87,7 +87,6 @@ class AlfredBundlerInternalClass {
   */
   private   $background;
 
-
   /**
    * The class constructor
    *
@@ -185,9 +184,10 @@ class AlfredBundlerInternalClass {
 
 
     // Do gatekeeper and path caching stuff as well
-    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) )
+    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
       return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
         . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+    }
 
     // Well, we need to install the asset
 
@@ -204,7 +204,11 @@ class AlfredBundlerInternalClass {
     }
 
     // We shouldn't get here. If we have, then it's a malformed request.
-    echo "There is a problem with the __implementation__ of the Alfred Bundler. Please let the workflow author know.";
+    // Output the error to STDERR.
+    file_put_contents('php://stderr', "There is a problem with the " . 
+                                      "_implementation_ of the Alfred Bundler " .
+                                      "when trying to load '{$name}'. Please " .
+                                      "let the workflow author know." );
     return FALSE;
   }
 
@@ -930,6 +934,19 @@ class AlfredBundlerInternalClass {
     }
   }
 
+  /**
+   * Queries Gatekeeper to whitelist apps
+   * 
+   * Invokes the Gatekeeper script if the path has not already been called. The
+   * call, if successful, is cached. If the cache file is present, then return
+   * the path from there instead of calling the cache again.
+   * 
+   * @param {string} $name    The name of the utility
+   * @param {string} $path    The fullpath to the utility
+   * @param {string} $message The "permissions" message from the JSON
+   * @param {string} $icon    The workflow icon file (if exists)
+   * @return {mixed}          FALSE on failure, path to utility on success
+   */
   public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
 
     $assetCache = "{$this->data}/data/call-cache";
@@ -940,15 +957,17 @@ class AlfredBundlerInternalClass {
 
     // Cache path for this call
     $key       = md5( "{$name}-{$version}-{$type}-{$json}" );
-    $cachePath =      "$assetCache/$key";
+    $cachePath =      "{$assetCache}/{$key}";
 
     if ( file_exists( "$cachePath" ) ) {
-      $path = file_get_contents( "$cachePath" );
-      if ( file_exists( "$path" ) ) {
-        // The cache has been found, and we have the asset there already.
+      $path = file_get_contents( $cachePath );
+      if ( file_exists( $path ) ) {
+        // The cache has been found, and we have the asset installed already.
         return $path;
       }
     }
+
+    // If we're here, then we need to run the Gatekeeper script
 
     // Path to gatekeeper script
     $gatekeeper = realpath( dirname( __FILE__ ) ) . '/includes/gatekeeper.sh';
@@ -956,7 +975,16 @@ class AlfredBundlerInternalClass {
     // Execute the Gatekeeper script
     exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
 
-    return $status;
+    // If the previous call returns a successful status code, then cache the path 
+    // and return it. Else, move to failure.
+    if ( $status == 0 ) {
+      file_put_contents( $cachePath, $path );
+      return $path;
+    }
+
+    // There was an error with the Gatekeeper script (exited with a non-zero 
+    // status), so return FALSE as failure.
+    return FALSE;
   }
 
 /*******************************************************************************
@@ -1057,7 +1085,6 @@ class AlfredBundlerInternalClass {
  ******************************************************************************/
 
 }
-
 
 
 
