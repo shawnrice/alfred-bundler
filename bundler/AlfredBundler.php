@@ -840,7 +840,9 @@ class AlfredBundlerInternalClass {
     if ( curl_exec( $ch ) === FALSE ) {
       curl_close( $ch );
       fclose( $fp );
-      return curl_error( $ch) ;
+      return curl_error( $ch ); // Under some circumstances, if the file cannot
+                                // be downloaded, then this will return an error
+                                // stating that $ch is not a valid cURL resource
     }
 
     curl_close( $ch );
