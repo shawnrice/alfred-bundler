@@ -399,7 +399,7 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * Creates the 'icon.png' file into an icns file
+   * Creates an icns file out of the workflow's 'icon.png' file
    *
    * @return {string} Path to generated icns file
    */
