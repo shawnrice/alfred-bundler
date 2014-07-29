@@ -956,12 +956,15 @@ class AlfredBundlerInternalClass {
    * Invokes the Gatekeeper script if the path has not already been called. The
    * call, if successful, is cached. If the cache file is present, then return
    * the path from there instead of calling the cache again.
+   *
+   * @access public
+   * @since  Taurus 1
    * 
-   * @param {string} $name    The name of the utility
-   * @param {string} $path    The fullpath to the utility
-   * @param {string} $message The "permissions" message from the JSON
-   * @param {string} $icon    The workflow icon file (if exists)
-   * @return {mixed}          FALSE on failure, path to utility on success
+   * @param  {string} $name    The name of the utility
+   * @param  {string} $path    The fullpath to the utility
+   * @param  {string} $message The "permissions" message from the JSON
+   * @param  {string} $icon    The workflow icon file (if exists)
+   * @return {mixed}           FALSE on failure, path to utility on success
    */
   public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
 
@@ -1012,6 +1015,18 @@ class AlfredBundlerInternalClass {
     return FALSE;
   }
 
+  /**
+   * Registers an asset
+   * 
+   * The Bundler keeps a registry of which workflows use which assets.
+   * 
+   * @access public
+   * @since  Taurus 1
+   * 
+   * @param {string} $asset     Name of the asset to be registered
+   * @param {string} $version   Version of asset to use
+   * @return {bool}             Returns TRUE on success, FALSE on failure
+   */
   public function register( $asset, $version ) {
 
     // We need the bundle to be set if we are to register the asset
