@@ -129,7 +129,48 @@ class AlfredBundlerInternalClass {
    */
   public function load( $type, $name, $version, $json = '' ) {
 
-    // Currently the ways we implement gatekeeper and the registry here are inefficient
+    if ( empty( $json ) ) {
+      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
+        $json_path = __DIR__ . "/meta/defaults/{$name}.json";
+      } else {
+        // JSON File cannot be found
+        $error = TRUE;
+      }
+    } else if ( file_exists( $json ) ) {
+      $json_path = $json;
+    } else {
+      // JSON File cannot be found
+      $error = TRUE;
+    }
+
+    // Check to see if the JSON is valid
+    if ( ! json_decode( file_get_contents( $json_path ) ) ) {
+      // JSON file not valid
+      $error = TRUE;
+    }
+
+    // If we've encountered an error, then write the error and exit
+    if ( isset( $error ) && ( $error === TRUE ) ) {
+      // There is an error with the JSON file.
+      // Output the error to STDERR.
+      file_put_contents('php://stderr', "There is a problem with the " . 
+                                        "_implementation_ of the Alfred Bundler " .
+                                        "when trying to load '{$name}'. Please " .
+                                        "let the workflow author know." );
+      return FALSE;
+    }
+
+    $json = json_decode( file_get_contents( $json_path ), TRUE );
+
+    // See if the file is installed
+    if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+      if ( ! $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
+        // Something went wrong with the installation. Get better error reporting.
+        return FALSE; 
+      }
+    }
+
+    // Currently the way we implement the registry here is inefficient
     // Fix that.
 
     $fork     = realpath( dirname( __FILE__ ) . '/meta/fork.sh' );
@@ -138,69 +179,50 @@ class AlfredBundlerInternalClass {
     // Registry script, using the 'fork' wrapper -- we might import this to being native later
     exec( "bash '{$fork}' '/usr/bin/php' '{$registry}' '{$this->bundle}' '{$name}' '{$version}'" );
 
-    // See if we need to do gatekeeper
-    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
-      if ( $type == 'utility' ) {
+    // The file should exist now, but we'll try anyway
+    if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+      return FALSE;
+    }
 
-        if ( empty( $json ) ) {
-          $json = json_decode( file_get_contents( __DIR__ . "/meta/defaults/{$name}.json" ), TRUE );
-
-          if ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) {
-
-            if ( file_exists( realpath( dirname( $this->plist ) ) . "/icon.png" ) )
-              $icon = realpath( dirname( $this->plist ) ) . "/icon.png";
-            else
-              $icon = '';
-
-            $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/" . $json[ 'versions' ][ $version ][ 'invoke' ];
-
-            if ( isset( $json[ 'message' ] ) )
-              $message = $json[ 'message' ];
-            else
-              $message = '';
-
-            $this->gatekeeper( $name, $path, $message, $icon, $this->bundle );
-
-          }
-
-          // Grab the default and see if the gatekeeper flag is set
-        } else {
-
-          // Load the json and see if the gatekeeper flag is set
-          if ( file_exists( $json ) ) {
-            $json = json_decode( file_get_contents( $json ), TRUE );
-            if ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) {
-              // do gatekeeper
-            } else {
-              // don't do gatekeeper
-            }
-          } else {
-            // no json file exists this is an error... really.
-            return FALSE;
-          }
-        }
+    if ( $type != 'utility' ) {
+      // We don't have to worry about gatekeeper
+      return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
+        . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
+    } else {
+      // It's a utility, so let's see if we need gatekeeper
+      if ( ! ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
+        // We don't have to worry about gatekeeper
+        return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
+          . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
       }
     }
 
+    // At this point, we need to check in with gatekeeper  
 
-    // Do gatekeeper and path caching stuff as well
-    if ( file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
-      return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
-        . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-    }
+    // Find the icon to pass to the Gatekeeper script
+    if ( file_exists( realpath( dirname( $this->plist ) ) . "/icon.png" ) )
+      $icon = realpath( dirname( $this->plist ) ) . "/icon.png";
+    else
+      $icon = '';
 
-    // Well, we need to install the asset
+    // Create the path variable
+    $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/" . $json[ 'versions' ][ $version ][ 'invoke' ];
 
-    if ( empty( $json ) ) {
-      if ( $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) )
-        return "{$this->data}/" . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-      else
-        return FALSE;
+    // Set the message for the Gatekeeper script (if there is one)
+    if ( isset( $json[ 'message' ] ) )
+      $message = $json[ 'message' ];
+    else
+      $message = '';
+
+    // Double check with the gatekeeper function (doesn't necessarily
+    // run the gatekeeper script).
+    if ( $this->gatekeeper( $name, $path, $message, $icon, $this->bundle ) ) {
+      // The utility has been whitelisted, so return the path
+      return $path;
     } else {
-      if ( $this->installAsset( $json, $version ) )
-        return "{$this->data}/" . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
-      else
-        return FALSE;
+      // The utility has not been whitelisted, so return an error.
+      // The gatekeeper function already wrote the error to STDERR.
+      return FALSE;
     }
 
     // We shouldn't get here. If we have, then it's a malformed request.
@@ -983,7 +1005,16 @@ class AlfredBundlerInternalClass {
     }
 
     // There was an error with the Gatekeeper script (exited with a non-zero 
-    // status), so return FALSE as failure.
+    // status).
+    
+    // Output the error to STDERR.
+    file_put_contents('php://stderr', "Error: '{$name}' is needed to properly run " .
+                                      "this workflow, and it must be whitelisted " .
+                                      "for Gatekeeper. You either denied the " .
+                                      " request, or another error occured with " .
+                                      " the Gatekeeper script." );
+    
+    // So return FALSE as failure.
     return FALSE;
   }
 
