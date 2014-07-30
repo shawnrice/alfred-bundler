@@ -1,6 +1,13 @@
 #!/bin/bash
 
-. "$__data/bundler/includes/helper-functions.sh"
+# Declare Bundler Constants
+
+# Path to base of bundler directory
+declare -r AB_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+  # Get the major version from the file
+declare -r AB_MAJOR_VERSION=$(cat "${AB_PATH}/meta/version_major")
+# Set the data directory
+declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 
 bd_asset_cache="$__data/data/call-cache"
 
@@ -389,12 +396,17 @@ function Math::dec_to_hex() {
 
 function AlfredBundler::icon() {
 
+  local font
+  local name
+  local color
+  local alter
+
   # Set font name
   if [ ! -z "$1" ]; then
-    font="$1"
+    font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
   else
     # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" &2>
+    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
     return 1
   fi
 
@@ -403,8 +415,19 @@ function AlfredBundler::icon() {
     name="$2"
   else
     # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" &2>
+    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
     return 1
+  fi
+
+  # Take care of the system font first
+  if [ "${font}" == "system" ]; then
+    if [ -f "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns" ]; then
+      echo "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns"
+      return 0
+    else
+      echo "ERROR: System icon '${name}' not found" >&2
+      return 0
+    fi
   fi
 
   # Set color or default to black
@@ -423,12 +446,8 @@ function AlfredBundler::icon() {
     alter="FALSE"
   fi
 
-  # Path to base of bundler directory
-  local path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
-  # Get the major version from the file
-  local major_version=$(cat "${path}/meta/version_major")
-  # Set the data directory
-  local data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
+  echo "${font}"
+  
 
   # For now we're hardcoding this, but we should cycle through the icons
   local icon_server='http://icons.deanishe.net/icon'
