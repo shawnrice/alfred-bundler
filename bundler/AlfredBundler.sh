@@ -4,17 +4,24 @@
 
 bd_asset_cache="$__data/data/call-cache"
 
+################################################################################
+### Functions to support icon manipulation
+################################################################################
+
 # Checks to make sure value fed to it is a hex color and converts 3 hex to 6 hex
 # Returns normalized color on success, 1 on failure
 function AlfredBundler::check_hex() {
-  
+  local color
+  local r
+  local g
+  local b
   # Make sure that we have an argument
   if [[ -z "$1" ]]; then
     echo "Error: check_hex needs 1 argument" >&2
     return 1
   fi
 
-  local color="$1"
+  color="$1"
 
   # Convert the color of lowercase
   color=$( echo "${color}" | tr [[:upper:]] [[:lower:]])
@@ -48,13 +55,15 @@ function AlfredBundler::check_hex() {
 # # This function should be fed only proper hex codes
 # # Usage: <color> <other color|TRUE>
 function AlfredBundler::alter_color() {
+  
+  local color
 
   # We need two arguments
   if [[ $# -ne 2 ]]; then
     return 0
   fi
 
-  local color="$1"
+  color="$1"
 
   if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
     # Since they're the same, we'll alter the color
@@ -99,6 +108,11 @@ function AlfredBundler::get_background() {
 }
 
 function AlfredBundler::check_brightness() {
+  local color
+  local r
+  local g
+  local b
+  local brightness
   # add in validation of the arguments here
   color="$1"
 
@@ -117,9 +131,19 @@ function AlfredBundler::check_brightness() {
 }
 
 function AlfredBundler::rgb_to_hsv() {
-  local r=$( echo "scale=10; $1 / 255" | bc -l)
-  local g=$( echo "scale=10; $2 / 255" | bc -l)
-  local b=$( echo "scale=10; $3 / 255" | bc -l)
+  local r
+  local g
+  local b
+  local h
+  local s
+  local v
+  local max
+  local min
+  local delta
+
+  r=$( echo "scale=10; $1 / 255" | bc -l)
+  g=$( echo "scale=10; $2 / 255" | bc -l)
+  b=$( echo "scale=10; $3 / 255" | bc -l)
 
   max=$(Math::Max $r $g $b)
   min=$(Math::Min $r $g $b)
@@ -155,10 +179,21 @@ function AlfredBundler::rgb_to_hsv() {
 }
 
 function AlfredBundler::hsv_to_rgb() {
+  local r
+  local g
+  local b
+  local h
+  local s
+  local v
+  local var_1
+  local var_2
+  local var_3
+  local var_h
+  local var_i
+
   h="$1"
   s="$2"
   v="$3"
-
 
   if [[ $(echo "${s} == 0" | bc -l) -eq 1 ]]; then
     t=$(echo "${v} * 255" | bc -l)
@@ -206,6 +241,11 @@ function AlfredBundler::hsv_to_rgb() {
 }
 
 function AlfredBundler::hex_to_rgb() {
+  local hex
+  local r
+  local g
+  local b
+
   hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
   r=$(Math::hex_to_dec "${hex:0:2}")
   g=$(Math::hex_to_dec "${hex:2:2}")
@@ -215,6 +255,10 @@ function AlfredBundler::hex_to_rgb() {
 }
 
 function AlfredBundler::rgb_to_hex() {
+  local r
+  local g
+  local b
+
   r=$(Math::dec_to_hex "$1")
   g=$(Math::dec_to_hex "$2")
   b=$(Math::dec_to_hex "$3")
@@ -233,7 +277,21 @@ function AlfredBundler::rgb_to_hex() {
   echo "${r}${g}${b}"
 }
 
+################################################################################
+### End Icon Functions
+################################################################################
+
+################################################################################
+### Math Functions to help with color calculations
+################################################################################
+
 function Math::Max() {
+
+  local numbers
+  local i
+  local max
+  local len
+
   numbers=($@)
   i=0
   max=''
@@ -255,6 +313,12 @@ function Math::Max() {
 }
 
 function Math::Min() {
+
+  local numbers
+  local i
+  local min
+  local len
+
   numbers=($@)
   i=0
   min=''
@@ -276,6 +340,12 @@ function Math::Min() {
 }
 
 function Math::Mean() {
+
+  local numbers
+  local i
+  local total
+  local len
+
   numbers=($@)
   i=0
   total=0
@@ -295,20 +365,27 @@ function Math::Mean() {
 }
 
 function Math::Floor() {
+  local tmp
   tmp=$(echo "scale=0; $1 - ($1 % 1)" | bc -l)
   echo ${tmp%.*}
 }
 
 
 function Math::hex_to_dec() {
+  local hex
   hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
   echo "ibase=16; ${hex}" | bc
 }
 
 function Math::dec_to_hex() {
-  hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
-  echo "obase=16; ${hex}" | bc
+  local dec
+  dec=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  echo "obase=16; ${dec}" | bc
 }
+
+################################################################################
+### End Math Functions
+################################################################################
 
 function AlfredBundler::icon() {
 
@@ -316,6 +393,7 @@ function AlfredBundler::icon() {
   if [ ! -z "$1" ]; then
     font="$1"
   else
+    # Send error to STDERR
     echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" &2>
     return 1
   fi
@@ -324,6 +402,7 @@ function AlfredBundler::icon() {
   if [ ! -z "$2" ]; then
     name="$2"
   else
+    # Send error to STDERR
     echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" &2>
     return 1
   fi
