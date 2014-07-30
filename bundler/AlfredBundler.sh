@@ -45,25 +45,269 @@ function AlfredBundler::check_hex() {
   fi
 }
 
-function AlfredBundler::hex_to_dec() {
-  hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
-  echo "ibase=16; ${hex}" | bc
-}
-
-# This function should be fed only proper hex codes
-# Usage: <color> <other color|TRUE>
+# # This function should be fed only proper hex codes
+# # Usage: <color> <other color|TRUE>
 function AlfredBundler::alter_color() {
 
   # We need two arguments
   if [[ $# -ne 2 ]]; then
-    echo "Error: alter_color needs 2 arguments" >&2
     return 0
   fi
 
-  if [ $2 == "TRUE" ]; then
-    a=''
+  local color="$1"
+
+  if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
+    # Since they're the same, we'll alter the color
+    if [ $2 == "TRUE" ]; then
+      color=$(AlfredBundler::hex_to_rgb ${color})
+      color=($(AlfredBundler::rgb_to_hsv ${color}))  
+      color=(${color[0]} ${color[1]} $(echo "scale=10; 1 - ${color[2]}" | bc -l))
+      color=$(AlfredBundler::hsv_to_rgb ${color[@]})
+      color=$(AlfredBundler::rgb_to_hex ${color[@]})
+      echo ${color}
+      return 0
+    else
+      echo $2
+      return 0
+    fi
+  else
+    # Since they're different, we'll just return the original color
+    echo ${color}
+    return 0
+  fi
+}
+
+function AlfredBundler::get_background() {
+
+  # Add in error checking
+
+  # Path to base of bundler directory
+  local path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../alfred-bundler/bundler" && pwd -P )"
+  # Get the major version from the file
+  local major_version=$(cat "${path}/meta/version_major")
+  # Set the data directory
+  local data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
+
+  local plist=$(stat -f%m "${HOME}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist")
+  local background=$(stat -f%m "${data}/data/theme_background")
+  if [[ $plist -gt $background ]]; then
+    echo $("${path}/includes/LightOrDark") > "${data}/data/theme_background"
   fi
 
+  background=$(cat "${data}/data/theme_background")
+  echo "${background}"
+}
+
+function AlfredBundler::check_brightness() {
+  # add in validation of the arguments here
+  color="$1"
+
+  r=$(Math::hex_to_dec ${color:0:2})
+  g=$(Math::hex_to_dec ${color:2:2})
+  b=$(Math::hex_to_dec ${color:4:2})
+
+  brightness=$(( ( (r * 299) + ( g * 587 ) + ( b * 114 ) ) / 1000 ))
+  if [[ "${brightness}" -gt 130 ]]; then
+    echo "light"
+  else
+    echo "dark"
+  fi
+
+  return 0
+}
+
+function AlfredBundler::rgb_to_hsv() {
+  local r=$( echo "scale=10; $1 / 255" | bc -l)
+  local g=$( echo "scale=10; $2 / 255" | bc -l)
+  local b=$( echo "scale=10; $3 / 255" | bc -l)
+
+  max=$(Math::Max $r $g $b)
+  min=$(Math::Min $r $g $b)
+  delta=$(echo "scale=10; ${max} - ${min}" | bc -l)
+  v="${max}"
+
+  if [[ $(echo "${max} != 0.0" | bc -l) -eq 1 ]]; then
+    s=$(echo "scale=10; ${delta} / ${max}" | bc -l )
+  else
+    s="0.0"
+  fi
+
+  if [[ $(echo "scale=10; ${s} == 0" | bc -l) -eq 1 ]]; then
+    h="0.0"
+  else
+    if [[ $(echo "${r} == ${max}" | bc -l) -eq 1 ]]; then
+      h=$(echo "scale=10; (${g} - ${b}) / ${delta}" | bc -l)
+    elif [[ $(echo "${g} == ${max}" | bc -l) -eq 1 ]]; then
+      h=$(echo "scale=10; 2 + ((${b} - ${r}) / ${delta})" | bc -l)
+    elif [[ $(echo "${b} == ${max}" | bc -l) -eq 1 ]]; then
+      h=$(echo "scale=10; 4 + ((${r} - ${g}) / ${delta})" | bc -l)
+    fi
+  fi
+
+  h=$(echo "scale=10; ${h} * 60" | bc -l)
+
+  if [[ $(echo "${h} < 0" | bc -l) -eq 1 ]]; then
+    h=$(echo "scale=10; ${h} += 360" | bc -l)
+  fi
+  h=$(echo "scale=10; ${h} / 360" | bc -l)
+  echo "${h} ${s} ${v}"
+  return 0
+}
+
+function AlfredBundler::hsv_to_rgb() {
+  h="$1"
+  s="$2"
+  v="$3"
+
+
+  if [[ $(echo "${s} == 0" | bc -l) -eq 1 ]]; then
+    t=$(echo "${v} * 255" | bc -l)
+    echo "${t} ${t} ${t}"
+    return 0
+  fi
+
+  var_h=$(echo "scale=10; ${h} * 6" | bc -l)
+  var_i=$(Math::Floor ${var_h})
+  var_1=$(echo "${v} * (1 - ${s})" | bc -l)
+  var_2=$(echo "${v} * (1 - ${s} * (${var_h} - ${var_i}))" | bc -l)
+  var_3=$(echo "${v} * (1 - ${s} * (1 - (${var_h} - ${var_i})))" | bc -l)
+  if [[ $( echo "${var_i} == 0" | bc -l) -eq 1 ]]; then
+    r=${v}
+    g=${var_3}
+    b=${var_1}
+  elif [[ $( echo "${var_i} == 1" | bc -l) -eq 1 ]]; then
+    r=${var_2}
+    g=${v}
+    b=${var_1}
+  elif [[ $( echo "${var_i} == 2" | bc -l) -eq 1 ]]; then
+    r=${var_1}
+    g=${v}
+    b=${var_3}
+  elif [[ $( echo "${var_i} == 3" | bc -l) -eq 1 ]]; then
+    r=${var_1}
+    g=${var_2}
+    b=${v}
+  elif [[ $( echo "${var_i} == 4" | bc -l) -eq 1 ]]; then
+    r=${var_3}
+    g=${var_1}
+    b=${v}
+  else
+    r=${v}
+    g=${var_1}
+    b=${var_2}
+  fi
+
+  r=$(Math::Floor $(echo "${r} * 255" | bc -l))
+  g=$(Math::Floor $(echo "${g} * 255" | bc -l))
+  b=$(Math::Floor $(echo "${b} * 255" | bc -l))
+
+  echo "${r} ${g} ${b}"
+
+}
+
+function AlfredBundler::hex_to_rgb() {
+  hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  r=$(Math::hex_to_dec "${hex:0:2}")
+  g=$(Math::hex_to_dec "${hex:2:2}")
+  b=$(Math::hex_to_dec "${hex:4:2}")
+
+  echo "${r} ${g} ${b}"
+}
+
+function AlfredBundler::rgb_to_hex() {
+  r=$(Math::dec_to_hex "$1")
+  g=$(Math::dec_to_hex "$2")
+  b=$(Math::dec_to_hex "$3")
+
+  # Make sure everything turns back into 6 hex
+  if [[ ${#r} -eq 1 ]]; then
+    r=${r}${r}
+  fi
+  if [[ ${#g} -eq 1 ]]; then
+    g=${g}${g}
+  fi
+  if [[ ${#b} -eq 1 ]]; then
+    b=${b}${b}
+  fi
+
+  echo "${r}${g}${b}"
+}
+
+function Math::Max() {
+  numbers=($@)
+  i=0
+  max=''
+  len=${#numbers[@]}
+  
+  while [[ $i -lt $len ]]; do
+    if [ -z ${max} ]; then
+      max="${numbers[$i]}"
+    fi
+
+    if [[ $(echo "${numbers[$i]} > ${max}" | bc -l ) -eq 1 ]]; then
+      max="${numbers[$i]}"
+    fi
+
+    : $[ i++ ]
+  done;
+  
+  echo $max
+}
+
+function Math::Min() {
+  numbers=($@)
+  i=0
+  min=''
+  len=${#numbers[@]}
+  
+  while [[ $i -lt $len ]]; do
+    if [ -z ${min} ]; then
+      min="${numbers[$i]}"
+    fi
+
+    if [[ $(echo "${numbers[$i]} < ${min}" | bc -l ) -eq 1 ]]; then
+      min="${numbers[$i]}"
+    fi
+
+    : $[ i++ ]
+  done;
+  
+  echo $min
+}
+
+function Math::Mean() {
+  numbers=($@)
+  i=0
+  total=0
+  len=${#numbers[@]}
+  while [[ $i -lt $len ]]; do
+    total=$(( total + ${numbers[$i]} ))
+    : $[ i++ ]
+  done;
+  if [[ "${total}" -eq 0 ]]; then
+    echo "Total ${total}"
+    echo 0
+    return 0
+  else
+    echo "scale=10; ${total} / ${len}" | bc -l
+    return 0
+  fi
+}
+
+function Math::Floor() {
+  tmp=$(echo "scale=0; $1 - ($1 % 1)" | bc -l)
+  echo ${tmp%.*}
+}
+
+
+function Math::hex_to_dec() {
+  hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  echo "ibase=16; ${hex}" | bc
+}
+
+function Math::dec_to_hex() {
+  hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  echo "obase=16; ${hex}" | bc
 }
 
 function AlfredBundler::icon() {
