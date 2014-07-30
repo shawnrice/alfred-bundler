@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This is a Bash library that provides the functions for the Alfred Bundler
+
 # Main Bash interface for the Alfred Dependency Bundler. This file should be
 # the only one from the bundler that is distributed with your workflow.
 #
@@ -9,11 +11,11 @@
 
 
 # Define the global bundler version.
-bundler_version="aries";
+bundler_version="devel";
 __data="$HOME/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-$bundler_version"
 __cache="$HOME/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-$bundler_version"
 
-function __load {
+function AlfredBundler::load {
  # $1 -- asset name
  # $2 -- version
  # $3 -- type
@@ -29,30 +31,30 @@ function __load {
  local type="$3"
  local json="$4"
 
-if [ -z $version ]; then
+if [ -z "${version}" ]; then
  version="default"
 fi
-if [ -z $type ]; then
+if [ -z "${type}" ]; then
  type="bash"
 fi
 
 # Grab the bundle id.
  if [ -f 'info.plist' ]; then
-  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
+  local bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist')
  elif [ -f '../info.plist' ]; then
-  local bundle=`/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist'`
+  local bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist')
  else
   local bundle='..'
  fi
 
- __asset=`__loadAsset "$name" "$version" "$bundle" "$type" "$json"`
+ __asset=$(__loadAsset "${name}" "${version}" "${bundle}" "${type}" "${json}")
  status=$?
  echo "$__asset"
  exit "$status"
 }
 
 # This just downloads the install script and starts it up.
-function __installBundler {
+function AlfredBundler::installBundler {
   local installer="https://raw.githubusercontent.com/shawnrice/alfred-bundler/$bundler_version/bundler/meta/installer.sh"
   dir "$__cache"
   dir "$__cache/installer"
@@ -64,12 +66,12 @@ function __installBundler {
 # Just a helper function to make a directory if it doesn't exist.
 function dir {
  if [ ! -d "$1" ]; then
-  mkdir "$1"
+  mkdir -p -m 0775 "$1"
  fi
 }
 
 if [ ! -f "$__data/bundler/bundler.sh" ]; then
- __installBundler
+ AlfredBundler::installBundler
 fi
 
 # Include the bundler.
