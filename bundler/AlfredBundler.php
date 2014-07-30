@@ -1076,6 +1076,22 @@ class AlfredBundlerInternalClass {
 /*******************************************************************************
  * BEGIN BONUS FUNCTIONS
  ******************************************************************************/
+
+  ///// Test function to check the new terminal notifier bindings.
+  public function nope() {
+    require_once( __DIR__ . "/includes/bindings/terminal-notifier/terminalnotifier.php");
+
+    $i = new TerminalNotifier( $this->utility( 'Terminal-Notifier' ), $debug=True);
+    $i->notify([
+        'title'=>'[TITLE]',
+        'subtitle'=>'[SUBTITLE]',
+        'message'=>'[MESSAGE]',
+        'sender'=>'com.apple.Finder',
+        'sound'=>'Glass',
+        'group'=>'id.42'
+        ]);
+  }
+
   /**
    * Uses Terminal Notifer to display a notification
    *
