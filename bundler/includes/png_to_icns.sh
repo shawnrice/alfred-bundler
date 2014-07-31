@@ -3,9 +3,8 @@
 # Make icns files from pngs
 
 # Feed this script a png file, and it will create an icns file out of it
-# placed in the bundler's cache directory (bundler_cache/icns/icon_name.icns)
 
-# Usage : make_icns.sh </full/path/to/image.png> <icon_name.icns>
+# Usage : make_icns.sh </full/path/to/image.png> </full/path/to/icon_name.icns>
 
 function check_arguments() {
   # Check to make sure that all of the arguments are there and correct
@@ -13,13 +12,19 @@ function check_arguments() {
 
   # The script needs two arguments
   if [ "$#" -ne 2 ]; then
-    echo "Usage: </full/path/to/image.png> <icon_name.icns>" >&2
+    echo "Usage: </full/path/to/image.png> </full/path/to/icon_name.icns>" >&2
     return 1
   fi
 
   # Argument 1 needs to be an extant filepath
   if [ ! -f "$1" ]; then
     echo "Error: $1 not found" >&2
+    return 1
+  fi
+
+  # Directory for Argument 2 needs to exist
+  if [[ ! -e $(dirname ${2%/*}) ]]; then
+    echo "Error: destination directory must exist" >&2
     return 1
   fi
 
@@ -54,7 +59,10 @@ function main() {
 
   out_file="${2##*/}" # This is the basename of the output file
   out_file="${out_file%%.icns}"
-  out_dir="${cache}/icns/"    # This is the out directory
+  out_dir="${2%/*}"    # This is the out directory
+  if [[ "${out_dir}" == "$2" ]]; then
+    out_dir="."
+  fi
 
   i=0
 
@@ -62,7 +70,7 @@ function main() {
   sizes=(512 256 128 32 16)
 
   # Create the temporary iconset directory
-  iconset="${out_dir}/${out_file}".iconset
+  iconset="${out_dir}/${out_file}.iconset"
   mkdir -p "${iconset}"
 
   # Loop through each size and use sips to create a png of that size
@@ -95,6 +103,7 @@ function main() {
 
 # Run the main loop and exit with the appropriate status
 if [[ $(main "$1" "$2") -ne 0 ]]; then
+  echo "Error: an unkown error occured" >&2
   exit 1
 else
   exit 0
