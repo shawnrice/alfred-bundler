@@ -22,7 +22,7 @@
 me="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 
 # Define the global bundler version.
-major_version=$(cat "$me/meta/version_major")
+major_version=$(cat "${me}/meta/version_major")
 
 name="$1"     # Name of utility
 path="$2"     # Full path to utility
@@ -44,16 +44,16 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
   status=`spctl --status`
 
   # Check to see if Gatekeeper is on.
-  if [ "$status" != "assessments enabled" ]; then
+  if [ "${status}" != "assessments enabled" ]; then
     # Gatekeeper is off. Do nothing.
     echo "off"
     exit 0
   else
     # It's enabled, so we'll see if the file has an exception logged.
-    label="alfred-bundle-$name"
-    gatekeeper=`spctl -a "$path" > /dev/null 2>&1; echo $?`
+    label="alfred-bundle-${name}"
+    gatekeeper=`spctl -a "${path}" > /dev/null 2>&1; echo $?`
     # gatekeeper=`spctl --list --label "$label" > /dev/null 2>&1; echo $?`
-    if [ "$gatekeeper" = "0" ]; then
+    if [[ $gatekeeper -eq 0 ]]; then
       echo "okay"
       exit 0
     fi
@@ -77,8 +77,9 @@ fi
 
 # Create custom icns file
 if [ ! -z "${icon}" ]; then
-  if [ ! -z "${icon}" ]; then
-    bash "${me}/includes/make_icns.sh" "${icon}" "${bundle}.icns"
+  if [ -f "${icon}" ]; then
+    [[ ! -d "${cache}/icns" ]] && mkdir -p -m 0775 "${cache}/icns"
+    bash "${me}/includes/png_to_icns.sh" "${icon}" "${cache}/icns/${bundle}.icns"
     if [[ $? == 0 ]]; then
       icon="${cache}/icns/${bundle}.icns"
     else
@@ -93,7 +94,7 @@ fi
 
 # Change the following to the correct data path
 # icon="${data}/bundler/meta/icons/bundle.icns" # Old icon file to use
-icon=`echo "$icon" | sed 's|/|:|g' | cut -c 2-` # Change from POSIX path
+icon=$(echo "${icon}" | sed 's|/|:|g' | cut -c 2-) # Change from POSIX path
 
 ######
 ######
@@ -110,10 +111,10 @@ Will you allow it?
 If you press 'Allow,' then you will be prompted to enter your password, which will grant access to this application.
 " buttons {"Allow","Deny"} default button 1 with title "Alfred Bundler" with icon file "$icon"
 _EOF_
-script=`echo "$script" | sed 's|$icon|'"$icon"'|g'`
-script=`echo "$script" | sed 's|$name|'"$name"'|g'`
+script=$(echo "${script}" | sed 's|$icon|'"${icon}"'|g')
+script=$(echo "${script}" | sed 's|$name|'"${name}"'|g')
 
-response=`osascript -e "$script"`
+response=$(osascript -e "${script}")
 
 if [[ $response =~ "Deny" ]]; then
   # The user has denied access to the app, so we're going to, well, exit and die.
@@ -121,13 +122,13 @@ if [[ $response =~ "Deny" ]]; then
   exit 1
 fi
 
-label="alfred-bundle-$name"
+label="alfred-bundle-${name}"
 gatekeeper=$(spctl --list --label "$label" > /dev/null 2>&1; echo $?)
 
-if [ "$gatekeeper" = "1" ]; then
+if [ $gatekeeper -eq 1 ]; then
   # No label was found, so we'll add one then enable it.
-  status=$(spctl --add --label "alfred-bundle-$name" "$path" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-$name"; echo $?)
-  if [ "$status" = "1" ]; then
+  status=$(spctl --add --label "alfred-bundle-${name}" "${path}" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-${name}"; echo $?)
+  if [[ $status -eq 1 ]]; then
     echo "denied"
     exit 1
   fi
