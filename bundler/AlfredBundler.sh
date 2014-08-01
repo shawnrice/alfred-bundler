@@ -27,7 +27,7 @@ function AlfredBundler::icon() {
   local icon_path
   local status
   local url
-
+  local system_icon_dir
   # Set font name
   if [ ! -z "$1" ]; then
     font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
@@ -48,8 +48,9 @@ function AlfredBundler::icon() {
 
   # Take care of the system font first
   if [ "${font}" == "system" ]; then
-    if [ -f "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns" ]; then
-      echo "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns"
+    system_icon_dir="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources"
+    if [ -f "${system_icon_dir}/${name}.icns" ]; then
+      echo "${system_icon_dir}/${name}.icns"
       return 0
     else
       echo "ERROR: System icon '${name}' not found" >&2
@@ -84,8 +85,9 @@ function AlfredBundler::icon() {
     color=$(AlfredBundler::alter_color ${color} ${alter})
   fi
 
-  # For now we're hardcoding this, but we should cycle through the icons
-  icon_server='http://icons.deanishe.net/icon'
+
+
+  
   icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
   icon_path="${icon_dir}/${name}.png"
 
@@ -97,6 +99,28 @@ function AlfredBundler::icon() {
   # Make the icon directory if it doesn't exist
   [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
 
+
+  
+  # 
+
+  # i=0
+  # icon_servers=$(cat meta/icon_servers)
+  # len=${#icon_servers[@]}
+  # success=0  
+
+  # # Loop through the bundler servers until we get one that works
+  # while [[ $i -lt $len ]]; do
+  #   curl -fsSL --connect-timeout 4 "${icon-servers[$i]}" > "${icon_path}"
+  #   status=$?
+
+  #   [[ $? -eq 0 ]] && success=1 && break || echo "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" >&2
+  #   success=0
+
+  #   : $[ i++ ]
+  # done;
+
+  # For now we're hardcoding this, but we should cycle through the icons
+  icon_server='http://icons.deanishe.net/icon'
   # Download icon from web service and cache it
   url="${icon_server}/${font}/${color}/${name}"
   curl -fsSL "${url}" > "${icon_path}"
@@ -185,7 +209,6 @@ function AlfredBundler::load {
 
 
   # Handle non-utilities first
-
   if [ "${type}" != "utility" ]; then
     # There shouldn't be too many things that the bash bundler should need from here...
     # but, why not?
@@ -268,14 +291,31 @@ function AlfredBundler::load {
     return 0
 
     # Try to find the icon, if there is one
+    # Theoretically, this function is being run by a script in the workflow's
+    # root directory, so the 'icon.png' should exist (if there has been an icon
+    # assigned). There is a possibility that it's being run by a script not in
+    # the workflow root directory, so, as a backup, we'll look one level below.
     [[ -f 'icon.png' ]] && icon=$(pwd -P)"/icon.png"
     [[ -f '../icon.png' ]] && icon=$(pwd -P)"/../icon.png"
 
     # Call gatekeeper
     bash "${AB_DATA}/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
-
     # get response and do the rest of the handling.
+    status=$?
+    [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
     
+    # If we're here, then the user whitelisted the application.
+    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
+    path="${path}/"$(cat "${path}/invoke")
+    echo "${path}" > "${cache_path}"
+
+    # Register the asset
+    bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
+      "${bundle}" "${name}" "${version}"
+
+    # Echo the path and return a successful status  
+    echo "${path}"
+    return 0
 
   fi
 
@@ -287,7 +327,7 @@ function AlfredBundler::load {
 } # End AlfredBundler::load
 
 function AlfredBundler::utility() {
-
+a=1
 } # End AlfredBundler::utility
 
 function AlfredBundler::load_asset_inner {
