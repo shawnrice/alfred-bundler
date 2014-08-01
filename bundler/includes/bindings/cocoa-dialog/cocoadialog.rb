@@ -114,7 +114,8 @@ class CocoaDialog
     @@cocoa = ''
     @@debug = false
     @@global_options = {}
-    @@global_icons = {}
+    @@lower_exceptions = []
+    @@global_icons = []
 
     # Logging Function (used to emulate logging module in Python).
     #
@@ -136,19 +137,6 @@ class CocoaDialog
         end
     end
 
-    # Hash modification function (used to convert keys to lowercase).
-    #
-    # :param passed: Hash to be modified
-    # :type passed: hash
-    # :returns: Modified hash
-    # :rtype: hash
-    def self._passed_lower(passed)
-        new_passed = {}
-        passed.each_pair do |k,v|
-            new_passed.merge!({k.downcase => v})
-        end
-        return new_passed
-    end
 
     # CocoaDialog client object initialization.
     #
@@ -180,15 +168,21 @@ class CocoaDialog
             'no_newline' => [TrueClass, FalseClass],
             'width' => [Fixnum, Float],
             'height' => [Fixnum, Float],
+            'posX' => [Fixnum, Float],
+            'posY' => [Fixnum, Float],
+            'timeout' => [Fixnum, Float],
+            'timeout_format' => [String],
             'icon' => [String],
             'icon_bundle' => [String],
             'icon_file' => [String],
             'icon_size' => [Fixnum, Float],
             'icon_height' => [Fixnum, Float],
             'icon_width' => [Fixnum, Float],
+            'icon_type' => [String],
             'debug' => [TrueClass, FalseClass],
             'help' => [TrueClass, FalseClass]
         }
+        @@lower_exceptions = ['posX', 'posY']
         @@global_icons = [
             'addressbook', 'airport', 'airport2', 'application', 'archive',
             'bluetooth', 'bonjour', 'atom', 'burn', 'hazard', 'caution', 'cd',
@@ -203,6 +197,65 @@ class CocoaDialog
             'update', 'url', 'usb', 'user', 'person', 'utilities', 'widget'
         ]
     end
+
+    # Hash modification function (used to convert keys to lowercase).
+    #
+    # :param passed: Hash to be modified
+    # :type passed: hash
+    # :returns: Modified hash
+    # :rtype: hash
+    def self._passed_lower(passed)
+        new_passed = {}
+        passed.each_pair do |k,v|
+            unless @@lower_exceptions.include? k
+                new_passed.merge!({k.downcase => v})
+            else
+                new_passed.merge!({k => v})
+            end
+        end
+        return new_passed
+    end
+
+    def _format_notify(passed)
+        valid_x_placement = ['center', 'right', 'left']
+        valid_y_placement = ['center', 'top', 'bottom']
+
+        # Cleanup for passed hexadecimal colors. CocoaDialog only accpets
+        # numbers (xxx or xxxxxx), so just in case users get crazy, we 
+        # will re.match it
+        [
+            'text_color', 'border_color', 
+            'background_top','background_bottom'
+        ].each do |i|
+            if passed.keys.include? i.to_sym
+                hex_match = /^(.*?)(?<hex>[0-9a-fA-F]{3}{1,2})$/.match(passed[i.to_sym])
+                if hex_match != nil
+                    passed[i.to_sym] = hex_match[:hex]
+                else
+                    self.class.log('warning', __method__, __LINE__, 
+                        'removing invalid (%s), got (%s), expected (#XXX or #XXXXXX)' % [
+                            i, passed[i.to_sym]])
+                    passed.delete(i.to_sym)
+                end
+            end
+        end
+
+        # Cleanup/validation for x_placement and y_placement arguments.
+        [
+            ['x_placement', valid_x_placement],
+            ['y_placement', valid_y_placement]
+        ].each do |i|
+            if (passed.keys.include? i[0].to_sym) &&
+                !(i[1].include? passed[i[0].to_sym])
+                self.class.log('warning', __method__, __LINE__, 
+                    'removing invalid (%s), got (%s), expected (%s)' % [
+                        i[0], passed[i[0].to_sym], i[1].join(' or ')])
+                passed.delete(i[0].to_sym)
+            end
+        end
+        return passed
+    end
+
 
     # Run a subprocess and return the output
     # 
@@ -254,7 +307,7 @@ class CocoaDialog
         # Second, check that the required options are passed and valid
         custom_options['required_options'].each do |required_key|
             if passed.keys.include? required_key.to_sym
-                ['items', 'with_extensions'].each do |_lists|
+                ['items', 'with_extensions', 'checked', 'disabled'].each do |_lists|
                     if _lists.eql?(required_key.downcase)
                         if passed[_lists.to_sym].length <= 0
                             self.class.log('error', __method__, __LINE__, 
@@ -295,7 +348,6 @@ class CocoaDialog
     # :rtype: str
     def _display(funct, passed, return_process=false)
         @process = ['\'%s\'' % @@cocoa, funct.to_s.tr('_', '-')]
-
         # Ensure that passed argument's keys are formated as --$key
         new_passed = {}
         passed.each_pair do |k,v|
@@ -339,7 +391,6 @@ class CocoaDialog
     # :rtype: str
     def bubble(_passed)
         custom_options = {
-            'timeout' => [Fixnum, Float],
             'no_timeout' => [TrueClass, FalseClass],
             'alpha' => [Fixnum, Float],
             'x_placement' => [String],
@@ -357,45 +408,132 @@ class CocoaDialog
         }
         _passed = self.class._passed_lower(_passed)
         if _valid_options(_passed, custom_options)
-            valid_x_placement = ['center', 'right', 'left']
-            valid_y_placement = ['center', 'top', 'bottom']
-
-            # Cleanup for passed hexadecimal colors. CocoaDialog only accpets
-            # numbers (xxx or xxxxxx), so just in case users get crazy, we 
-            # will re.match it
-            [
-                'text_color', 'border_color', 
-                'background_top','background_bottom'
-            ].each do |i|
-                if _passed.keys.include? i.to_sym
-                    hex_match = /^(.*?)(?<hex>[0-9a-fA-F]{3}{1,2})$/.match(_passed[i.to_sym])
-                    if hex_match != nil
-                        _passed[i.to_sym] = hex_match[:hex]
-                    else
-                        self.class.log('warning', __method__, __LINE__, 
-                            'removing invalid (%s), got (%s), expected (#XXX or #XXXXXX)' % [
-                                i, _passed[i.to_sym]])
-                        _passed.delete(i.to_sym)
-                    end
-                end
-            end
-
-            # Cleanup/validation for x_placement and y_placement arguments.
-            [
-                ['x_placement', valid_x_placement],
-                ['y_placement', valid_y_placement]
-            ].each do |i|
-                if (_passed.keys.include? i[0].to_sym) &&
-                    !(i[1].include? _passed[i[0].to_sym])
-                    self.class.log('warning', __method__, __LINE__, 
-                        'removing invalid (%s), got (%s), expected (%s)' % [
-                            i[0], _passed[i[0].to_sym], i[1].join(' or ')])
-                    _passed.delete(i[0].to_sym)
-                end
-            end
+            _passed = self._format_notify(_passed)
             return _display(__method__, _passed)
         end
     end
+
+    # Dialog type notify
+    #
+    # :param _passed: Dialog arguments
+    # :type _passed: hash
+    # :returns: Output of dialog
+    # :rtype: str
+    def notify(_passed)
+        custom_options = {
+            'no_timeout' => [TrueClass, FalseClass],
+            'description' => [String],
+            'no_growl' => [TrueClass, FalseClass],
+            'alpha' => [Fixnum, Float],
+            'x_placement' => [String],
+            'y_placement' => [String],
+            'text_color' => [String],
+            'border_color' => [String],
+            'background_top' => [String],
+            'background_bottom' => [String],
+            'fh' => [TrueClass, FalseClass] # Unkown option
+        }
+        custom_options = {
+            'dialog_name' => __method__,
+            'required_options' => ['title', 'description'],
+            'custom_options' => custom_options
+        }
+        _passed = self.class._passed_lower(_passed)
+        if _valid_options(_passed, custom_options)
+            _passed = self._format_notify(_passed)
+            return _display(__method__, _passed)
+        end
+    end
+
+    # Dialog type checkbox
+    #
+    # :param _passed: Dialog arguments
+    # :type _passed: hash
+    # :returns: Output of dialog
+    # :rtype: str
+    def checkbox(_passed)
+        custom_options = {
+            'label' => [String],
+            'checked' => [Array],
+            'columns' => [Fixnum],
+            'disabled' => [Array],
+            'items' => [Array],
+            'rows' => [Fixnum],
+            'button1' => [String],
+            'button2' => [String],
+            'button3' => [String]
+        }
+        custom_options = {
+            'dialog_name' => __method__,
+            'required_options' => ['button1', 'items'],
+            'custom_options' => custom_options
+        }
+        _passed = self.class._passed_lower(_passed)
+        if _valid_options(_passed, custom_options)
+            return _display(__method__, _passed)
+        end
+    end
+
+    # Dialog type radio
+    #
+    # :param _passed: Dialog arguments
+    # :type _passed: hash
+    # :returns: Output of dialog
+    # :rtype: str
+    def radio(_passed)
+        custom_options = {
+            'label' => [String],
+            'selected' => [Fixnum],
+            'columns' => [Fixnum],
+            'disabled' => [Array],
+            'items' => [Array],
+            'rows' => [Fixnum],
+            'button1' => [String],
+            'button2' => [String],
+            'button3' => [String]
+        }
+        custom_options = {
+            'dialog_name' => __method__,
+            'required_options' => ['button1', 'items'],
+            'custom_options' => custom_options
+        }
+        _passed = self.class._passed_lower(_passed)
+        if _valid_options(_passed, custom_options)
+            return _display(__method__, _passed)
+        end
+    end
+
+    # Dialog type slider
+    #
+    # :param _passed: Dialog arguments
+    # :type _passed: hash
+    # :returns: Output of dialog
+    # :rtype: str
+    def slider(_passed)
+        custom_options = {
+            'label' => [String],
+            'always_show_value' => [TrueClass, FalseClass],
+            'min' => [Fixnum, Float],
+            'max' => [Fixnum, Float],
+            'ticks' => [Fixnum, Float],
+            'slider_label' => [String],
+            'value' => [Fixnum, Float],
+            'button1' => [String],
+            'button2' => [String],
+            'button3' => [String],
+            'return_float' => [TrueClass, FalseClass]
+        }
+        custom_options = {
+            'dialog_name' => __method__,
+            'required_options' => ['button1', 'min', 'max'],
+            'custom_options' => custom_options
+        }
+        _passed = self.class._passed_lower(_passed)
+        if _valid_options(_passed, custom_options)
+            return _display(__method__, _passed)
+        end
+    end
+
 
 
     # Dialog type msgbox
@@ -413,7 +551,6 @@ class CocoaDialog
             'button3' => [String],
             'no_cancel' => [TrueClass, FalseClass],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -438,7 +575,6 @@ class CocoaDialog
             'informative_text' => [String],
             'no_cancel' => [TrueClass, FalseClass],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -463,7 +599,6 @@ class CocoaDialog
             'informative_text' => [String],
             'no_cancel' => [TrueClass, FalseClass],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -490,7 +625,6 @@ class CocoaDialog
             'button2' => [String],
             'button3' => [String],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float],
             'no_show' => [TrueClass, FalseClass]
         }
         custom_options = {
@@ -515,7 +649,6 @@ class CocoaDialog
             'text' => [String],
             'informative_text' => [String],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float],
             'no_show' => [TrueClass, FalseClass]
         }
         custom_options = {
@@ -543,7 +676,6 @@ class CocoaDialog
             'button2' => [String],
             'button3' => [String],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float],
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -567,7 +699,6 @@ class CocoaDialog
             'text' => [String],
             'informative_text' => [String],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float],
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -653,7 +784,6 @@ class CocoaDialog
             'selected' => [TrueClass, FalseClass],
             'scroll_to' => [String],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -682,7 +812,6 @@ class CocoaDialog
             'button3' => [String],
             'exit_onchange' => [TrueClass, FalseClass],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,
@@ -708,7 +837,6 @@ class CocoaDialog
             'pulldown' => [TrueClass, FalseClass],
             'exit_onchange' => [TrueClass, FalseClass],
             'float' => [TrueClass, FalseClass],
-            'timeout' => [Fixnum, Float]
         }
         custom_options = {
             'dialog_name' => __method__,

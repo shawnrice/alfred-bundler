@@ -183,15 +183,21 @@ class CocoaDialog:
             'no_newline': (bool,),
             'width': (int, float,),
             'height': (int, float,),
+            'posX': (int, float,),
+            'posY': (int, float,),
             'icon': (str, unicode,),
+            'timeout': (int, float,),
+            'timeout_format': (str, unicode,),
             'icon_bundle': (str, unicode,),
             'icon_file': (str, unicode,),
             'icon_size': (int, float,),
             'icon_height': (int, float,),
             'icon_width': (int, float,),
+            'icon_type': (str, unicode,),  # Do not use, breaks icon display
             'debug': (bool,),
             'help': (bool,)
             }
+        self.lower_exceptions = ['posX', 'posY']
         self.global_icons = [
             'addressbook', 'airport', 'airport2', 'application', 'archive',
             'bluetooth', 'bonjour', 'atom', 'burn', 'hazard', 'caution', 'cd',
@@ -205,6 +211,54 @@ class CocoaDialog:
             'security', 'sound', 'stop', 'x', 'sync', 'trash', 'trashfull',
             'update', 'url', 'usb', 'user', 'person', 'utilities', 'widget'
             ]
+
+    def _format_passed(self, passed):
+        new_passed = {}
+        for k, v in passed.iteritems():
+            if k not in self.lower_exceptions:
+                new_passed[k.lower()] = v
+            else:
+                new_passed[k] = v
+        return new_passed
+
+    def _format_notify(self, passed):
+        valid_x_placement = ['center', 'right', 'left']
+        valid_y_placement = ['center', 'top', 'bottom']
+        # Do some cleanup for passed hexadecimal colors. CocoaDialog only \
+        # accepts the numbers (xxx or xxxxxx), so just in case users get \
+        # crazy, we will regrex it
+        for i in ['text_color', 'border_color', 'background_top',
+                  'background_bottom']:
+            if i in passed.keys():
+                hex_match = re.match(
+                    r'^(.*?)(?P<hex>([0-9a-fA-F]{3}){1,2})$',
+                    passed[i])
+                if hex_match:
+                    passed[i] = hex_match.group('hex')
+                else:
+                    self.log.warning(', '.join([
+                        custom_options['dialog_name'],
+                        'removing invalid ({}), got ({})'.format(
+                            i, passed[i]),
+                        'expected (#XXX or #XXXXXX)']))
+                    del passed[i]
+
+        # Do some cleanup/validation on x_placement and y_placement \
+        # parameters. Only accepted parameters are in valid_x_placement \
+        # and valid_y_placement
+        for i in [('x_placement', valid_x_placement),
+                  ('y_placement', valid_y_placement)]:
+            if i[0] in passed.keys() and \
+               passed[i[0]] not in i[1]:
+                if self.debug:
+                    self.log.warning(', '.join([
+                        custom_options['dialog_name'],
+                        'removing invalid ({}), got ({})'.format(
+                            i[0], passed[i[0]]),
+                        'expected ({})'.format(' or '.join(i[1]))
+                        ]))
+                del passed[i[0]]
+        return passed
 
     def _run_subprocess(self, process):
         """Run the specified subprocess on the system.
@@ -291,7 +345,8 @@ class CocoaDialog:
         # there is at least 1 entry in the list.
         for required_key in custom_options['required_options']:
             if required_key in passed.keys():
-                for _lists in ['items', 'with_extensions']:
+                for _lists in ['items', 'with_extensions',
+                               'checked', 'disabled']:
                     if _lists in required_key.lower():
                         if len(passed[_lists]) <= 0:
                             if self.debug:
@@ -358,11 +413,12 @@ class CocoaDialog:
         # Bools are represented by the presence of the formated key.
         for k, v in passed.iteritems():
             if (isinstance(v, str) or isinstance(v, unicode) or
-                isinstance(v, int) or isinstance(v, float)) or \
+               (isinstance(v, int) and not isinstance(v, bool))
+                or isinstance(v, float)) or \
                (isinstance(v, list) and len(v) > 0):
                 process.append(k)
                 if isinstance(v, list):
-                    process.extend(v)
+                    process.extend([str(i) for i in v])
                 else:
                     process.append(str(v))
             else:
@@ -394,7 +450,6 @@ class CocoaDialog:
         :type _passed: dict
         """
         custom_options = {
-            'timeout': (int, float,),
             'no_timeout': (bool,),
             'alpha': (int, float),
             'x_placement': (str, unicode),
@@ -411,46 +466,133 @@ class CocoaDialog:
             'required_options': ['title', 'text'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
-            valid_x_placement = ['center', 'right', 'left']
-            valid_y_placement = ['center', 'top', 'bottom']
+            _passed = self._format_notify(_passed)
+            return self._display(custom_options['dialog_name'], _passed)
 
-            # Do some cleanup for passed hexadecimal colors. CocoaDialog only \
-            # accepts the numbers (xxx or xxxxxx), so just in case users get \
-            # crazy, we will regrex it
-            for i in ['text_color', 'border_color', 'background_top',
-                      'background_bottom']:
-                if i in _passed.keys():
-                    hex_match = re.match(
-                        r'^(.*?)(?P<hex>([0-9a-fA-F]{3}){1,2})$',
-                        _passed[i])
-                    if hex_match:
-                        _passed[i] = hex_match.group('hex')
-                    else:
-                        self.log.warning(', '.join([
-                            custom_options['dialog_name'],
-                            'removing invalid ({}), got ({})'.format(
-                                i, _passed[i]),
-                            'expected (#XXX or #XXXXXX)']))
-                        del _passed[i]
+    def notify(self, **_passed):
+        """Updated version of `bubble`.
 
-            # Do some cleanup/validation on x_placement and y_placement \
-            # parameters. Only accepted parameters are in valid_x_placement \
-            # and valid_y_placement
-            for i in [('x_placement', valid_x_placement),
-                      ('y_placement', valid_y_placement)]:
-                if i[0] in _passed.keys() and \
-                   _passed[i[0]] not in i[1]:
-                    if self.debug:
-                        self.log.warning(', '.join([
-                            custom_options['dialog_name'],
-                            'removing invalid ({}), got ({})'.format(
-                                i[0], _passed[i[0]]),
-                            'expected ({})'.format(' or '.join(i[1]))
-                            ]))
-                    del _passed[i[0]]
+        NOTE: `bubble` is left for backwards compatibility.
 
+        If the no_growl option is marked as true, growl is suppressed
+        and you are allowed to mess with colors.
+
+        :param _passed: Dialog parameters
+        :type _passed: dict
+        """
+        custom_options = {
+            'description': (str, unicode,),
+            'sticky': (bool,),
+            'no_growl': (bool,),
+            'alpha': (int, float,),
+            'text_color': (str, unicode,),
+            'border_color': (str, unicode,),
+            'background_bottom': (str, unicode,),
+            'background_top': (str, unicode,),
+            'x_placement': (str, unicode),
+            'y_placement': (str, unicode),
+            'fh': (bool,),  # Unkown option
+            }
+        custom_options = {
+            'dialog_name': inspect.getframeinfo(
+                inspect.currentframe())[2].lower(),
+            'required_options': ['title', 'description'],
+            'custom_options': custom_options
+            }
+        _passed = self._format_passed(_passed)
+        if self._valid_options(_passed, custom_options):
+            _passed = self._format_notify(_passed)
+            return self._display(custom_options['dialog_name'], _passed)
+
+    def checkbox(self, **_passed):
+        """Dialog type `checkbox`.
+
+        Parameters are not documented.
+
+        :param _passed: Dialog parameters
+        :type _passed: dict
+        """
+        custom_options = {
+            'label': (str, unicode,),
+            'checked': (list,),
+            'columns': (int,),
+            'disabled': (list,),
+            'items': (list,),
+            'rows': (int,),
+            'button1': (str, unicode,),
+            'button2': (str, unicode,),
+            'button3': (str, unicode,),
+            }
+        custom_options = {
+            'dialog_name': inspect.getframeinfo(
+                inspect.currentframe())[2].lower(),
+            'required_options': ['button1', 'items'],
+            'custom_options': custom_options
+            }
+        _passed = self._format_passed(_passed)
+        if self._valid_options(_passed, custom_options):
+            return self._display(custom_options['dialog_name'], _passed)
+
+    def radio(self, **_passed):
+        """Dialog type `radio`.
+
+        Parameters are not documented.
+
+        :param _passed: Dialog parameters
+        :type _passed: dict
+        """
+        custom_options = {
+            'label': (str, unicode,),
+            'selected': (int,),
+            'columns': (int,),
+            'disabled': (list,),
+            'items': (list,),
+            'rows': (int,),
+            'button1': (str, unicode,),
+            'button2': (str, unicode,),
+            'button3': (str, unicode,)
+            }
+        custom_options = {
+            'dialog_name': inspect.getframeinfo(
+                inspect.currentframe())[2].lower(),
+            'required_options': ['button1', 'items'],
+            'custom_options': custom_options
+            }
+        _passed = self._format_passed(_passed)
+        if self._valid_options(_passed, custom_options):
+            return self._display(custom_options['dialog_name'], _passed)
+
+    def slider(self, **_passed):
+        """Dialog type `slider`.
+
+        Parameters are not documented.
+
+        :param _passed: Dialog parameters
+        :type _passed: dict
+        """
+        custom_options = {
+            'label': (str, unicode,),
+            'always_show_value': (bool,),
+            'min': (int, float,),
+            'max': (int, float,),
+            'ticks': (int, float,),
+            'slider_label': (str, unicode,),
+            'value': (int, float,),
+            'button1': (str, unicode,),
+            'button2': (str, unicode,),
+            'button3': (str, unicode,),
+            'return_float': (bool,),
+            }
+        custom_options = {
+            'dialog_name': inspect.getframeinfo(
+                inspect.currentframe())[2].lower(),
+            'required_options': ['button1', 'min', 'max'],
+            'custom_options': custom_options
+            }
+        _passed = self._format_passed(_passed)
+        if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
     def msgbox(self, **_passed):
@@ -470,7 +612,6 @@ class CocoaDialog:
             'button3': (str, unicode,),
             'no_cancel': (bool,),
             'float': (bool,),
-            'timeout': (int, float,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -478,7 +619,7 @@ class CocoaDialog:
             'required_options': ['button1'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -496,7 +637,6 @@ class CocoaDialog:
             'informative_text': (str, unicode,),
             'no_cancel': (bool,),
             'float': (bool,),
-            'timeout': (int, float,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -504,7 +644,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -522,7 +662,6 @@ class CocoaDialog:
             'informative_text': (str, unicode,),
             'no_cancel': (bool,),
             'float': (bool,),
-            'timeout': (int, float,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -530,7 +669,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -550,7 +689,6 @@ class CocoaDialog:
             'button2': (str, unicode,),
             'button3': (str, unicode,),
             'float': (bool,),
-            'timeout': (int,),
             'no_show': (bool,),
             }
         custom_options = {
@@ -559,7 +697,7 @@ class CocoaDialog:
             'required_options': ['button1'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -577,7 +715,6 @@ class CocoaDialog:
             'informative_text': (str, unicode,),
             'no_cancel': (bool,),
             'float': (bool,),
-            'timeout': (int,),
             'no_show': (bool,),
             }
         custom_options = {
@@ -586,7 +723,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -606,7 +743,6 @@ class CocoaDialog:
             'button2': (str, unicode,),
             'button3': (str, unicode,),
             'float': (bool,),
-            'timeout': (int,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -614,7 +750,7 @@ class CocoaDialog:
             'required_options': ['button1'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -632,7 +768,6 @@ class CocoaDialog:
             'informative_text': (str, unicode,),
             'no_cancel': (bool,),
             'float': (bool,),
-            'timeout': (int,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -640,7 +775,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -669,7 +804,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -696,7 +831,7 @@ class CocoaDialog:
             'required_options': [],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -721,7 +856,6 @@ class CocoaDialog:
             'selected': (bool,),
             'scroll_to': (str, unicode),
             'float': (bool,),
-            'timeout': (bool,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -729,7 +863,7 @@ class CocoaDialog:
             'required_options': ['button1'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -751,7 +885,6 @@ class CocoaDialog:
             'button3': (str, unicode,),
             'exit_onchange': (bool,),
             'float': (bool,),
-            'timeout': (bool,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -759,7 +892,7 @@ class CocoaDialog:
             'required_options': ['button1', 'items'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -778,7 +911,6 @@ class CocoaDialog:
             'pulldown': (bool,),
             'exit_onchange': (bool,),
             'float': (bool,),
-            'timeout': (bool,),
             }
         custom_options = {
             'dialog_name': inspect.getframeinfo(
@@ -786,7 +918,7 @@ class CocoaDialog:
             'required_options': ['items'],
             'custom_options': custom_options
             }
-        _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+        _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             return self._display(custom_options['dialog_name'], _passed)
 
@@ -829,7 +961,7 @@ class CocoaDialog:
                 'required_options': ['percent', 'text'],
                 'custom_options': custom_options
                 }
-            _passed = dict((k.lower(), v) for k, v in _passed.iteritems())
+            _passed = self._format_passed(_passed)
             if self.outer._valid_options(_passed, self.custom_options):
                 self.percent, self.text = (_passed['percent'], _passed['text'])
                 process = self.outer._display(

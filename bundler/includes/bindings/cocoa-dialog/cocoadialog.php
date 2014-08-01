@@ -131,6 +131,13 @@ class CocoaDialog {
     private $global_options;
 
     /**
+     * Reference to a list of exceptions for key_name lowercase-ing.
+     * @access private
+     * @var array
+     */
+    private $lower_exceptions;
+
+    /**
      * Reference to a list of global icons.
      * @access private
      * @var array
@@ -183,15 +190,21 @@ class CocoaDialog {
             'no_newline' => ['boolean'],
             'width' => ['integer', 'double'],
             'height' => ['integer', 'double'],
+            'posX' => ['integer', 'double'],
+            'posY' => ['integer', 'double'],
+            'timeout' => ['integer', 'double'],
+            'timeout_format' => ['string'],
             'icon' => ['string'],
             'icon_bundle' => ['string'],
             'icon_file' => ['string'],
             'icon_size' => ['integer'],
             'icon_height' => ['integer'],
             'icon_width' => ['integer'],
+            'icon_type' => ['string'], // Broken option
             'debug' => ['boolean'],
             'help' => ['boolean']
         ];
+        $this->lower_exceptions = ['posX', 'posY'];
         $this->global_icons = [
             'addressbook', 'airport', 'airport2', 'application', 'archive', 'bluetooth', 'bonjour', 'atom', 'burn', 'hazard', 'caution', 'cd',
             'cocoadialog', 'computer', 'dashboard', 'dock', 'document', 'documents', 'download', 'eject', 'everyone', 'executable',
@@ -200,6 +213,53 @@ class CocoaDialog {
             'preferences', 'printer', 'screenshare', 'search', 'find', 'security', 'sound', 'stop', 'x', 'sync', 'trash', 'trashfull',
             'update', 'url', 'usb', 'user', 'person', 'utilities', 'widget'
         ];
+    }
+
+    public function _format_passed( $passed ) {
+        $new_passed = [];
+        foreach ($passed as $k => $v) {
+            if ( ! ( in_array( $k, $this->lower_exceptions ) ) ) {
+                $new_passed[strtolower( $k )] = $v;
+            }
+            else {
+                $new_passed[$k] = $v;
+            }
+        }
+        return $new_passed;
+    }
+
+    public function _format_notify( $passed ) {
+
+        // Cleanup for passed hexadecimal colors. CocoaDialog only accepts 
+        // numbers (xxx or xxxxxx), so just in case users get crazy, we will
+        // regrex it.
+        $valid_x_placement = ['center', 'left', 'right'];
+        $valid_y_placement = ['center', 'top', 'bottom'];
+        foreach (['text_color', 'border_color', 'background_top', 'background_bottom'] as $i) {
+            if ( in_array( $i, array_keys( $passed ) ) ) {
+                preg_match( "/^(.*?)(?P<hex>([0-9a-fA-F]{3}){1,2})$/", $passed[$i], $group );
+                if ( $group['hex'] ) {
+                    $passed[$i] = $group['hex'];
+                }
+                else {
+                    $this->log('warning', __FUNCTION__, __LINE__, 
+                        sprintf('removing invalid (%s), got (%s), expected (#XXX or #XXXXXX)',
+                            $i, $passed[$i]));
+                    unset($passed[$i]);
+                }
+            }
+        }
+
+        // Cleanup/validation for x_placement and y_placement
+        foreach ([['x_placement', $valid_x_placement], ['y_placement', $valid_y_placement]] as $i) {
+            if ( in_array($i[0], array_keys( $passed ) ) && !( in_array( $passed[$i[0]], $i[1] ) ) ) {
+                $this->log('warning', __FUNCTION__, __LINE__, 
+                    sprintf('removing invalid (%s), got (%s), expected (%s)', 
+                        $i[0], $passed[$i[0]], implode(' or ', $i[1])));
+                unset($passed[$i[0]]);
+            }
+        }
+        return $passed;
     }
 
     /**
@@ -256,7 +316,7 @@ class CocoaDialog {
         // Next, check that passed options contain the required options.
         foreach ( $custom_options['required_options'] as $required_key ) {
             if ( in_array( $required_key, array_keys( $passed ) ) ) {
-                foreach ( ['items', 'with_extensions'] as $_lists ) {
+                foreach ( ['items', 'with_extensions', 'checked', 'disabled'] as $_lists ) {
                     if ( $_lists === strtolower( $required_key ) ) {
                        if ( count( $passed[$_lists] ) <= 0) {
                             $this->log('error', __FUNCTION__, __LINE__, 'length of items must be > 0');
@@ -327,8 +387,8 @@ class CocoaDialog {
                 $this->log('info', __FUNCTION__, __LINE__, implode( ' ', $process ) );
                 $dialog = explode( "\n", $this->_run_subprocess( implode( ' ', $process ) ) );
                 unset( $dialog[count($dialog) - 1] );
-                $dialog = implode( '', $dialog );
-                return $dialog;
+                $dialog = implode( ' ', $dialog );
+                return explode( ' ', $dialog );
             } catch ( Exception $e ) {
                 $this->log( 'critical', __FUNCTION__, __LINE__, $e );
             }
@@ -349,7 +409,6 @@ class CocoaDialog {
      */
     public function bubble(array $_passed) {
         $custom_options = [
-            'timeout' => ['integer', 'double'],
             'no_timeout' => ['bool'],
             'alpha' => ['integer', 'double'],
             'x_placement' => ['string'],
@@ -365,40 +424,136 @@ class CocoaDialog {
             'required_options' => ['title', 'text'],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
-
-        // Cleanup for passed hexadecimal colors. CocoaDialog only accepts 
-        // numbers (xxx or xxxxxx), so just in case users get crazy, we will
-        // regrex it.
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
-            $valid_x_placement = ['center', 'left', 'right'];
-            $valid_y_placement = ['center', 'top', 'bottom'];
-            foreach (['text_color', 'border_color', 'background_top', 'background_bottom'] as $i) {
-                if (in_array($i, array_keys($_valid[1]))) {
-                    preg_match("/^(.*?)(?P<hex>([0-9a-fA-F]{3}){1,2})$/", $_valid[1][$i], $group);
-                    if ($group['hex']) {
-                        $_valid[1][$i] = $group['hex'];
-                    }
-                    else {
-                        $this->log('warning', __FUNCTION__, __LINE__, 
-                            sprintf('removing invalid (%s), got (%s), expected (#XXX or #XXXXXX)',
-                                $i, $_valid[1][$i]));
-                        unset($_valid[1][$i]);
-                    }
-                }
-            }
+            $_valid[1] = $this->_format_passed( $_valid[1] );
+            return $this->_display( __FUNCTION__, $_valid[1] );
+        }
+    }
 
-            // Cleanup/validation for x_placement and y_placement
-            foreach ([['x_placement', $valid_x_placement], ['y_placement', $valid_y_placement]] as $i) {
-                if ( in_array($i[0], array_keys($_valid[1])) && !(in_array($_valid[1][$i[0]], $i[1]))) {
-                    $this->log('warning', __FUNCTION__, __LINE__, 
-                        sprintf('removing invalid (%s), got (%s), expected (%s)', 
-                            $i[0], $_valid[1][$i[0]], implode(' or ', $i[1])));
-                    unset($_valid[1][$i[0]]);
-                }
-            }
-            return $this->_display(__FUNCTION__, $_valid[1]);
+    /**
+     * Dialog type notify
+     * 
+     * @param array $_passed Dialog paramenters
+     * @return string Output from dialog
+     */
+    public function notify(array $_passed) {
+        $custom_options = [
+            'description' => ['string'],
+            'sticky' => ['boolean'],
+            'no_growl' => ['boolean'],
+            'alpha' => ['integer', 'double'],
+            'x_placement' => ['string'],
+            'y_placement' => ['string'],
+            'text_color' => ['string'],
+            'border_color' => ['string'],
+            'background_top' => ['string'],
+            'background_bottom' => ['string'],
+            'fh' => ['boolean'], // Unknown options
+        ];
+        $custom_options = [
+            'dialog_name' => __FUNCTION__,
+            'required_options' => ['title', 'description'],
+            'custom_options' => $custom_options
+        ];
+        $_passed = $this->_format_passed( $_passed );
+        $_valid = $this->_valid_options( $_passed, $custom_options );
+        if ( $_valid[0] ) {
+            $_valid[1] = $this->_format_passed( $_valid[1] );
+            return $this->_display( __FUNCTION__, $_valid[1] );
+        }
+    }
+
+    /**
+     * Dialog type checkbox
+     * 
+     * @param array $_passed Dialog paramenters
+     * @return string Output from dialog
+     */
+    public function checkbox(array $_passed) {
+        $custom_options = [
+            'label' => ['string'],
+            'checked' => ['array'],
+            'columns' => ['integer'],
+            'rows' => ['integer'],
+            'disabled' => ['array'],
+            'items' => ['array'],
+            'button1' => ['string'],
+            'button2' => ['string'],
+            'button3' => ['string'],
+        ];
+        $custom_options = [
+            'dialog_name' => __FUNCTION__,
+            'required_options' => ['button1', 'items'],
+            'custom_options' => $custom_options
+        ];
+        $_passed = $this->_format_passed( $_passed );
+        $_valid = $this->_valid_options( $_passed, $custom_options );
+        if ( $_valid[0] ) {
+            return $this->_display( __FUNCTION__, $_valid[1] );
+        }
+    }
+
+    /**
+     * Dialog type radio
+     * 
+     * @param array $_passed Dialog paramenters
+     * @return string Output from dialog
+     */
+    public function radio(array $_passed) {
+        $custom_options = [
+            'label' => ['string'],
+            'selected' => ['integer'],
+            'columns' => ['integer'],
+            'rows' => ['integer'],
+            'disabled' => ['array'],
+            'items' => ['array'],
+            'button1' => ['string'],
+            'button2' => ['string'],
+            'button3' => ['string'],
+        ];
+        $custom_options = [
+            'dialog_name' => __FUNCTION__,
+            'required_options' => ['button1', 'items'],
+            'custom_options' => $custom_options
+        ];
+        $_passed = $this->_format_passed( $_passed );
+        $_valid = $this->_valid_options( $_passed, $custom_options );
+        if ( $_valid[0] ) {
+            return $this->_display( __FUNCTION__, $_valid[1] );
+        }
+    }
+
+    /**
+     * Dialog type slider
+     * 
+     * @param array $_passed Dialog paramenters
+     * @return string Output from dialog
+     */
+    public function slider(array $_passed) {
+        $custom_options = [
+            'label' => ['string'],
+            'always_show_value' => ['boolean'],
+            'min' => ['integer', 'double'],
+            'max' => ['integer', 'double'],
+            'ticks' => ['integer', 'double'],
+            'slider_label' => ['string'],
+            'value' => ['integer', 'double'],
+            'button1' => ['string'],
+            'button2' => ['string'],
+            'button3' => ['string'],
+            'return_float' => ['boolean'],
+        ];
+        $custom_options = [
+            'dialog_name' => __FUNCTION__,
+            'required_options' => ['button1', 'min', 'max'],
+            'custom_options' => $custom_options
+        ];
+        $_passed = $this->_format_passed( $_passed );
+        $_valid = $this->_valid_options( $_passed, $custom_options );
+        if ( $_valid[0] ) {
+            return $this->_display( __FUNCTION__, $_valid[1] );
         }
     }
 
@@ -420,14 +575,13 @@ class CocoaDialog {
             'button3' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double']
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => ['button1'],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -449,14 +603,13 @@ class CocoaDialog {
             'informative_text' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double']
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -478,14 +631,13 @@ class CocoaDialog {
             'informative_text' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double']
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -510,7 +662,6 @@ class CocoaDialog {
             'button3' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
             'no_show' => ['boolean']
         ];
         $custom_options = [
@@ -518,7 +669,7 @@ class CocoaDialog {
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -540,7 +691,6 @@ class CocoaDialog {
             'informative_text' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
             'no_show' => ['boolean']
         ];
         $custom_options = [
@@ -548,7 +698,7 @@ class CocoaDialog {
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -573,14 +723,13 @@ class CocoaDialog {
             'button3' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -602,14 +751,13 @@ class CocoaDialog {
             'informative_text' => ['string'],
             'no_cancel' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -641,7 +789,7 @@ class CocoaDialog {
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -671,7 +819,7 @@ class CocoaDialog {
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -700,14 +848,13 @@ class CocoaDialog {
             'selected' => ['boolean'],
             'scroll_to' => ['string'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -733,14 +880,13 @@ class CocoaDialog {
             'button3' => ['string'],
             'exit_onchange' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -763,14 +909,13 @@ class CocoaDialog {
             'pulldown' => ['boolean'],
             'exit_onchange' => ['boolean'],
             'float' => ['boolean'],
-            'timeout' => ['integer', 'double'],
         ];
         $custom_options = [
             'dialog_name' => __FUNCTION__,
             'required_options' => [],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->_format_passed( $_passed );
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             return $this->_display( __FUNCTION__, $_valid[1] );
@@ -856,7 +1001,7 @@ class ProgressBar {
             'required_options' => ['percent', 'text'],
             'custom_options' => $custom_options
         ];
-        $_passed = array_change_key_case( $_passed, $case=CASE_LOWER );
+        $_passed = $this->cocoa->_format_passed( $_passed );
         $_valid = $this->cocoa->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             $this->percent = $_valid[1]['percent'];
