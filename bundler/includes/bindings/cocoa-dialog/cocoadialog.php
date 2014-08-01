@@ -302,7 +302,7 @@ class CocoaDialog {
             $passed[sprintf( '--%s', str_replace( '_', '-', $k ) )] = $passed[$k];
             unset($passed[$k]);
         }
-        $process = [$this->cocoa, str_replace( '_', '-', $funct )];
+        $process = ["'$this->cocoa'", str_replace( '_', '-', $funct )];
         foreach ( $passed as $k => $v ) {
             if ( 'string' === gettype( $v ) || 'integer' === gettype( $v ) || 
                 'float' === gettype( $v ) || ( 'array' === gettype( $v ) && count( $v ) > 0 ) ) {

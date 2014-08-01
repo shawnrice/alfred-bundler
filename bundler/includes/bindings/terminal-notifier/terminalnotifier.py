@@ -113,7 +113,7 @@ class TerminalNotifier:
                     self.notifier, 'Contents/MacOS/terminal-notifier')
                 valid_notifier = os.path.exists(self.notifier)
             else:
-                valid_notifier = ('terminal-notifier' == \
+                valid_notifier = ('terminal-notifier' ==
                                   os.path.basename(self.notifier).lower())
         else:
             valid_notifier = False

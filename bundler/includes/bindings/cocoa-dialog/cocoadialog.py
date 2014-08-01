@@ -168,7 +168,7 @@ class CocoaDialog:
                     self.cocoa, 'Contents/MacOS/cocoadialog')
                 valid_cocoa = os.path.exists(self.cocoa)
             else:
-                valid_cocoa = ('cocoadialog' == \
+                valid_cocoa = ('cocoadialog' ==
                                os.path.basename(self.cocoa).lower())
         else:
             valid_cocoa = False

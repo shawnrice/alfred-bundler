@@ -294,7 +294,7 @@ class CocoaDialog
     # :returns: Output of dialog
     # :rtype: str
     def _display(funct, passed, return_process=false)
-        @process = [@@cocoa, funct.to_s.tr('_', '-')]
+        @process = ['\'%s\'' % @@cocoa, funct.to_s.tr('_', '-')]
 
         # Ensure that passed argument's keys are formated as --$key
         new_passed = {}

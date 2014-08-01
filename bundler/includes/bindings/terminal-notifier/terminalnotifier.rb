@@ -200,7 +200,7 @@ class TerminalNotifier
     # :param passed: Notification arguments
     # :type passed: hash
     def _display(passed)
-        @process = [@@notifier] 
+        @process = ['\'%s\'' % @@notifier] 
         new_passed = {}
         passed.each_pair do |k,v|
             # It is important we escape the first character of every
