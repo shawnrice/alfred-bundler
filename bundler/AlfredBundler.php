@@ -108,6 +108,9 @@ class AlfredBundlerInternalClass {
     if ( $plist ) {
       $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
       $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
+    } else {
+      $this->bundle = '';
+      $this->name   = '';
     }
 
     $this->setBackground();
