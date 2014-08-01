@@ -9,6 +9,9 @@ declare -r AB_MAJOR_VERSION=$(cat "${AB_PATH}/meta/version_major")
 # Set the data directory
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 
+# Check for updates to the bundler in the background
+bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
+
 bd_asset_cache="$__data/data/call-cache"
 
 ################################################################################
@@ -53,6 +56,7 @@ function AlfredBundler::check_hex() {
   # Make sure that the color contains only valid characters
   if [[ "${color}" =~ ^[a-f0-9]*$ ]]; then
     echo ${color}
+    return 0
   else
     echo "Error: '${color}' is not a valid hex color" >&2
     return 1
@@ -69,8 +73,12 @@ function AlfredBundler::alter_color() {
   if [[ $# -ne 2 ]]; then
     return 0
   fi
-
   color="$1"
+
+  if [[ "$2" == "FALSE" ]]; then
+    echo "${color}"
+    return 0
+  fi
 
   if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
     # Since they're the same, we'll alter the color
@@ -97,20 +105,13 @@ function AlfredBundler::get_background() {
 
   # Add in error checking
 
-  # Path to base of bundler directory
-  local path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../alfred-bundler/bundler" && pwd -P )"
-  # Get the major version from the file
-  local major_version=$(cat "${path}/meta/version_major")
-  # Set the data directory
-  local data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
-
   local plist=$(stat -f%m "${HOME}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist")
-  local background=$(stat -f%m "${data}/data/theme_background")
+  local background=$(stat -f%m "${AB_DATA}/data/theme_background")
   if [[ $plist -gt $background ]]; then
-    echo $("${path}/includes/LightOrDark") > "${data}/data/theme_background"
+    echo $("${AB_PATH}/includes/LightOrDark") > "${AB_DATA}/data/theme_background"
   fi
 
-  background=$(cat "${data}/data/theme_background")
+  background=$(cat "${AB_DATA}/data/theme_background")
   echo "${background}"
 }
 
@@ -400,6 +401,11 @@ function AlfredBundler::icon() {
   local name
   local color
   local alter
+  local icon_server
+  local icon_dir
+  local icon_path
+  local status
+  local url
 
   # Set font name
   if [ ! -z "$1" ]; then
@@ -437,6 +443,11 @@ function AlfredBundler::icon() {
     color="000000"
   fi
 
+  # Normalize and check the color for valid hex
+  color=$(AlfredBundler::check_hex "${color}")
+  # If not a valid hex, then return 0
+  [[ $? -ne 0 ]] && return 1
+
   # See if the alter variable is set
   if [ ! -z "$4" ]; then
     alter="$4"
@@ -446,68 +457,144 @@ function AlfredBundler::icon() {
     alter="FALSE"
   fi
 
-  echo "${font}"
-  
+  if [[ "${alter}" == "TRUE" ]]; then
+    color=$(AlfredBundler::alter_color ${color} TRUE)
+  elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
+    color=$(AlfredBundler::alter_color ${color} ${alter})
+  fi
 
   # For now we're hardcoding this, but we should cycle through the icons
-  local icon_server='http://icons.deanishe.net/icon'
+  icon_server='http://icons.deanishe.net/icon'
+  icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
+  icon_path="${icon_dir}/${name}.png"
 
+  if [[ -f "${icon_path}" ]]; then
+    echo "${icon_path}"
+    return 0
+  fi
+
+  # Make the icon directory if it doesn't exist
+  [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
+
+  # Download icon from web service and cache it
+  url="${icon_server}/${font}/${color}/${name}"
+  curl -fsSL "${url}" > "${icon_path}"
+  status=$?
+
+  if [[ $status -eq 0 ]]; then
+    echo "${icon_path}"
+  else
+    # Delete empty/corrupt file if it exists
+    [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
+    # Output the error to STDERR
+    echo "Error retrieving ${url}. cURL exited with ${status}" >&2
+  fi
+  return $status
 }
 
 # Caching wrapper around the real function
-function AlfredBundler::load_asset {
-  # $1 -- asset name
-  # $2 -- version
-  # $3 -- bundle
-  # $4 -- type
-  # $5 -- json (file-path)
+function AlfredBundler::load {
+  # $1 -- type
+  # $2 -- asset name
+  # $3 -- version
+  # $4 -- json (file-path)
 
-  local name="$1"
-  local version="$2"
-  local bundle="$3"
-  local type="$4"
-  local json="$5"
+  # We need two arguments at minimum
+  if [ "$#" -lt 2 ]; then
+    # Send message to STDERR
+    echo "Error: the load function requires a minimum of two arguments" >&2
+    return 1
+  fi
+
+  # Keep the variables local so as not to interfere with the rest of the script  
+  local type
+  local name
+  local version
+  local json
+  local bundle
+  local asset
+  local status
+
+  # Grab the arguments
+  type="$1"
+  name="$2"
+  version="$3"
+  json="$4"
+
+  # Set the version to default if not specified
+  [[ -z "${version}" ]] && version="default"
+
+  # Check to make sure that the json file exists
+  if [ -z "${json}" ]; then
+    if [ -f "${AB_DATA}/bundler/meta/defaults/${name}.json" ]; then
+      # The json file is a default
+      json="${AB_DATA}/bundler/meta/defaults/${name}.json"
+    else
+      # Send error message to STDERR
+      echo "Error: no valid JSON file found. This is a problem with the "\
+           "__implementation__ with the Alfred Bundler. Please let the "\
+           "workflow author know." >&2
+      return 1
+    fi
+  else
+    # Trying to use custom json
+    if [ ! -f "${json}" ]; then
+      # json file does not exist; send error message to STDERR
+      echo "Error: no valid JSON file found. This is a problem with the "\
+           "__implementation__ with the Alfred Bundler. Please let the "\
+           "workflow author know." >&2
+      return 1
+    fi
+  fi
+
+  # Grab the bundle id.
+  if [ -f 'info.plist' ]; then
+    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist')
+  elif [ -f '../info.plist' ]; then
+    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' '../info.plist')
+  fi
+
+ # asset=$(AlfredBundler::load_asset "${type}" "${name}" "${version}" "${bundle}" "${json}")
+ # status=$?
+ # echo "${asset}"
+ # exit "${status}"
+
+ 
+
+ #  local type="$1"
+ #  local name="$2"
+ #  local version="$3"
+ #  local bundle="$4"
+ #  local json="$5"
+
+  if [ "${type}" != "utility" ]; then
+    # There shouldn't be too many things that the bash bundler should need from here...
+    # but, why not?
+    if [ -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
+      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
+      return 0
+    else
+      #Install the asset
+      a=0
+    fi
+  fi
+
+  # If we're here, we're looking for a utility
+
+    echo "We need to check cache paths, etc..."
+
+    status=0
+    return $status
+
+
+  echo "Nothing found"
+  return 1
+
   local cachepath
   local key
   local path
   local status
 
-  # Icons
-  #------------------------------------------------------------
-
-  if [[ "${type}" = 'icon' ]]; then
-    local icon="$1"
-    local font="$2"
-    local colour="$5"
-    local url=
-
-    local icondir="${__data}/data/assets/icons/${font}/${colour}"
-    local path="${icondir}/${icon}.png"
-
-    # Return path to file if it exists
-    if [[ -f "$path" ]]; then
-      echo "$path"
-      return 0
-    fi
-
-    # Download icon from web service and cache it
-    url="${bd_icon_server_url}/${font}/${colour}/${icon}"
-
-    # Create parent directory if necessary
-    [[ ! -d "${icondir}" ]] && mkdir -p "${icondir}"
-
-    curl -fsSL "$url" > "${path}"
-    status=$?
-
-    if [[ $status -eq 0 ]]; then
-      echo "${path}"
-    else
-      # Delete empty/corrupt file if it exists
-      [[ -f "$path" ]] && rm -f "$path"
-      echo "Error retrieving ${url}. cURL exited with ${status}"
-    fi
-    return $status
-  fi
 
   # Other assets
   #------------------------------------------------------------
