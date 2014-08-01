@@ -96,7 +96,7 @@ class AlfredBundlerInternalClass {
    * @param  {string} $plist Path to workflow 'info.plist'
    * @return {bool}          Return 'true' regardless
    */
-  public function __construct( $plist ) {
+  public function __construct( $plist = '' ) {
 
     $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
     $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
@@ -104,8 +104,11 @@ class AlfredBundlerInternalClass {
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->plist  = $plist;
-    $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
-    $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
+
+    if ( $plist ) {
+      $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
+      $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
+    }
 
     $this->setBackground();
 
@@ -450,7 +453,7 @@ class AlfredBundlerInternalClass {
    * @param  {string} $version = 'default' Version of asset to install
    * @return {bool}                        TRUE on success, FALSE on failure
    */
-  private function installAsset( $json, $version = 'default' ) {
+  public function installAsset( $json, $version = 'default' ) {
     if ( ! file_exists( $json ) ) {
       echo "Error: cannot install asset because the JSON file is not present";
       return FALSE;
@@ -876,7 +879,7 @@ class AlfredBundlerInternalClass {
       if ( ! ini_get( 'auto_detect_line_endings' ) )
         ini_set( 'auto_detect_line_endings', TRUE );
 
-      $file = file( $log, FILE_SKIP_EMPTY_LINES );
+      $file = file( $log, FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES );
 
       // Check if the logfile is longer than 500 lines. If so, then trim the
       // last line.
