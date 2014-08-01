@@ -9,7 +9,7 @@
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd -P )"
 
 for arg in "$@" ; do
-  args="${args} '$arg'"
+  args="${args} '${arg}'"
 done
 
 # Execute the script entirely in the background
