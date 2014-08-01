@@ -12,7 +12,360 @@ declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/a
 # Check for updates to the bundler in the background
 bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 
-bd_asset_cache="$__data/data/call-cache"
+################################################################################
+### Begin Asset Functions
+################################################################################
+
+function AlfredBundler::icon() {
+
+  local font
+  local name
+  local color
+  local alter
+  local icon_server
+  local icon_dir
+  local icon_path
+  local status
+  local url
+
+  # Set font name
+  if [ ! -z "$1" ]; then
+    font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
+  else
+    # Send error to STDERR
+    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
+    return 1
+  fi
+
+  # Set icon name
+  if [ ! -z "$2" ]; then
+    name="$2"
+  else
+    # Send error to STDERR
+    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
+    return 1
+  fi
+
+  # Take care of the system font first
+  if [ "${font}" == "system" ]; then
+    if [ -f "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns" ]; then
+      echo "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns"
+      return 0
+    else
+      echo "ERROR: System icon '${name}' not found" >&2
+      return 0
+    fi
+  fi
+
+  # Set color or default to black
+  if [ ! -z "$3" ]; then
+    color="$3"
+  else
+    color="000000"
+  fi
+
+  # Normalize and check the color for valid hex
+  color=$(AlfredBundler::check_hex "${color}")
+  # If not a valid hex, then return 0
+  [[ $? -ne 0 ]] && return 1
+
+  # See if the alter variable is set
+  if [ ! -z "$4" ]; then
+    alter="$4"
+  elif [[ -z "$3" ]] && [[ -z "$4" ]]; then
+    alter="TRUE"
+  else
+    alter="FALSE"
+  fi
+
+  if [[ "${alter}" == "TRUE" ]]; then
+    color=$(AlfredBundler::alter_color ${color} TRUE)
+  elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
+    color=$(AlfredBundler::alter_color ${color} ${alter})
+  fi
+
+  # For now we're hardcoding this, but we should cycle through the icons
+  icon_server='http://icons.deanishe.net/icon'
+  icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
+  icon_path="${icon_dir}/${name}.png"
+
+  if [[ -f "${icon_path}" ]]; then
+    echo "${icon_path}"
+    return 0
+  fi
+
+  # Make the icon directory if it doesn't exist
+  [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
+
+  # Download icon from web service and cache it
+  url="${icon_server}/${font}/${color}/${name}"
+  curl -fsSL "${url}" > "${icon_path}"
+  status=$?
+
+  if [[ $status -eq 0 ]]; then
+    echo "${icon_path}"
+  else
+    # Delete empty/corrupt file if it exists
+    [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
+    # Output the error to STDERR
+    echo "Error retrieving ${url}. cURL exited with ${status}" >&2
+  fi
+  return $status
+
+} # End AlfredBundler::icon
+
+# Caching wrapper around the real function
+function AlfredBundler::load {
+  # $1 -- type
+  # $2 -- asset name
+  # $3 -- version
+  # $4 -- json (file-path)
+
+  # We need two arguments at minimum
+  if [ "$#" -lt 2 ]; then
+    # Send message to STDERR
+    echo "Error: the load function requires a minimum of two arguments" >&2
+    return 1
+  fi
+
+  # Keep the variables local so as not to interfere with the rest of the script  
+  local type
+  local name
+  local version
+  local json
+  local bundle
+  local asset
+  local status
+  local gatekeeper
+  local cache_path
+  local cache_dir
+  local key
+  local path
+
+  # Grab the arguments
+  type="$1"
+  name="$2"
+  version="$3"
+  json="$4"
+
+  # Set the version to default if not specified
+  [[ -z "${version}" ]] && version="default"
+
+  # Check to make sure that the json file exists
+  if [ -z "${json}" ]; then
+    if [ -f "${AB_DATA}/bundler/meta/defaults/${name}.json" ]; then
+      # The json file is a default
+      json="${AB_DATA}/bundler/meta/defaults/${name}.json"
+    else
+      # Send error message to STDERR
+      echo "Error: no valid JSON file found. This is a problem with the "\
+           "__implementation__ with the Alfred Bundler. Please let the "\
+           "workflow author know." >&2
+      return 1
+    fi
+  else
+    # Trying to use custom json
+    if [ ! -f "${json}" ]; then
+      # json file does not exist; send error message to STDERR
+      echo "Error: no valid JSON file found. This is a problem with the "\
+           "__implementation__ with the Alfred Bundler. Please let the "\
+           "workflow author know." >&2
+      return 1
+    fi
+  fi
+
+  # Grab the bundle id (if possible)
+  if [ -f 'info.plist' ]; then
+    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist')
+  elif [ -f '../info.plist' ]; then
+    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' '../info.plist')
+  else
+    bundle=''
+  fi
+
+
+  # Handle non-utilities first
+
+  if [ "${type}" != "utility" ]; then
+    # There shouldn't be too many things that the bash bundler should need from here...
+    # but, why not?
+    if [ -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
+
+      # Register the asset
+      bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
+           "${AB_DATA}/bundler/includes/registry.php" \
+           "${bundle}" "${name}" "${version}"
+
+      # Return the path
+      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
+      return 0
+    else
+      # Install the asset
+      php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
+
+      # If the install script exited with a non-zero status, then return 1;
+      # the error messages were written to STDERR by the install script.
+      status=$?
+      [[ $status -ne 0 ]] && return 1
+
+      # Register the asset
+      bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
+           "${AB_DATA}/bundler/includes/registry.php" \
+           "${bundle}" "${name}" "${version}"
+
+      # Return the path
+      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
+      return 0
+    fi
+  fi
+
+  # While not all utilities need gatekeeper, launching the php script that checks
+  # if it needs gatekeeper adds extra time. So, we'll cache the paths for all
+  # utilities regardless of whether or not they need gatekeeper.
+  # Step 1: Check the cache
+  # Step 2: Check the json for the gatekeeper flag
+  # Step 3: Run gatekeeper script
+
+  # Create cache directory if it doesn't exist
+  cache_dir="${AB_DATA}/data/call-cache"
+  [[ ! -d "${cache_dir}" ]] && mkdir -p -m 775 "${cache_dir}"
+
+  # Cache path for this call
+  key=$(md5 -q -s "${name}-${version}-${type}-${json}")
+  cache_path="${cache_dir}/${key}"
+
+  # Check the cache
+  if [[ -f "${cache_path}" ]]; then
+    path=$(cat "${cache_path}")
+    if [[ -f "${path}" ]] || [[ -d "${path}" ]]; then
+      # Found a valid path in the cache, return it
+      echo "${path}"
+      return 0
+    fi
+  fi
+
+  # Read the gatekeeper flag in the json
+  gatekeeper=$(php includes/read-json.php "${json}" gatekeeper | tr [[:upper:]] [[:lower:]])
+
+  if [ "${gatekeeper}" == "false" ]; then
+    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
+    path="${path}/"$(cat "${path}/invoke")
+    echo "${path}" > "${cache_path}"
+
+    # Register the asset
+    bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
+      "${bundle}" "${name}" "${version}"
+
+    # Echo the path and return a successful status  
+    echo "${path}"
+    return 0
+  else
+    # do gatekeeper stuff here
+    status=$?
+    [[ $status -gt 0 ]] && return $status
+    echo "${path}" > "${cache_path}"
+    echo "${path}"
+    return 0
+
+    # Try to find the icon, if there is one
+    [[ -f 'icon.png' ]] && icon=$(pwd -P)"/icon.png"
+    [[ -f '../icon.png' ]] && icon=$(pwd -P)"/../icon.png"
+
+    # Call gatekeeper
+    bash "${AB_DATA}/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+
+    # get response and do the rest of the handling.
+    
+
+  fi
+
+  # Send message to STDERR
+  echo "You've encountered a problem with the __implementation__ of"\
+        "the Alfred Bundler; please let the workflow author know." >&2
+  return 1
+
+} # End AlfredBundler::load
+
+function AlfredBundler::utility() {
+
+} # End AlfredBundler::utility
+
+function AlfredBundler::load_asset_inner {
+  # $1 -- asset name
+  # $2 -- version
+  # $3 -- bundle
+  # $4 -- type
+  # $5 -- json (file-path)
+
+  local name="$1"
+  local version="$2"
+  local bundle="$3"
+  local type="$4"
+  local json="$5"
+
+  if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
+    invoke=$(cat "$__data/data/assets/$type/$name/$version/invoke")
+    if [ "$invoke" = 'null' ]; then
+      invoke=''
+    fi
+    if [ "$type" = 'utility' ]; then
+      if [[ "$invoke" =~ \.app ]]; then
+        # Call Gatekeeper for the utility on if '.app' is in the name
+        bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$name.app"  > /dev/null
+        status=$?
+        [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
+      fi
+    fi
+    echo "$__data/data/assets/$type/$name/$version/$invoke"
+    if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
+      php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
+    fi
+    return 0
+  fi
+  # There is no JSON passed to us, so find it in the defaults.
+  if [ -z "$json" ]; then
+    json="$__data/bundler/meta/defaults/$name.json"
+  fi
+  # The $json variable should contain either the path to the default or the user-provided path.
+  if [ -f "$json" ]; then
+    # Take advantage of the PHP script to install the asset.
+    php "$__data/bundler/includes/installAsset.php" "$json" "$version"
+    if [ ! -z "$result" ]; then
+      echo "$result"
+      return 0
+    fi
+    if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
+      invoke=`cat "$__data/data/assets/$type/$name/$version/invoke"`
+      if [ "$invoke" = 'null' ]; then
+        invoke=''
+      fi
+      echo "$__data/data/assets/$type/$name/$version/$invoke"
+      if [[ ! -z "$bundle" ]] && [[ "$bundle" != '..' ]]; then
+        php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
+      fi
+      if [ $type = 'utility' ]; then
+        if [ ! -z "$invoke" ]; then
+          if [[ "$invoke" =~ \.app ]]; then
+            # Call Gatekeeper for the utility on if '.app' is in the name
+            bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$invoke" > /dev/null
+            status=$?
+            [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
+          fi
+        fi
+      fi
+      return 0
+    fi
+  else
+    echo "JSON file does not exist : $json"
+    return 1
+  fi
+  echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know."
+  return 1
+}
+
+################################################################################
+### End Asset Functions
+################################################################################
 
 ################################################################################
 ### Functions to support icon manipulation
@@ -394,305 +747,3 @@ function Math::dec_to_hex() {
 ################################################################################
 ### End Math Functions
 ################################################################################
-
-function AlfredBundler::icon() {
-
-  local font
-  local name
-  local color
-  local alter
-  local icon_server
-  local icon_dir
-  local icon_path
-  local status
-  local url
-
-  # Set font name
-  if [ ! -z "$1" ]; then
-    font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
-  else
-    # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
-    return 1
-  fi
-
-  # Set icon name
-  if [ ! -z "$2" ]; then
-    name="$2"
-  else
-    # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
-    return 1
-  fi
-
-  # Take care of the system font first
-  if [ "${font}" == "system" ]; then
-    if [ -f "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns" ]; then
-      echo "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/${name}.icns"
-      return 0
-    else
-      echo "ERROR: System icon '${name}' not found" >&2
-      return 0
-    fi
-  fi
-
-  # Set color or default to black
-  if [ ! -z "$3" ]; then
-    color="$3"
-  else
-    color="000000"
-  fi
-
-  # Normalize and check the color for valid hex
-  color=$(AlfredBundler::check_hex "${color}")
-  # If not a valid hex, then return 0
-  [[ $? -ne 0 ]] && return 1
-
-  # See if the alter variable is set
-  if [ ! -z "$4" ]; then
-    alter="$4"
-  elif [[ -z "$3" ]] && [[ -z "$4" ]]; then
-    alter="TRUE"
-  else
-    alter="FALSE"
-  fi
-
-  if [[ "${alter}" == "TRUE" ]]; then
-    color=$(AlfredBundler::alter_color ${color} TRUE)
-  elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
-    color=$(AlfredBundler::alter_color ${color} ${alter})
-  fi
-
-  # For now we're hardcoding this, but we should cycle through the icons
-  icon_server='http://icons.deanishe.net/icon'
-  icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
-  icon_path="${icon_dir}/${name}.png"
-
-  if [[ -f "${icon_path}" ]]; then
-    echo "${icon_path}"
-    return 0
-  fi
-
-  # Make the icon directory if it doesn't exist
-  [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
-
-  # Download icon from web service and cache it
-  url="${icon_server}/${font}/${color}/${name}"
-  curl -fsSL "${url}" > "${icon_path}"
-  status=$?
-
-  if [[ $status -eq 0 ]]; then
-    echo "${icon_path}"
-  else
-    # Delete empty/corrupt file if it exists
-    [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
-    # Output the error to STDERR
-    echo "Error retrieving ${url}. cURL exited with ${status}" >&2
-  fi
-  return $status
-}
-
-# Caching wrapper around the real function
-function AlfredBundler::load {
-  # $1 -- type
-  # $2 -- asset name
-  # $3 -- version
-  # $4 -- json (file-path)
-
-  # We need two arguments at minimum
-  if [ "$#" -lt 2 ]; then
-    # Send message to STDERR
-    echo "Error: the load function requires a minimum of two arguments" >&2
-    return 1
-  fi
-
-  # Keep the variables local so as not to interfere with the rest of the script  
-  local type
-  local name
-  local version
-  local json
-  local bundle
-  local asset
-  local status
-
-  # Grab the arguments
-  type="$1"
-  name="$2"
-  version="$3"
-  json="$4"
-
-  # Set the version to default if not specified
-  [[ -z "${version}" ]] && version="default"
-
-  # Check to make sure that the json file exists
-  if [ -z "${json}" ]; then
-    if [ -f "${AB_DATA}/bundler/meta/defaults/${name}.json" ]; then
-      # The json file is a default
-      json="${AB_DATA}/bundler/meta/defaults/${name}.json"
-    else
-      # Send error message to STDERR
-      echo "Error: no valid JSON file found. This is a problem with the "\
-           "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." >&2
-      return 1
-    fi
-  else
-    # Trying to use custom json
-    if [ ! -f "${json}" ]; then
-      # json file does not exist; send error message to STDERR
-      echo "Error: no valid JSON file found. This is a problem with the "\
-           "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." >&2
-      return 1
-    fi
-  fi
-
-  # Grab the bundle id.
-  if [ -f 'info.plist' ]; then
-    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' 'info.plist')
-  elif [ -f '../info.plist' ]; then
-    bundle=$(/usr/libexec/PlistBuddy -c 'print :bundleid' '../info.plist')
-  fi
-
- # asset=$(AlfredBundler::load_asset "${type}" "${name}" "${version}" "${bundle}" "${json}")
- # status=$?
- # echo "${asset}"
- # exit "${status}"
-
- 
-
- #  local type="$1"
- #  local name="$2"
- #  local version="$3"
- #  local bundle="$4"
- #  local json="$5"
-
-  if [ "${type}" != "utility" ]; then
-    # There shouldn't be too many things that the bash bundler should need from here...
-    # but, why not?
-    if [ -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
-      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
-      return 0
-    else
-      #Install the asset
-      a=0
-    fi
-  fi
-
-  # If we're here, we're looking for a utility
-
-    echo "We need to check cache paths, etc..."
-
-    status=0
-    return $status
-
-
-  echo "Nothing found"
-  return 1
-
-  local cachepath
-  local key
-  local path
-  local status
-
-
-  # Other assets
-  #------------------------------------------------------------
-
-  # Cache path for this call
-  key=$(md5 -q -s "${name}-${version}-${type}-${json}")
-  cachepath="${bd_asset_cache}/${key}"
-
-  # Load result from cache if it exists
-  if [[ -f "${cachepath}" ]]; then
-    path=$(cat "${cachepath}")
-    if [[ -f "${path}" ]] || [[ -d "${path}" ]]; then
-      echo "$path"
-      return 0
-    fi
-  fi
-
-  # Create cache directory if it doesn't exist
-  [[ ! -d "${bd_asset_cache}" ]] && mkdir -p "${bd_asset_cache}"
-
-  # No valid cache, call real function and cache that result
-  path=$(AlfredBundler::load_asset_inner "${name}" "${version}" "${bundle}" "${type}" "${json}")
-  status=$?
-  [[ $status -gt 0 ]] && return $status
-  echo "${path}" > "${cachepath}"
-  echo "${path}"
-  return 0
-}
-
-function AlfredBundler::load_asset_inner {
-  # $1 -- asset name
-  # $2 -- version
-  # $3 -- bundle
-  # $4 -- type
-  # $5 -- json (file-path)
-
-  local name="$1"
-  local version="$2"
-  local bundle="$3"
-  local type="$4"
-  local json="$5"
-
-  if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
-    invoke=$(cat "$__data/data/assets/$type/$name/$version/invoke")
-    if [ "$invoke" = 'null' ]; then
-      invoke=''
-    fi
-    if [ "$type" = 'utility' ]; then
-      if [[ "$invoke" =~ \.app ]]; then
-        # Call Gatekeeper for the utility on if '.app' is in the name
-        bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$name.app"  > /dev/null
-        status=$?
-        [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
-      fi
-    fi
-    echo "$__data/data/assets/$type/$name/$version/$invoke"
-    if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
-      php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
-    fi
-    return 0
-  fi
-  # There is no JSON passed to us, so find it in the defaults.
-  if [ -z "$json" ]; then
-    json="$__data/bundler/meta/defaults/$name.json"
-  fi
-  # The $json variable should contain either the path to the default or the user-provided path.
-  if [ -f "$json" ]; then
-    # Take advantage of the PHP script to install the asset.
-    php "$__data/bundler/includes/installAsset.php" "$json" "$version"
-    if [ ! -z "$result" ]; then
-      echo "$result"
-      return 0
-    fi
-    if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
-      invoke=`cat "$__data/data/assets/$type/$name/$version/invoke"`
-      if [ "$invoke" = 'null' ]; then
-        invoke=''
-      fi
-      echo "$__data/data/assets/$type/$name/$version/$invoke"
-      if [[ ! -z "$bundle" ]] && [[ "$bundle" != '..' ]]; then
-        php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
-      fi
-      if [ $type = 'utility' ]; then
-        if [ ! -z "$invoke" ]; then
-          if [[ "$invoke" =~ \.app ]]; then
-            # Call Gatekeeper for the utility on if '.app' is in the name
-            bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$invoke" > /dev/null
-            status=$?
-            [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
-          fi
-        fi
-      fi
-      return 0
-    fi
-  else
-    echo "JSON file does not exist : $json"
-    return 1
-  fi
-  echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know."
-  return 1
-}
