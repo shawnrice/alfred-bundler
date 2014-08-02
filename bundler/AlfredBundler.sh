@@ -54,6 +54,7 @@ function AlfredBundler::icon() {
       return 0
     else
       echo "ERROR: System icon '${name}' not found" >&2
+      echo "${AB_DATA}/bundler/meta/icons/default.icns"
       return 0
     fi
   fi
@@ -70,23 +71,23 @@ function AlfredBundler::icon() {
   # If not a valid hex, then return 0
   [[ $? -ne 0 ]] && return 1
 
+
+
   # See if the alter variable is set
   if [ ! -z "$4" ]; then
-    alter="$4"
+    alter=$(echo "$4" | tr [[:lower:]] [[:upper:]])
   elif [[ -z "$3" ]] && [[ -z "$4" ]]; then
     alter="TRUE"
   else
     alter="FALSE"
   fi
 
+  
   if [[ "${alter}" == "TRUE" ]]; then
     color=$(AlfredBundler::alter_color ${color} TRUE)
   elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
     color=$(AlfredBundler::alter_color ${color} ${alter})
   fi
-
-
-
   
   icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
   icon_path="${icon_dir}/${name}.png"
@@ -99,42 +100,39 @@ function AlfredBundler::icon() {
   # Make the icon directory if it doesn't exist
   [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
 
-
-  
-  # 
-
-  # i=0
-  # icon_servers=$(cat meta/icon_servers)
-  # len=${#icon_servers[@]}
-  # success=0  
-
-  # # Loop through the bundler servers until we get one that works
-  # while [[ $i -lt $len ]]; do
-  #   curl -fsSL --connect-timeout 4 "${icon-servers[$i]}" > "${icon_path}"
-  #   status=$?
-
-  #   [[ $? -eq 0 ]] && success=1 && break || echo "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" >&2
-  #   success=0
-
-  #   : $[ i++ ]
-  # done;
+  i=0
+  icon_servers=$(cat "${AB_DATA}/bundler/meta/icon_servers")
+  len=${#icon_servers[@]}
+  success="FALSE"  
 
   # For now we're hardcoding this, but we should cycle through the icons
-  icon_server='http://icons.deanishe.net/icon'
+  # icon_server='http://icons.deanishe.net/icon'
   # Download icon from web service and cache it
-  url="${icon_server}/${font}/${color}/${name}"
-  curl -fsSL "${url}" > "${icon_path}"
-  status=$?
+  # Loop through the bundler servers until we get one that works
+  while [[ $i -lt $len ]]; do
+    # Try to download the icon from the server, but give up if we cannot connect
+    # in less than two seconds.
+    curl -fsSL --connect-timeout 2 "${icon_servers[$i]}/icon/${font}/${color}/${name}" > "${icon_path}"
+    status=$?
+    if [[ $status -eq 0 ]]; then
+      success="TRUE"
+      break
+    else 
+      echo "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" >&2
+      [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
+      success="FALSE"
+    fi
+    : $[ i++ ]
+  done;
 
-  if [[ $status -eq 0 ]]; then
+  # Here, we're doing a post-mortem to make sure that we got through to one
+  # of the icon servers
+  if [[ $success == "TRUE" ]]; then
     echo "${icon_path}"
   else
-    # Delete empty/corrupt file if it exists
-    [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
-    # Output the error to STDERR
-    echo "Error retrieving ${url}. cURL exited with ${status}" >&2
+    echo "${AB_DATA}/bundler/meta/icons/default.png"
+    return 1
   fi
-  return $status
 
 } # End AlfredBundler::icon
 
@@ -342,78 +340,6 @@ function AlfredBundler::utility() {
   return 1
 } # End AlfredBundler::utility
 
-function AlfredBundler::load_asset_inner {
-  # $1 -- asset name
-  # $2 -- version
-  # $3 -- bundle
-  # $4 -- type
-  # $5 -- json (file-path)
-
-  local name="$1"
-  local version="$2"
-  local bundle="$3"
-  local type="$4"
-  local json="$5"
-
-  if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
-    invoke=$(cat "$__data/data/assets/$type/$name/$version/invoke")
-    if [ "$invoke" = 'null' ]; then
-      invoke=''
-    fi
-    if [ "$type" = 'utility' ]; then
-      if [[ "$invoke" =~ \.app ]]; then
-        # Call Gatekeeper for the utility on if '.app' is in the name
-        bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$name.app"  > /dev/null
-        status=$?
-        [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
-      fi
-    fi
-    echo "$__data/data/assets/$type/$name/$version/$invoke"
-    if [[ ! -z $bundle ]] && [[ $bundle != '..' ]]; then
-      php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
-    fi
-    return 0
-  fi
-  # There is no JSON passed to us, so find it in the defaults.
-  if [ -z "$json" ]; then
-    json="$__data/bundler/meta/defaults/$name.json"
-  fi
-  # The $json variable should contain either the path to the default or the user-provided path.
-  if [ -f "$json" ]; then
-    # Take advantage of the PHP script to install the asset.
-    php "$__data/bundler/includes/installAsset.php" "$json" "$version"
-    if [ ! -z "$result" ]; then
-      echo "$result"
-      return 0
-    fi
-    if [ -f "$__data/data/assets/$type/$name/$version/invoke" ]; then
-      invoke=`cat "$__data/data/assets/$type/$name/$version/invoke"`
-      if [ "$invoke" = 'null' ]; then
-        invoke=''
-      fi
-      echo "$__data/data/assets/$type/$name/$version/$invoke"
-      if [[ ! -z "$bundle" ]] && [[ "$bundle" != '..' ]]; then
-        php "$__data/bundler/includes/registry.php" "$bundle" "$name" "$version" > /dev/null &
-      fi
-      if [ $type = 'utility' ]; then
-        if [ ! -z "$invoke" ]; then
-          if [[ "$invoke" =~ \.app ]]; then
-            # Call Gatekeeper for the utility on if '.app' is in the name
-            bash "$__data/bundler/includes/gatekeeper.sh" "$name" "$__data/data/assets/$type/$name/$version/$invoke" > /dev/null
-            status=$?
-            [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
-          fi
-        fi
-      fi
-      return 0
-    fi
-  else
-    echo "JSON file does not exist : $json"
-    return 1
-  fi
-  echo "You've encountered a problem with the __implementation__ of the Alfred Bundler; please let the workflow author know."
-  return 1
-}
 
 ################################################################################
 ### End Asset Functions
@@ -792,7 +718,8 @@ function Math::hex_to_dec() {
 
 function Math::dec_to_hex() {
   local dec
-  dec=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  dec=$(echo "${1}" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
+  dec=$(echo "${dec%\.*}")
   echo "obase=16; ${dec}" | bc
 }
 
