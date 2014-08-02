@@ -326,7 +326,20 @@ function AlfredBundler::load {
 } # End AlfredBundler::load
 
 function AlfredBundler::utility() {
-a=1
+  local name
+  local version
+  local json
+
+  name="$1"
+  version="$2"
+  json="$3"
+
+  [[ -z "${version}" ]] && version='default'
+
+  path=$(AlfredBundler::load utility "${name}" "${version}" "${json}")
+  status=$?
+  [[ $status -eq 0 ]] && echo ${path} && return 0
+  return 1
 } # End AlfredBundler::utility
 
 function AlfredBundler::load_asset_inner {
