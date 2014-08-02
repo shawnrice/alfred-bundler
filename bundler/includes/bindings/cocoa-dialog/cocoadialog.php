@@ -18,7 +18,7 @@
  * Build the CocoaDialog client:
  *
  *     include('cocoadialog');
- *     $client = new CocoaDialog('path to CocoaDialog.app or exec', $debug=Boolean)
+ *     $client = new CocoaDialog('path to CocoaDialog.app or exec', $debug=Boolean);
  *     
  * Now that you have access to the client, you can call specific dialogs:
  *
@@ -26,7 +26,7 @@
  *         'title'=>'My Message Box',
  *         'text'=>'Hello, World!',
  *         'button1'=>'Ok', 'button2'=>'Cancel',
- *         'informative_text'=>'Your information here...'
+ *         'informative_text'=>'Your information here...',
  *         'icon'=>'home',
  *         'string_output'=>True]);
  *
