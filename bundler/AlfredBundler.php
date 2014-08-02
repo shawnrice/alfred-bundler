@@ -870,9 +870,35 @@ class AlfredBundlerInternalClass {
    * @param  {string} $message message to write to log
    * @return {[type]}          [description]
    */
-  private function logInternal( $log, $message ) {
+  private function logInternal( $log, $message, $level = 'INFO' ) {
 
     $log = "{$this->data}/data/logs/{$log}.log";
+
+    // These are the appropriate log levels
+    $logLevels = array( 0 => 'INFO',
+                        1 => 'WARNING',
+                        2 => 'STRICT WARNING',
+                        3 => 'RECOVERABLE ERROR',
+                        4 => 'ERROR',
+    );
+
+    // We'll convert the log level to a string; if the level is not available,
+    // then we'll default to INFO
+    if ( is_int( $level ) ) {
+      if ( isset( $logLevels[ $level ] ) ) {
+        $level = $logLevels[ $level ];
+      } else {
+        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    } else if ( is_string( $level ) ) {
+      if ( ! in_array( $level, $logLevels ) ) {
+        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    }
 
     // Set date/time to avoid warnings/errors.
     if ( ! ini_get('date.timezone') ) {
@@ -899,7 +925,7 @@ class AlfredBundlerInternalClass {
 
     }
 
-    $message = date( "[D M d H:i:s T Y] " ) . $message;
+    $message = date( "[D M d H:i:s T Y] " ) . "[{$level}]". $message;
     array_unshift( $file, $message );
 
     file_put_contents( $log, implode( PHP_EOL, $file ) );
