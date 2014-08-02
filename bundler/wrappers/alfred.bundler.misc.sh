@@ -166,6 +166,12 @@ function main() {
 
 main
 
-# <type>, <name>, <version>, <json (optional)>
-AlfredBundler::load "$1" "$2" "$3" "$4"
-exit $?
+if [ "$1" == "icon" ]; then
+  # <font> <icon> <color (optional)> <alter (optional)>
+  AlfredBundler::icon "$2" "$3" "$4" "$5"
+  exit $?
+else
+  # <type>, <name>, <version>, <json (optional)>
+  AlfredBundler::load "$1" "$2" "$3" "$4"
+  exit $?
+fi
