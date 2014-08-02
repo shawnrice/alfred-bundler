@@ -84,10 +84,17 @@ class AlfredBundler {
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
 
       // Have a fallback on this one
-      if ( $plist === FALSE )
-        $this->plist = __DIR__ . '/info.plist';
-      else
+      if ( $plist === FALSE ) {
+        if ( file_exists( 'info.plist' ) ) {
+          $this->plist = 'info.plist';
+        } else if ( file_exists( '../info.plist' ) ) {
+          $this->plist = '../info.plist';
+        } else {
+          $this->plist = '';
+        }
+      } else {
         $this->plist = "$plist";
+      }
 
       if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
           require_once( __DIR__ . '/../AlfredBundler.php' );

@@ -103,9 +103,14 @@ class AlfredBundlerInternalClass {
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
-    $this->plist  = $plist;
+    
+    if ( file_exists( $plist ) ) {
+      $this->plist  = $plist;
+    } else {
+      $this->plist = '';
+    }
 
-    if ( $plist ) {
+    if ( ! empty( $plist ) ) {
       $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
       $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
     } else {
@@ -913,7 +918,7 @@ class AlfredBundlerInternalClass {
     if ( ! isset( $this->bundle ) || empty( $this->bundle ) ) {
       file_put_contents( 'php://stderr', 
         "BundlerError: a valid Bundle ID is needed to use the bundler's log " .
-        "function" );
+        "function" . PHP_EOL );
       return 0;
     }
 
