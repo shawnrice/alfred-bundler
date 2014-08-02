@@ -40,7 +40,7 @@ function AlfredBundler::load {
  # $4 -- json    : optional, path to json file
  
 
- 
+  a=0
   # Function is empty here because it is overridden in the backend.
 }
 
@@ -61,6 +61,7 @@ function AlfredBundler::icon() {
   # Example: icon2=$(AlfredBundler::icon system Accounts)
   # Return value: /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/Accounts.icns
 
+  a=0
   # Function is empty here because it is overridden in the backend.
 }
 
@@ -74,6 +75,7 @@ function AlfredBundler::utility() {
 
   # Returns the path to the utility (after downloading it, if necessary).
 
+  a=0
   # Function is empty here because it is overridden in the backend.
 }
 
@@ -163,7 +165,8 @@ function main() {
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
   else
-    . "${AB_DATA}/bundler/AlfredBundler.sh"
+    . "alfred-bundler/bundler/AlfredBundler.sh"
+    # . "${AB_DATA}/bundler/AlfredBundler.sh" # Commented out for testing purposes
   fi  
 }
 

@@ -7,6 +7,7 @@
  * 
  */
 
+
 if ( count( $argv ) < 2 ) {
 	echo "Usage: </path/to/file.json> <key>";
 	exit( 1 );

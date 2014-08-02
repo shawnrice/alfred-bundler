@@ -24,16 +24,16 @@ me="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
 # Define the global bundler version.
 major_version=$(cat "${me}/meta/version_major")
 
+if [[ -z "$1" ]] || [[ -z "$2" ]]; then
+  echo "ERROR: Use with args 'name' 'path'."
+  exit 1
+fi
+
 name="$1"     # Name of utility
 path="$2"     # Full path to utility
 message="$3"  # Description of what the utility does
 icon="$4"     # Icon file to create
 bundle="$5"   # Bundle ID for icns file
-
-if [[ -z "$1" ]] || [[ -z "$2" ]]; then
-  echo "ERROR: Use with args 'name' 'path'."
-  exit 1
-fi
 
 version=`sw_vers -productVersion`
 data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
@@ -54,7 +54,7 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
     gatekeeper=`spctl -a "${path}" > /dev/null 2>&1; echo $?`
     # gatekeeper=`spctl --list --label "$label" > /dev/null 2>&1; echo $?`
     if [[ $gatekeeper -eq 0 ]]; then
-      echo "okay"
+      echo "BundlerInfo: (Gatekeeper) ${name} at (${path}) already whitelisted"
       exit 0
     fi
   fi
@@ -118,7 +118,7 @@ response=$(osascript -e "${script}")
 
 if [[ $response =~ "Deny" ]]; then
   # The user has denied access to the app, so we're going to, well, exit and die.
-  echo "denied"
+  echo "User denied whitelisting application in Gatekeeper script." >&2
   exit 1
 fi
 
@@ -129,7 +129,7 @@ if [ $gatekeeper -eq 1 ]; then
   # No label was found, so we'll add one then enable it.
   status=$(spctl --add --label "alfred-bundle-${name}" "${path}" > /dev/null 2>&1; spctl --enable --label "alfred-bundle-${name}"; echo $?)
   if [[ $status -eq 1 ]]; then
-    echo "denied"
+    echo "User denied whitelisting application in Gatekeeper script." >&2
     exit 1
   fi
 fi

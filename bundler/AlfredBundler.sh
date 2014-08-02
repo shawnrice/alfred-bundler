@@ -242,6 +242,8 @@ function AlfredBundler::load {
     fi
   fi
 
+
+
   # While not all utilities need gatekeeper, launching the php script that checks
   # if it needs gatekeeper adds extra time. So, we'll cache the paths for all
   # utilities regardless of whether or not they need gatekeeper.
@@ -268,7 +270,7 @@ function AlfredBundler::load {
   fi
 
   # Read the gatekeeper flag in the json
-  gatekeeper=$(php includes/read-json.php "${json}" gatekeeper | tr [[:upper:]] [[:lower:]])
+  gatekeeper=$(php "${AB_DATA}/bundler/includes/read-json.php" "${json}" gatekeeper | tr [[:upper:]] [[:lower:]])
 
   if [ "${gatekeeper}" == "false" ]; then
     path="${AB_DATA}/data/assets/${type}/${name}/${version}"
@@ -283,12 +285,6 @@ function AlfredBundler::load {
     echo "${path}"
     return 0
   else
-    # do gatekeeper stuff here
-    status=$?
-    [[ $status -gt 0 ]] && return $status
-    echo "${path}" > "${cache_path}"
-    echo "${path}"
-    return 0
 
     # Try to find the icon, if there is one
     # Theoretically, this function is being run by a script in the workflow's
@@ -298,12 +294,16 @@ function AlfredBundler::load {
     [[ -f 'icon.png' ]] && icon=$(pwd -P)"/icon.png"
     [[ -f '../icon.png' ]] && icon=$(pwd -P)"/../icon.png"
 
+    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
+    path="${path}/"$(cat "${path}/invoke")
+
     # Call gatekeeper
-    bash "${AB_DATA}/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+    # bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+    bash "alfred-bundler/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+
     # get response and do the rest of the handling.
     status=$?
     [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
-    
     # If we're here, then the user whitelisted the application.
     path="${AB_DATA}/data/assets/${type}/${name}/${version}"
     path="${path}/"$(cat "${path}/invoke")

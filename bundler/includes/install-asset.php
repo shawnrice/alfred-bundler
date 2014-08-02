@@ -25,7 +25,6 @@ else
   $version = $argv[2];
 
 if ( $b->installAsset( $json, $version ) ) {
-  echo "Success";
   exit( 0 );
 } else {
   // Output the error to STDERR.
