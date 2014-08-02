@@ -7,30 +7,20 @@ A utility for to help Alfred 2 workflows manage shared dependencies.
 
 ## [See documentation](https://shawnrice.github.io/alfred-bundler)
 
-
 ## Versioning
-I hate [astrology](http://en.wikipedia.org/wiki/Zodiac), so I'm using the Zodiac
-signs for major releases. Hence, the schedule, which I don't expect to get far
-down will be:
-  1. __Aries__ (current)
-  2. _Taurus_ (in development)
-  3. Gemini
-  4. Cancer
-  5. Leo
-  6. Virgo
-  7. Libra
-  8. Scorpio
-  9. Sagittarius
-  10. Capricorn
-  11. Aquarius
-  12. Pisces
+See [the wiki page](https://github.com/shawnrice/alfred-bundler/wiki/Versioning) for more details on bundler versions.
+
 
 Copyright (C) 2014 Shawn Patrick Rice
+
+## Reporting Issues
+Help us understand you issues a bit better by looking at [this wiki page](https://github.com/shawnrice/alfred-bundler/wiki/Reporting-Issues) first.
 
 ## Contributors
 
 * [Shawn Patrick Rice](https://github.com/shawnrice)
 * [Dean Jackson](https://github.com/deanishe)
+* [Stephen Bunn](https://github.com/Ritashugisha)
 
 ## Coding Standards
 
