@@ -298,8 +298,7 @@ function AlfredBundler::load {
     path="${path}/"$(cat "${path}/invoke")
 
     # Call gatekeeper
-    # bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
-    bash "alfred-bundler/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+    bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
 
     # get response and do the rest of the handling.
     status=$?
