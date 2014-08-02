@@ -22,7 +22,7 @@
  *     
  * Now that you have access to the client, you can call specific dialogs:
  *
- *     $my_message_box = $client.msgbox([
+ *     $my_message_box = $client->msgbox([
  *         'title'=>'My Message Box',
  *         'text'=>'Hello, World!',
  *         'button1'=>'Ok', 'button2'=>'Cancel',
