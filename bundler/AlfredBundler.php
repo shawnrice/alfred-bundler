@@ -330,7 +330,7 @@ class AlfredBundlerInternalClass {
         require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
         return TRUE;
       } else {
-        $this->log( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
+        $this->logInternal( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
         return FALSE;
       }
     }
@@ -352,10 +352,12 @@ class AlfredBundlerInternalClass {
     // If the requester is asking for a system icon, then see if it exists, if so
     // return it, otherwise, return FALSE.
     if ( $font == 'system' || $font == 'System' ) {
-      if ( file_exists( "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns" ) )
+      if ( file_exists( "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns" ) ) {
         return "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns";
-      else
-        return FALSE;
+      } else {
+        file_put_contents( 'php://stderr', "BundlerError: system icon '${name}' does not exist." );
+        return "{$this->data}/bundler/meta/icons/default.icns"; // return the fallback icon
+      }
     }
 
     if ( empty( $color ) ) {
@@ -486,7 +488,7 @@ class AlfredBundlerInternalClass {
     if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
       if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
         echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version.'";
-        $this->log( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
+        $this->logInternal( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
         return FALSE;
       } else {
         $version = 'default';
@@ -521,7 +523,7 @@ class AlfredBundlerInternalClass {
     }
     // Add in the invoke file
     file_put_contents( "{$installDir}/invoke", $invoke );
-    $this->log( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
+    $this->logInternal( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
     return TRUE;
   }
 
@@ -863,7 +865,7 @@ class AlfredBundlerInternalClass {
    * @param  {string} $message message to write to log
    * @return {[type]}          [description]
    */
-  private function log( $log, $message ) {
+  private function logInternal( $log, $message ) {
 
     $log = "{$this->data}/data/logs/{$log}.log";
 
@@ -892,9 +894,94 @@ class AlfredBundlerInternalClass {
 
     }
 
-    $message = date( "D M d H:i:s T Y -- " ) . $message;
+    $message = date( "[D M d H:i:s T Y] " ) . $message;
     array_unshift( $file, $message );
 
+    file_put_contents( $log, implode( PHP_EOL, $file ) );
+  }
+
+  /**
+   * Prepends a datestamped message to a log file
+   *
+   * @param  {string} $message message to write to log
+   * @param  {string} $log     name of log file
+   * @param  {mixed}  $level   log level 
+   */
+  public function log( $message, $level = 0, $log = 'info' ) {
+
+    // This function is available only to valid workflows with Bundle IDs
+    if ( ! isset( $this->bundle ) || empty( $this->bundle ) ) {
+      file_put_contents( 'php://stderr', 
+        "BundlerError: a valid Bundle ID is needed to use the bundler's log " .
+        "function" );
+      return 0;
+    }
+
+    // These are the appropriate log levels
+    $logLevels = array( 0 => 'INFO',
+                        1 => 'WARNING',
+                        2 => 'STRICT WARNING',
+                        3 => 'RECOVERABLE ERROR',
+                        4 => 'ERROR',
+    );
+
+    // We'll convert the log level to a string; if the level is not available,
+    // then we'll default to INFO
+    if ( is_int( $level ) ) {
+      if ( isset( $logLevels[ $level ] ) {
+        $level = $logLevels[ $level ];
+      } else {
+        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    } else if ( is_string( $level ) ) {
+      if ( ! in_array( $level, $logLevels ) ) {
+        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    }
+
+    $logBase = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/" .
+      "Workflow Data/{$this->bundle}/logs";
+
+    // Make the directory if it doesn't exist
+    if ( ! file_exists( $logBase ) )
+      mkdir( $logBase, 0775, TRUE );
+
+    // Define the log file
+    $log = "{$logBase}/{$log}.log";
+
+    // Set date/time to avoid warnings/errors.
+    if ( ! ini_get('date.timezone') ) {
+      $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+      ini_set( 'date.timezone', $tz );
+    }
+
+    if ( ! file_exists( $log ) ) {
+        $file = array();
+    } else {
+      // This is needed because, Macs don't read EOLs well.
+      if ( ! ini_get( 'auto_detect_line_endings' ) )
+        ini_set( 'auto_detect_line_endings', TRUE );
+
+      $file = file( $log, FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES );
+
+      // Check if the logfile is longer than 5000 lines. If so, then trim the
+      // last line.
+      if ( count( $file ) >= 5000 ) {
+          unset( $file[4999] );
+      }
+    }
+
+    // Prepend the message with the date and log level
+    $message = date( "[D M d H:i:s T Y] [{$level}]: " ) . $message;
+
+    // Prepend the message to the log file
+    array_unshift( $file, $message );
+
+    // Write the log
     file_put_contents( $log, implode( PHP_EOL, $file ) );
   }
 
@@ -1013,7 +1100,7 @@ class AlfredBundlerInternalClass {
     // status).
     
     // Output the error to STDERR.
-    file_put_contents('php://stderr', "Error: '{$name}' is needed to properly run " .
+    file_put_contents('php://stderr', "Bundler Error: '{$name}' is needed to properly run " .
                                       "this workflow, and it must be whitelisted " .
                                       "for Gatekeeper. You either denied the " .
                                       " request, or another error occured with " .
