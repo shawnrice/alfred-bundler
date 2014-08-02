@@ -165,12 +165,8 @@ function main() {
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
   else
-    . "alfred-bundler/bundler/AlfredBundler.sh"
-    # . "${AB_DATA}/bundler/AlfredBundler.sh" # Commented out for testing purposes
+    . "${AB_DATA}/bundler/AlfredBundler.sh"
   fi  
 }
 
 main
-
-# Include the bundler.
-# . "${AB_DATA}/bundler/AlfredBundler.sh"
