@@ -976,7 +976,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Prepend the message with the date and log level
-    $message = date( "[D M d H:i:s T Y] [{$level}]: " ) . $message;
+    $message = date( "[D M d H:i:s T Y]" ) . " [{$level}]: ". $message;
 
     // Prepend the message to the log file
     array_unshift( $file, $message );
