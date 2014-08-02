@@ -928,7 +928,7 @@ class AlfredBundlerInternalClass {
     // We'll convert the log level to a string; if the level is not available,
     // then we'll default to INFO
     if ( is_int( $level ) ) {
-      if ( isset( $logLevels[ $level ] ) {
+      if ( isset( $logLevels[ $level ] ) ) {
         $level = $logLevels[ $level ];
       } else {
         file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
