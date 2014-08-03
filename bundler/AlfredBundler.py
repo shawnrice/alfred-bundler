@@ -80,6 +80,8 @@ css_colour = re.compile(r'[a-f0-9]+').match
 
 _workflow_bundle_id = None
 
+_log = None
+
 
 ########################################################################
 # Helper classes/functions
@@ -243,6 +245,8 @@ def _download_if_updated(url, filepath, ignore_missing=False):
     # Get previous ETag for this URL
     previous_etag = update_data.setdefault('etags', {}).get(url, None)
 
+    _log.debug('Opening URL `{}` ...'.format(url))
+
     response = urllib2.urlopen(url)
 
     if response.getcode() != 200:
@@ -256,6 +260,7 @@ def _download_if_updated(url, filepath, ignore_missing=False):
     if current_etag != previous_etag or force_download:
         with open(filepath, 'wb') as file:
             file.write(response.read())
+            _log.info('Saved `{}`'.format(filepath))
 
         update_data['etags'][url] = current_etag
         _save_update_metadata(update_data)
@@ -278,6 +283,7 @@ def _update():
 
     # Call bundler updater
     cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
+    _log.debug('Running command: {} ...'.format(cmd))
     proc = subprocess.Popen(cmd)
 
     _install_pip()
@@ -288,8 +294,8 @@ def _update():
     # Wait for `update.sh` to complete
     retcode = proc.wait()
     if retcode:
-        print('Error updating bundler. `update.sh` returned {}'.format(
-              retcode), file=sys.stderr)
+        _log.error('Error updating bundler. `update.sh` returned {}'.format(
+                   retcode))
 
     update_data = _load_update_metadata()
     update_data['updated'] = time.time()
@@ -322,6 +328,8 @@ def _install_pip():
                     shutil.rmtree(p)
 
         cmd = ['/usr/bin/python', installer_path, '--target', HELPER_DIR]
+
+        _log.debug('Running command: {} ...'.format(cmd))
 
         subprocess.check_output(cmd)
 
@@ -368,6 +376,9 @@ def logger(name, logpath=None):
     :returns: Configured ``~logging.Logger`` object
 
     """
+
+    if name == 'bundler' and logpath is None:
+        logpath = os.path.join(DATA_DIR, 'logs', 'python.log')
 
     if not logpath:
         logpath = os.path.join(
@@ -441,6 +452,7 @@ def icon(font, icon, color='000000', alter=True):
         os.makedirs(icondir, 0755)
 
     url = API_URL.format(font=font, color=color, icon=icon)
+    _log.debug('Retrieving URL `{}` ...'.format(url))
     urlretrieve(url, path)
 
     return path
@@ -570,3 +582,5 @@ def init(requirements=None):
 
     # Add workflow library directory to front of `sys.path`
     sys.path.insert(0, install_dir)
+
+_log = logger('bundler')
