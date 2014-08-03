@@ -429,7 +429,7 @@ class CocoaDialog:
                 if self.debug:
                     # Debug: $process_list
                     self.log.info(process)
-                return self._run_subprocess(process).split('\n')[:-1]
+                return self._run_subprocess(process).split('\n')[0:-1]
             except IndexError:
                 # Previous problem that should have been eliminated. \
                 # I'll leave it in as a catch all (just in case)
@@ -469,7 +469,7 @@ class CocoaDialog:
         _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             _passed = self._format_notify(_passed)
-            return self._display(custom_options['dialog_name'], _passed)
+            self._display(custom_options['dialog_name'], _passed)
 
     def notify(self, **_passed):
         """Updated version of `bubble`.
@@ -504,7 +504,7 @@ class CocoaDialog:
         _passed = self._format_passed(_passed)
         if self._valid_options(_passed, custom_options):
             _passed = self._format_notify(_passed)
-            return self._display(custom_options['dialog_name'], _passed)
+            self._display(custom_options['dialog_name'], _passed)
 
     def checkbox(self, **_passed):
         """Dialog type `checkbox`.

@@ -387,8 +387,7 @@ class CocoaDialog {
                 $this->log('info', __FUNCTION__, __LINE__, implode( ' ', $process ) );
                 $dialog = explode( "\n", $this->_run_subprocess( implode( ' ', $process ) ) );
                 unset( $dialog[count($dialog) - 1] );
-                $dialog = implode( ' ', $dialog );
-                return explode( ' ', $dialog );
+                return $dialog;
             } catch ( Exception $e ) {
                 $this->log( 'critical', __FUNCTION__, __LINE__, $e );
             }
@@ -428,7 +427,7 @@ class CocoaDialog {
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             $_valid[1] = $this->_format_passed( $_valid[1] );
-            return $this->_display( __FUNCTION__, $_valid[1] );
+            $this->_display( __FUNCTION__, $_valid[1] );
         }
     }
 
@@ -461,7 +460,7 @@ class CocoaDialog {
         $_valid = $this->_valid_options( $_passed, $custom_options );
         if ( $_valid[0] ) {
             $_valid[1] = $this->_format_passed( $_valid[1] );
-            return $this->_display( __FUNCTION__, $_valid[1] );
+            $this->_display( __FUNCTION__, $_valid[1] );
         }
     }
 

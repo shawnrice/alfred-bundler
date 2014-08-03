@@ -267,7 +267,7 @@ class CocoaDialog
         if process.class.eql?(Array)
             process = process.join(' ')
         end
-        return exec(process)
+        return `#{process}`
     end
 
     # Validate passed dialog arguments.
@@ -377,7 +377,7 @@ class CocoaDialog
         end
         unless return_process
             self.class.log('info', __method__, __LINE__, @process)
-            return _run_subprocess(@process.join(' ')).split("\n")[0...-1]
+            return _run_subprocess(@process.join(' ')).split("\n")
         else
             return @process
         end
@@ -389,7 +389,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def bubble(_passed)
+    def bubble(**_passed)
         custom_options = {
             'no_timeout' => [TrueClass, FalseClass],
             'alpha' => [Fixnum, Float],
@@ -409,7 +409,7 @@ class CocoaDialog
         _passed = self.class._passed_lower(_passed)
         if _valid_options(_passed, custom_options)
             _passed = self._format_notify(_passed)
-            return _display(__method__, _passed)
+            _display(__method__, _passed)
         end
     end
 
@@ -419,7 +419,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def notify(_passed)
+    def notify(**_passed)
         custom_options = {
             'no_timeout' => [TrueClass, FalseClass],
             'description' => [String],
@@ -441,7 +441,7 @@ class CocoaDialog
         _passed = self.class._passed_lower(_passed)
         if _valid_options(_passed, custom_options)
             _passed = self._format_notify(_passed)
-            return _display(__method__, _passed)
+            _display(__method__, _passed)
         end
     end
 
@@ -451,7 +451,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def checkbox(_passed)
+    def checkbox(**_passed)
         custom_options = {
             'label' => [String],
             'checked' => [Array],
@@ -480,7 +480,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def radio(_passed)
+    def radio(**_passed)
         custom_options = {
             'label' => [String],
             'selected' => [Fixnum],
@@ -509,7 +509,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def slider(_passed)
+    def slider(**_passed)
         custom_options = {
             'label' => [String],
             'always_show_value' => [TrueClass, FalseClass],
@@ -542,7 +542,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def msgbox(_passed)
+    def msgbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -569,7 +569,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def ok_msgbox(_passed)
+    def ok_msgbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -593,7 +593,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def yesno_msgbox(_passed)
+    def yesno_msgbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -617,7 +617,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def inputbox(_passed)
+    def inputbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -644,7 +644,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def standard_inputbox(_passed)
+    def standard_inputbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -668,7 +668,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def secure_inputbox(_passed)
+    def secure_inputbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -694,7 +694,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def secure_standard_inputbox(_passed)
+    def secure_standard_inputbox(**_passed)
         custom_options = {
             'text' => [String],
             'informative_text' => [String],
@@ -717,7 +717,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def fileselect(_passed)
+    def fileselect(**_passed)
         custom_options = {
             'text' => [String],
             'select_directories' => [TrueClass, FalseClass],
@@ -745,7 +745,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def filesave(_passed)
+    def filesave(**_passed)
         custom_options = {
             'text' => [String],
             'packages_as_directories' => [TrueClass, FalseClass],
@@ -771,7 +771,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def textbox(_passed)
+    def textbox(**_passed)
         custom_options = {
             'text' => [String],
             'text_from_file' => [String],
@@ -802,7 +802,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def dropdown(_passed)
+    def dropdown(**_passed)
         custom_options = {
             'text' => [String],
             'items' => [Array],
@@ -830,7 +830,7 @@ class CocoaDialog
     # :type _passed: hash
     # :returns: Output of dialog
     # :rtype: str
-    def standard_dropdown(_passed)
+    def standard_dropdown(**_passed)
         custom_options = {
             'text' => [String],
             'items' => [Array],
