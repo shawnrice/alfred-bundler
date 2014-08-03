@@ -453,7 +453,22 @@ def icon(font, icon, color='000000', alter=True):
 
     url = API_URL.format(font=font, color=color, icon=icon)
     _log.debug('Retrieving URL `{}` ...'.format(url))
-    urlretrieve(url, path)
+
+    response = urllib2.urlopen(url)
+    code = response.getcode()
+    _log.debug('HTTP response: {}'.format(code))
+
+    if code > 399:
+        error = response.read()
+        raise ValueError(error)
+
+    elif code != 200:
+        raise IOError('Could not retrieve icon : {}/{}/{{'.format(font,
+                                                                  icon,
+                                                                  color))
+
+    with open(path, 'wb') as file:
+        file.write(response.read())
 
     return path
 
