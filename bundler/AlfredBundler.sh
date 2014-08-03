@@ -12,6 +12,21 @@ declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/a
 # Check for updates to the bundler in the background
 bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 
+# This is the beginning of a list of error codes
+# More discussion and development here: https://github.com/shawnrice/alfred-bundler/issues/42
+
+#  0 : Success
+
+#  1 : Unspecified Error
+
+# 10 : Bad arguments sent, recoverable
+# 11 : Bad arguments sent, irrecoverable
+
+# 20 : Connectivity issue, no internet connection
+# 21 : Connectivity issue, could not connect to server
+# 22 : Connectivity issue, corrupt download file
+
+
 ################################################################################
 ### Begin Asset Functions
 ################################################################################

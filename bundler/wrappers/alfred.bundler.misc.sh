@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Interface for other implementations of the Alfred Dependency Bundler to graft onto.
 # This file should be the only one from the bundler that is distributed with your workflow.
@@ -30,7 +30,7 @@ AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MA
 
 # This function is a thin wrapper over the internal AlfredBundler::load_asset
 # function that exists in the backend of the Alfred Bash Bundler.
-function AlfredBundler::load {
+function AlfredBundler::load() {
  # $1 -- type
  # $2 -- asset name
  # $3 -- version : optional, defaults to 'default'
