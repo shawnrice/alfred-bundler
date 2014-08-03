@@ -25,6 +25,8 @@ import cPickle
 import urllib2
 import time
 import shutil
+import logging
+import logging.handlers
 from urllib import urlretrieve
 
 
@@ -74,6 +76,8 @@ PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
 
 
 css_colour = re.compile(r'[a-f0-9]+').match
+
+_workflow_bundle_id = None
 
 
 ########################################################################
@@ -163,8 +167,14 @@ def _bundle_id():
 
     """
 
+    global _workflow_bundle_id
+
+    if _workflow_bundle_id is not None:
+        return _workflow_bundle_id
+
     plist = plistlib.readPlist(_find_file('info.plist'))
-    return plist.get('bundleid', None)
+    _workflow_bundle_id = plist.get('bundleid', None)
+    return _workflow_bundle_id
 
 
 def _notify(title, message):
@@ -344,6 +354,47 @@ def _add_pip_path():
 ########################################################################
 # API functions
 ########################################################################
+
+def logger(name, logpath=None):
+    """Return an instance of ``~logging.Logger`` configured to log to ``logpath``
+    and STDERR.
+
+    :param name: Name of logger
+    :type name: ``unicode`` or ``str``
+    :param logpath: Path to logfile. If ``None``, a default logfile in the
+        workflow's data directory will be used.
+    :type logpath: ``unicode`` or ``str``
+    :returns: Configured ``~logging.Logger`` object
+
+    """
+
+    if not logpath:
+        logpath = os.path.join(
+            os.path.expanduser(
+                '~/Library/Application Support/Alfred 2/Workflow Data/'),
+            _bundle_id(), 'logs', '{}.log'.format(_bundle_id()))
+
+    logdir = os.path.dirname(logpath)
+    if not os.path.exists(logdir):
+        os.makedirs(logdir, 0755)
+
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logfile = logging.handlers.RotatingFileHandler(logpath,
+                                                       maxBytes=1024*1024,
+                                                       backupCount=0)
+        console = logging.StreamHandler()
+        fmt = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s '
+                                '%(levelname)-8s %(message)s')
+
+        logfile.setFormatter(fmt)
+        console.setFormatter(fmt)
+        logger.addHandler(logfile)
+        logger.addHandler(console)
+
+    logger.setLevel(logging.DEBUG)
+    return logger
+
 
 def icon(font, icon, color='000000', alter=True):
     """Get path to specified icon, downloading it first if necessary.
