@@ -42,7 +42,7 @@ BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
 BUNDLER_VERSION = 'devel'
 DATA_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}'.format(BUNDLER_VERSION))
+    'alfred.bundler-{}/data'.format(BUNDLER_VERSION))
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
