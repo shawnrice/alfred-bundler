@@ -122,15 +122,16 @@ BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
 
 # Bundler paths
 BUNDLER_VERSION = 'devel'
-DATA_DIR = os.path.expanduser(
+BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}/data'.format(BUNDLER_VERSION))
+    'alfred.bundler-{}'.format(BUNDLER_VERSION))
+DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
 
 # Main Python library
-BUNDLER_PY_LIB = os.path.join(DATA_DIR, 'AlfredBundler.py')
+BUNDLER_PY_LIB = os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
 
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
@@ -388,3 +389,8 @@ def init(requirements=None):
 if __name__ == '__main__':
     for name in ['Terminal-Notifier', 'cocoaDialog']:
         print('{} : {}'.format(name, utility(name)))
+    for font, char, colour in [('fontawesome', 'adjust', 'fff')]:
+        path = icon(font, char, colour)
+        print('{}/{}/{}: {}').format(font, char, colour, path)
+        subprocess.call(['open', path])
+

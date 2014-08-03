@@ -40,9 +40,10 @@ BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
 
 # Bundler paths
 BUNDLER_VERSION = 'devel'
-DATA_DIR = os.path.expanduser(
+BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}/data'.format(BUNDLER_VERSION))
+    'alfred.bundler-{}'.format(BUNDLER_VERSION))
+DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
@@ -477,7 +478,7 @@ def utility(name, version='default', json_path=None):
 
     # Call bash wrapper with specified arguments
     json_path = json_path or ''
-    cmd = ['/bin/bash', HELPER_PATH, name, version, 'utility', json_path]
+    cmd = ['/bin/bash', HELPER_PATH, 'utility', name, version, json_path]
     path = subprocess.check_output(cmd).strip().decode('utf-8')
 
     return path
