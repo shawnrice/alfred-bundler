@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version='aries'
+version='devel'
 
 dirs=("${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${version}"
       "${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${version}")
