@@ -27,7 +27,6 @@ import time
 import shutil
 import logging
 import logging.handlers
-from urllib import urlretrieve
 
 
 VERSION = '0.2'
@@ -75,6 +74,8 @@ UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
 PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
                      'develop/contrib/get-pip.py')
 
+# HTTP timeout
+HTTP_TIMEOUT = 20
 
 css_colour = re.compile(r'[a-f0-9]+').match
 
@@ -247,7 +248,7 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 
     _log.debug('Opening URL `{}` ...'.format(url))
 
-    response = urllib2.urlopen(url)
+    response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
 
     if response.getcode() != 200:
         raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
@@ -454,8 +455,10 @@ def icon(font, icon, color='000000', alter=True):
     url = API_URL.format(font=font, color=color, icon=icon)
     _log.debug('Retrieving URL `{}` ...'.format(url))
 
-    response = urllib2.urlopen(url)
+    response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
+
     code = response.getcode()
+
     _log.debug('HTTP response: {}'.format(code))
 
     if code > 399:

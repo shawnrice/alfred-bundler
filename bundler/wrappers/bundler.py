@@ -142,15 +142,20 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/bundler/wrappers/alfred.bundler.misc.sh'.format(
               BUNDLER_VERSION))
+
 # The bundler script we will call to get paths to utilities and
 # install them if necessary. This is actually the bash wrapper, not
 # the bundler.sh file in the repo
 HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
+
 # Path to file storing update metadata (last update check, etc.)
 UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
 
 # Bundler log file
 BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
+
+# HTTP timeout
+HTTP_TIMEOUT = 20
 
 # The actual bundler module will be imported into this variable
 _bundler = None
@@ -231,7 +236,7 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 
     _log.debug('Opening URL `{}` ...'.format(url))
 
-    response = urllib2.urlopen(url)
+    response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
 
     if response.getcode() != 200:
         raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
