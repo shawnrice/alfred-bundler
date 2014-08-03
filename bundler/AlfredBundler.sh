@@ -257,6 +257,16 @@ function AlfredBundler::load {
 
 
 
+  if [ ! -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
+      # Install the asset
+      php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
+
+      # If the install script exited with a non-zero status, then return 1;
+      # the error messages were written to STDERR by the install script.
+      status=$?
+      [[ $status -ne 0 ]] && return 1
+  fi
+
   # While not all utilities need gatekeeper, launching the php script that checks
   # if it needs gatekeeper adds extra time. So, we'll cache the paths for all
   # utilities regardless of whether or not they need gatekeeper.
