@@ -273,15 +273,12 @@ def _bootstrap():
             _log.debug('Creating directory `{}`'.format(dirpath))
             os.makedirs(dirpath)
 
-    if os.path.exists(HELPER_PATH) and os.path.exists(BUNDLER_PY_LIB):
-        # Already installed
-        return
+    if not os.path.exists(HELPER_PATH):  # Install bash misc wrapper
+        # Install bash wrapper from GitHub
+        _download_if_updated(HELPER_URL, HELPER_PATH)
 
-    # Install bash wrapper from GitHub
-    _download_if_updated(HELPER_URL, HELPER_PATH)
-
-    assert os.path.exists(HELPER_PATH), \
-        'Error bootstrapping bundler. Could not download helper script.'
+        assert os.path.exists(HELPER_PATH), \
+            'Error bootstrapping bundler. Could not download helper script.'
 
     if not os.path.exists(BUNDLER_PY_LIB):  # Install bundler
         _log.info('Installing bundler ...')
@@ -289,15 +286,15 @@ def _bootstrap():
         _log.debug('Executing command : {}'.format(cmd))
         subprocess.call(cmd)
 
-    assert os.path.exists(BUNDLER_PY_LIB), \
-        'Error bootstrapping bundler. Bundler installation failed.'
+        assert os.path.exists(BUNDLER_PY_LIB), \
+            'Error bootstrapping bundler. Bundler installation failed.'
+
+        update_data = _load_update_metadata()
+        update_data['updated'] = time.time()
+        _save_update_metadata(update_data)
 
     # Import bundler
     _bundler = imp.load_source('AlfredBundler', BUNDLER_PY_LIB)
-
-    update_data = _load_update_metadata()
-    update_data['updated'] = time.time()
-    _save_update_metadata(update_data)
 
 
 def icon(font, icon, color='000000', alter=True):
@@ -387,10 +384,15 @@ def init(requirements=None):
 
 
 if __name__ == '__main__':
-    for name in ['Terminal-Notifier', 'cocoaDialog']:
-        print('{} : {}'.format(name, utility(name)))
+    for name, args in [
+            ('Terminal-Notifier',
+                ['-title', 'Test', '-message', 'Test']),
+            ('cocoaDialog',
+                ['msgbox', '--text', 'Test', '--timeout', '2'])]:
+        path = utility(name)
+        subprocess.call([path] + args)
+        print('{} : {}'.format(name, path))
     for font, char, colour in [('fontawesome', 'adjust', 'fff')]:
         path = icon(font, char, colour)
-        print('{}/{}/{}: {}').format(font, char, colour, path)
+        print('{}/{}/{}: {}'.format(font, char, colour, path))
         subprocess.call(['open', path])
-
