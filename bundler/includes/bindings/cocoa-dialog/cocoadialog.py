@@ -961,7 +961,7 @@ class CocoaDialog:
                 'required_options': ['percent', 'text'],
                 'custom_options': custom_options
                 }
-            _passed = self._format_passed(_passed)
+            _passed = self.outer._format_passed(_passed)
             if self.outer._valid_options(_passed, self.custom_options):
                 self.percent, self.text = (_passed['percent'], _passed['text'])
                 process = self.outer._display(
