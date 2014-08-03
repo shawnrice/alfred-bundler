@@ -4,7 +4,7 @@
 
 # Feed this script a png file, and it will create an icns file out of it
 
-# Usage : make_icns.sh </full/path/to/image.png> </full/path/to/icon_name.icns>
+# Usage : png_to_icns.sh </full/path/to/image.png> </full/path/to/icon_name.icns>
 
 function check_arguments() {
   # Check to make sure that all of the arguments are there and correct

@@ -442,7 +442,7 @@ class AlfredBundlerInternalClass {
     if ( file_exists( "{$this->cache}/icns/{$this->bundle}.icns" ) ) {
       return "{$this->cache}/icns/{$this->bundle}.icns";
     } else {
-      $script = realpath( "'" . __DIR__ . '/includes/make_icns.sh' . "'" );
+      $script = realpath( "'" . __DIR__ . '/includes/png_to_icns.sh' . "'" );
       $icon   = realpath( dirname( "{$this->plist}" ) . "/icon.png" );
       exec( "bash '{$script}' '{$icon}' '{$this->bundle}.icns'" );
       if ( file_exists( "{$this->cache}/icns/{$this->bundle}.icns" ) )
