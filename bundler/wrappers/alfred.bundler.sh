@@ -125,6 +125,15 @@ function AlfredBundler::install_bundler {
 
   # Go find the newly downloaded file, unzip it
   cd "${AB_CACHE}/installer"
+
+  # Below, there are wildcards for now because of the differences between how
+  # Github and Bitbucket build the zip files
+  unzip -t *.zip
+  status=$?
+
+  # This needs to be expanded
+  [[ $status -ne 0 ]] && echo "Corrupted zip file" >&2 && exit 1
+
   unzip -oq *.zip
   rm *.zip
   cd *
