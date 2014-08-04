@@ -10,9 +10,6 @@
 #
 # License: GPLv3
 
-# Get the PID of the script implementing the bundler. We'll kill the script
-# if the bundler cannot install itself
-export TOP_PID=$$
 
 # Define the global bundler version.
 if [ -f "../meta/version_major" ]; then
@@ -116,8 +113,8 @@ function AlfredBundler::install_bundler {
     # Send the error to STDERR
     echo "Error: could not install Alfred Bundler. Exiting script." >&2
 
-    # Kill the overall script that called this one
-    kill -s TERM $TOP_PID
+    # Exit with appropriate error code
+    exit 21
   fi
 
   # Grab the current directory so we can come back
