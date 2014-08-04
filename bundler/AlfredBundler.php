@@ -141,13 +141,13 @@ class AlfredBundlerInternalClass {
   public function load( $type, $name, $version, $json = '' ) {
 
     if ( empty( $json ) ) {
-      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
+      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) { $line = __LINE__;
         $json_path = __DIR__ . "/meta/defaults/{$name}.json";
       } else {
         // JSON File cannot be found
         $error = TRUE;
       }
-    } else if ( file_exists( $json ) ) {
+    } else if ( file_exists( $json ) ) { $line = __LINE__;
       $json_path = $json;
     } else {
       // JSON File cannot be found
@@ -155,7 +155,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Check to see if the JSON is valid
-    if ( ! json_decode( file_get_contents( $json_path ) ) ) {
+    if ( ! json_decode( file_get_contents( $json_path ) ) ) { $line = __LINE__;
       // JSON file not valid
       $error = TRUE;
     }
@@ -164,10 +164,11 @@ class AlfredBundlerInternalClass {
     if ( isset( $error ) && ( $error === TRUE ) ) {
       // There is an error with the JSON file.
       // Output the error to STDERR.
-      file_put_contents('php://stderr', "There is a problem with the " . 
+      
+      $this->reportLog( "There is a problem with the " . 
                                         "_implementation_ of the Alfred Bundler " .
                                         "when trying to load '{$name}'. Please " .
-                                        "let the workflow author know." );
+                                        "let the workflow author know.", 'CRITICAL', __FILE__, $line );
       return FALSE;
     }
 
@@ -182,7 +183,8 @@ class AlfredBundlerInternalClass {
     }
 
     // Register the asset. We don't need to worry about the return.
-    $this->register( $name, $version );
+    $this->register( $name, $version ); $line = __LINE__;
+    $this->reportLog( "Registering assset '{$name}'", 'INFO', __FILE__, $line );
 
     // The file should exist now, but we'll try anyway
     if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
@@ -298,9 +300,11 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( $composerDir ) )
       mkdir( $composerDir, 0755, TRUE );
 
-    if ( ! file_exists( "{$composerDir}/composer.phar" ) )
-      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
+    if ( ! file_exists( "{$composerDir}/composer.phar" ) ) {
+      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" ); $line = __LINE__;
+      $this->reportLog( "Installing Composer to `{$composerDir}`", 'INFO', __FILE__, $line );
       // Add check to make sure the that file is complete above...
+    }
 
     $install = FALSE;
 
@@ -857,11 +861,54 @@ class AlfredBundlerInternalClass {
                                 // be downloaded, then this will return an error
                                 // stating that $ch is not a valid cURL resource
     }
+    
+    $line = __LINE__;
+    $this->reportLog( "Downloading `{$url}` ...", 'INFO', basename( __FILE__ ), $line );
 
     curl_close( $ch );
     fclose( $fp );
     return TRUE;
   }
+
+private function reportLog( $message, $level, $file, $line ) {
+
+    // These are the appropriate log levels
+    $logLevels = array( 0 => 'DEBUG',
+                        1 => 'INFO',
+                        2 => 'WARNING',
+                        3 => 'ERROR',
+                        4 => 'CRITICAL',
+    );
+
+    // Set date/time to avoid warnings/errors.
+    if ( ! ini_get('date.timezone') ) {
+      $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+      ini_set( 'date.timezone', $tz );
+    }
+
+    $date = date( 'Y-m-d H:i:s', time() );
+
+    // We'll convert the log level to a string; if the level is not available,
+    // then we'll default to INFO
+    if ( is_int( $level ) ) {
+      if ( isset( $logLevels[ $level ] ) ) {
+        $level = $logLevels[ $level ];
+      } else {
+        file_put_contents( 'php://stderr', "[{$date}] [{$file},{$line}] [WARNING] Log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    } else if ( is_string( $level ) ) {
+      if ( ! in_array( $level, $logLevels ) ) {
+        file_put_contents( 'php://stderr', "[{$date}] [{$file}:{$line}] [WARNING] Log level '$level' " .
+          "is not valid. Falling back to 'INFO' (0)" );
+        $level = 'INFO';
+      }
+    }
+
+    file_put_contents( 'php://stderr', "[{$date}] [" . basename( $file ) . ":{$line}] [{$level}] {$message}" . PHP_EOL );
+
+}
 
   /**
    * Prepends a datestamped message to a log file
@@ -875,11 +922,11 @@ class AlfredBundlerInternalClass {
     $log = "{$this->data}/data/logs/{$log}.log";
 
     // These are the appropriate log levels
-    $logLevels = array( 0 => 'INFO',
-                        1 => 'WARNING',
-                        2 => 'STRICT WARNING',
-                        3 => 'RECOVERABLE ERROR',
-                        4 => 'ERROR',
+    $logLevels = array( 0 => 'DEBUG',
+                        1 => 'INFO',
+                        2 => 'WARNING',
+                        3 => 'ERROR',
+                        4 => 'CRITICAL',
     );
 
     // We'll convert the log level to a string; if the level is not available,
@@ -1030,10 +1077,13 @@ class AlfredBundlerInternalClass {
     // Open the source directory to read in files
     $i = new DirectoryIterator( $path );
     foreach ( $i as $f ) :
-      if ( $f->isFile() ) unlink( $f->getRealPath() );
-      else if( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
+      if ( $f->isFile() ) {
+        unlink( $f->getRealPath() ); $line = __LINE__;
+        $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
+      } else if( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
     endforeach;
-    rmdir( $path );
+    rmdir( $path ); $line = __LINE__;
+    $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
   }
 
   /**
