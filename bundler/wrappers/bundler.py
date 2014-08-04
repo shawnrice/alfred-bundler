@@ -175,7 +175,8 @@ _logfile = logging.handlers.RotatingFileHandler(BUNDLER_LOGFILE,
                                                 backupCount=0)
 _console = logging.StreamHandler()
 _fmt = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s '
-                         '%(levelname)-8s %(message)s')
+                         '%(levelname)-8s %(message)s',
+                         datefmt='%H:%M:%S')
 
 _logfile.setFormatter(_fmt)
 _console.setFormatter(_fmt)
