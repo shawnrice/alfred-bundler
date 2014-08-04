@@ -7,8 +7,6 @@
 #
 # License: GPLv3
 
-export TOP_PID=$$
-
 # Define the global bundler version.
 if [ -f "../meta/version_major" ]; then
   declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
@@ -111,10 +109,9 @@ function AlfredBundler::install_bundler {
     [[ -d "${AB_CACHE}/installer" ]] && rm -fR "${AB_CACHE}/installer"
 
     # Send the error to STDERR
-    echo "Error: could not install Alfred Bundler. Exiting script." >&2
+    echo "Error: could not install Alfred Bundler." >&2
+    exit 21
 
-    # Kill the overall script that called this one
-    kill -s TERM $TOP_PID
   fi
 
   # Grab the current directory so we can come back
