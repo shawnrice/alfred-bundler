@@ -443,7 +443,7 @@ def rgb_to_hex(r, g, b):
     """
 
     def clamp(i):
-        return max(0, min(i, 255))
+        return int(max(0, min(i, 255)))
 
     color = '{:02x}{:02x}{:02x}'.format(clamp(r), clamp(g), clamp(b)).lower()
 
@@ -494,6 +494,7 @@ def set_background():
     if os.path.exists(BACKGROUND_COLOUR_FILE):
         if (os.stat(ALFRED_PREFS_PATH).st_mtime >
                 os.stat(BACKGROUND_COLOUR_FILE).st_mtime):
+            _log.debug('Alfred prefs updated')
             do_update = True
     else:
         do_update = True
@@ -504,6 +505,7 @@ def set_background():
             colour = subprocess.check_output([BACKGROUND_UTIL]).strip()
             with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
                 file.write(colour)
+            _log.debug('Theme background : {}'.format(colour))
 
 
 def background_is_dark():
@@ -533,10 +535,11 @@ def color_is_dark(color):
 
     r, g, b = hex_to_rgb(color)
 
-    value = sum((r * 299), (g * 587), (b * 114)) / 1000.0
+    value = sum([(r * 299), (g * 587), (b * 114)]) / 1000.0
 
     if value < 140:
         return True
+
     return False
 
 
@@ -558,11 +561,15 @@ def lighten_color(color):
 
     color = normalize_hex_color(color)
 
-    h, s, v = rgb_to_hsv(hex_to_rgb(color))
+    h, s, v = rgb_to_hsv(*hex_to_rgb(color))
 
     v = 1 - v  # flip Value
 
-    return rgb_to_hex(*hsv_to_rgb(h, s, v))
+    lighter = rgb_to_hex(*hsv_to_rgb(h, s, v))
+
+    _log.debug('Lightened `{}` to `{}`'.format(color, lighter))
+
+    return lighter
 
 
 #-----------------------------------------------------------------------
@@ -775,6 +782,12 @@ def icon(font, icon, color='000000', alter=True):
 
     # Invert colour if necessary
     if alter:
+        # bg_dark = background_is_dark()
+        # icon_dark = color_is_dark(color)
+        # _log.debug('Background is dark : {}, Colour is dark: {}'.format(
+        #            bg_dark, icon_dark))
+
+        # if bg_dark and icon_dark:
         if background_is_dark() and color_is_dark(color):
             color = lighten_color(color)
 
