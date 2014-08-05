@@ -181,12 +181,87 @@ css_colour = re.compile(r'[a-f0-9]+').match
 
 _workflow_bundle_id = None
 
+# These will be set at the bottom of this file
 _log = None
+metadata = None
 
 
 ########################################################################
 # Helper classes/functions
 ########################################################################
+
+class Metadata(object):
+    """Store update metadata
+
+    Last update time and Etags are stored in here.
+
+    """
+
+    def __init__(self, filepath):
+
+        self._filepath = filepath
+        self._etags = {}
+        self._last_updated = 0
+
+        if os.path.exists(self._filepath):
+            self._load()
+
+    def _load(self):
+        """Load cached settings from JSON file `self._filepath`"""
+
+        with open(self._filepath, 'rb') as file:
+            data = json.load(file, encoding='utf-8')
+
+        self._etags = data.get('etags', {})
+        self._last_updated = data.get('last_updated', 0)
+
+    def save(self):
+        """Save settings to JSON file `self._filepath`"""
+        data = dict(etags=self._etags, last_updated=self._last_updated)
+
+        with open(self._filepath, 'wb') as file:
+            json.dump(data, file, sort_keys=True, indent=2, encoding='utf-8')
+
+    def set_etag(self, url, etag):
+        """Save Etag for ``url``
+
+        :param url: URL key for Etag
+        :type url: ``unicode`` or ``str``
+        :param etag: Etag for URL
+        :type etag: ``unicode`` or ``str``
+
+        """
+
+        self._etags[url] = etag
+        self.save()
+
+    def get_etag(self, url):
+        """Return Etag for ``url`` or ``None``
+
+        :param url: URL to retrieve Etag for
+        :type url: ``unicode`` or ``str``
+        :returns: Etag or ``None``
+        :rtype: ``unicode`` or ``None``
+
+        """
+
+        return self._etags.get(url, None)
+
+    def set_updated(self):
+        """Record current time as last updated time"""
+        self._last_updated = time.time()
+        self.save()
+
+    def get_updated(self):
+        """Return last updated time"""
+        return self._last_updated
+
+    def wants_update(self):
+        """Return ``True`` if update is due, else ``False``"""
+        if time.time() - self._last_updated > UPDATE_INTERVAL:
+            return True
+        return False
+
 
 class cached(object):
     """Decorator. Caches a function's return value each time it is called.
@@ -300,30 +375,30 @@ def _notify(title, message):
 # Installation/update functions
 #-----------------------------------------------------------------------
 
-def _load_update_metadata():
-    """Load update metadata from cache
+# def _load_update_metadata():
+#     """Load update metadata from cache
 
-    :returns: metadata ``dict``
+#     :returns: metadata ``dict``
 
-    """
+#     """
 
-    metadata = {}
-    if os.path.exists(UPDATE_JSON_PATH):
-        with open(UPDATE_JSON_PATH, 'rb') as file:
-            metadata = json.load(file, encoding='utf-8')
-    return metadata
+#     metadata = {}
+#     if os.path.exists(UPDATE_JSON_PATH):
+#         with open(UPDATE_JSON_PATH, 'rb') as file:
+#             metadata = json.load(file, encoding='utf-8')
+#     return metadata
 
 
-def _save_update_metadata(metadata):
-    """Save ``metadata`` ``dict`` to cache
+# def _save_update_metadata(metadata):
+#     """Save ``metadata`` ``dict`` to cache
 
-    :param metadata: metadata to save
-    :type metadata: ``dict``
+#     :param metadata: metadata to save
+#     :type metadata: ``dict``
 
-    """
+#     """
 
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(metadata, file, encoding='utf-8', indent=2)
+#     with open(UPDATE_JSON_PATH, 'wb') as file:
+#         json.dump(metadata, file, encoding='utf-8', indent=2)
 
 
 def _download_if_updated(url, filepath, ignore_missing=False):
@@ -342,9 +417,9 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 
     """
 
-    update_data = _load_update_metadata()
-    # Get previous ETag for this URL
-    previous_etag = update_data.setdefault('etags', {}).get(url, None)
+    global metadata
+
+    previous_etag = metadata.get_etag(url)
 
     _log.debug('Opening URL `{}` ...'.format(url))
 
@@ -363,8 +438,7 @@ def _download_if_updated(url, filepath, ignore_missing=False):
             file.write(response.read())
             _log.info('Saved `{}`'.format(filepath))
 
-        update_data['etags'][url] = current_etag
-        _save_update_metadata(update_data)
+        metadata.set_etag(url, current_etag)
 
         return True
 
@@ -374,9 +448,9 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 def _update():
     """Check for periodical updates of bundler and pip"""
 
-    update_data = _load_update_metadata()
+    global metadata
 
-    if time.time() - update_data.get('updated', 0) < UPDATE_INTERVAL:
+    if not metadata.wants_update():
         return
 
     _notify('Workflow libraries are being updated',
@@ -398,9 +472,7 @@ def _update():
         _log.error('Error updating bundler. `update.sh` returned {}'.format(
                    retcode))
 
-    update_data = _load_update_metadata()
-    update_data['updated'] = time.time()
-    _save_update_metadata(update_data)
+    metadata.set_updated()
 
 
 def _install_pip():
@@ -436,11 +508,6 @@ def _install_pip():
 
     assert os.path.exists(os.path.join(HELPER_DIR, 'pip')), \
         'Pip  installation failed'
-
-    update_data = _load_update_metadata()
-    update_data['pip_updated'] = time.time()
-
-    _save_update_metadata(update_data)
 
     if os.path.exists(installer_path):
         os.unlink(installer_path)
@@ -703,3 +770,4 @@ def init(requirements=None):
     sys.path.insert(0, install_dir)
 
 _log = logger('bundler')
+metadata = Metadata(UPDATE_JSON_PATH)
