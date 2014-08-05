@@ -106,7 +106,7 @@ function AlfredBundler::icon() {
   elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
     color=$(AlfredBundler::alter_color ${color} ${alter})
   fi
-  
+  color=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
   icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
   icon_path="${icon_dir}/${name}.png"
 
@@ -123,8 +123,6 @@ function AlfredBundler::icon() {
   len=${#icon_servers[@]}
   success="FALSE"  
 
-  # For now we're hardcoding this, but we should cycle through the icons
-  # icon_server='http://icons.deanishe.net/icon'
   # Download icon from web service and cache it
   # Loop through the bundler servers until we get one that works
   while [[ $i -lt $len ]]; do
@@ -448,13 +446,13 @@ function AlfredBundler::alter_color() {
 
     # Since they're the same, we'll alter the color
     if [ $2 == "TRUE" ]; then
-      tmpcolor="${color}"
+      tmpcolor=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
       color=$(AlfredBundler::hex_to_rgb ${color})
       color=($(AlfredBundler::rgb_to_hsv ${color}))  
       color=(${color[0]} ${color[1]} $(echo "scale=10; 1 - ${color[2]}" | bc -l))
       color=$(AlfredBundler::hsv_to_rgb ${color[@]})
       color=$(AlfredBundler::rgb_to_hex ${color[@]})
-      echo "${color}" > "${AB_DATA}/data/color-cache/${tmpcolor}"
+      echo "${color}" | tr [[:upper:]] [[:lower:]] > "${AB_DATA}/data/color-cache/${tmpcolor}"
       echo ${color}
       return 0
     else
