@@ -244,13 +244,17 @@ function AlfredBundler::load {
       # If the install script exited with a non-zero status, then return 1;
       # the error messages were written to STDERR by the install script.
       status=$?
-      [[ $status -ne 0 ]] && return 1
+      if [[ $status -ne 0 ]]; then
+        AlfredBundler::report "Could not install '${name}', type '${type}'" CRITICAL
+        return 1
+      fi
 
       # Register the asset
       bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
            "${AB_DATA}/bundler/includes/registry.php" \
            "${bundle}" "${name}" "${version}"
 
+      AlfredBundler::report "Installed '${name}', type '${type}'" INFO
       # Return the path
       echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
       return 0
@@ -396,6 +400,8 @@ local date
 
 message="$1"
 level="$2"
+
+level=$(echo "${level}" | tr [[:lower:]] [[:upper:]])
 
 [[ "${level}" == "WARN" ]] && level="WARNING"
 [[ "${level}" == "FATAL" ]] && level="CRITICAL"
