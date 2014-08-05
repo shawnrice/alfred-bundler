@@ -175,7 +175,7 @@ PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
                      'develop/contrib/get-pip.py')
 
 # HTTP timeout
-HTTP_TIMEOUT = 20
+HTTP_TIMEOUT = 5
 
 css_colour = re.compile(r'[a-f0-9]+').match
 
