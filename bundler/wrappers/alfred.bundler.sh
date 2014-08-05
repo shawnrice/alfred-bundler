@@ -125,7 +125,7 @@ function AlfredBundler::install_bundler {
 
   # Below, there are wildcards for now because of the differences between how
   # Github and Bitbucket build the zip files
-  unzip -t *.zip
+  unzip -tq *.zip >&2 > /dev/null
   status=$?
 
   # This needs to be expanded
