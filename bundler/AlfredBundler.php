@@ -293,10 +293,10 @@ class AlfredBundlerInternalClass {
   public function binding( $binding ) {
     if ( file_exists( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ) ) {
       require_once( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ); $line = __LINE__;
-      reportLog( "Loaded '{$binding}' bindings", 'INFO', __FILE__, $line );
+      $this->reportLog( "Loaded '{$binding}' bindings", 'INFO', __FILE__, $line );
       return 0;
     } else {
-      reportLog( "'{$binding}' not found.", 'ERROR', __FILE__, $line );
+      $this->reportLog( "'{$binding}' not found.", 'ERROR', __FILE__, $line );
       return 10;
     }
   }
