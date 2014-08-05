@@ -87,7 +87,6 @@ function AlfredBundler::icon() {
   [[ $? -ne 0 ]] && return 1
 
 
-
   # See if the alter variable is set
   if [ ! -z "$4" ]; then
     alter=$(echo "$4" | tr [[:lower:]] [[:upper:]])
@@ -96,8 +95,12 @@ function AlfredBundler::icon() {
   else
     alter="FALSE"
   fi
-
   
+
+
+  # Make the color cache directory if it doesn't exist
+  [[ ! -d "${AB_DATA}/data/color-cache" ]] && mkdir -m 775 -p "${AB_DATA}/data/color-cache"
+
   if [[ "${alter}" == "TRUE" ]]; then
     color=$(AlfredBundler::alter_color ${color} TRUE)
   elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
@@ -107,13 +110,13 @@ function AlfredBundler::icon() {
   icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
   icon_path="${icon_dir}/${name}.png"
 
+  # Make the icon directory if it doesn't exist
+  [[ ! -d "${icon_dir}" ]] && mkdir -m 775 -p "${icon_dir}"
+
   if [[ -f "${icon_path}" ]]; then
     echo "${icon_path}"
     return 0
   fi
-
-  # Make the icon directory if it doesn't exist
-  [[ ! -d "${icondir}" ]] && mkdir -m 775 -p "${icon_dir}"
 
   i=0
   icon_servers=$(cat "${AB_DATA}/bundler/meta/icon_servers")
@@ -437,13 +440,21 @@ function AlfredBundler::alter_color() {
   fi
 
   if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
+    
+    if [[ -f "${AB_DATA}/data/color-cache/${color}" ]]; then
+      echo $(cat "${AB_DATA}/data/color-cache/${color}")
+      return 0
+    fi
+
     # Since they're the same, we'll alter the color
     if [ $2 == "TRUE" ]; then
+      tmpcolor="${color}"
       color=$(AlfredBundler::hex_to_rgb ${color})
       color=($(AlfredBundler::rgb_to_hsv ${color}))  
       color=(${color[0]} ${color[1]} $(echo "scale=10; 1 - ${color[2]}" | bc -l))
       color=$(AlfredBundler::hsv_to_rgb ${color[@]})
       color=$(AlfredBundler::rgb_to_hex ${color[@]})
+      echo "${color}" > "${AB_DATA}/data/color-cache/${tmpcolor}"
       echo ${color}
       return 0
     else
