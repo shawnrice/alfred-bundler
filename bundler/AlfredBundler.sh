@@ -380,7 +380,7 @@ function AlfredBundler::utility() {
 ### Start Log Functions
 ################################################################################
 
-# User faceing log function
+# User facing log function
 function AlfredBundler::log() {
 a=0
 }
