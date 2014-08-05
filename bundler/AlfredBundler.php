@@ -289,10 +289,17 @@ class AlfredBundlerInternalClass {
     }
   }
 
-
+  /**
+   * [binding description]
+   *
+   * @param   [type]  $binding  [description]
+   *
+   * @return  [type]            [description]
+   */
   public function binding( $binding ) {
-    if ( file_exists( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ) ) {
-      require_once( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ); $line = __LINE__;
+    $bindingsDir = "{$this->data}/bundler/includes/bindings/php";
+    if ( file_exists( "{$bindingsDir}/{$binding}.php" ) ) {
+      require_once( "{$bindingsDir}/{$binding}.php" ); $line = __LINE__;
       $this->reportLog( "Loaded '{$binding}' bindings", 'INFO', __FILE__, $line );
       return 0;
     } else {
