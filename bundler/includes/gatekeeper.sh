@@ -54,7 +54,7 @@ if [[ $version =~ "10.10" ]] || [[ $version =~ "10.9" ]] || [[ $version =~ "10.8
     gatekeeper=`spctl -a "${path}" > /dev/null 2>&1; echo $?`
     # gatekeeper=`spctl --list --label "$label" > /dev/null 2>&1; echo $?`
     if [[ $gatekeeper -eq 0 ]]; then
-      echo "BundlerInfo: (Gatekeeper) ${name} at (${path}) already whitelisted"
+      echo "BundlerInfo: (Gatekeeper) ${name} at (${path}) already whitelisted" >&2
       exit 0
     fi
   fi

@@ -289,6 +289,18 @@ class AlfredBundlerInternalClass {
     }
   }
 
+
+  public function binding( $binding ) {
+    if ( file_exists( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ) ) {
+      require_once( "{$this->data}/bundler/includes/bindings/{$binding}/{$binding}.php" ); $line = __LINE__;
+      reportLog( "Loaded '{$binding}' bindings", 'INFO', __FILE__, $line );
+      return 0;
+    } else {
+      reportLog( "'{$binding}' not found.", 'ERROR', __FILE__, $line );
+      return 10;
+    }
+  }
+
   /**
    * Loads / requires composer packages
    *
@@ -390,8 +402,15 @@ class AlfredBundlerInternalClass {
             if ( $alter = $this->checkHex( $alter ) )
               $color = $alter;
           } else {
-            if ( $this->background == 'dark' ) $color = $this->alterBrightness( $color );
-            else $color = $this->alterBrightness( $color );
+            echo "HERHE";
+            if ( ! file_exists( "{$this->data}/data/color-cache" ) )
+              mkdir( "{$this->data}/data/color-cache", 0775, TRUE );
+            if ( file_exists( "{$this->data}/data/color-cache/{$color}" ) ) {
+              $color = file_get_contents( "{$this->data}/data/color-cache/{$color}" );
+            } else {
+              file_put_contents( "{$this->data}/data/color-cache/{$color}", $this->alterBrightness( $color ) );
+              $color = file_get_contents( "{$this->data}/data/color-cache/{$color}" );
+            }
           }
         }
       }
