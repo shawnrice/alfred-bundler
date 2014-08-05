@@ -402,7 +402,6 @@ class AlfredBundlerInternalClass {
             if ( $alter = $this->checkHex( $alter ) )
               $color = $alter;
           } else {
-            echo "HERHE";
             if ( ! file_exists( "{$this->data}/data/color-cache" ) )
               mkdir( "{$this->data}/data/color-cache", 0775, TRUE );
             if ( file_exists( "{$this->data}/data/color-cache/{$color}" ) ) {
@@ -552,6 +551,8 @@ class AlfredBundlerInternalClass {
     // Add in the invoke file
     file_put_contents( "{$installDir}/invoke", $invoke );
     $this->logInternal( 'asset', "INFO: Installed '{$type}': '{$name}' -- version '{$version}'." );
+    $this->reportLog( "Installed '{$type}': '{$name}' -- version '{$version}'.", 'INFO', basename( __FILE__ ), __LINE__ );
+    $this->rrmdir( "{$tmpDir}" );
     return TRUE;
   }
 
@@ -625,7 +626,7 @@ class AlfredBundlerInternalClass {
 
     $this->rrmdir( $installDir );
 
-    return FALSE;
+    return TRUE;
   }
 
 /*******************************************************************************
