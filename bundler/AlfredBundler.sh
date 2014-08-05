@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# A framework to lazyload assets for Alfred 2 workflows.
+# 
+# See documentation at http://shawnrice.gitub.io/alfred-bundler
+
+
 
 # Declare Bundler Constants
 
@@ -31,6 +37,19 @@ bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 ### Begin Asset Functions
 ################################################################################
 
+#######################################
+# Downloads icons
+# Globals:
+#   AB_DATA
+# Arguments:
+#   font
+#   name
+#   color
+#   alter
+# Returns:
+#   File path to an icon
+#
+#######################################
 function AlfredBundler::icon() {
 
   local font
@@ -153,7 +172,19 @@ function AlfredBundler::icon() {
 
 } # End AlfredBundler::icon
 
-# Caching wrapper around the real function
+#######################################
+# Downloads and loads an asset
+# Globals:
+#   AB_DATA
+# Arguments:
+#   type
+#   name
+#   version
+#   json
+# Returns:
+#   Filepath to asset
+#
+#######################################
 function AlfredBundler::load {
   # $1 -- type
   # $2 -- asset name
@@ -354,6 +385,20 @@ function AlfredBundler::load {
 
 } # End AlfredBundler::load
 
+
+#######################################
+# Specific wrapper for the load function
+# 
+# Globals:
+#   AB_DATA
+# Arguments:
+#   name
+#   version
+#   json
+# Returns:
+#   Filepath to utility 
+#
+#######################################
 function AlfredBundler::utility() {
   local name
   local version
@@ -525,6 +570,15 @@ function AlfredBundler::prepend() {
 ### Functions to support icon manipulation
 ################################################################################
 
+#######################################
+# Checks and normalizes hex colors
+# Globals:
+#   None
+# Arguments:
+#   color
+# Returns:
+#   Normalized hex color
+#######################################
 # Checks to make sure value fed to it is a hex color and converts 3 hex to 6 hex
 # Returns normalized color on success, 1 on failure
 function AlfredBundler::check_hex() {
@@ -570,6 +624,16 @@ function AlfredBundler::check_hex() {
   fi
 }
 
+#######################################
+# Lightens or darks a hex color
+# Globals:
+#   None
+# Arguments:
+#   color
+#   alter
+# Returns:
+#   Hex color
+#######################################
 # # This function should be fed only proper hex codes
 # # Usage: <color> <other color|TRUE>
 function AlfredBundler::alter_color() {
@@ -616,6 +680,16 @@ function AlfredBundler::alter_color() {
   fi
 }
 
+#######################################
+# Get the background "color" of the current Alfred theme
+# Globals:
+#   AB_DATA
+#   HOME
+# Arguments:
+#   None
+# Returns:
+#   'light' or 'dark'
+#######################################
 function AlfredBundler::get_background() {
 
   # Add in error checking
@@ -630,6 +704,15 @@ function AlfredBundler::get_background() {
   echo "${background}"
 }
 
+#######################################
+# Checks whether a color is light or dark
+# Globals:
+#   None
+# Arguments:
+#   color
+# Returns:
+#   'light' or 'dark'
+#######################################
 function AlfredBundler::check_brightness() {
   local color
   local r
@@ -653,6 +736,17 @@ function AlfredBundler::check_brightness() {
   return 0
 }
 
+#######################################
+# Converts an RGB color to HSV
+# Globals:
+#   None
+# Arguments:
+#   R
+#   G
+#   B
+# Returns:
+#   An HSV representation of a color
+#######################################
 function AlfredBundler::rgb_to_hsv() {
   local r
   local g
@@ -701,6 +795,17 @@ function AlfredBundler::rgb_to_hsv() {
   return 0
 }
 
+#######################################
+# Converts HSV to RGB
+# Globals:
+#   None
+# Arguments:
+#   H
+#   S
+#   V
+# Returns:
+#   A color represented in RGB
+#######################################
 function AlfredBundler::hsv_to_rgb() {
   local r
   local g
@@ -763,6 +868,15 @@ function AlfredBundler::hsv_to_rgb() {
 
 }
 
+#######################################
+# Converts Hex color to RGB
+# Globals:
+#   None
+# Arguments:
+#   hex
+# Returns:
+#   A color in RGB
+#######################################
 function AlfredBundler::hex_to_rgb() {
   local hex
   local r
@@ -777,6 +891,17 @@ function AlfredBundler::hex_to_rgb() {
   echo "${r} ${g} ${b}"
 }
 
+#######################################
+# Converts RGB color to Hex
+# Globals:
+#   None
+# Arguments:
+#   R
+#   G
+#   B
+# Returns:
+#   A color in hex
+#######################################
 function AlfredBundler::rgb_to_hex() {
   local r
   local g
@@ -808,6 +933,15 @@ function AlfredBundler::rgb_to_hex() {
 ### Math Functions to help with color calculations
 ################################################################################
 
+#######################################
+# Finds the max value among a set of numbers
+# Globals:
+#   None
+# Arguments:
+#   numbers
+# Returns:
+#   The largest number
+#######################################
 function Math::Max() {
 
   local numbers
@@ -835,6 +969,15 @@ function Math::Max() {
   echo $max
 }
 
+#######################################
+# Finds the min value among a set of numbers
+# Globals:
+#   None
+# Arguments:
+#   numbers
+# Returns:
+#   The lowest number
+#######################################
 function Math::Min() {
 
   local numbers
@@ -862,6 +1005,15 @@ function Math::Min() {
   echo $min
 }
 
+#######################################
+# Finds the mean value of a set of numbers
+# Globals:
+#   None
+# Arguments:
+#   numbers
+# Returns:
+#   The average of the numbers
+#######################################
 function Math::Mean() {
 
   local numbers
@@ -887,19 +1039,45 @@ function Math::Mean() {
   fi
 }
 
+#######################################
+# Truncates a float to an int
+# Globals:
+#   None
+# Arguments:
+#   float
+# Returns:
+#   Integer
+#######################################
 function Math::Floor() {
   local tmp
   tmp=$(echo "scale=0; $1 - ($1 % 1)" | bc -l)
   echo ${tmp%.*}
 }
 
-
+#######################################
+# Converts base 16 to base 10
+# Globals:
+#   None
+# Arguments:
+#   hex
+# Returns:
+#   Number in base 10
+#######################################
 function Math::hex_to_dec() {
   local hex
   hex=$(echo "$1" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
   echo "ibase=16; ${hex}" | bc
 }
 
+#######################################
+# Converts base 10 to base 16
+# Globals:
+#   None
+# Arguments:
+#   dec
+# Returns:
+#   Number in base 16
+#######################################
 function Math::dec_to_hex() {
   local dec
   dec=$(echo "${1}" | tr [[:lower:]] [[:upper:]]) # needs to be uppercase
