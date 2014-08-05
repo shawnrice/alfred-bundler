@@ -26,8 +26,18 @@ AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MA
 AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}-latest.zip")
 
 
-# This function is a thin wrapper over the internal AlfredBundler::load_asset
-# function that exists in the backend of the Alfred Bash Bundler.
+#######################################
+# Loads an asset
+# Globals:
+#   None
+# Arguments:
+#   type
+#   name
+#   version
+#   json
+# Returns:
+#   filepath to asset
+#######################################
 function AlfredBundler::load() {
  # $1 -- type
  # $2 -- asset name
@@ -39,6 +49,18 @@ function AlfredBundler::load() {
   # Function is empty here because it is overridden in the backend.
 }
 
+#######################################
+# Loads an icon
+# Globals:
+#   None
+# Arguments:
+#   font
+#   name
+#   color
+#   alter
+# Returns:
+#   filepath to asset
+#######################################
 function AlfredBundler::icon() {
   # $1 -- Icon Font
   # $2 -- Icon Name
@@ -60,6 +82,17 @@ function AlfredBundler::icon() {
   # Function is empty here because it is overridden in the backend.
 }
 
+#######################################
+# Wrapper around load to call a utility
+# Globals:
+#   None
+# Arguments:
+#   name
+#   version
+#   json
+# Returns:
+#   filepath to utility
+#######################################
 function AlfredBundler::utility() {
   # $1 -- Utility Name
   # $2 -- Utility version (optional: defaults to 'default')
@@ -74,7 +107,17 @@ function AlfredBundler::utility() {
   # Function is empty here because it is overridden in the backend.
 }
 
-# This just downloads the install script and starts it up.
+#######################################
+# Installs the bundler
+# Globals:
+#   AB_DATA
+#   AB_CACHE
+#   AB_BUNDLER_SERVERS
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 function AlfredBundler::install_bundler {
 
   local server
@@ -152,25 +195,37 @@ function AlfredBundler::install_bundler {
   return 0
 }
 
-# We need to execute some code upon the inclusion of this file
-
+#######################################
+# Includes the backend of the bundler and processes load request
+# Globals:
+#   AB_DATA
+# Arguments:
+#   type
+#   name / font
+#   version / icon
+#   json / color
+#   alter
+# Returns:
+#   Filepath to asset
+#######################################
 function main() {
   # Install the Bundler if it does not already exist
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
   else
     . "${AB_DATA}/bundler/AlfredBundler.sh"
-  fi  
+  fi
+
+  if [ "$1" == "icon" ]; then
+    # <font> <icon> <color (optional)> <alter (optional)>
+    AlfredBundler::icon "$2" "$3" "$4" "$5"
+    exit $?
+  else
+    # <type>, <name>, <version>, <json (optional)>
+    AlfredBundler::load "$1" "$2" "$3" "$4"
+    exit $?
+  fi
 }
 
-main
-
-if [ "$1" == "icon" ]; then
-  # <font> <icon> <color (optional)> <alter (optional)>
-  AlfredBundler::icon "$2" "$3" "$4" "$5"
-  exit $?
-else
-  # <type>, <name>, <version>, <json (optional)>
-  AlfredBundler::load "$1" "$2" "$3" "$4"
-  exit $?
-fi
+main $@
+exit $?

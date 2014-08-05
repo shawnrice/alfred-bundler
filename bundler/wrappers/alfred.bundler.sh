@@ -208,7 +208,7 @@ function AlfredBundler::install_bundler {
 }
 
 #######################################
-# Includesthe backend of the bundler
+# Includes the backend of the bundler
 # Globals:
 #   AB_DATA
 # Arguments:
