@@ -124,6 +124,7 @@ import cPickle
 import urllib2
 import time
 import shutil
+import colorsys
 import logging
 import logging.handlers
 
@@ -142,6 +143,7 @@ BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
 DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
+
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
@@ -156,6 +158,9 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
+# Where colour alternatives are cached
+COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 
 # Where icons will be cached
 ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
@@ -174,19 +179,106 @@ UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
 PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
                      'develop/contrib/get-pip.py')
 
+# Background colour (`light` or `dark`)
+BACKGROUND_COLOUR_FILE = os.path.join(DATA_DIR, 'theme_background')
+
+# Background util to determine whether background is light or dark
+# Result is saved to `BACKGROUND_COLOUR_FILE`
+BACKGROUND_UTIL = os.path.join(BUNDLER_DIR, 'bundler', 'includes',
+                               'LightOrDark')
+
+# Alfred's preferences file
+ALFRED_PREFS_PATH = os.path.expanduser(
+    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist')
+
 # HTTP timeout
-HTTP_TIMEOUT = 20
+HTTP_TIMEOUT = 5
 
 css_colour = re.compile(r'[a-f0-9]+').match
 
 _workflow_bundle_id = None
 
+# These will be set at the bottom of this file
 _log = None
+metadata = None
 
 
 ########################################################################
 # Helper classes/functions
 ########################################################################
+
+class Metadata(object):
+    """Store update metadata
+
+    Last update time and Etags are stored in here.
+
+    """
+
+    def __init__(self, filepath):
+
+        self._filepath = filepath
+        self._etags = {}
+        self._last_updated = 0
+
+        if os.path.exists(self._filepath):
+            self._load()
+
+    def _load(self):
+        """Load cached settings from JSON file `self._filepath`"""
+
+        with open(self._filepath, 'rb') as file:
+            data = json.load(file, encoding='utf-8')
+
+        self._etags = data.get('etags', {})
+        self._last_updated = data.get('last_updated', 0)
+
+    def save(self):
+        """Save settings to JSON file `self._filepath`"""
+        data = dict(etags=self._etags, last_updated=self._last_updated)
+
+        with open(self._filepath, 'wb') as file:
+            json.dump(data, file, sort_keys=True, indent=2, encoding='utf-8')
+
+    def set_etag(self, url, etag):
+        """Save Etag for ``url``
+
+        :param url: URL key for Etag
+        :type url: ``unicode`` or ``str``
+        :param etag: Etag for URL
+        :type etag: ``unicode`` or ``str``
+
+        """
+
+        self._etags[url] = etag
+        self.save()
+
+    def get_etag(self, url):
+        """Return Etag for ``url`` or ``None``
+
+        :param url: URL to retrieve Etag for
+        :type url: ``unicode`` or ``str``
+        :returns: Etag or ``None``
+        :rtype: ``unicode`` or ``None``
+
+        """
+
+        return self._etags.get(url, None)
+
+    def set_updated(self):
+        """Record current time as last updated time"""
+        self._last_updated = time.time()
+        self.save()
+
+    def get_updated(self):
+        """Return last updated time"""
+        return self._last_updated
+
+    def wants_update(self):
+        """Return ``True`` if update is due, else ``False``"""
+        if time.time() - self._last_updated > UPDATE_INTERVAL:
+            return True
+        return False
+
 
 class cached(object):
     """Decorator. Caches a function's return value each time it is called.
@@ -297,34 +389,210 @@ def _notify(title, message):
 
 
 #-----------------------------------------------------------------------
-# Installation/update functions
+# Icon helpers
 #-----------------------------------------------------------------------
 
-def _load_update_metadata():
-    """Load update metadata from cache
+def normalize_hex_color(color):
+    """Convert CSS colour to 6-characters and lowercase
 
-    :returns: metadata ``dict``
-
-    """
-
-    metadata = {}
-    if os.path.exists(UPDATE_JSON_PATH):
-        with open(UPDATE_JSON_PATH, 'rb') as file:
-            metadata = json.load(file, encoding='utf-8')
-    return metadata
-
-
-def _save_update_metadata(metadata):
-    """Save ``metadata`` ``dict`` to cache
-
-    :param metadata: metadata to save
-    :type metadata: ``dict``
+    :param css_colour: CSS colour of form XXX or XXXXXX
+    :type css_colour: ``unicode`` or ``str``
+    :returns: Normalised CSS colour of form xxxxxx
+    :rtype: ``unicode``
 
     """
 
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(metadata, file, encoding='utf-8', indent=2)
+    color = color.lower().strip('#')
 
+    if not css_colour(color) or not len(color) in (3, 6):
+        raise ValueError('Invalid CSS colour: {}'.format(color))
+
+    if len(color) == 3:  # Expand to 6 characters
+        r, g, b = color
+        color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
+
+    return color
+
+
+def hex_to_rgb(color):
+    """Convert CSS-style colour to ``(r, g, b)``
+
+    :param css_colour: xxx or xxxxxx CSS colour
+    :type css_colour: ``unicode`` or ``str``
+    :returns: ``(r, g, b)`` tuple of ``ints`` 0-255
+    :rtype: ``tuple``
+
+    """
+
+    color = normalize_hex_color(color)
+    r = int(color[:2], 16)
+    g = int(color[2:4], 16)
+    b = int(color[4:6], 16)
+
+    return (r, g, b)
+
+
+def rgb_to_hex(r, g, b):
+    """Return CSS hex representation of colour
+
+    :param r: Red
+    :type r: ``int`` 0-255
+    :param g: Green
+    :type g: ``int`` 0-255
+    :param b: Blue
+    :type b: ``int`` 0-255
+    :returns: 6-character CSS hex
+    :rtype: ``unicode``
+
+    """
+
+    def clamp(i):
+        return int(max(0, min(i, 255)))
+
+    color = '{:02x}{:02x}{:02x}'.format(clamp(r), clamp(g), clamp(b)).lower()
+
+    return color
+
+
+def hsv_to_rgb(h, s, v):
+    """Convert HSV to RGB (for CSS, i.e. 0-255, not floats)
+
+    :param h: Hue
+    :type h: ``float``
+    :param s: Saturation
+    :type s: ``float``
+    :param v: Value
+    :type v: ``float``
+    :returns: ``(r, g, b)`` tuple, where the values are ints between 0-255
+    :rtype: ``tuple``
+
+    """
+    return map(lambda i: i * 255, colorsys.hsv_to_rgb(h, s, v))
+
+
+def rgb_to_hsv(r, g, b):
+    """Convert RGB colour to HSV
+
+    :param r: Red
+    :type r: ``int`` 0-255
+    :param g: Green
+    :type g: ``int`` 0-255
+    :param b: Blue
+    :type b: ``int`` 0-255
+    :returns: ``(h, s, v)`` tuple of floats
+    :rtype: ``tuple``
+    """
+
+    r, g, b = map(lambda i: i / 255.0, (r, g, b))
+    return colorsys.rgb_to_hsv(r, g, b)
+
+
+def set_background():
+    """Determine whether background is ``light`` or ``dark`` and save the
+    value to ``BACKGROUND_COLOUR_FILE``
+
+    """
+
+    do_update = False
+
+    if os.path.exists(BACKGROUND_COLOUR_FILE):
+        if (os.stat(ALFRED_PREFS_PATH).st_mtime >
+                os.stat(BACKGROUND_COLOUR_FILE).st_mtime):
+            _log.debug('Alfred prefs updated')
+            do_update = True
+    else:
+        do_update = True
+
+    if do_update:
+        # Determine and save background colour
+        if os.path.exists(BACKGROUND_UTIL):
+            colour = subprocess.check_output([BACKGROUND_UTIL]).strip()
+            with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
+                file.write(colour)
+            _log.debug('Theme background : {}'.format(colour))
+
+
+def background_is_dark():
+    """Return ``True`` if background is dark, else ``False``"""
+
+    set_background()
+
+    with open(BACKGROUND_COLOUR_FILE, 'rb') as file:
+        colour = file.read().strip()
+
+    _log.debug('Background is `{}`'.format(colour))
+
+    if colour == 'dark':
+        return True
+
+    return False
+
+
+def background_is_light():
+    """Return ``True`` if background is light, else ``False``"""
+
+    return not background_is_dark()
+
+
+def color_is_dark(color):
+    """Return ``True`` if CSS ``color`` is dark, else ``False``"""
+
+    r, g, b = hex_to_rgb(color)
+
+    value = sum([(r * 299), (g * 587), (b * 114)]) / 1000.0
+
+    if value < 140:
+        _log.debug('{} is dark'.format(color))
+        return True
+
+    _log.debug('{} is light'.format(color))
+    return False
+
+
+def color_is_light(color):
+    """Return ``True`` if CSS ``color`` is light, else ``False``"""
+
+    return not color_is_dark(color)
+
+
+def lighten_color(color):
+    """Return lightened version of CSS ``color``
+
+    :param color: CSS colour of form XXX or XXXXXXX
+    :type color: ``unicode`` or ``str``
+    :returns: CSS colour
+    :rtype: ``unicode``
+
+    """
+
+    color = normalize_hex_color(color)
+
+    cachepath = os.path.join(COLOUR_CACHE, color)
+
+    if os.path.exists(cachepath):
+        with open(cachepath, 'rb') as file:
+            return file.read().strip()
+
+    h, s, v = rgb_to_hsv(*hex_to_rgb(color))
+
+    v = 1 - v  # flip Value
+
+    lighter = rgb_to_hex(*hsv_to_rgb(h, s, v))
+
+    _log.debug('Lightened `{}` to `{}`'.format(color, lighter))
+
+    if not os.path.exists(COLOUR_CACHE):
+        os.makedirs(COLOUR_CACHE, 0755)
+
+    with open(cachepath, 'wb') as file:
+        file.write(lighter)
+
+    return lighter
+
+
+#-----------------------------------------------------------------------
+# Installation/update functions
+#-----------------------------------------------------------------------
 
 def _download_if_updated(url, filepath, ignore_missing=False):
     """Replace ``filepath`` with file at ``url`` if it has been updated
@@ -342,9 +610,9 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 
     """
 
-    update_data = _load_update_metadata()
-    # Get previous ETag for this URL
-    previous_etag = update_data.setdefault('etags', {}).get(url, None)
+    global metadata
+
+    previous_etag = metadata.get_etag(url)
 
     _log.debug('Opening URL `{}` ...'.format(url))
 
@@ -363,8 +631,7 @@ def _download_if_updated(url, filepath, ignore_missing=False):
             file.write(response.read())
             _log.info('Saved `{}`'.format(filepath))
 
-        update_data['etags'][url] = current_etag
-        _save_update_metadata(update_data)
+        metadata.set_etag(url, current_etag)
 
         return True
 
@@ -374,9 +641,9 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 def _update():
     """Check for periodical updates of bundler and pip"""
 
-    update_data = _load_update_metadata()
+    global metadata
 
-    if time.time() - update_data.get('updated', 0) < UPDATE_INTERVAL:
+    if not metadata.wants_update():
         return
 
     _notify('Workflow libraries are being updated',
@@ -398,9 +665,7 @@ def _update():
         _log.error('Error updating bundler. `update.sh` returned {}'.format(
                    retcode))
 
-    update_data = _load_update_metadata()
-    update_data['updated'] = time.time()
-    _save_update_metadata(update_data)
+    metadata.set_updated()
 
 
 def _install_pip():
@@ -436,11 +701,6 @@ def _install_pip():
 
     assert os.path.exists(os.path.join(HELPER_DIR, 'pip')), \
         'Pip  installation failed'
-
-    update_data = _load_update_metadata()
-    update_data['pip_updated'] = time.time()
-
-    _save_update_metadata(update_data)
 
     if os.path.exists(installer_path):
         os.unlink(installer_path)
@@ -535,14 +795,14 @@ def icon(font, icon, color='000000', alter=True):
     # Normalise arguments
     font = font.lower()
     icon = icon.lower()
-    color = color.lower()
 
-    if not css_colour(color) or not len(color) in (3, 6):  # Invalid colour
-        raise ValueError('Invalid CSS colour: {}'.format(color))
+    color = normalize_hex_color(color)
 
-    if len(color) == 3:  # Expand to 6 characters
-        r, g, b = color
-        color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
+    # Invert colour if necessary
+    if alter:
+
+        if background_is_dark() and color_is_dark(color):
+            color = lighten_color(color)
 
     icondir = os.path.join(ICON_CACHE, font, color)
     path = os.path.join(icondir, '{}.png'.format(icon))
@@ -703,3 +963,4 @@ def init(requirements=None):
     sys.path.insert(0, install_dir)
 
 _log = logger('bundler')
+metadata = Metadata(UPDATE_JSON_PATH)

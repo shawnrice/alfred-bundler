@@ -108,7 +108,6 @@ from __future__ import print_function, unicode_literals
 
 import json
 import os
-import time
 import subprocess
 import urllib2
 import imp
@@ -138,6 +137,9 @@ PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 
+# Where colour alternatives are cached
+COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
+
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/bundler/wrappers/alfred.bundler.misc.sh'.format(
@@ -155,7 +157,7 @@ UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
 BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
 
 # HTTP timeout
-HTTP_TIMEOUT = 20
+HTTP_TIMEOUT = 5
 
 # The actual bundler module will be imported into this variable
 _bundler = None
@@ -189,6 +191,10 @@ _log.setLevel(logging.DEBUG)
 # Installation/update functions
 #-----------------------------------------------------------------------
 
+class InstallationError(Exception):
+    """Raised if installation of the bash helper script fails"""
+
+
 def _load_update_metadata():
     """Load update metadata from cache
 
@@ -215,50 +221,39 @@ def _save_update_metadata(metadata):
         json.dump(metadata, file, encoding='utf-8', indent=2)
 
 
-def _download_if_updated(url, filepath, ignore_missing=False):
-    """Replace ``filepath`` with file at ``url`` if it has been updated
-    as determined by ``etag`` read from ``UPDATE_JSON_PATH``.
+def _download(url, filepath):
+    """Download ``url`` to ``filepath``
 
-    :param url: URL to remote resource
+    May raise IOError or urllib2.HTTPError
+
+    :param url: URL to download
     :type url: ``unicode`` or ``str``
-    :param filepath: Local filepath to save URL at
+    :param filepath: Path to download URL to
     :type filepath: ``unicode`` or ``str``
-    :param ignore_missing: If ``True``, do not automatically download the
-        file just because it is missing.
-    :type ignore_missing: ``boolean``
-    :returns: ``True`` if updated, else ``False``
-    :rtype: ``boolean``
+    :returns: None
 
     """
-
-    update_data = _load_update_metadata()
-    # Get previous ETag for this URL
-    previous_etag = update_data.setdefault('etags', {}).get(url, None)
 
     _log.debug('Opening URL `{}` ...'.format(url))
 
     response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
 
+    _log.debug('[{}] {}'.format(response.getcode(), url))
+
     if response.getcode() != 200:
         raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
                       response.getcode()), url)
 
-    current_etag = response.info().get('Etag')
+    dirpath = os.path.dirname(filepath)
 
-    force_download = not os.path.exists(filepath) and not ignore_missing
+    if not os.path.exists(dirpath):
+        os.makedirs(dirpath, 0755)
 
-    if current_etag != previous_etag or force_download:
+    with open(filepath, 'wb') as file:
         _log.info('Downloading `{}` ...'.format(url))
-        with open(filepath, 'wb') as file:
-            file.write(response.read())
-            _log.info('Saved `{}`'.format(filepath))
+        file.write(response.read())
 
-        update_data['etags'][url] = current_etag
-        _save_update_metadata(update_data)
-
-        return True
-
-    return False
+    _log.info('Saved `{}`'.format(filepath))
 
 
 def _bootstrap():
@@ -274,33 +269,36 @@ def _bootstrap():
         return
 
     # Create local directories if they don't exist
-    for dirpath in (HELPER_DIR, CACHE_DIR):
+    for dirpath in (HELPER_DIR, CACHE_DIR, COLOUR_CACHE):
         if not os.path.exists(dirpath):
             _log.debug('Creating directory `{}`'.format(dirpath))
             os.makedirs(dirpath)
 
     if not os.path.exists(HELPER_PATH):  # Install bash misc wrapper
         # Install bash wrapper from GitHub
-        _download_if_updated(HELPER_URL, HELPER_PATH)
-
-        assert os.path.exists(HELPER_PATH), \
-            'Error bootstrapping bundler. Could not download helper script.'
+        try:
+            _download(HELPER_URL, HELPER_PATH)
+        except Exception as err:
+            _log.exception(err)
+            raise InstallationError('Error downloading `{}` to `{}`: {}'.format(
+                                    HELPER_URL, HELPER_PATH, err))
 
     if not os.path.exists(BUNDLER_PY_LIB):  # Install bundler
         _log.info('Installing bundler ...')
+
         cmd = ['/bin/bash', HELPER_PATH, 'utility', 'Terminal-Notifier']
         _log.debug('Executing command : {}'.format(cmd))
+
         subprocess.call(cmd)
 
-        assert os.path.exists(BUNDLER_PY_LIB), \
-            'Error bootstrapping bundler. Bundler installation failed.'
-
-        update_data = _load_update_metadata()
-        update_data['updated'] = time.time()
-        _save_update_metadata(update_data)
+        if not os.path.exists(BUNDLER_PY_LIB):
+            raise InstallationError(
+                'Error bootstrapping bundler. Bundler installation failed.')
 
     # Import bundler
     _bundler = imp.load_source('AlfredBundler', BUNDLER_PY_LIB)
+    _log.debug('AlfredBundler.py imported')
+    _bundler.metadata.set_updated()
 
 
 def icon(font, icon, color='000000', alter=True):
