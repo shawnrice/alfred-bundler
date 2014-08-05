@@ -96,10 +96,9 @@ function AlfredBundler::icon() {
     alter="FALSE"
   fi
   
-
-
   # Make the color cache directory if it doesn't exist
   [[ ! -d "${AB_DATA}/data/color-cache" ]] && mkdir -m 775 -p "${AB_DATA}/data/color-cache"
+
 
   if [[ "${alter}" == "TRUE" ]]; then
     color=$(AlfredBundler::alter_color ${color} TRUE)
@@ -132,9 +131,10 @@ function AlfredBundler::icon() {
     status=$?
     if [[ $status -eq 0 ]]; then
       success="TRUE"
+      AlfredBundler::report "Downloaded icon ${name} from ${font} in color ${color}" INFO
       break
     else 
-      echo "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" >&2
+      AlfredBundler::report "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" ERROR
       [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
       success="FALSE"
     fi
@@ -147,6 +147,7 @@ function AlfredBundler::icon() {
     echo "${icon_path}"
   else
     echo "${AB_DATA}/bundler/meta/icons/default.png"
+    AlfredBundler::report "Could not download icon ${name}" 3
     return 1
   fi
 
@@ -162,7 +163,7 @@ function AlfredBundler::load {
   # We need two arguments at minimum
   if [ "$#" -lt 2 ]; then
     # Send message to STDERR
-    echo "Error: the load function requires a minimum of two arguments" >&2
+    AlfredBundler::report "Trying to load asset requires a minimum of two arguments." CRITICAL
     return 1
   fi
 
@@ -196,18 +197,18 @@ function AlfredBundler::load {
       json="${AB_DATA}/bundler/meta/defaults/${name}.json"
     else
       # Send error message to STDERR
-      echo "Error: no valid JSON file found. This is a problem with the "\
+      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the "\
            "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." >&2
+           "workflow author know." CRITICAL
       return 1
     fi
   else
     # Trying to use custom json
     if [ ! -f "${json}" ]; then
       # json file does not exist; send error message to STDERR
-      echo "Error: no valid JSON file found. This is a problem with the "\
+      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the "\
            "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." >&2
+           "workflow author know." CRITICAL
       return 1
     fi
   fi
@@ -256,8 +257,6 @@ function AlfredBundler::load {
     fi
   fi
 
-
-
   if [ ! -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
       # Install the asset
       php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
@@ -277,7 +276,10 @@ function AlfredBundler::load {
 
   # Create cache directory if it doesn't exist
   cache_dir="${AB_DATA}/data/call-cache"
-  [[ ! -d "${cache_dir}" ]] && mkdir -p -m 775 "${cache_dir}"
+  if [[ ! -d "${cache_dir}" ]]; then
+    mkdir -p -m 775 "${cache_dir}"
+    [[ $? -ne 0 ]] && AlfredBundler::report "Could not make directory: ${cache_dir}" CRITICAL || AlfredBundler::report "Created directory: ${cache_dir}" INFO
+  fi
 
   # Cache path for this call
   key=$(md5 -q -s "${name}-${version}-${type}-${json}")
@@ -343,8 +345,7 @@ function AlfredBundler::load {
   fi
 
   # Send message to STDERR
-  echo "You've encountered a problem with the __implementation__ of"\
-        "the Alfred Bundler; please let the workflow author know." >&2
+  AlfredBundler::report "You've encountered a problem with the __implementation__ of" "the Alfred Bundler; please let the workflow author know." "ERROR"
   return 1
 
 } # End AlfredBundler::load
@@ -369,6 +370,77 @@ function AlfredBundler::utility() {
 
 ################################################################################
 ### End Asset Functions
+################################################################################
+
+################################################################################
+### Start Log Functions
+################################################################################
+
+function AlfredBundler::log() {
+a=0
+}
+
+function AlfredBundler::report() {
+# Message — $1
+# Level   — $2
+
+local message
+local level
+local file
+local line
+local internal
+
+local levels
+
+local date
+
+message="$1"
+level="$2"
+
+[[ "${level}" == "WARN" ]] && level="WARNING"
+[[ "${level}" == "FATAL" ]] && level="CRITICAL"
+
+# @TODO : Add in better error checking for empty arguments
+internal=$(caller)
+line=$(echo "${internal}" | cut -d ' ' -f1)
+file="${internal#${line} }"
+
+# Define the log levels
+levels=(DEBUG INFO WARNING ERROR CRITICAL)
+
+date="["$(date +"%T")"]"
+
+if [[ $# -lt 2 ]]; then
+  echo "${date} [${file}:${line}] [DEBUG] The logging function needs to be used with a log level and message." >&2
+  return 0
+fi
+
+# If the level is an int, then echo this:
+if [[ $level =~ ^-?[0-9]+$ ]]; then
+  if [ ! -z ${levels[level]} ]; then
+    echo "${date} [${file}:${line}] [${levels[level]}] ${message}" >&2
+  else
+    echo "${date} [${file}:${line}] [WARNING] Invalid log level (${level}); defaulting to 'DEBUG'" >&2
+    echo "${date} [${file}:${line}] [DEBUG] ${message}" >&2
+  fi
+ return 0
+elif [[ "${levels[@]}" =~ $level ]]; then
+  echo "${date} [${file}:${line}] [${level}] ${message}" >&2 
+  return 0
+else
+  echo "${date} [${file}:${line}] [WARNING] Invalid log level (${level}); defaulting to 'DEBUG'" >&2
+  echo "${date} [${file}:${line}] [DEBUG] ${message}" >&2
+fi
+
+
+}
+
+function AlfredBundler::internalLog() {
+a=0
+}
+
+################################################################################
+### End Log Functions
 ################################################################################
 
 ################################################################################
