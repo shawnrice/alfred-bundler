@@ -137,6 +137,9 @@ PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Where helper scripts will be installed
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 
+# Where colour alternatives are cached
+COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
+
 # Where installer.sh can be downloaded from
 HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
               '{}/bundler/wrappers/alfred.bundler.misc.sh'.format(
@@ -266,7 +269,7 @@ def _bootstrap():
         return
 
     # Create local directories if they don't exist
-    for dirpath in (HELPER_DIR, CACHE_DIR):
+    for dirpath in (HELPER_DIR, CACHE_DIR, COLOUR_CACHE):
         if not os.path.exists(dirpath):
             _log.debug('Creating directory `{}`'.format(dirpath))
             os.makedirs(dirpath)

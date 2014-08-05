@@ -143,6 +143,7 @@ BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
 DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
+
 CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
@@ -157,6 +158,9 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
+# Where colour alternatives are cached
+COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 
 # Where icons will be cached
 ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
@@ -398,7 +402,7 @@ def normalize_hex_color(color):
 
     """
 
-    color = color.lower()
+    color = color.lower().strip('#')
 
     if not css_colour(color) or not len(color) in (3, 6):
         raise ValueError('Invalid CSS colour: {}'.format(color))
@@ -538,8 +542,10 @@ def color_is_dark(color):
     value = sum([(r * 299), (g * 587), (b * 114)]) / 1000.0
 
     if value < 140:
+        _log.debug('{} is dark'.format(color))
         return True
 
+    _log.debug('{} is light'.format(color))
     return False
 
 
@@ -561,6 +567,12 @@ def lighten_color(color):
 
     color = normalize_hex_color(color)
 
+    cachepath = os.path.join(COLOUR_CACHE, color)
+
+    if os.path.exists(cachepath):
+        with open(cachepath, 'rb') as file:
+            return file.read().strip()
+
     h, s, v = rgb_to_hsv(*hex_to_rgb(color))
 
     v = 1 - v  # flip Value
@@ -568,6 +580,12 @@ def lighten_color(color):
     lighter = rgb_to_hex(*hsv_to_rgb(h, s, v))
 
     _log.debug('Lightened `{}` to `{}`'.format(color, lighter))
+
+    if not os.path.exists(COLOUR_CACHE):
+        os.makedirs(COLOUR_CACHE, 0755)
+
+    with open(cachepath, 'wb') as file:
+        file.write(lighter)
 
     return lighter
 
@@ -782,12 +800,7 @@ def icon(font, icon, color='000000', alter=True):
 
     # Invert colour if necessary
     if alter:
-        # bg_dark = background_is_dark()
-        # icon_dark = color_is_dark(color)
-        # _log.debug('Background is dark : {}, Colour is dark: {}'.format(
-        #            bg_dark, icon_dark))
 
-        # if bg_dark and icon_dark:
         if background_is_dark() and color_is_dark(color):
             color = lighten_color(color)
 
