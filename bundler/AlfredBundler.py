@@ -124,6 +124,7 @@ import cPickle
 import urllib2
 import time
 import shutil
+import colorsys
 import logging
 import logging.handlers
 
@@ -173,6 +174,18 @@ UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
 # URL of Pip installer (`get-pip.py`)
 PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
                      'develop/contrib/get-pip.py')
+
+# Background colour (`light` or `dark`)
+BACKGROUND_COLOUR_FILE = os.path.join(DATA_DIR, 'theme_background')
+
+# Background util to determine whether background is light or dark
+# Result is saved to `BACKGROUND_COLOUR_FILE`
+BACKGROUND_UTIL = os.path.join(BUNDLER_DIR, 'bundler', 'includes',
+                               'LightOrDark')
+
+# Alfred's preferences file
+ALFRED_PREFS_PATH = os.path.expanduser(
+    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist')
 
 # HTTP timeout
 HTTP_TIMEOUT = 5
@@ -372,34 +385,189 @@ def _notify(title, message):
 
 
 #-----------------------------------------------------------------------
-# Installation/update functions
+# Icon helpers
 #-----------------------------------------------------------------------
 
-# def _load_update_metadata():
-#     """Load update metadata from cache
+def normalize_hex_color(color):
+    """Convert CSS colour to 6-characters and lowercase
 
-#     :returns: metadata ``dict``
+    :param css_colour: CSS colour of form XXX or XXXXXX
+    :type css_colour: ``unicode`` or ``str``
+    :returns: Normalised CSS colour of form xxxxxx
+    :rtype: ``unicode``
 
-#     """
+    """
 
-#     metadata = {}
-#     if os.path.exists(UPDATE_JSON_PATH):
-#         with open(UPDATE_JSON_PATH, 'rb') as file:
-#             metadata = json.load(file, encoding='utf-8')
-#     return metadata
+    color = color.lower()
+
+    if not css_colour(color) or not len(color) in (3, 6):
+        raise ValueError('Invalid CSS colour: {}'.format(color))
+
+    if len(color) == 3:  # Expand to 6 characters
+        r, g, b = color
+        color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
+
+    return color
 
 
-# def _save_update_metadata(metadata):
-#     """Save ``metadata`` ``dict`` to cache
+def hex_to_rgb(color):
+    """Convert CSS-style colour to ``(r, g, b)``
 
-#     :param metadata: metadata to save
-#     :type metadata: ``dict``
+    :param css_colour: xxx or xxxxxx CSS colour
+    :type css_colour: ``unicode`` or ``str``
+    :returns: ``(r, g, b)`` tuple of ``ints`` 0-255
+    :rtype: ``tuple``
 
-#     """
+    """
 
-#     with open(UPDATE_JSON_PATH, 'wb') as file:
-#         json.dump(metadata, file, encoding='utf-8', indent=2)
+    color = normalize_hex_color(color)
+    r = int(color[:2], 16)
+    g = int(color[2:4], 16)
+    b = int(color[4:6], 16)
 
+    return (r, g, b)
+
+
+def rgb_to_hex(r, g, b):
+    """Return CSS hex representation of colour
+
+    :param r: Red
+    :type r: ``int`` 0-255
+    :param g: Green
+    :type g: ``int`` 0-255
+    :param b: Blue
+    :type b: ``int`` 0-255
+    :returns: 6-character CSS hex
+    :rtype: ``unicode``
+
+    """
+
+    def clamp(i):
+        return max(0, min(i, 255))
+
+    color = '{:02x}{:02x}{:02x}'.format(clamp(r), clamp(g), clamp(b)).lower()
+
+    return color
+
+
+def hsv_to_rgb(h, s, v):
+    """Convert HSV to RGB (for CSS, i.e. 0-255, not floats)
+
+    :param h: Hue
+    :type h: ``float``
+    :param s: Saturation
+    :type s: ``float``
+    :param v: Value
+    :type v: ``float``
+    :returns: ``(r, g, b)`` tuple, where the values are ints between 0-255
+    :rtype: ``tuple``
+
+    """
+    return map(lambda i: i * 255, colorsys.hsv_to_rgb(h, s, v))
+
+
+def rgb_to_hsv(r, g, b):
+    """Convert RGB colour to HSV
+
+    :param r: Red
+    :type r: ``int`` 0-255
+    :param g: Green
+    :type g: ``int`` 0-255
+    :param b: Blue
+    :type b: ``int`` 0-255
+    :returns: ``(h, s, v)`` tuple of floats
+    :rtype: ``tuple``
+    """
+
+    r, g, b = map(lambda i: i / 255.0, (r, g, b))
+    return colorsys.rgb_to_hsv(r, g, b)
+
+
+def set_background():
+    """Determine whether background is ``light`` or ``dark`` and save the
+    value to ``BACKGROUND_COLOUR_FILE``
+
+    """
+
+    do_update = False
+
+    if os.path.exists(BACKGROUND_COLOUR_FILE):
+        if (os.stat(ALFRED_PREFS_PATH).st_mtime >
+                os.stat(BACKGROUND_COLOUR_FILE).st_mtime):
+            do_update = True
+    else:
+        do_update = True
+
+    if do_update:
+        # Determine and save background colour
+        if os.path.exists(BACKGROUND_UTIL):
+            colour = subprocess.check_output([BACKGROUND_UTIL]).strip()
+            with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
+                file.write(colour)
+
+
+def background_is_dark():
+    """Return ``True`` if background is dark, else ``False``"""
+
+    set_background()
+
+    with open(BACKGROUND_COLOUR_FILE, 'rb') as file:
+        colour = file.read().strip()
+
+    _log.debug('Background is `{}`'.format(colour))
+
+    if colour == 'dark':
+        return True
+
+    return False
+
+
+def background_is_light():
+    """Return ``True`` if background is light, else ``False``"""
+
+    return not background_is_dark()
+
+
+def color_is_dark(color):
+    """Return ``True`` if CSS ``color`` is dark, else ``False``"""
+
+    r, g, b = hex_to_rgb(color)
+
+    value = sum((r * 299), (g * 587), (b * 114)) / 1000.0
+
+    if value < 140:
+        return True
+    return False
+
+
+def color_is_light(color):
+    """Return ``True`` if CSS ``color`` is light, else ``False``"""
+
+    return not color_is_dark(color)
+
+
+def lighten_color(color):
+    """Return lightened version of CSS ``color``
+
+    :param color: CSS colour of form XXX or XXXXXXX
+    :type color: ``unicode`` or ``str``
+    :returns: CSS colour
+    :rtype: ``unicode``
+
+    """
+
+    color = normalize_hex_color(color)
+
+    h, s, v = rgb_to_hsv(hex_to_rgb(color))
+
+    v = 1 - v  # flip Value
+
+    return rgb_to_hex(*hsv_to_rgb(h, s, v))
+
+
+#-----------------------------------------------------------------------
+# Installation/update functions
+#-----------------------------------------------------------------------
 
 def _download_if_updated(url, filepath, ignore_missing=False):
     """Replace ``filepath`` with file at ``url`` if it has been updated
@@ -602,14 +770,13 @@ def icon(font, icon, color='000000', alter=True):
     # Normalise arguments
     font = font.lower()
     icon = icon.lower()
-    color = color.lower()
 
-    if not css_colour(color) or not len(color) in (3, 6):  # Invalid colour
-        raise ValueError('Invalid CSS colour: {}'.format(color))
+    color = normalize_hex_color(color)
 
-    if len(color) == 3:  # Expand to 6 characters
-        r, g, b = color
-        color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
+    # Invert colour if necessary
+    if alter:
+        if background_is_dark() and color_is_dark(color):
+            color = lighten_color(color)
 
     icondir = os.path.join(ICON_CACHE, font, color)
     path = os.path.join(icondir, '{}.png'.format(icon))
