@@ -4,6 +4,16 @@
 
 # Usage : icns_to_png.sh </full/path/to/image.icns> </full/path/to/icon_name.png>
 
+#######################################
+# Checks to make sure the arguments are valid
+# Globals:
+#   None
+# Arguments:
+#   1 — Path to icns file
+#   2 — Path to png output file
+# Returns:
+#   None
+#######################################
 function check_arguments() {
   # Check to make sure that all of the arguments are there and correct
   # before running the script
@@ -35,6 +45,16 @@ function check_arguments() {
   return 0
 }
 
+#######################################
+# Converts an icns file to a png
+# Globals:
+#   None
+# Arguments:
+#   1 — Path to icns file
+#   2 — Path to png output file
+# Returns:
+#   None
+#######################################
 function main() {
 
   if [[ $(check_arguments "$1" "$2") -ne 0 ]]; then

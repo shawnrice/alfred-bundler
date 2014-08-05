@@ -3,9 +3,18 @@
 # Make icns files from pngs
 
 # Feed this script a png file, and it will create an icns file out of it
-
 # Usage : png_to_icns.sh </full/path/to/image.png> </full/path/to/icon_name.icns>
 
+#######################################
+# Checks to make sure the arguments are valid
+# Globals:
+#   None
+# Arguments:
+#   1 — Path to png file
+#   2 — Path to icns output file
+# Returns:
+#   None
+#######################################
 function check_arguments() {
   # Check to make sure that all of the arguments are there and correct
   # before running the script
@@ -37,6 +46,16 @@ function check_arguments() {
   return 0
 }
 
+#######################################
+# Converts a png file to an icns
+# Globals:
+#   None
+# Arguments:
+#   1 — Path to png file
+#   2 — Path to icns output file
+# Returns:
+#   None
+#######################################
 function main() {
 
   if [[ $(check_arguments "$1" "$2") -ne 0 ]]; then
