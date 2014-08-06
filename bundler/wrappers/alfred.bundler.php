@@ -431,8 +431,8 @@ if ( strpos( $argv[0], basename( __FILE__ ) ) !== FALSE ) {
   $bundler = new AlfredBundler;
 
   // Icon test
-  echo $bundler->icon( 'align-center', 'fontawesome', 'acc321', TRUE );     echo PHP_EOL;
-  echo $bundler->icon( 'align-center', 'fontawesome', 'acc321', 'ffffff' ); echo PHP_EOL;
+  echo $bundler->icon( 'fontawesome', 'align-center', 'acc321', TRUE );     echo PHP_EOL;
+  echo $bundler->icon( 'fontawesome', 'align-center', 'acc321', 'ffffff' ); echo PHP_EOL;
 
   // Composer Test -- This will not work unless a Bundle ID is present
   $success = $bundler->composer( array(

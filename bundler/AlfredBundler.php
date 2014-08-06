@@ -484,7 +484,7 @@ class AlfredBundlerInternalClass {
     } else {
       $this->reportLog( "Download error with icon '{$name}'. Check argument " .
         "order.", 'ERROR', __FILE__, __LINE__);
-      unlink( $iconPath );
+      // unlink( $iconPath );
       return "{$this->data}/bundler/meta/icons/default.png";
     }
 
