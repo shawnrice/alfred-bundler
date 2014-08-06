@@ -353,8 +353,13 @@ class AlfredBundlerInternalClass {
         $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
         file_put_contents( "{$installDir}/composer.json", $json );
 
-        if ( hash_file( 'md5', "{$installDir}/composer.json" ) == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
-          require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        if ( hash_file( 'md5', "{$installDir}/composer.json" )
+          == hash_file( 'md5', "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
+          $this->reportLog( "Loaded Composer packages for {$this->bundle}.",
+            'INFO', basename( __FILE__ ), __LINE__ );
+          require_once(
+            "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+
           return TRUE;
         } else {
           $install = TRUE;
@@ -372,9 +377,12 @@ class AlfredBundlerInternalClass {
         $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
       }
       if ( $this->installComposerPackage( $packages ) === TRUE ) {
+        $this->reportLog( "Loaded Composer packages for {$this->bundle}.",
+          'INFO', basename( __FILE__ ), __LINE__ );
         require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
         return TRUE;
       } else {
+        $this->reportLog( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', basename( __FILE__ ), __LINE__ );
         $this->logInternal( 'composer', "ERROR: failed to install packages for {$this->bundle}" );
         return FALSE;
       }
@@ -603,7 +611,8 @@ class AlfredBundlerInternalClass {
    * @return {bool}            TRUE on success, FALSE on failure
    */
   private function installComposerPackage( $packages ) {
-    if ( ! is_array( $packages) ) { // The packages variable needs to be an array
+    if ( ! is_array( $packages) ) {
+      // The packages variable needs to be an array
       $this->reportLog( "An array must be passed to install Composer assets.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
     }
@@ -647,7 +656,8 @@ class AlfredBundlerInternalClass {
             $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
             $f[ $num ] = $line;
           endforeach;
-          file_put_contents( "{$installDir}/vendor/composer/{$file}", implode( '', $f ) );
+          file_put_contents( "{$installDir}/vendor/composer/{$file}",
+            implode( '', $f ) );
         }
       endforeach;
       $this->reportLog( "Rewrote Composer autoload file for workflow.", 'INFO', basename( __FILE__ ), __LINE__ );
