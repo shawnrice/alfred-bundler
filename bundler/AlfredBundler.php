@@ -452,12 +452,29 @@ class AlfredBundlerInternalClass {
       // test the server somehow....
     endforeach;
 
-    $success = $this->download( "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
+  $bundler_servers = array(
+      "https://github.com/shawnrice/alfred-bundler/archive/{$this->major_version}{$suffix}",
+      "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->major_version}{$suffix}"
+    );
 
-    if ( $success === TRUE )
-      return $iconPath;
+    // Cycle through the servers until we find one that is up.
+    foreach ( $bundler_servers as $server ) :
+      $success = $this->download(
+        "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
+      if ( $success === TRUE ) {
+        break; // We found one, so break
+      }
+    endforeach;
 
-    return FALSE;
+    // If success is true, then we downloaded the icon
+    if ( $success !== TRUE ) {
+      $this->report( "Could not download icon {$name} from {$font}.", 'ERROR', __FILE__, __LINE__ );
+      unlink( $iconPath );
+      return "{$this->data}/bundler/meta/icons/default.png";
+    }
+
+    // Success. Send the new icon path
+    return $iconPath;
 
   }
 
