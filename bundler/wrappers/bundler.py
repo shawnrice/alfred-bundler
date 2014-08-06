@@ -301,7 +301,7 @@ def _bootstrap():
     _bundler.metadata.set_updated()
 
 
-def icon(font, icon, color='000000', alter=True):
+def icon(font, icon, color='000000', alter=False):
     """Get path to specified icon, downloading it first if necessary.
 
     ``font``, ``icon`` and ``color`` are normalised to lowercase. In

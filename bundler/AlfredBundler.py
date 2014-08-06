@@ -770,7 +770,7 @@ def logger(name, logpath=None):
     return logger
 
 
-def icon(font, icon, color='000000', alter=True):
+def icon(font, icon, color='000000', alter=False):
     """Get path to specified icon, downloading it first if necessary.
 
     ``font``, ``icon`` and ``color`` are normalised to lowercase. In
