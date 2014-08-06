@@ -201,8 +201,7 @@ function AlfredBundler::install_bundler {
 
   # Load Terminal Notifier
   notifier=$(AlfredBundler::utility "Terminal-Notifier")
-  echo "${notifier}"
-  exit 0
+
   # Send notification that the installation is complete
   "${notifier}" -title 'Instllation Complete' \
     -message 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
@@ -232,9 +231,6 @@ function main() {
     . "${AB_ME}/../AlfredBundler.sh"
     # . "${AB_DATA}/bundler/AlfredBundler.sh"
   fi
-
-  echo $(AlfredBundler::utility "Terminal-Notifier")
-  exit
 
   if [ "$1" == "icon" ]; then
     # <font> <icon> <color (optional)> <alter (optional)>
