@@ -347,7 +347,7 @@ class cached(object):
             # Cache results
             path = self.func(*args, **kwargs)
             self.cache[key] = path
-            with open(UTIL_CACHE_PATH, 'wb') as file:
+            with open(self.cachepath, 'wb') as file:
                 cPickle.dump(self.cache, file, protocol=2)
 
         return path
