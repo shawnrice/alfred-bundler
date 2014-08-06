@@ -306,7 +306,8 @@ class AlfredBundler {
     $this->report( "Alfred Bundler successfully installed, cleaning up...",
       'INFO', __FILE__, __LINE__ );
     unlink( "{$this->cache}/bundler.zip" );
-    $this->rrmdir( $bundlerFolder );
+    // We'll do a cheat here to remove the leftover installation files
+    exec( "rm -fR '{$bundlerFolder}'" );
     return TRUE; // The bundler should be in place now
   }
 
