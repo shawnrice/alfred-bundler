@@ -129,6 +129,8 @@ class AlfredBundler {
         // send to an 'AlfredBundler' object that do not fit are passed to an
         // 'AlfredBundlerInternalClass' object that does all the heavy lifting.
         $this->bundler = new AlfredBundlerInternalClass( $this->plist );
+
+        chmod( "{$this->data}/bundler/includes/LightOrDark", 0755 );
       }
     }
 
