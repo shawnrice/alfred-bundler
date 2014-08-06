@@ -555,8 +555,8 @@ def color_is_light(color):
     return not color_is_dark(color)
 
 
-def lighten_color(color):
-    """Return lightened version of CSS ``color``
+def flip_color(color):
+    """Return lightened/darkened version of CSS ``color``
 
     :param color: CSS colour of form XXX or XXXXXXX
     :type color: ``unicode`` or ``str``
@@ -801,8 +801,8 @@ def icon(font, icon, color='000000', alter=True):
     # Invert colour if necessary
     if alter:
 
-        if background_is_dark() and color_is_dark(color):
-            color = lighten_color(color)
+        if background_is_dark() == color_is_dark(color):  # Both are dark/light
+            color = flip_color(color)
 
     icondir = os.path.join(ICON_CACHE, font, color)
     path = os.path.join(icondir, '{}.png'.format(icon))
