@@ -16,16 +16,16 @@ declare -r AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
 # Define the global bundler version.
 declare AB_MAJOR_VERSION="devel"
-AB_INSTALL_SUFFIX='-latest.zip'
 
 # Use version specified in env variable if given
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
   declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
-  AB_INSTALL_SUFFIX='.zip'
+  declare AB_INSTALL_SUFFIX='.zip'
 else
   # Define the global bundler version.
-  if [ -f "../meta/version_major" ]; then
-    declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
+  if [ -f "${AB_ME}/../meta/version_major" ]; then
+    declare AB_MAJOR_VERSION=$(cat "${AB_ME}/../meta/version_major")
+    declare AB_INSTALL_SUFFIX='-latest.zip'
   fi
 fi
 
