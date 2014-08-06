@@ -90,6 +90,9 @@ class AlfredBundlerInternalClass {
   // Just a resource to check on a fileinfo thingie.
   public $finfo;
 
+  //
+  public $alfredVersion;
+
   /**
    * The class constructor
    *
@@ -123,7 +126,35 @@ class AlfredBundlerInternalClass {
       $this->name   = '';
     }
 
-    $this->setBackground();
+    if ( isset( $_ENV[ 'alfred_version' ] ) ) {
+      // As of Alfred v2.4 Build 277, environmental variables are available
+      // that will make this process a lot easier and faster.
+      $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
+                            'build'  => $_ENV[ 'alfred_version_build' ]);
+      $this->home = $_ENV[ 'HOME' ];
+      $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
+      $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
+      $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
+      $this->theme = $_ENV[ 'alfred_theme' ];
+
+          // See if RGB value is greater than 140, if so, return light, else, return dark
+      preg_match_all("/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches);
+      $r = $matches[1];
+      $g = $matches[2];
+      $b = $matches[3];
+      if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
+        return 'light';
+      else
+        return 'dark';
+
+    } else {
+      // Pre Alfred v2.4:277.
+
+      // Do stuff here
+      $this->setBackground();
+    }
+
+
     $this->finfo = finfo_open( FILEINFO_MIME_TYPE );
     // Let's just return something
     return TRUE;
@@ -170,19 +201,20 @@ class AlfredBundlerInternalClass {
       // There is an error with the JSON file.
       // Output the error to STDERR.
 
-      $this->reportLog( "There is a problem with the " .
-                                        "_implementation_ of the Alfred Bundler " .
-                                        "when trying to load '{$name}'. Please " .
-                                        "let the workflow author know.", 'CRITICAL', __FILE__, $line );
+      $this->reportLog( "There is a problem with the __implementation__ of " .
+        "the Alfred Bundler when trying to load '{$name}'. Please " .
+        "let the workflow author know.", 'CRITICAL', __FILE__, $line );
       return FALSE;
     }
 
     $json = json_decode( file_get_contents( $json_path ), TRUE );
 
     // See if the file is installed
-    if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
-      if ( ! $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
+    if ( ! file_exists(
+      "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
 
+      if ( ! $this->installAsset(
+        "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
         return FALSE;
       }
     }
@@ -190,10 +222,12 @@ class AlfredBundlerInternalClass {
     // Register the asset. We don't need to worry about the return.
     $this->register( $name, $version ); $line = __LINE__;
     $this->reportLog( "Registering assset '{$name}'",
-      'INFO', __FILE__, $line );
+      'DEBUG', __FILE__, $line );
 
     // The file should exist now, but we'll try anyway
-    if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+    if ( ! file_exists(
+      "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+
       return FALSE;
     }
 
@@ -486,10 +520,7 @@ class AlfredBundlerInternalClass {
       // unlink( $iconPath );
       return "{$this->data}/bundler/meta/icons/default.png";
     }
-
-
     return "{$this->data}/bundler/meta/icons/default.png";
-
   }
 
   /**
@@ -503,6 +534,10 @@ class AlfredBundlerInternalClass {
       return FALSE;
     if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
       return FALSE;
+    if ( ! file_exists(
+      realpath( dirname( "{$this->plist}" ) . "/icon.png" ) ) ) {
+      return FALSE;
+    }
 
     if ( file_exists( "{$this->cache}/icns/{$this->bundle}.icns" ) ) {
       return "{$this->cache}/icns/{$this->bundle}.icns";
@@ -708,11 +743,11 @@ class AlfredBundlerInternalClass {
     if ( $color === FALSE )
       return FALSE;
 
-  	// See if RGB value is greater than 140, if so, return light, else, return dark
+  	// See if RGB value is greater than 127, if so, return light, else, return dark
   	if ( ( ( ( hexdec( substr( $color, 0, 2 ) ) * 299 ) // R
   		     + ( hexdec( substr( $color, 2, 2 ) ) * 587 ) // G
   		     + ( hexdec( substr( $color, 4, 2 ) ) * 114 ) // B
-  	  ) / 1000 ) > 140 )
+  	  ) / 1000 ) > 127 )
   		return 'light';
   	else
   		return 'dark';
