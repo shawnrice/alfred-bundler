@@ -232,6 +232,8 @@ function AlfredBundler::load {
   # Set the version to default if not specified
   [[ -z "${version}" ]] && version="default"
 
+  AlfredBundler::report "Will install ${type} '${name}' version ${version} ..." INFO
+
   # Check to make sure that the json file exists
   if [ -z "${json}" ]; then
     if [ -f "${AB_DATA}/bundler/meta/defaults/${name}.json" ]; then
