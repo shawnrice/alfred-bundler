@@ -1,6 +1,12 @@
 #!/bin/bash
 #
 # Uninstalls the bundler
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 declare -r AB_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
   # Get the major version from the file

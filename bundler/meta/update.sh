@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ##### INTERNAL NOTE -- FINISH COMMENTING
 
@@ -42,7 +48,7 @@ function check_update() {
     if [[ $now -lt $(cat "${data}/data/update-cache") ]]; then
       return 0
     else
-      
+
       # Cycle through the list of servers. If there is an error connecting, then we
       # move onto the next server on the list. If we get to one server and receive
       # a 404, then there is no update available. If there is a 200, then an update

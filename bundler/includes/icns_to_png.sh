@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # Extracts a png file from an icns file
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 # Usage : icns_to_png.sh </full/path/to/image.icns> </full/path/to/icon_name.png>
 

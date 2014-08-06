@@ -8,7 +8,11 @@
 #
 # See documentation on how to use: http://shawnrice.github.io/alfred-bundler/
 #
-# License: GPLv3
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
@@ -53,7 +57,7 @@ function AlfredBundler::load {
  # $2 -- asset name
  # $3 -- version : optional, defaults to 'default'
  # $4 -- json    : optional, path to json file
- 
+
 
   a=0
   # Function is empty here because it is overridden in the backend.
@@ -142,7 +146,7 @@ function AlfredBundler::install_bundler {
 
   i=0
   len=${#AB_BUNDLER_SERVERS[@]}
-  success=0  
+  success=0
 
   # Loop through the bundler servers until we get one that works
   while [[ $i -lt $len ]]; do
@@ -230,7 +234,7 @@ function main() {
     AlfredBundler::install_bundler
   else
     . "${AB_DATA}/bundler/AlfredBundler.sh"
-  fi  
+  fi
 }
 
 main

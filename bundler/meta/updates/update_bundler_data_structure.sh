@@ -1,10 +1,17 @@
 #!/bin/bash
 #
 # Updates the internal data structure of the bundler between minor versions
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
+
 
 # This script should be called __only__ by the update.sh script after a
 # successful update.
-# 
+#
 # Currently, this is a skeleton of the internal script and does not / cannot
 # be fully written until a minor update is needed.
 
@@ -67,7 +74,7 @@ function main() {
 		# Increase the counter for the next version
 		let counter+=1
 	done
-	return 0	
+	return 0
 }
 
 main

@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # Make icns files from pngs
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 # Feed this script a png file, and it will create an icns file out of it
 # Usage : png_to_icns.sh </full/path/to/image.png> </full/path/to/icon_name.icns>
@@ -99,7 +105,7 @@ function main() {
     # Create the normal size png file
     cp "$1" "${iconset}/icon_${sizes[$i]}x${sizes[$i]}.png"
     sips -z "${sizes[$i]}" "${sizes[$i]}" "${iconset}/icon_${sizes[$i]}x${sizes[$i]}.png" &>/dev/null
-    
+
     # Create the retina png file
     t=$((sizes[$i] * 2))
     cp "$1" "${iconset}/icon_${sizes[$i]}x${sizes[$i]}@2x.png"

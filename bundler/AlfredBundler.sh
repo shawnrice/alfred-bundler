@@ -1,8 +1,14 @@
 #!/bin/bash
 #
 # A framework to lazyload assets for Alfred 2 workflows.
-# 
+#
 # See documentation at http://shawnrice.gitub.io/alfred-bundler
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 
 
@@ -114,7 +120,7 @@ function AlfredBundler::icon() {
   else
     alter="FALSE"
   fi
-  
+
   # Make the color cache directory if it doesn't exist
   [[ ! -d "${AB_DATA}/data/color-cache" ]] && mkdir -m 775 -p "${AB_DATA}/data/color-cache"
 
@@ -139,7 +145,7 @@ function AlfredBundler::icon() {
   i=0
   icon_servers=$(cat "${AB_DATA}/bundler/meta/icon_servers")
   len=${#icon_servers[@]}
-  success="FALSE"  
+  success="FALSE"
 
   # Download icon from web service and cache it
   # Loop through the bundler servers until we get one that works
@@ -152,7 +158,7 @@ function AlfredBundler::icon() {
       success="TRUE"
       AlfredBundler::report "Downloaded icon ${name} from ${font} in color ${color}" INFO
       break
-    else 
+    else
       AlfredBundler::report "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" ERROR
       [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
       success="FALSE"
@@ -198,7 +204,7 @@ function AlfredBundler::load {
     return 1
   fi
 
-  # Keep the variables local so as not to interfere with the rest of the script  
+  # Keep the variables local so as not to interfere with the rest of the script
   local type
   local name
   local version
@@ -342,7 +348,7 @@ function AlfredBundler::load {
     bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
       "${bundle}" "${name}" "${version}"
 
-    # Echo the path and return a successful status  
+    # Echo the path and return a successful status
     echo "${path}"
     return 0
   else
@@ -373,7 +379,7 @@ function AlfredBundler::load {
     bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
       "${bundle}" "${name}" "${version}"
 
-    # Echo the path and return a successful status  
+    # Echo the path and return a successful status
     echo "${path}"
     return 0
 
@@ -388,7 +394,7 @@ function AlfredBundler::load {
 
 #######################################
 # Specific wrapper for the load function
-# 
+#
 # Globals:
 #   AB_DATA
 # Arguments:
@@ -396,7 +402,7 @@ function AlfredBundler::load {
 #   version
 #   json
 # Returns:
-#   Filepath to utility 
+#   Filepath to utility
 #
 #######################################
 function AlfredBundler::utility() {
@@ -478,7 +484,7 @@ if [[ $level =~ ^-?[0-9]+$ ]]; then
   fi
  return 0
 elif [[ "${levels[@]}" =~ $level ]]; then
-  echo "${date} [${file}:${line}] [${level}] ${message}" >&2 
+  echo "${date} [${file}:${line}] [${level}] ${message}" >&2
   return 0
 else
   echo "${date} [${file}:${line}] [WARNING] Invalid log level (${level}); defaulting to 'DEBUG'" >&2
@@ -637,7 +643,7 @@ function AlfredBundler::check_hex() {
 # # This function should be fed only proper hex codes
 # # Usage: <color> <other color|TRUE>
 function AlfredBundler::alter_color() {
-  
+
   local color
 
   # We need two arguments
@@ -652,7 +658,7 @@ function AlfredBundler::alter_color() {
   fi
 
   if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
-    
+
     if [[ -f "${AB_DATA}/data/color-cache/${color}" ]]; then
       echo $(cat "${AB_DATA}/data/color-cache/${color}")
       return 0
@@ -662,7 +668,7 @@ function AlfredBundler::alter_color() {
     if [ $2 == "TRUE" ]; then
       tmpcolor=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
       color=$(AlfredBundler::hex_to_rgb ${color})
-      color=($(AlfredBundler::rgb_to_hsv ${color}))  
+      color=($(AlfredBundler::rgb_to_hsv ${color}))
       color=(${color[0]} ${color[1]} $(echo "scale=10; 1 - ${color[2]}" | bc -l))
       color=$(AlfredBundler::hsv_to_rgb ${color[@]})
       color=$(AlfredBundler::rgb_to_hex ${color[@]})
@@ -953,7 +959,7 @@ function Math::Max() {
   i=0
   max=''
   len=${#numbers[@]}
-  
+
   while [[ $i -lt $len ]]; do
     if [ -z ${max} ]; then
       max="${numbers[$i]}"
@@ -965,7 +971,7 @@ function Math::Max() {
 
     : $[ i++ ]
   done;
-  
+
   echo $max
 }
 
@@ -989,7 +995,7 @@ function Math::Min() {
   i=0
   min=''
   len=${#numbers[@]}
-  
+
   while [[ $i -lt $len ]]; do
     if [ -z ${min} ]; then
       min="${numbers[$i]}"
@@ -1001,7 +1007,7 @@ function Math::Min() {
 
     : $[ i++ ]
   done;
-  
+
   echo $min
 }
 
