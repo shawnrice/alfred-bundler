@@ -81,13 +81,6 @@ module AlfredBundler
     icon_path
   end
 
-  # This is real fucking inelegant, but we can't assume that the
-  # native gems are available to unzip files, so we'll go through the system
-  def unzip(file, destination)
-    command = "cd \"#{destination}\"; unzip -oq #{file}; cd -"
-    success = system(command)
-    success && $?.exitstatus == 0
-  end
 
   def load_utility(name, version='default', json='')
     return load(name, version, 'utility', json='')

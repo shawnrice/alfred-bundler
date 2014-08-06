@@ -234,18 +234,14 @@ function AlfredBundler::load {
       json="${AB_DATA}/bundler/meta/defaults/${name}.json"
     else
       # Send error message to STDERR
-      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the "\
-           "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." CRITICAL
+      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL
       return 1
     fi
   else
     # Trying to use custom json
     if [ ! -f "${json}" ]; then
       # json file does not exist; send error message to STDERR
-      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the "\
-           "__implementation__ with the Alfred Bundler. Please let the "\
-           "workflow author know." CRITICAL
+      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL
       return 1
     fi
   fi
@@ -415,8 +411,8 @@ function AlfredBundler::utility() {
   json="$3"
 
   [[ -z "${version}" ]] && version='default'
-
-  path=$(AlfredBundler::load utility "${name}" "${version}" "${json}")
+  echo "AlfredBundler::load utility ${name} ${version} ${json}" >&2
+  path=$(AlfredBundler::load "utility" "${name}" "${version}" "${json}")
   status=$?
   [[ $status -eq 0 ]] && echo ${path} && return 0
   return 1

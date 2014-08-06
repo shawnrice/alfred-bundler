@@ -39,6 +39,14 @@ module Alfred
       @data = @home + "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version
       @cache = @home + "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version
 
+      if defined? ENV['alfred_version']
+        @alfred_theme = ENV['alfred_theme']
+        @alfred_theme_background = ENV['alfred_theme_background']
+        @alfred_preferences = ENV['alfred_preferences']
+        @alfred_preferences_localhash = ENV['alfred_preferences_localhash']
+        @alfred_workflow_uid = ENV['alfred_workflow_uid']
+      end
+
       # Add our local gem repository
       @gem_dir = @data + "/data/assets/ruby/gems"
       $LOAD_PATH.unshift @gem_dir
@@ -56,8 +64,9 @@ module Alfred
 
     # This is the function to install the bundler
     def install_bundler()
-      # Make the bundler path
+      # Make the bundler paths
       FileUtils.mkpath(@data) unless File.directory?(@data)
+      FileUtils.mkpath(@cache) unless File.directory?(@cache)
 
       # Check for an Internet connection
       unless server_test("http://www.google.com")
@@ -70,15 +79,21 @@ module Alfred
       # I added a bundler backup at Bitbucket: https://bitbucket.org/shawnrice/alfred-bundler
       # bundler_urls = IO.readlines("meta/bundler_servers")
       # Bundler URLs have to be hard coded in the wrapper
-      bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @major_version + "-latest.zip",
-                      "https://bitbucket.org/shawnrice/alfred-bundler/get/" + @major_version + "-latest.zip"]
+      if defined? ENV['ALFRED_BUNDLER_DEVEL']
+        suffix = "-latest.zip"
+      else
+        suffix = ".zip"
+      end
+
+      bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @major_version + suffix,
+                      "https://bitbucket.org/shawnrice/alfred-bundler/get/" + @major_version + suffix]
       url = bundler_urls.each do |x|
         server = URI.parse(x)
         if server_test("#{server.scheme}://#{server.host}")
           break x
         end
       end
-      FileUtils.mkpath(@cache) unless File.directory?(@cache)
+
       # Pausing this until we decide to stay with zip or move to git
 
       # Get the file if it doesn't exist
@@ -88,11 +103,20 @@ module Alfred
       zip = unzip("bundler.zip", @cache)
 
       unless :zip
+        File.delete(@cache + "/bundler.zip")
         abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
       end
 
       # Theoretically, this will install the bundler
       command = "bash '" + @cache + "/alfred-bundler-" + @major_version + "/bundler/meta/installer.sh'"
+      success = system(command)
+      success && $?.exitstatus == 0
+    end
+
+    # This is real fucking inelegant, but we can't assume that the
+    # native gems are available to unzip files, so we'll go through the system
+    def unzip(file, destination)
+      command = "cd \"#{destination}\"; unzip -oq #{file}; cd -"
       success = system(command)
       success && $?.exitstatus == 0
     end

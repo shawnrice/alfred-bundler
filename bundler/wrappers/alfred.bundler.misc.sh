@@ -12,6 +12,8 @@
 #
 # See https://github.com/shawnrice/alfred-bundler for more information.
 
+declare -r AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+
 # Define the global bundler version.
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
   declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
@@ -199,7 +201,7 @@ function AlfredBundler::install_bundler {
   . "${AB_DATA}/bundler/AlfredBundler.sh"
 
   # Load Terminal Notifier
-  notifier=$(AlfredBundler::utility 'Terminal-Notifier')
+  notifier=$(AlfredBundler::utility "Terminal-Notifier")
 
   # Send notification that the installation is complete
   "${notifier}" -title 'Instllation Complete' \
@@ -227,7 +229,8 @@ function main() {
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
   else
-    . "${AB_DATA}/bundler/AlfredBundler.sh"
+    . "${AB_ME}/../AlfredBundler.sh"
+    # . "${AB_DATA}/bundler/AlfredBundler.sh"
   fi
 
   if [ "$1" == "icon" ]; then
@@ -236,7 +239,7 @@ function main() {
     exit $?
   else
     # <type>, <name>, <version>, <json (optional)>
-    AlfredBundler::load "$1" "$2" "$3" "$4"
+    AlfredBundler::load "$2" "$3" "$4" "$5"
     exit $?
   fi
 }
