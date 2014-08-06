@@ -141,6 +141,9 @@ function AlfredBundler::install_bundler {
   local success
   local status
   local my_path
+  local url
+
+  echo "Installing Alfred Dependency Bundler version '${AB_MAJOR_VERSION}' ..." >&2
 
   # Make the install directory if it doesn't exist
   [[ ! -d "${AB_CACHE}/installer" ]] && mkdir -p -m 755 "${AB_CACHE}/installer"
@@ -151,10 +154,12 @@ function AlfredBundler::install_bundler {
 
   # Loop through the bundler servers until we get one that works
   while [[ $i -lt $len ]]; do
-    curl -fsSL --connect-timeout 4 "${AB_BUNDLER_SERVERS[$i]}" > "${AB_CACHE}/installer/bundler.zip"
+    url="${AB_BUNDLER_SERVERS[$i]}"
+    echo "Fetching ${url} ..." >&2
+    curl -fsSL --connect-timeout 4 "${url}" > "${AB_CACHE}/installer/bundler.zip"
     status=$?
 
-    [[ $? -eq 0 ]] && success=1 && break || echo "Error retrieving ${AB_BUNDLER_SERVERS[$i]}. cURL exited with ${status}" >&2
+    [[ $? -eq 0 ]] && success=1 && echo "[OK] ${url}" >&2 && break || echo "Error retrieving ${url}. cURL exited with ${status}" >&2
     success=0
 
     : $[ i++ ]
