@@ -124,13 +124,11 @@ class AlfredBundler {
       } else {
         // The bundler is now in place, so require the actual PHP Bundler file
         require_once "{$this->data}/bundler/AlfredBundler.php";
-
+        chmod( "{$this->data}/bundler/includes/LightOrDark", 0755 );
         // The 'AlfredBundler' class is a small wrapper of a class. All the calls
         // send to an 'AlfredBundler' object that do not fit are passed to an
         // 'AlfredBundlerInternalClass' object that does all the heavy lifting.
         $this->bundler = new AlfredBundlerInternalClass( $this->plist );
-
-        chmod( "{$this->data}/bundler/includes/LightOrDark", 0755 );
       }
     }
 
