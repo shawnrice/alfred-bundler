@@ -197,7 +197,7 @@ function AlfredBundler::install_bundler {
   rm -fR "${AB_CACHE}/installer"
 
   # Include the Bundler
-  . "${AB_ME}/../AlfredBundler.sh"
+  . "${AB_DATA}/../AlfredBundler.sh"
 
   # Load Terminal Notifier
   notifier=$(AlfredBundler::utility "Terminal-Notifier")
@@ -228,8 +228,8 @@ function main() {
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
   else
-    . "${AB_ME}/../AlfredBundler.sh"
-    # . "${AB_DATA}/bundler/AlfredBundler.sh"
+    # . "${AB_ME}/../AlfredBundler.sh"
+    . "${AB_DATA}/bundler/AlfredBundler.sh"
   fi
 
   if [ "$1" == "icon" ]; then
