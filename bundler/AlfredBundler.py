@@ -573,7 +573,7 @@ def set_background():
 def background_is_dark():
     """Return ``True`` if background is dark, else ``False``"""
 
-    background_colour = os.environ.getenv('alfred_theme_background')
+    background_colour = os.getenv('alfred_theme_background')
 
     if background_colour:
         background_colour = rgb_to_hex(*rgba_to_rgb(background_colour))
