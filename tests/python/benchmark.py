@@ -13,6 +13,7 @@
 
 from __future__ import print_function, unicode_literals
 
+import os
 import sys
 
 sys.path.insert(0, '../../bundler/wrappers')
@@ -30,6 +31,10 @@ PROFILE = False
 def main():
 
     reps = 100
+
+    #
+    # Wrapper functions
+    # -------------------------------------------------------------------------
 
     st = time()
     print('Calling `bundler.init()`')
@@ -63,11 +68,39 @@ def main():
     print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
 
     st = time()
+    print('Calling `bundler.icon()` (light)')
+    for i in range(reps):
+        bundler.icon('fontawesome', 'adjust', 'fff')
+    d = time() - st
+    print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
+
+    st = time()
+    os.environ['alfred_theme_background'] = 'rgba(0,0,0,1.0)'
+    print('Calling `bundler.icon()` (light on light with `alter`)')
+    for i in range(reps):
+        bundler.icon('fontawesome', 'adjust', 'fff', True)
+    d = time() - st
+    print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
+
+    st = time()
+    os.environ['alfred_theme_background'] = 'rgba(255,255,255,1.0)'
+    print('Calling `bundler.icon()` (light on dark with `alter`)')
+    for i in range(reps):
+        bundler.icon('fontawesome', 'adjust', 'fff', True)
+    d = time() - st
+    print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
+
+    #
+    # Bundler functions
+    # -------------------------------------------------------------------------
+
+    st = time()
     print('Calling `AlfredBundler.flip_color()`')
     for i in range(reps):
         AB.flip_color('fff')
     d = time() - st
     print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
+
 
     #st = time()
     #print('Posting notification with `terminal-notifier`')
