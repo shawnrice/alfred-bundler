@@ -416,7 +416,7 @@ function AlfredBundler::utility() {
   json="$3"
 
   [[ -z "${version}" ]] && version='default'
-  echo "AlfredBundler::load utility ${name} ${version} ${json}" >&2
+
   path=$(AlfredBundler::load "utility" "${name}" "${version}" "${json}")
   status=$?
   [[ $status -eq 0 ]] && echo ${path} && return 0
@@ -463,7 +463,8 @@ level=$(echo "${level}" | tr [[:lower:]] [[:upper:]])
 # @TODO : Add in better error checking for empty arguments
 internal=$(caller)
 line=$(echo "${internal}" | cut -d ' ' -f1)
-file="${internal#${line} }"
+file="${internal#${line}}"
+file=$(basename "${file}")
 
 # Define the log levels
 levels=(DEBUG INFO WARNING ERROR CRITICAL)

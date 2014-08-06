@@ -197,7 +197,7 @@ function AlfredBundler::install_bundler {
   rm -fR "${AB_CACHE}/installer"
 
   # Include the Bundler
-  . "${AB_DATA}/bundler/AlfredBundler.sh"
+  . "${AB_ME}/../AlfredBundler.sh"
 
   # Load Terminal Notifier
   notifier=$(AlfredBundler::utility "Terminal-Notifier")
@@ -231,6 +231,9 @@ function main() {
     . "${AB_ME}/../AlfredBundler.sh"
     # . "${AB_DATA}/bundler/AlfredBundler.sh"
   fi
+
+  echo $(AlfredBundler::utility "Terminal-Notifier")
+  exit
 
   if [ "$1" == "icon" ]; then
     # <font> <icon> <color (optional)> <alter (optional)>
