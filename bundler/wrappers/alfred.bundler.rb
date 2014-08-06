@@ -23,7 +23,12 @@ module Alfred
     # @cache = File.expand_path(
     # 	"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
     def initialize
-      @major_version = "devel"
+      if defined? ENV['ALFRED_BUNDLER_DEVEL']
+        @major_version = ENV['ALFRED_BUNDLER_DEVEL']
+      else
+        @major_version = "devel"
+      end
+      
       @home = File.expand_path("~/")
       @data = @home + "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version
       @cache = @home + "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version

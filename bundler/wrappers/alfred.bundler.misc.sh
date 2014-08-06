@@ -8,10 +8,15 @@
 # License: GPLv3
 
 # Define the global bundler version.
-if [ -f "../meta/version_major" ]; then
-  declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
+if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
+  declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
 else
-  declare AB_MAJOR_VERSION="devel"
+  # Define the global bundler version.
+  if [ -f "../meta/version_major" ]; then
+    declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
+  else
+    declare AB_MAJOR_VERSION="devel"
+  fi
 fi
 
 # Define the Bundler's data and cache directories

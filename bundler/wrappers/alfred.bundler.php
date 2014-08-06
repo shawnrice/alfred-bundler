@@ -79,7 +79,12 @@ class AlfredBundler {
     public function __construct( $plist = FALSE ) {
       // Added plist variable for testing purposes
 
-      $this->major_version = 'devel';
+      if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) {
+        $this->major_version = $ENV[ 'ALFRED_BUNDLER_DEVEL' ];  
+      } else {
+        $this->major_version = 'devel';  
+      }
+      
       $this->data  = "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}";
       $this->cache = "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}";
 
