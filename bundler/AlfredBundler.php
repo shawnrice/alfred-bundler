@@ -124,7 +124,7 @@ class AlfredBundlerInternalClass {
     }
 
     $this->setBackground();
-    $this->finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $this->finfo = finfo_open( FILEINFO_MIME_TYPE );
     // Let's just return something
     return TRUE;
   }
@@ -478,9 +478,18 @@ class AlfredBundlerInternalClass {
       return "{$this->data}/bundler/meta/icons/default.png";
     }
 
-    $this->reportLog( finfo_file($this->finfo, $iconPath), 'INFO', __FILE__, __LOG__);
-    // Success. Send the new icon path
-    return $iconPath;
+    if ( finfo_file( $this->finfo, $iconPath ) == "image/png" ) {
+      // Success. Send the new icon path
+      return $iconPath;
+    } else {
+      $this->reportLog( "Download error with icon '{$name}'. Check argument " .
+        "order.", 'ERROR', __FILE__, __LINE__);
+      unlink( $iconPath );
+      return "{$this->data}/bundler/meta/icons/default.png";
+    }
+
+
+    return "{$this->data}/bundler/meta/icons/default.png";
 
   }
 
