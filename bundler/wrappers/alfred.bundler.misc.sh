@@ -12,20 +12,24 @@
 #
 # See https://github.com/shawnrice/alfred-bundler for more information.
 
+# Define default bundler major version.
+declare AB_MAJOR_VERSION="devel"
+declare AB_INSTALL_SUFFIX="-latest.zip"
+
 declare -r AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
-# Define the global bundler version.
-declare AB_MAJOR_VERSION="devel"
-
-# Use version specified in env variable if given
+# Set the bundler version from env variable if present
+# Also set the appropriate URL suffix. Development versions, i.e. those
+# set from the ALFRED_BUNDLER_DEVEL env var, should install from HEAD.
+# Normal releases should install from the last tagged commit, hence
+# the -latest.zip suffix.
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
   declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
   declare AB_INSTALL_SUFFIX='.zip'
 else
-  # Define the global bundler version.
+  # Set version from `version_major` file
   if [ -f "${AB_ME}/../meta/version_major" ]; then
     declare AB_MAJOR_VERSION=$(cat "${AB_ME}/../meta/version_major")
-    declare AB_INSTALL_SUFFIX='-latest.zip'
   fi
 fi
 
@@ -35,8 +39,7 @@ declare AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflo
 
 
 # Define the installation server (and mirrors)
-# AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}-latest.zip")
-# Grab the current Repo, not the latest release
+
 AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 
@@ -156,6 +159,7 @@ function AlfredBundler::install_bundler {
   while [[ $i -lt $len ]]; do
     url="${AB_BUNDLER_SERVERS[$i]}"
     echo "Fetching ${url} ..." >&2
+    url="${AB_BUNDLER_SERVERS[$i]}"
     curl -fsSL --connect-timeout 4 "${url}" > "${AB_CACHE}/installer/bundler.zip"
     status=$?
 

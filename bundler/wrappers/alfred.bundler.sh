@@ -14,15 +14,22 @@
 #
 # See https://github.com/shawnrice/alfred-bundler for more information.
 
+# Define default bundler major version.
+declare AB_MAJOR_VERSION="devel"
+declare AB_INSTALL_SUFFIX="-latest.zip"
 
+# Set the bundler version from env variable if present
+# Also set the appropriate URL suffix. Development versions, i.e. those
+# set from the ALFRED_BUNDLER_DEVEL env var, should install from HEAD.
+# Normal releases should install from the last tagged commit, hence
+# the -latest.zip suffix.
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
   declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
+  declare AB_INSTALL_SUFFIX='.zip'
 else
-  # Define the global bundler version.
-  if [ -f "../meta/version_major" ]; then
-    declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
-  else
-    declare AB_MAJOR_VERSION="devel"
+  # Set version from `version_major` file
+  if [ -f "${AB_ME}/../meta/version_major" ]; then
+    declare AB_MAJOR_VERSION=$(cat "${AB_ME}/../meta/version_major")
   fi
 fi
 
@@ -32,10 +39,7 @@ declare AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflo
 
 
 # Define the installation server (and mirrors)
-AB_INSTALL_SUFFIX='-latest.zip'
-if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
-  AB_INSTALL_SUFFIX='.zip'
-fi
+
 AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 
@@ -140,6 +144,9 @@ function AlfredBundler::install_bundler {
   local success
   local status
   local my_path
+  local url
+
+  echo "Installing Alfred Dependency Bundler version '${AB_MAJOR_VERSION}' ..." >&2
 
   # Make the install directory if it doesn't exist
   [[ ! -d "${AB_CACHE}/installer" ]] && mkdir -p -m 755 "${AB_CACHE}/installer"
@@ -150,10 +157,13 @@ function AlfredBundler::install_bundler {
 
   # Loop through the bundler servers until we get one that works
   while [[ $i -lt $len ]]; do
-    curl -fsSL --connect-timeout 4 "${AB_BUNDLER_SERVERS[$i]}" > "${AB_CACHE}/installer/bundler.zip"
+    url="${AB_BUNDLER_SERVERS[$i]}"
+    echo "\$url = $url"
+    echo "Fetching ${url} ..." >&2
+    curl -fsSL --connect-timeout 4 "${url}" > "${AB_CACHE}/installer/bundler.zip"
     status=$?
 
-    [[ $? -eq 0 ]] && success=1 && break || echo "Error retrieving ${AB_BUNDLER_SERVERS[$i]}. cURL exited with ${status}" >&2
+    [[ $? -eq 0 ]] && success=1 && echo "[OK] ${url}" >&2 && break || echo "Error retrieving ${url}. cURL exited with ${status}" >&2
     success=0
 
     : $[ i++ ]
