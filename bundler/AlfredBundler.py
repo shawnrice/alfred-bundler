@@ -286,7 +286,7 @@ class Metadata(object):
         return False
 
 
-class cached(object):
+class cached2(object):
     """Decorator. Caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned
     (not reevaluated).
@@ -300,8 +300,8 @@ class cached(object):
         # self.func = func
         self.cache = {}
 
-        if os.path.exists(UTIL_CACHE_PATH):
-            with open(UTIL_CACHE_PATH, 'rb') as file:
+        if os.path.exists(self.cachepath):
+            with open(self.cachepath, 'rb') as file:
                 self.cache = cPickle.load(file)
 
     def __call__(self, func):
@@ -322,29 +322,43 @@ class cached(object):
 
         return wrapped
 
-    # def __call__(self, *args, **kwargs):
 
-    #     key = (args, frozenset(kwargs.items()))
+class cached(object):
 
-    #     path = self.cache.get(key, None)
+    def __init__(self, func):
+        self.func = func
+        self.cachepath = os.path.join(HELPER_DIR, '{}.cache'.format(
+                                      func.__name__))
+        # self.func = func
+        self.cache = {}
 
-    #     # If file has disappeared, call function again
-    #     if path is None or not os.path.exists(path):
-    #         # Cache results
-    #         path = self.func(*args, **kwargs)
-    #         self.cache[key] = path
-    #         with open(UTIL_CACHE_PATH, 'wb') as file:
-    #             cPickle.dump(self.cache, file, protocol=2)
+        if os.path.exists(self.cachepath):
+            with open(self.cachepath, 'rb') as file:
+                self.cache = cPickle.load(file)
 
-    #     return path
+    def __call__(self, *args, **kwargs):
 
-    # def __repr__(self):
-    #     """Return the function's docstring."""
-    #     return self.func.__doc__
+        key = (args, frozenset(kwargs.items()))
 
-    # def __get__(self, obj, objtype):
-    #     """Support instance methods."""
-    #     return functools.partial(self.__call__, obj)
+        path = self.cache.get(key, None)
+
+        # If file has disappeared, call function again
+        if path is None or not os.path.exists(path):
+            # Cache results
+            path = self.func(*args, **kwargs)
+            self.cache[key] = path
+            with open(UTIL_CACHE_PATH, 'wb') as file:
+                cPickle.dump(self.cache, file, protocol=2)
+
+        return path
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+    def __get__(self, obj, objtype):
+        """Support instance methods."""
+        return functools.partial(self.__call__, obj)
 
 
 def _find_file(filename, start_dir=None):
@@ -891,7 +905,7 @@ def icon(font, icon, color='000000', alter=False):
     return path
 
 
-@cached('utility')
+@cached
 def utility(name, version='default', json_path=None):
     """Get path to specified utility or asset, installing it first if necessary.
 
