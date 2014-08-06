@@ -83,8 +83,8 @@ class AlfredBundler {
   public function __construct( $plist = FALSE ) {
     // Added plist variable for testing purposes
 
-    if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
-      $this->major_version = $ENV[ 'ALFRED_BUNDLER_DEVEL' ];
+    if ( isset( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+      $this->major_version = $_ENV[ 'ALFRED_BUNDLER_DEVEL' ];
     } else {
       $this->major_version = 'devel';
     }
@@ -206,7 +206,7 @@ class AlfredBundler {
     // machine -- yet -- because this is the function that installs that file.
     // The 'latest' tag is the current release.
     $suffix = "-latest.zip";
-    if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+    if ( isset( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
       $suffix = ".zip";
     }
     $bundler_servers = array(
@@ -217,8 +217,10 @@ class AlfredBundler {
     // Cycle through the servers until we find one that is up.
     foreach ( $bundler_servers as $server ) :
       $success = $this->download( $server, "{$this->cache}/bundler.zip" );
-    if ( $success === TRUE )
-      break; // We found one, so break
+      if ( $success === TRUE ) {
+        $this->report( "Downloaded Bundler Installation from... {$server}", 'DEBUG', __FILE__, __LINE__ );
+        break; // We found one, so break
+      }
     endforeach;
 
     // If success is true, then we downloaded a copy of the bundler
@@ -250,8 +252,21 @@ class AlfredBundler {
     // Move the bundler into place
     // Bitbucket will call this folder something else... dammit.
     // @TODO -- fix for filenames from places other than github
-    rename( "{$this->cache}/alfred-bundler-{$this->major_version}-latest/bundler",
-      "{$this->data}/bundler" );
+    $directoryHandle = opendir( $this->cache );
+    while ( FALSE !== ( $file = readdir( $directoryHandle ) ) ) {
+        if ( is_dir( "{$this->cache}/{$file}" ) && (strpos( $file, "alfred-bundler-" ) === 0 ) ) {
+          $bundlerFolder = "{$this->cache}/{$file}";
+          closedir( $directoryHandle );
+          break;
+        }
+    }
+
+    if ( ( ! isset( $bundlerFolder ) ) || ( empty( $bundlerFolder ) ) ) {
+      $this->report( "Could not find Alfred Bundler folder in installation zip.", 'CRITICAL', basename( __FILE__ ), $line );
+      return FALSE;
+    }
+
+    rename( "{$bundlerFolder}/bundler", "{$this->data}/bundler" );
 
     // The bundler is now in place, so require the actual PHP Bundler file
     require_once "{$this->data}/bundler/AlfredBundler.php";
@@ -263,7 +278,7 @@ class AlfredBundler {
 
     $this->report( "Alfred Bundler successfully installed, cleaning up...", 'INFO', __FILE__, __LINE__ );
     unlink( "{$this->cache}/bundler.zip" );
-    $this->rrmdir( "{$this->cache}/alfred-bundler-{$this->major_version}-latest" );
+    $this->rrmdir( $bundlerFolder );
     return TRUE; // The bundler should be in place now
   }
 
@@ -343,7 +358,8 @@ class AlfredBundler {
     // 'AlfredBundlerInternalClass' class
     if ( ! method_exists( $this->bundler, $method ) ) {
       // Whoops. We called a non-existent method
-      throw new Exception( "unknown method [$method]" );
+      $this->report( "Could not find method [$method] in class 'AlfredBundler'.", 'ERROR', __FILE__, __LINE__ );
+      return FALSE;
     }
 
     // The method exists, so call it and return the output
@@ -397,6 +413,8 @@ if ( strpos( $argv[0], basename( __FILE__ ) ) !== FALSE ) {
   $bundler->utility( 'CocoaDialog' );
   // Library Test
   $bundler->library( 'Workflows' );
+
+
 
 }
 
