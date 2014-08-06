@@ -143,9 +143,9 @@ class AlfredBundlerInternalClass {
       $g = $matches[2];
       $b = $matches[3];
       if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
-        return 'light';
+        $this->background = 'light';
       else
-        return 'dark';
+        $this->background = 'dark';
 
     } else {
       // Pre Alfred v2.4:277.
