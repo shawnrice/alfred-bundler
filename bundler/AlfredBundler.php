@@ -103,7 +103,7 @@ class AlfredBundlerInternalClass {
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
-    
+
     if ( file_exists( $plist ) ) {
       $this->plist  = $plist;
     } else {
@@ -164,8 +164,8 @@ class AlfredBundlerInternalClass {
     if ( isset( $error ) && ( $error === TRUE ) ) {
       // There is an error with the JSON file.
       // Output the error to STDERR.
-      
-      $this->reportLog( "There is a problem with the " . 
+
+      $this->reportLog( "There is a problem with the " .
                                         "_implementation_ of the Alfred Bundler " .
                                         "when trying to load '{$name}'. Please " .
                                         "let the workflow author know.", 'CRITICAL', __FILE__, $line );
@@ -178,7 +178,7 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
       if ( ! $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
         // Something went wrong with the installation. Get better error reporting.
-        return FALSE; 
+        return FALSE;
       }
     }
 
@@ -204,7 +204,7 @@ class AlfredBundlerInternalClass {
       }
     }
 
-    // At this point, we need to check in with gatekeeper  
+    // At this point, we need to check in with gatekeeper
 
     // Find the icon to pass to the Gatekeeper script
     if ( file_exists( realpath( dirname( $this->plist ) ) . "/icon.png" ) )
@@ -234,7 +234,7 @@ class AlfredBundlerInternalClass {
 
     // We shouldn't get here. If we have, then it's a malformed request.
     // Output the error to STDERR.
-    file_put_contents('php://stderr', "There is a problem with the " . 
+    file_put_contents('php://stderr', "There is a problem with the " .
                                       "_implementation_ of the Alfred Bundler " .
                                       "when trying to load '{$name}'. Please " .
                                       "let the workflow author know." );
@@ -494,15 +494,17 @@ class AlfredBundlerInternalClass {
    */
   public function installAsset( $json, $version = 'default' ) {
     if ( ! file_exists( $json ) ) {
-      echo "Error: cannot install asset because the JSON file is not present";
+    $this->reportLog( "Cannot install asset because the JSON file ('{$json}') is not present.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
     }
 
     // @TODO: Add error checking to make sure that the file is good JSON
     $json = json_decode( file_get_contents( $json ), TRUE );
 
-    if ( $json == null )
+    if ( $json == null ) {
+      $this->reportLog( "Cannot install asset because the JSON file ('{$json}') is not valid.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
+    }
 
     $installDir = "{$this->data}/data/assets/{$json[ 'type' ]}/{$json[ 'name' ]}/{$version}";
     // Make the installation directory if it doesn't exist
@@ -521,7 +523,7 @@ class AlfredBundlerInternalClass {
     // default if exists; if not, throw error.
     if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
       if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
-        echo "BUNDLER ERROR: No version found and cannot fall back to 'default' version.'";
+        $this->reportLog( "Cannot install {$name} because no version found and cannot fallback to 'default'.", 'ERROR', basename( __FILE__ ), __LINE__ );
         $this->logInternal( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
         return FALSE;
       } else {
@@ -535,9 +537,12 @@ class AlfredBundlerInternalClass {
     foreach ( $json[ 'versions' ][ $version ][ 'files' ] as $url ) {
       $file = pathinfo( parse_url( $url[ 'url' ], PHP_URL_PATH ) );
       $file = $file[ 'basename' ];
-      if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) )
+      if ( ! $this->download( $url[ 'url' ], "{$tmpDir}/{$file}" ) ) {
+        $this->reportLog( "Cannot download {$name} at {$url['url']}.", 'ERROR', basename( __FILE__ ), __LINE__ );
         return FALSE; // The download failed, for some reason.
+      }
 
+      // @TODO : Convert these to native PHP functions
       if ( $url[ 'method' ] == 'zip' ) {
         // Unzip the file into the cache directory, silently.
         exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$tmpDir}'" );
@@ -570,8 +575,10 @@ class AlfredBundlerInternalClass {
    * @return {bool}            TRUE on success, FALSE on failure
    */
   private function installComposerPackage( $packages ) {
-    if ( ! is_array( $packages) ) // The packages variable needs to be an array
+    if ( ! is_array( $packages) ) { // The packages variable needs to be an array
+      $this->reportLog( "An array must be passed to install Composer assets.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
+    }
 
     $installDir = "{$this->cache}/{$this->bundle}/composer";
 
@@ -584,6 +591,7 @@ class AlfredBundlerInternalClass {
 
     $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
     exec( $cmd );
+    // Add in error checking to make sure that it worked.
 
     $packages = json_decode( file_get_contents( "{$installDir}/vendor/composer/installed.json" ), TRUE );
 
@@ -594,11 +602,13 @@ class AlfredBundlerInternalClass {
 
     foreach( $packages as $package ) :
 
-      $name = explode( '/', $package[ 'name' ] ); // As: vendor/package
-      $vendor = $name[0];                         // vendor
-      $name = $name[1];                           // package name
-      $version = $package[ 'version' ];           // version installed
-      $installed[] = array( 'name' => $name, 'vendor' => $vendor, 'version' => $version );
+      $name        = explode( '/', $package[ 'name' ] ); // As: vendor/package
+      $vendor      = $name[0];                         // vendor
+      $name        = $name[1];                           // package name
+      $version     = $package[ 'version' ];           // version installed
+      $installed[] = array( 'name' => $name,
+                            'vendor' => $vendor,
+                            'version' => $version );
 
       foreach( $files as $file ) :
         if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
@@ -612,6 +622,7 @@ class AlfredBundlerInternalClass {
           file_put_contents( "{$installDir}/vendor/composer/{$file}", implode( '', $f ) );
         }
       endforeach;
+      $this->reportLog( "Rewrote Composer autoload file for workflow.", 'INFO', basename( __FILE__ ), __LINE__ );
 
       if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}") ) {
         if ( ! file_exists( "{$destination}/{$vendor}" ) )
@@ -630,6 +641,8 @@ class AlfredBundlerInternalClass {
     rename( "{$installDir}/vendor/composer", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer" );
     rename( "{$installDir}/vendor/autoload.php", "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/autoload.php" );
     file_put_contents( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json", $json );
+
+    $this->reportLog( "Successfully installed composer packages. Cleaning up....", 'INFO', basename( __FILE__ ), __LINE__ );
 
     $this->rrmdir( $installDir );
 
@@ -888,7 +901,7 @@ class AlfredBundlerInternalClass {
                                 // be downloaded, then this will return an error
                                 // stating that $ch is not a valid cURL resource
     }
-    
+
     $line = __LINE__;
     $this->reportLog( "Downloading `{$url}` ...", 'INFO', basename( __FILE__ ), $line );
 
@@ -1010,13 +1023,13 @@ private function reportLog( $message, $level, $file, $line ) {
    *
    * @param  {string} $message message to write to log
    * @param  {string} $log     name of log file
-   * @param  {mixed}  $level   log level 
+   * @param  {mixed}  $level   log level
    */
   public function log( $message, $level = 0, $log = 'info' ) {
 
     // This function is available only to valid workflows with Bundle IDs
     if ( ! isset( $this->bundle ) || empty( $this->bundle ) ) {
-      file_put_contents( 'php://stderr', 
+      file_put_contents( 'php://stderr',
         "BundlerError: a valid Bundle ID is needed to use the bundler's log " .
         "function" . PHP_EOL );
       return 0;
@@ -1155,14 +1168,14 @@ private function reportLog( $message, $level, $file, $line ) {
 
   /**
    * Queries Gatekeeper to whitelist apps
-   * 
+   *
    * Invokes the Gatekeeper script if the path has not already been called. The
    * call, if successful, is cached. If the cache file is present, then return
    * the path from there instead of calling the cache again.
    *
    * @access public
    * @since  Taurus 1
-   * 
+   *
    * @param  {string} $name    The name of the utility
    * @param  {string} $path    The fullpath to the utility
    * @param  {string} $message The "permissions" message from the JSON
@@ -1197,35 +1210,35 @@ private function reportLog( $message, $level, $file, $line ) {
     // Execute the Gatekeeper script
     exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
 
-    // If the previous call returns a successful status code, then cache the path 
+    // If the previous call returns a successful status code, then cache the path
     // and return it. Else, move to failure.
     if ( $status == 0 ) {
       file_put_contents( $cachePath, $path );
       return $path;
     }
 
-    // There was an error with the Gatekeeper script (exited with a non-zero 
+    // There was an error with the Gatekeeper script (exited with a non-zero
     // status).
-    
+
     // Output the error to STDERR.
     file_put_contents('php://stderr', "Bundler Error: '{$name}' is needed to properly run " .
                                       "this workflow, and it must be whitelisted " .
                                       "for Gatekeeper. You either denied the " .
                                       " request, or another error occured with " .
                                       " the Gatekeeper script." );
-    
+
     // So return FALSE as failure.
     return FALSE;
   }
 
   /**
    * Registers an asset
-   * 
+   *
    * The Bundler keeps a registry of which workflows use which assets.
-   * 
+   *
    * @access public
    * @since  Taurus 1
-   * 
+   *
    * @param {string} $asset     Name of the asset to be registered
    * @param {string} $version   Version of asset to use
    * @return {bool}             Returns TRUE on success, FALSE on failure
