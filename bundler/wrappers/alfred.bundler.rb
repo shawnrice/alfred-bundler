@@ -1,4 +1,10 @@
 #!/bin/ruby
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 # This is very experimental code written by some people who don't really know ruby well.
 # Watch it develop.
@@ -28,7 +34,7 @@ module Alfred
       else
         @major_version = "devel"
       end
-      
+
       @home = File.expand_path("~/")
       @data = @home + "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version
       @cache = @home + "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version

@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
 
 # Exit early if incorrect number of args given
 unless (ARGV.length == 1 or ARGV.length == 2)
