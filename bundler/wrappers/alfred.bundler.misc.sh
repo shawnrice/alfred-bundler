@@ -197,7 +197,7 @@ function AlfredBundler::install_bundler {
   rm -fR "${AB_CACHE}/installer"
 
   # Include the Bundler
-  . "${AB_DATA}/../AlfredBundler.sh"
+  . "${AB_DATA}/bundler/AlfredBundler.sh"
 
   # Load Terminal Notifier
   notifier=$(AlfredBundler::utility "Terminal-Notifier")
