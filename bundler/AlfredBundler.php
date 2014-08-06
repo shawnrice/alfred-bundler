@@ -453,17 +453,8 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( "{$iconDir}/{$font}/{$color}" ) )
       mkdir( "{$iconDir}/{$font}/{$color}", 0775, TRUE );
 
-    foreach( $iconServers as $server ) :
-      // test the server somehow....
-    endforeach;
-
-  $bundler_servers = array(
-      "https://github.com/shawnrice/alfred-bundler/archive/{$this->major_version}{$suffix}",
-      "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->major_version}{$suffix}"
-    );
-
     // Cycle through the servers until we find one that is up.
-    foreach ( $bundler_servers as $server ) :
+    foreach ( $iconServers as $server ) :
       $success = $this->download(
         "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
       if ( $success === TRUE ) {
