@@ -117,7 +117,7 @@ VERSION = '0.2'
 
 BUNDLER_VERSION = 'devel'
 
-if 'ALFRED_BUNDLER_DEVEL' in os.environ:
+if os.getenv('ALFRED_BUNDLER_DEVEL'):
     BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
 
 # Used for notifications, paths
