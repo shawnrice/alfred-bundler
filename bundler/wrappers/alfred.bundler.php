@@ -112,9 +112,8 @@ class AlfredBundler {
     }
 
     if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
-      require_once __DIR__ . '/../AlfredBundler.php';
-      //    For development purposes
-      //    require_once( "{$this->data}/bundler/AlfredBundler.php" );
+      require_once ( "{$this->data}/bundler/AlfredBundler.php" );
+
       $this->bundler = new AlfredBundlerInternalClass( $this->plist );
     } else {
       if ( $this->install_bundler( $plist ) === FALSE ) {
@@ -123,7 +122,12 @@ class AlfredBundler {
           'CRITICAL', __FILE__, __LINE__ );
         return FALSE;
       } else {
-        require_once __DIR__ . '/../AlfredBundler.php';
+        // The bundler is now in place, so require the actual PHP Bundler file
+        require_once "{$this->data}/bundler/AlfredBundler.php";
+
+        // The 'AlfredBundler' class is a small wrapper of a class. All the calls
+        // send to an 'AlfredBundler' object that do not fit are passed to an
+        // 'AlfredBundlerInternalClass' object that does all the heavy lifting.
         $this->bundler = new AlfredBundlerInternalClass( $this->plist );
       }
     }
@@ -298,14 +302,6 @@ class AlfredBundler {
     }
 
     rename( "{$bundlerFolder}/bundler", "{$this->data}/bundler" );
-
-    // The bundler is now in place, so require the actual PHP Bundler file
-    require_once "{$this->data}/bundler/AlfredBundler.php";
-
-    // The 'AlfredBundler' class is a small wrapper of a class. All the calls
-    // send to an 'AlfredBundler' object that do not fit are passed to an
-    // 'AlfredBundlerInternalClass' object that does all the heavy lifting.
-    $this->bundler = new AlfredBundlerInternalClass( $this->plist );
 
     $this->report( "Alfred Bundler successfully installed, cleaning up...",
       'INFO', __FILE__, __LINE__ );
