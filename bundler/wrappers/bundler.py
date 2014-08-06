@@ -106,7 +106,6 @@ Alfred Bundler Methods
 
 from __future__ import print_function, unicode_literals
 
-import json
 import os
 import subprocess
 import urllib2
@@ -150,9 +149,6 @@ HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
 # the bundler.sh file in the repo
 HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
 
-# Path to file storing update metadata (last update check, etc.)
-UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
-
 # Bundler log file
 BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
 
@@ -193,32 +189,6 @@ _log.setLevel(logging.DEBUG)
 
 class InstallationError(Exception):
     """Raised if installation of the bash helper script fails"""
-
-
-def _load_update_metadata():
-    """Load update metadata from cache
-
-    :returns: metadata ``dict``
-
-    """
-
-    metadata = {}
-    if os.path.exists(UPDATE_JSON_PATH):
-        with open(UPDATE_JSON_PATH, 'rb') as file:
-            metadata = json.load(file, encoding='utf-8')
-    return metadata
-
-
-def _save_update_metadata(metadata):
-    """Save ``metadata`` ``dict`` to cache
-
-    :param metadata: metadata to save
-    :type metadata: ``dict``
-
-    """
-
-    with open(UPDATE_JSON_PATH, 'wb') as file:
-        json.dump(metadata, file, encoding='utf-8', indent=2)
 
 
 def _download(url, filepath):
