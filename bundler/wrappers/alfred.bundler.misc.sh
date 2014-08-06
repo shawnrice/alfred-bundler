@@ -243,7 +243,7 @@ function main() {
     exit $?
   else
     # <type>, <name>, <version>, <json (optional)>
-    AlfredBundler::load "$2" "$3" "$4" "$5"
+    AlfredBundler::load "$1" "$2" "$3" "$4"
     exit $?
   fi
 }
