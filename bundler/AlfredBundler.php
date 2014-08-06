@@ -1178,6 +1178,10 @@ private function reportLog( $message, $level, $file, $line ) {
       }
     }
 
+    if ( ! file_exists( "{$this->data}/data" ) ) {
+      mkdir( "{$this->data}/data", 0775, TRUE );
+    }
+
     if ( file_exists( __DIR__ . "/includes/LightOrDark" ) ) {
       $this->background = exec( "'" . __DIR__ . "/includes/LightOrDark'" );
       file_put_contents( "{$this->data}/data/theme_background", $this->background );
