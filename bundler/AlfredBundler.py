@@ -537,7 +537,7 @@ def rgba_to_rgb(rgba):
 
     """
 
-    m = re.match(r'rgba\((\d+),(\d+),(\d+),[0-9.]+\)')
+    m = re.match(r'rgba\((\d+),(\d+),(\d+),[0-9.]+\)', rgba)
 
     if not m:
         raise ValueError('Unparseable RGBA colour : {}'.format(rgba))
