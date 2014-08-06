@@ -1321,7 +1321,6 @@ private function reportLog( $message, $level, $file, $line ) {
         "this workflow, and it must be whitelisted for Gatekeeper. You " .
         "either denied the request, or another error occured with " .
         " the Gatekeeper script.", 'ERROR', basename( __FILE__ ), $line );
-    file_put_contents('php://stderr',  );
 
     // So return FALSE as failure.
     return FALSE;

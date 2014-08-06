@@ -201,7 +201,8 @@ function AlfredBundler::install_bundler {
 
   # Load Terminal Notifier
   notifier=$(AlfredBundler::utility "Terminal-Notifier")
-  echo -e "${notifier}"
+  echo "${notifier}"
+  exit 0
   # Send notification that the installation is complete
   "${notifier}" -title 'Instllation Complete' \
     -message 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
