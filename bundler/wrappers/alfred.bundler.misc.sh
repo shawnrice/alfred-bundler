@@ -15,14 +15,17 @@
 declare -r AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
 # Define the global bundler version.
+declare AB_MAJOR_VERSION="devel"
+AB_INSTALL_SUFFIX='-latest.zip'
+
+# Use version specified in env variable if given
 if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
   declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
+  AB_INSTALL_SUFFIX='.zip'
 else
   # Define the global bundler version.
   if [ -f "../meta/version_major" ]; then
     declare AB_MAJOR_VERSION=$(cat "../meta/version_major")
-  else
-    declare AB_MAJOR_VERSION="devel"
   fi
 fi
 
@@ -34,10 +37,6 @@ declare AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflo
 # Define the installation server (and mirrors)
 # AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}-latest.zip")
 # Grab the current Repo, not the latest release
-AB_INSTALL_SUFFIX='-latest.zip'
-if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
-  AB_INSTALL_SUFFIX='.zip'
-fi
 AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 

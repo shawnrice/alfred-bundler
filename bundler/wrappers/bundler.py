@@ -115,11 +115,15 @@ import logging.handlers
 
 VERSION = '0.2'
 
+BUNDLER_VERSION = 'devel'
+
+if 'ALFRED_BUNDLER_DEVEL' in os.environ:
+    BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
+
 # Used for notifications, paths
 BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
 
 # Bundler paths
-BUNDLER_VERSION = 'devel'
 BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
@@ -181,6 +185,8 @@ _console.setFormatter(_fmt)
 _log.addHandler(_logfile)
 _log.addHandler(_console)
 _log.setLevel(logging.DEBUG)
+
+_log.debug('Bundler version : {}'.format(BUNDLER_VERSION))
 
 
 #-----------------------------------------------------------------------

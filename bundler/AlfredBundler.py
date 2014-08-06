@@ -375,7 +375,7 @@ def _bundle_id():
 
 def _notify(title, message):
     """Post a notification"""
-    notifier = utility('terminal-notifier')
+    notifier = utility('Terminal-Notifier')
 
     cmd = [notifier, '-title', title, '-message', message]
 
@@ -487,6 +487,24 @@ def rgb_to_hsv(r, g, b):
     return colorsys.rgb_to_hsv(r, g, b)
 
 
+def rgba_to_rgb(rgba):
+    """Convert RGBA CSS colour to ``(r, g, b)``
+
+    :param rgba: RGBA colour in format ``rgba(r,g,b,a)``
+    :type rgba: ``unicode`` or ``str``
+    :returns: ``(r, g, b)`` tuple of ``ints``
+    :rtype: ``tuple``
+
+    """
+
+    m = re.match(r'rgba\((\d+),(\d+),(\d+),[0-9.]+\)')
+
+    if not m:
+        raise ValueError('Unparseable RGBA colour : {}'.format(rgba))
+
+    return map(int, m.groups())
+
+
 def set_background():
     """Determine whether background is ``light`` or ``dark`` and save the
     value to ``BACKGROUND_COLOUR_FILE``
@@ -515,12 +533,25 @@ def set_background():
 def background_is_dark():
     """Return ``True`` if background is dark, else ``False``"""
 
+    background_colour = os.environ.getenv('alfred_theme_background')
+
+    if background_colour:
+        background_colour = rgb_to_hex(*rgba_to_rgb(background_colour))
+
+        if color_is_dark(background_colour):
+            _log.debug('Background is dark')
+            return True
+
+        else:
+            _log.debug('Background is light')
+            return False
+
     set_background()
 
     with open(BACKGROUND_COLOUR_FILE, 'rb') as file:
         colour = file.read().strip()
 
-    _log.debug('Background is `{}`'.format(colour))
+    _log.debug('Background is {}'.format(colour))
 
     if colour == 'dark':
         return True
