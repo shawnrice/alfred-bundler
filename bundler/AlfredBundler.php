@@ -1240,15 +1240,15 @@ private function reportLog( $message, $level, $file, $line ) {
     // The Alfred preferences plist where the theme information is stored
     $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
 
+    if ( ! file_exists( "{$this->data}/data" ) ) {
+      mkdir( "{$this->data}/data", 0775, TRUE );
+    }
+
     if ( file_exists( "{$this->data}/data/theme_background" ) ) {
       if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
         $this->background = file_get_contents( "{$this->data}/data/theme_background" );
         return TRUE;
       }
-    }
-
-    if ( ! file_exists( "{$this->data}/data" ) ) {
-      mkdir( "{$this->data}/data", 0775, TRUE );
     }
 
     if ( file_exists( __DIR__ . "/includes/LightOrDark" ) ) {
