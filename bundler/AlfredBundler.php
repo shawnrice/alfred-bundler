@@ -395,8 +395,11 @@ class AlfredBundlerInternalClass {
       if ( file_exists( "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns" ) ) {
         return "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/{$name}.icns";
       } else {
-        file_put_contents( 'php://stderr', "BundlerError: system icon '${name}' does not exist." );
-        return "{$this->data}/bundler/meta/icons/default.icns"; // return the fallback icon
+        $this->reportLog( "System icon '{$name}' does not exist. Instead " .
+          "sending an embarrassing replacement.", 'WARNING',
+          basename( __FILE__ ), __LINE__ );
+        // return the fallback icon
+        return "{$this->data}/bundler/meta/icons/default.icns";
       }
     }
 
@@ -453,18 +456,8 @@ class AlfredBundlerInternalClass {
 
     if ( $success === TRUE )
       return $iconPath;
+
     return FALSE;
-
-
-    // Rewrite to a proper cURL request
-    $icon = file_get_contents( "$bd_icon_server_url/$font/$color/$icon" );
-    if ( $icon === FALSE )
-      die( 'Failed to get icon' ); // Problem getting icon
-
-    file_put_contents( $path, $icon );
-
-    // We have the icon file. It's saved, so just send the path back now.
-    return $path;
 
   }
 
