@@ -121,7 +121,7 @@ if os.getenv('ALFRED_BUNDLER_DEVEL'):
     BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
 
 # Used for notifications, paths
-BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
+BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
 
 # Bundler paths
 BUNDLER_DIR = os.path.expanduser(
@@ -137,21 +137,18 @@ BUNDLER_PY_LIB = os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
 
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
-# Where helper scripts will be installed
+
+# Where helper scripts and metadata are stored
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 
 # Where colour alternatives are cached
 COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 
 # Where installer.sh can be downloaded from
-HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
-              '{}/bundler/wrappers/alfred.bundler.misc.sh'.format(
-              BUNDLER_VERSION))
-
-# The bundler script we will call to get paths to utilities and
-# install them if necessary. This is actually the bash wrapper, not
-# the bundler.sh file in the repo
-HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
+BASH_WRAPPER_URL = (
+    'https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
+    '{}/bundler/wrappers/alfred.bundler.sh'.format(
+    BUNDLER_VERSION))
 
 # Bundler log file
 BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
@@ -171,7 +168,7 @@ _logdir = os.path.dirname(BUNDLER_LOGFILE)
 if not os.path.exists(_logdir):
     os.makedirs(_logdir, 0755)
 
-_log = logging.getLogger('bundler.wrapper')
+_log = logging.getLogger('bundler')
 _logfile = logging.handlers.RotatingFileHandler(BUNDLER_LOGFILE,
                                                 maxBytes=1024*1024,
                                                 backupCount=0)
@@ -250,22 +247,38 @@ def _bootstrap():
             _log.debug('Creating directory `{}`'.format(dirpath))
             os.makedirs(dirpath)
 
-    if not os.path.exists(HELPER_PATH):  # Install bash misc wrapper
+    if not os.path.exists(BUNDLER_PY_LIB):  # Install bundler
+
+        _log.info('Installing Alfred Dependency Bundler '
+                  'version `{}` ...'.format(BUNDLER_VERSION))
+
         # Install bash wrapper from GitHub
+        wrapper_path = os.path.join(CACHE_DIR,
+                                    'wrapper--{}.sh'.format(os.getpid()))
+
+        bash_code = 'source "{}"'.format(wrapper_path)
+
         try:
-            _download(HELPER_URL, HELPER_PATH)
+            _download(BASH_WRAPPER_URL, wrapper_path)
+
         except Exception as err:
             _log.exception(err)
-            raise InstallationError('Error downloading `{}` to `{}`: {}'.format(
-                                    HELPER_URL, HELPER_PATH, err))
+            raise InstallationError(
+                'Error downloading `{}` to `{}`: {}'.format(
+                BASH_WRAPPER_URL, wrapper_path, err))
 
-    if not os.path.exists(BUNDLER_PY_LIB):  # Install bundler
-        _log.info('Installing bundler ...')
+        _log.debug('Executing script : `{}`'.format(bash_code))
 
-        cmd = ['/bin/bash', HELPER_PATH, 'utility', 'Terminal-Notifier']
-        _log.debug('Executing command : {}'.format(cmd))
+        try:
+            proc = subprocess.Popen(['/bin/bash'], stdin=subprocess.PIPE)
 
-        subprocess.call(cmd)
+            proc.communicate(bash_code)
+
+            if proc.returncode:
+                raise InstallationError(
+                    'Install script failed (code : {})'.format(proc.returncode))
+        finally:
+            os.unlink(wrapper_path)
 
         if not os.path.exists(BUNDLER_PY_LIB):
             raise InstallationError(

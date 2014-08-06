@@ -135,7 +135,7 @@ VERSION = '0.2'
 UPDATE_INTERVAL = 604800  # 1 week
 
 # Used for notifications, paths
-BUNDLER_ID = 'net.deanishe.alfred-python-bundler'
+BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
 
 # Bundler paths
 BUNDLER_VERSION = 'devel'
@@ -153,8 +153,10 @@ BUNDLER_UPDATE_SCRIPT = os.path.join(DATA_DIR, 'bundler', 'meta',
 
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
-# Where helper scripts will be installed
+
+# Where helper scripts and metadata are stored
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
+
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
@@ -166,15 +168,14 @@ COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
 API_URL = 'http://icons.deanishe.net/icon/{font}/{color}/{icon}'
 
-# Where installer.sh can be downloaded from
-HELPER_URL = ('https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
-              '{}/wrappers/alfred.bundler.misc.sh'.format(BUNDLER_VERSION))
-# The bundler script we will call to get paths to utilities and
-# install them if necessary. This is actually the bash wrapper, not
-# the bundler.sh file in the repo
-HELPER_PATH = os.path.join(HELPER_DIR, 'bundlerwrapper.sh')
+# The misc bash bundler wrapper script we will call to get paths to
+# utilities and install them if necessary.
+HELPER_PATH = os.path.join(BUNDLER_DIR, 'bundler', 'wrappers',
+                           'alfred.bundler.misc.sh')
+
 # Path to file storing update metadata (last update check, etc.)
 UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
+
 # URL of Pip installer (`get-pip.py`)
 PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
                      'develop/contrib/get-pip.py')
@@ -687,9 +688,6 @@ def _update():
 
     _install_pip()
 
-    # Wrapper script
-    _download_if_updated(HELPER_URL, HELPER_PATH)
-
     # Wait for `update.sh` to complete
     retcode = proc.wait()
     if retcode:
@@ -757,8 +755,7 @@ def _add_pip_path():
 ########################################################################
 
 def logger(name, logpath=None):
-    """Return an instance of ``~logging.Logger`` configured to log to ``logpath``
-    and STDERR.
+    """Return ``~logging.Logger`` object that logs to ``logpath`` and STDERR.
 
     :param name: Name of logger
     :type name: ``unicode`` or ``str``
@@ -783,6 +780,7 @@ def logger(name, logpath=None):
         os.makedirs(logdir, 0755)
 
     logger = logging.getLogger(name)
+
     if not logger.handlers:
         logfile = logging.handlers.RotatingFileHandler(logpath,
                                                        maxBytes=1024*1024,
