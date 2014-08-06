@@ -194,16 +194,20 @@ class AlfredBundlerInternalClass {
 
     if ( $type != 'utility' ) {
       // We don't have to worry about gatekeeper
-      $this->reportLog( "Loaded '{$name}' v{$version} of type '{$type}'.",
-        'INFO', __FILE__, __LINE__ );
+      $this->reportLog( "Loaded '{$name}' version {$version} of type " .
+        "'{$type}'", 'INFO', __FILE__, __LINE__ );
+
       return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
         . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
     } else {
       // It's a utility, so let's see if we need gatekeeper
-      if ( ! ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
+      if ( ! ( isset( $json[ 'gatekeeper' ] )
+        && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
+
         // We don't have to worry about gatekeeper
-        $this->reportLog( "Loaded '{$name}' v{$version} of type '{$type}'.",
-          'INFO', __FILE__, __LINE__ );
+        $this->reportLog( "Loaded '{$name}' version {$version} of type " .
+        "'{$type}'", 'INFO', __FILE__, __LINE__ );
+
         return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
           . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
       }
@@ -218,7 +222,8 @@ class AlfredBundlerInternalClass {
       $icon = '';
 
     // Create the path variable
-    $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/" . $json[ 'versions' ][ $version ][ 'invoke' ];
+    $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
+      . $json[ 'versions' ][ $version ][ 'invoke' ];
 
     // Set the message for the Gatekeeper script (if there is one)
     if ( isset( $json[ 'message' ] ) )
@@ -241,10 +246,10 @@ class AlfredBundlerInternalClass {
 
     // We shouldn't get here. If we have, then it's a malformed request.
     // Output the error to STDERR.
-    file_put_contents('php://stderr', "There is a problem with the " .
-                                      "_implementation_ of the Alfred Bundler " .
-                                      "when trying to load '{$name}'. Please " .
-                                      "let the workflow author know." );
+    $this->reportLog( "There is a problem with the __implementation__ of " .
+      "the Alfred Bundler when trying to load '{$name}'. Please let the " .
+      "workflow author know.", 'ERROR', __FILE__, __LINE__ );
+
     return FALSE;
   }
 
