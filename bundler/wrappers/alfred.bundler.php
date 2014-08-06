@@ -79,8 +79,8 @@ class AlfredBundler {
     public function __construct( $plist = FALSE ) {
       // Added plist variable for testing purposes
 
-      if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) {
-        $this->major_version = $ENV[ 'ALFRED_BUNDLER_DEVEL' ];  
+      if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+        $this->major_version = $ENV[ 'ALFRED_BUNDLER_DEVEL' ];
       } else {
         $this->major_version = 'devel';  
       }
@@ -159,9 +159,13 @@ class AlfredBundler {
       // bundler/meta/bundler_servers, but that file should not exist on the
       // machine -- yet -- because this is the function that installs that file.
       // The 'latest' tag is the current release.
+      $suffix = "-latest.zip";
+      if ( isset( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) && ( ! empty( $ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+        $suffix = ".zip";
+      }
       $bundler_servers = array(
-        "https://github.com/shawnrice/alfred-bundler/archive/{$this->major_version}-latest.zip",
-        "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->major_version}-latest.zip"
+        "https://github.com/shawnrice/alfred-bundler/archive/{$this->major_version}{$suffix}.zip",
+        "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->major_version}{$suffix}.zip"
       );
 
       // Cycle through the servers until we find one that is up.

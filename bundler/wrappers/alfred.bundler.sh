@@ -28,8 +28,12 @@ declare AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflo
 
 
 # Define the installation server (and mirrors)
-AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}-latest.zip")
-AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}-latest.zip")
+AB_INSTALL_SUFFIX='-latest.zip'
+if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
+  AB_INSTALL_SUFFIX='.zip'
+fi
+AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
+AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 
 
 #######################################
