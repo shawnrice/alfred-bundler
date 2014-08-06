@@ -87,6 +87,9 @@ class AlfredBundlerInternalClass {
   */
   private   $background;
 
+  // Just a resource to check on a fileinfo thingie.
+  public $finfo;
+
   /**
    * The class constructor
    *
@@ -98,8 +101,10 @@ class AlfredBundlerInternalClass {
    */
   public function __construct( $plist = '' ) {
 
-    $this->major_version = file_get_contents( __DIR__ . '/meta/version_major' );
-    $this->minor_version = file_get_contents( __DIR__ . '/meta/version_minor' );
+    $this->major_version = file_get_contents(
+      __DIR__ . '/meta/version_major' );
+    $this->minor_version = file_get_contents(
+      __DIR__ . '/meta/version_minor' );
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
@@ -119,7 +124,7 @@ class AlfredBundlerInternalClass {
     }
 
     $this->setBackground();
-
+    $this->finfo = finfo_open(FILEINFO_MIME_TYPE);
     // Let's just return something
     return TRUE;
   }
@@ -473,6 +478,7 @@ class AlfredBundlerInternalClass {
       return "{$this->data}/bundler/meta/icons/default.png";
     }
 
+    $this->reportLog( finfo_file($this->finfo, $iconPath), 'INFO', __FILE__, __LOG__);
     // Success. Send the new icon path
     return $iconPath;
 
