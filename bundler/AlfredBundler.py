@@ -131,6 +131,12 @@ import logging.handlers
 
 VERSION = '0.2'
 
+
+BUNDLER_VERSION = 'devel'
+
+if os.getenv('ALFRED_BUNDLER_DEVEL'):
+    BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
+
 # How often to check for updates
 UPDATE_INTERVAL = 604800  # 1 week
 
@@ -138,7 +144,6 @@ UPDATE_INTERVAL = 604800  # 1 week
 BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
 
 # Bundler paths
-BUNDLER_VERSION = 'devel'
 BUNDLER_DIR = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
