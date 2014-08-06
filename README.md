@@ -10,13 +10,10 @@ A utility for to help Alfred 2 workflows manage shared dependencies.
 ## Versioning
 See [the wiki page](https://github.com/shawnrice/alfred-bundler/wiki/Versioning) for more details on bundler versions.
 
-
-Copyright (C) 2014 Shawn Patrick Rice
-
 ## Reporting Issues
 Help us understand you issues a bit better by looking at [this wiki page](https://github.com/shawnrice/alfred-bundler/wiki/Reporting-Issues) first.
 
-## Contributors
+## The Alfred Bundler Team
 
 * [Shawn Patrick Rice](https://github.com/shawnrice)
 * [Dean Jackson](https://github.com/deanishe)
@@ -34,7 +31,7 @@ When coding for the bundler, please use the following
 
 ## The MIT License (MIT)
 
-Copyright (c) 2014 <copyright holders>
+_Copyright (c) 2014 __The Alfred Bundler Team___
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
