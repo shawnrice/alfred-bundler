@@ -177,14 +177,15 @@ class AlfredBundlerInternalClass {
     // See if the file is installed
     if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
       if ( ! $this->installAsset( "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
-        // Something went wrong with the installation. Get better error reporting.
+
         return FALSE;
       }
     }
 
     // Register the asset. We don't need to worry about the return.
     $this->register( $name, $version ); $line = __LINE__;
-    $this->reportLog( "Registering assset '{$name}'", 'INFO', __FILE__, $line );
+    $this->reportLog( "Registering assset '{$name}'",
+      'INFO', __FILE__, $line );
 
     // The file should exist now, but we'll try anyway
     if ( ! file_exists( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
@@ -193,12 +194,16 @@ class AlfredBundlerInternalClass {
 
     if ( $type != 'utility' ) {
       // We don't have to worry about gatekeeper
+      $this->reportLog( "Loaded '{$name}' v{$version} of type '{$type}'.",
+        'INFO', __FILE__, __LINE__ );
       return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
         . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
     } else {
       // It's a utility, so let's see if we need gatekeeper
       if ( ! ( isset( $json[ 'gatekeeper' ] ) && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
         // We don't have to worry about gatekeeper
+        $this->reportLog( "Loaded '{$name}' v{$version} of type '{$type}'.",
+          'INFO', __FILE__, __LINE__ );
         return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
           . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
       }
@@ -225,6 +230,8 @@ class AlfredBundlerInternalClass {
     // run the gatekeeper script).
     if ( $this->gatekeeper( $name, $path, $message, $icon, $this->bundle ) ) {
       // The utility has been whitelisted, so return the path
+      $this->reportLog( "Loaded '{$name}' v{$version} of type '{$type}'.",
+        'INFO', __FILE__, __LINE__ );
       return $path;
     } else {
       // The utility has not been whitelisted, so return an error.
