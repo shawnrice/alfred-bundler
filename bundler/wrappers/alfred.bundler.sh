@@ -158,7 +158,6 @@ function AlfredBundler::install_bundler {
   # Loop through the bundler servers until we get one that works
   while [[ $i -lt $len ]]; do
     url="${AB_BUNDLER_SERVERS[$i]}"
-    echo "\$url = $url"
     echo "Fetching ${url} ..." >&2
     curl -fsSL --connect-timeout 4 "${url}" > "${AB_CACHE}/installer/bundler.zip"
     status=$?
