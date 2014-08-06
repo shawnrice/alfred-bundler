@@ -327,8 +327,8 @@ class cached(object):
 
     def __init__(self, func):
         self.func = func
-        self.cachepath = os.path.join(HELPER_DIR, '{}.cache'.format(
-                                      func.__name__))
+        self.cachepath = os.path.join(HELPER_DIR, '{}-{}.cache'.format(
+                                      __name__, func.__name__))
         # self.func = func
         self.cache = {}
 
