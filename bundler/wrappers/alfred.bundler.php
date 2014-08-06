@@ -8,12 +8,12 @@
  * use this file and the class contained within it to lazy load a variety of
  * assets that can be used in your workflows.
  *
- * LICENSE: GPLv3 {@link https://www.gnu.org/licenses/gpl-3.0.txt}, or see
- * LICENSE file in the Alfred Bundler directory.
+ * This file is part of the Alfred Bundler, released under the MIT licence.
+ * Copyright (c) 2014 The Alfred Bundler Team
+ * See https://github.com/shawnrice/alfred-bundler for more information
  *
- *
- * @copyright  Shawn Patrick Rice 2014
- * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
+ * @copyright  The Alfred Bundler Team 2014
+ * @license    http://opensource.org/licenses/MIT  MIT
  * @version    Taurus 1
  * @link       http://shawnrice.github.io/alfred-bundler
  * @since      File available since Aries 1

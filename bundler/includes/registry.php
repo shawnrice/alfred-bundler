@@ -1,10 +1,20 @@
 <?php
 /**
- *  This file serves as the backend point to register assets to track which
- *  workflows use which assets. The registry function will be extended in the
- *  future to allow for the uninstallation of orphaned assets.
  *
- **/
+ * This file serves as the backend point to register assets to track which
+ * workflows use which assets. The registry function will be extended in the
+ * future to allow for the uninstallation of orphaned assets.
+ *
+ * This file is part of the Alfred Bundler, released under the MIT licence.
+ * Copyright (c) 2014 The Alfred Bundler Team
+ * See https://github.com/shawnrice/alfred-bundler for more information
+ *
+ * @copyright  The Alfred Bundler Team 2014
+ * @license    http://opensource.org/licenses/MIT  MIT
+ * @version    Taurus 1
+ * @link       http://shawnrice.github.io/alfred-bundler
+ * @since      File available since Aries 1
+ */
 
 require_once( 'registry-functions.php' );
 

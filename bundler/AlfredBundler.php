@@ -5,12 +5,12 @@
  *
  * Main PHP interface for the Alfred Dependency Bundler.
  *
- * LICENSE: GPLv3 {@link https://www.gnu.org/licenses/gpl-3.0.txt}, or see
- * LICENSE file in the Alfred Bundler directory.
+ * This file is part of the Alfred Bundler, released under the MIT licence.
+ * Copyright (c) 2014 The Alfred Bundler Team
+ * See https://github.com/shawnrice/alfred-bundler for more information
  *
- *
- * @copyright  Shawn Patrick Rice 2014
- * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
+ * @copyright  The Alfred Bundler Team 2014
+ * @license    http://opensource.org/licenses/MIT  MIT
  * @version    Taurus 1
  * @link       http://shawnrice.github.io/alfred-bundler
  * @since      File available since Aries 1
@@ -146,8 +146,13 @@ class AlfredBundlerInternalClass {
       if ( file_exists( "{$this->data}/data/theme_background" ) ) {
         if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
           $this->background = file_get_contents( "{$this->data}/data/theme_background" );
+        } else {
+          $update = TRUE;
         }
       } else {
+          $update = TRUE;
+      }
+      if ( isset( $update ) && ( $update == TRUE ) ) {
           // See if RGB value is greater than 127, if so, background is light,
           // else, dark
           preg_match_all("/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches);
@@ -160,10 +165,6 @@ class AlfredBundlerInternalClass {
             $this->background = 'dark';
           file_put_contents( "{$this->data}/data/theme_background", $this->background );
       }
-
-
-
-
     } else {
       // Pre Alfred v2.4:277.
 
