@@ -137,15 +137,32 @@ class AlfredBundlerInternalClass {
       $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
       $this->theme = $_ENV[ 'alfred_theme' ];
 
-          // See if RGB value is greater than 140, if so, return light, else, return dark
-      preg_match_all("/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches);
-      $r = $matches[1];
-      $g = $matches[2];
-      $b = $matches[3];
-      if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
-        $this->background = 'light';
-      else
-        $this->background = 'dark';
+      $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
+
+      if ( ! file_exists( "{$this->data}/data" ) ) {
+        mkdir( "{$this->data}/data", 0775, TRUE );
+      }
+
+      if ( file_exists( "{$this->data}/data/theme_background" ) ) {
+        if ( filemtime( "{$this->data}/data/theme_background" > $plist ) ) {
+          $this->background = file_get_contents( "{$this->data}/data/theme_background" );
+        }
+      } else {
+          // See if RGB value is greater than 127, if so, background is light,
+          // else, dark
+          preg_match_all("/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches);
+          $r = $matches[1];
+          $g = $matches[2];
+          $b = $matches[3];
+          if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
+            $this->background = 'light';
+          else
+            $this->background = 'dark';
+          file_put_contents( "{$this->data}/data/theme_background", $this->background );
+      }
+
+
+
 
     } else {
       // Pre Alfred v2.4:277.
@@ -455,8 +472,8 @@ class AlfredBundlerInternalClass {
       $alter = TRUE;
     }
 
-    // So, named colors can work, but we're going to test to see if the color is
-    // written in a hex format; if so, we'll make sure that it's in a
+    // So, named colors cannot work, but we're going to test to see if the
+    // color is written in a hex format; if so, we'll make sure that it's in a
     // non-abbreviated form.
     if ( $this->checkHex( $color ) )
       $color = $this->checkHex( $color );
@@ -552,9 +569,9 @@ class AlfredBundlerInternalClass {
     }
   }
 
-/*******************************************************************************
+/******************************************************************************
  * BEGIN INSTALL FUNCTIONS
- ******************************************************************************/
+ *****************************************************************************/
 
   /**
    * Installs an asset based on JSON information
@@ -722,13 +739,13 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-/*******************************************************************************
+/******************************************************************************
  * END INSTALL FUNCTIONS
- ******************************************************************************/
+ *****************************************************************************/
 
-/*******************************************************************************
+/******************************************************************************
  * BEGIN ICON FUNCTIONS
- * ****************************************************************************/
+ *****************************************************************************/
 
   /**
    * Determines whether a color is 'light' or 'dark'
@@ -1285,7 +1302,7 @@ private function reportLog( $message, $level, $file, $line ) {
     $gatekeeper = realpath( dirname( __FILE__ ) ) . '/includes/gatekeeper.sh';
 
     // Execute the Gatekeeper script
-    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
+    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status ); $line = __LINE__;
 
     // If the previous call returns a successful status code, then cache the path
     // and return it. Else, move to failure.
@@ -1298,11 +1315,11 @@ private function reportLog( $message, $level, $file, $line ) {
     // status).
 
     // Output the error to STDERR.
-    file_put_contents('php://stderr', "Bundler Error: '{$name}' is needed to properly run " .
-                                      "this workflow, and it must be whitelisted " .
-                                      "for Gatekeeper. You either denied the " .
-                                      " request, or another error occured with " .
-                                      " the Gatekeeper script." );
+    $this->reportLog( "Bundler Error: '{$name}' is needed to properly run " .
+        "this workflow, and it must be whitelisted for Gatekeeper. You " .
+        "either denied the request, or another error occured with " .
+        " the Gatekeeper script.", 'ERROR', basename( __FILE__ ), $line );
+    file_put_contents('php://stderr',  );
 
     // So return FALSE as failure.
     return FALSE;
@@ -1360,13 +1377,13 @@ private function reportLog( $message, $level, $file, $line ) {
     return TRUE;
   }
 
-/*******************************************************************************
+/******************************************************************************
  * END HELPER FUNCTIONS
- ******************************************************************************/
+ *****************************************************************************/
 
-/*******************************************************************************
+/******************************************************************************
  * BEGIN BONUS FUNCTIONS
- ******************************************************************************/
+ *****************************************************************************/
 
   ///// Test function to check the new terminal notifier bindings.
   public function nope() {
@@ -1469,8 +1486,8 @@ private function reportLog( $message, $level, $file, $line ) {
       return TRUE;
   }
 
-/*******************************************************************************
+/******************************************************************************
  * END BONUS FUNCTIONS
- ******************************************************************************/
+ *****************************************************************************/
 
 }
