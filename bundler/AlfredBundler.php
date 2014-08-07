@@ -32,59 +32,67 @@
 class AlfredBundlerInternalClass {
 
   /**
-  * A filepath to the bundler directory
-  * @access private
-  * @var string
-  */
+   * A filepath to the bundler directory
+   *
+   * @access private
+   * @var string
+   */
   private   $data;
 
   /**
-  * A filepath to the bundler cache directory
-  * @access private
-  * @var string
-  */
+   * A filepath to the bundler cache directory
+   *
+   * @access private
+   * @var string
+   */
   private   $cache;
 
   /**
-  * The MAJOR version of the bundler (which API to use)
-  * @access private
-  * @var string
-  */
+   * The MAJOR version of the bundler (which API to use)
+   *
+   * @access private
+   * @var string
+   */
   private   $major_version;
 
   /**
-  * The MINOR version of the bundler
-  * @access private
-  * @var string
-  */
+   * The MINOR version of the bundler
+   *
+   * @access private
+   * @var string
+   */
   private   $minor_version;
 
   /**
-  * Filepath to an Alfred info.plist file
-  * @access private
-  * @var string
-  */
+   * Filepath to an Alfred info.plist file
+   *
+   * @access private
+   * @var string
+   */
   private   $plist;
 
   /**
-  * The Bundle ID of the workflow using the bundler
-  * @access private
-  * @var string
-  */
+   * The Bundle ID of the workflow using the bundler
+   *
+   * @access private
+   * @var string
+   */
   private   $bundle;
 
   /**
-  * The name of the workflow using the bundler
-  * @access private
-  * @var string
-  */
+   * The name of the workflow using the bundler
+   *
+   * @access private
+   * @var string
+   */
   private   $name;
 
   /**
-  * The background 'color' of the user's current theme in Alfred (light or dark)
-  * @access private
-  * @var string
-  */
+   * The background 'color' of the user's current theme in Alfred (light or dark)
+   *
+   * @access private
+   * @var string
+   */
   private   $background;
 
   // Just a resource to check on a fileinfo thingie.
@@ -99,7 +107,7 @@ class AlfredBundlerInternalClass {
    * Sets necessary variables.
    *
    * @access public
-   * @param  {string} $plist Path to workflow 'info.plist'
+   * @param {string} $plist Path to workflow 'info.plist'
    * @return {bool}          Return 'true' regardless
    */
   public function __construct( $plist = '' ) {
@@ -136,7 +144,7 @@ class AlfredBundlerInternalClass {
       // As of Alfred v2.4 Build 277, environmental variables are available
       // that will make this process a lot easier and faster.
       $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
-                            'build'  => $_ENV[ 'alfred_version_build' ]);
+        'build'  => $_ENV[ 'alfred_version_build' ] );
       $this->home = $_ENV[ 'HOME' ];
       $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
       $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
@@ -156,20 +164,20 @@ class AlfredBundlerInternalClass {
           $update = TRUE;
         }
       } else {
-          $update = TRUE;
+        $update = TRUE;
       }
       if ( isset( $update ) && ( $update == TRUE ) ) {
-          // See if RGB value is greater than 127, if so, background is light,
-          // else, dark
-          preg_match_all("/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches);
-          $r = $matches[1];
-          $g = $matches[2];
-          $b = $matches[3];
-          if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
-            $this->background = 'light';
-          else
-            $this->background = 'dark';
-          file_put_contents( "{$this->data}/data/theme_background", $this->background );
+        // See if RGB value is greater than 127, if so, background is light,
+        // else, dark
+        preg_match_all( "/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/", "rgba(236,237,216,0.00)", $matches );
+        $r = $matches[1];
+        $g = $matches[2];
+        $b = $matches[3];
+        if ( ( ( $r * 299 ) + ( $g * 587 ) + ( $b * 114 ) ) / 1000 > 127 )
+          $this->background = 'light';
+        else
+          $this->background = 'dark';
+        file_put_contents( "{$this->data}/data/theme_background", $this->background );
       }
     } else {
       // Pre Alfred v2.4:277.
@@ -192,10 +200,10 @@ class AlfredBundlerInternalClass {
    * @since  Taurus 1
    * @access public
    *
-   * @param  {string} $type      Type of asset
-   * @param  {string} $name      Name of asset
-   * @param  {string} $version   Version of asset to load
-   * @param  {string} $json = '' Path to json file
+   * @param {string} $type    Type of asset
+   * @param {string} $name    Name of asset
+   * @param {string} $version Version of asset to load
+   * @param {string} $json    = '' Path to json file
    * @return {mixed}             Returns path to utility on success, FALSE on failure
    */
   public function load( $type, $name, $version, $json = '' ) {
@@ -208,8 +216,8 @@ class AlfredBundlerInternalClass {
         $error = TRUE;
       }
     } else if ( file_exists( $json ) ) { $line = __LINE__;
-      $json_path = $json;
-    } else {
+        $json_path = $json;
+      } else {
       // JSON File cannot be found
       $error = TRUE;
     }
@@ -235,10 +243,10 @@ class AlfredBundlerInternalClass {
 
     // See if the file is installed
     if ( ! file_exists(
-      "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+        "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
 
       if ( ! $this->installAsset(
-        "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
+          "{$this->data}/bundler/meta/defaults/{$name}.json", $version ) ) {
         return FALSE;
       }
     }
@@ -250,7 +258,7 @@ class AlfredBundlerInternalClass {
 
     // The file should exist now, but we'll try anyway
     if ( ! file_exists(
-      "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
+        "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) ) {
 
       return FALSE;
     }
@@ -265,11 +273,11 @@ class AlfredBundlerInternalClass {
     } else {
       // It's a utility, so let's see if we need gatekeeper
       if ( ! ( isset( $json[ 'gatekeeper' ] )
-        && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
+          && ( $json[ 'gatekeeper' ] == TRUE ) ) ) {
 
         // We don't have to worry about gatekeeper
         $this->reportLog( "Loaded '{$name}' version {$version} of type " .
-        "'{$type}'", 'INFO', __FILE__, __LINE__ );
+          "'{$type}'", 'INFO', __FILE__, __LINE__ );
 
         return "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
           . trim( file_get_contents( "{$this->data}/data/assets/{$type}/{$name}/{$version}/invoke" ) );
@@ -322,14 +330,14 @@ class AlfredBundlerInternalClass {
    * @since  Taurus 1
    * @access public
    *
-   * @param  {string} $name                Name of utility
-   * @param  {string} $version = 'default' Version of utility
-   * @param  {string} $json    = ''        File path to json
+   * @param {string} $name    Name of utility
+   * @param {string} $version = 'default' Version of utility
+   * @param {string} $json    = ''        File path to json
    * @return {mixed}                       Path to utility on success, FALSE on failure
    */
   public function utility( $name, $version = 'default', $json = '' ) {
     if ( empty( $json ) ) {
-        return $this->load( 'utility', $name, $version );
+      return $this->load( 'utility', $name, $version );
     } else {
       if ( file_exists( $json ) ) {
         return $this->load( 'utility', $name, $version, $json );
@@ -344,19 +352,19 @@ class AlfredBundlerInternalClass {
    * @since  Taurus 1
    * @access public
    *
-   * @param  {string} $name                Name of library
-   * @param  {string} $version = 'default' Version of library
-   * @param  {string} $json    = ''        File path to json
+   * @param {string} $name    Name of library
+   * @param {string} $version = 'default' Version of library
+   * @param {string} $json    = ''        File path to json
    * @return {bool}                        TRUE on success, FALSE on failure
    */
   public function library( $name, $version = 'default', $json = '' ) {
     $dir = "{$this->data}/data/assets/php/{$name}/{$version}";
     if ( file_exists( "{$dir}/invoke" ) ) {
-      require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
+      require_once "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) );
       return TRUE;
     } else {
       if ( $this->load( 'php', $name, $version, $json ) ) {
-        require_once( "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) ) );
+        require_once "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) );
         return TRUE;
       } else {
         return FALSE;
@@ -367,14 +375,14 @@ class AlfredBundlerInternalClass {
   /**
    * [binding description]
    *
-   * @param   [type]  $binding  [description]
+   * @param [type]  $binding [description]
    *
    * @return  [type]            [description]
    */
   public function binding( $binding ) {
     $bindingsDir = "{$this->data}/bundler/includes/bindings/php";
     if ( file_exists( "{$bindingsDir}/{$binding}.php" ) ) {
-      require_once( "{$bindingsDir}/{$binding}.php" ); $line = __LINE__;
+      require_once "{$bindingsDir}/{$binding}.php"; $line = __LINE__;
       $this->reportLog( "Loaded '{$binding}' bindings", 'INFO', __FILE__, $line );
       return 0;
     } else {
@@ -386,7 +394,7 @@ class AlfredBundlerInternalClass {
   /**
    * Loads / requires composer packages
    *
-   * @param  {array} $packages An array of packages to load in composer
+   * @param {array} $packages An array of packages to load in composer
    * @return {bool}            True on success, false on failure
    */
   public function composer( $packages ) {
@@ -408,7 +416,7 @@ class AlfredBundlerInternalClass {
         if ( ! file_exists( $installDir ) )
           mkdir( "{$installDir}", 0775, TRUE );
         $json = json_encode( array( "require" => $packages ) );
-        $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+        $json = str_replace( '\/', '/', $json ); // Make sure that the json is valid for composer.
         file_put_contents( "{$installDir}/composer.json", $json );
 
         if ( hash_file( 'md5', "{$installDir}/composer.json" )
@@ -437,7 +445,7 @@ class AlfredBundlerInternalClass {
       if ( $this->installComposerPackage( $packages ) === TRUE ) {
         $this->reportLog( "Loaded Composer packages for {$this->bundle}.",
           'INFO', basename( __FILE__ ), __LINE__ );
-        require_once( "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+        require_once "{$composerDir}/bundles/{$this->bundle}/autoload.php";
         return TRUE;
       } else {
         $this->reportLog( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', basename( __FILE__ ), __LINE__ );
@@ -452,10 +460,10 @@ class AlfredBundlerInternalClass {
    *
    * @TODO   Fix argument order
    *
-   * @param  {[type]} $font   [description]
-   * @param  {[type]} $name   [description]
-   * @param  {[type]} $color  [description]
-   * @param  {[type]} $alter =             FALSE [description]
+   * @param {[type]} $font  [description]
+   * @param {[type]} $name  [description]
+   * @param {[type]} $color [description]
+   * @param {[type]} $alter =             FALSE [description]
    * @return {[type]}         [description]
    */
   public function icon( $font, $name, $color = '', $alter = FALSE ) {
@@ -523,9 +531,9 @@ class AlfredBundlerInternalClass {
     foreach ( $iconServers as $server ) :
       $success = $this->download(
         "{$server}/icon/{$font}/{$color}/{$name}", $iconPath );
-      if ( $success === TRUE ) {
-        break; // We found one, so break
-      }
+    if ( $success === TRUE ) {
+      break; // We found one, so break
+    }
     endforeach;
 
     // If success is true, then we downloaded the icon
@@ -540,7 +548,7 @@ class AlfredBundlerInternalClass {
       return $iconPath;
     } else {
       $this->reportLog( "Download error with icon '{$name}'. Check argument " .
-        "order.", 'ERROR', __FILE__, __LINE__);
+        "order.", 'ERROR', __FILE__, __LINE__ );
       // unlink( $iconPath );
       return "{$this->data}/bundler/meta/icons/default.png";
     }
@@ -559,7 +567,7 @@ class AlfredBundlerInternalClass {
     if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
       return FALSE;
     if ( ! file_exists(
-      realpath( dirname( "{$this->plist}" ) . "/icon.png" ) ) ) {
+        realpath( dirname( "{$this->plist}" ) . "/icon.png" ) ) ) {
       return FALSE;
     }
 
@@ -576,20 +584,20 @@ class AlfredBundlerInternalClass {
     }
   }
 
-/******************************************************************************
+  /******************************************************************************
  * BEGIN INSTALL FUNCTIONS
  *****************************************************************************/
 
   /**
    * Installs an asset based on JSON information
    *
-   * @param  {string} $json                File path to json
-   * @param  {string} $version = 'default' Version of asset to install
+   * @param {string} $json    File path to json
+   * @param {string} $version = 'default' Version of asset to install
    * @return {bool}                        TRUE on success, FALSE on failure
    */
   public function installAsset( $json, $version = 'default' ) {
     if ( ! file_exists( $json ) ) {
-    $this->reportLog( "Cannot install asset because the JSON file ('{$json}') is not present.", 'ERROR', basename( __FILE__ ), __LINE__ );
+      $this->reportLog( "Cannot install asset because the JSON file ('{$json}') is not present.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
     }
 
@@ -642,9 +650,9 @@ class AlfredBundlerInternalClass {
         // Unzip the file into the cache directory, silently.
         exec( "unzip -qo '{$tmpDir}/{$file}' -d '{$tmpDir}'" );
       } else if ( $url[ 'method' ] == 'tgz' || $url[ 'method' ] == 'tar.gz' ) {
-        // Untar the file into the cache directory, silently.
-        exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'");
-      }
+          // Untar the file into the cache directory, silently.
+          exec( "tar xzf '{$tmpDir}/{$file}' -C '{$tmpDir}'" );
+        }
     }
     if ( is_array( $install ) ) {
       foreach ( $install as $i ) {
@@ -666,11 +674,11 @@ class AlfredBundlerInternalClass {
   /**
    * Installs composer packages
    *
-   * @param  {array} $packages List of composer ready packages with versions
+   * @param {array} $packages List of composer ready packages with versions
    * @return {bool}            TRUE on success, FALSE on failure
    */
   private function installComposerPackage( $packages ) {
-    if ( ! is_array( $packages) ) {
+    if ( ! is_array( $packages ) ) {
       // The packages variable needs to be an array
       $this->reportLog( "An array must be passed to install Composer assets.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
@@ -682,7 +690,7 @@ class AlfredBundlerInternalClass {
       mkdir( "{$installDir}", 0775, TRUE );
 
     $json = json_encode( array( "require" => $packages ) );
-    $json = str_replace('\/', '/', $json ); // Make sure that the json is valid for composer.
+    $json = str_replace( '\/', '/', $json ); // Make sure that the json is valid for composer.
     file_put_contents( "{$installDir}/composer.json", $json );
 
     $cmd = "php '{$this->data}/data/assets/php/composer/composer.phar' install -q -d '{$installDir}'";
@@ -696,36 +704,36 @@ class AlfredBundlerInternalClass {
     $destination = "{$this->data}/data/assets/php/composer/vendor";
     $installed = array();
 
-    foreach( $packages as $package ) :
+    foreach ( $packages as $package ) :
 
-      $name        = explode( '/', $package[ 'name' ] ); // As: vendor/package
-      $vendor      = $name[0];                         // vendor
-      $name        = $name[1];                           // package name
-      $version     = $package[ 'version' ];           // version installed
-      $installed[] = array( 'name' => $name,
-                            'vendor' => $vendor,
-                            'version' => $version );
+    $name        = explode( '/', $package[ 'name' ] ); // As: vendor/package
+    $vendor      = $name[0];                         // vendor
+    $name        = $name[1];                           // package name
+    $version     = $package[ 'version' ];           // version installed
+    $installed[] = array( 'name' => $name,
+      'vendor' => $vendor,
+      'version' => $version );
 
-      foreach( $files as $file ) :
-        if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
-          $f = file( "{$installDir}/vendor/composer/{$file}" );
-          foreach ( $f as $num => $line ) :
-            $line = str_replace( '$vendorDir = dirname(dirname(__FILE__));',  "\$vendorDir = '{$this->data}/data/assets/php/composer/vendor';", $line );
-            $line = str_replace( '$baseDir = dirname($vendorDir);', "\$baseDir = '{$this->data}/data/assets/php/composer';", $line );
-            $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
-            $f[ $num ] = $line;
-          endforeach;
-          file_put_contents( "{$installDir}/vendor/composer/{$file}",
-            implode( '', $f ) );
-        }
-      endforeach;
-      $this->reportLog( "Rewrote Composer autoload file for workflow.", 'INFO', basename( __FILE__ ), __LINE__ );
-
-      if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}") ) {
-        if ( ! file_exists( "{$destination}/{$vendor}" ) )
-          mkdir( "{$destination}/{$vendor}", 0775, TRUE ); // Make the vendor dir if necessary
-        rename( "{$installDir}/vendor/{$vendor}/{$name}", "{$destination}/{$vendor}/{$name}-{$version}" );
+    foreach ( $files as $file ) :
+      if ( file_exists( "{$installDir}/vendor/composer/{$file}" ) ) {
+        $f = file( "{$installDir}/vendor/composer/{$file}" );
+        foreach ( $f as $num => $line ) :
+          $line = str_replace( '$vendorDir = dirname(dirname(__FILE__));',  "\$vendorDir = '{$this->data}/data/assets/php/composer/vendor';", $line );
+          $line = str_replace( '$baseDir = dirname($vendorDir);', "\$baseDir = '{$this->data}/data/assets/php/composer';", $line );
+          $line = str_replace( 'array($vendorDir . \'/' . $vendor . '/' . $name, 'array($vendorDir . \'/' . $vendor . '/' . $name . '-' . $version, $line );
+          $f[ $num ] = $line;
+        endforeach;
+        file_put_contents( "{$installDir}/vendor/composer/{$file}",
+          implode( '', $f ) );
       }
+    endforeach;
+    $this->reportLog( "Rewrote Composer autoload file for workflow.", 'INFO', basename( __FILE__ ), __LINE__ );
+
+    if ( ! file_exists( "{$destination}/{$vendor}/{$name}-{$version}" ) ) {
+      if ( ! file_exists( "{$destination}/{$vendor}" ) )
+        mkdir( "{$destination}/{$vendor}", 0775, TRUE ); // Make the vendor dir if necessary
+      rename( "{$installDir}/vendor/{$vendor}/{$name}", "{$destination}/{$vendor}/{$name}-{$version}" );
+    }
     endforeach;
     if ( ! file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}" ) )
       mkdir( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}", 0775, TRUE );
@@ -746,195 +754,212 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-/******************************************************************************
+  /******************************************************************************
  * END INSTALL FUNCTIONS
  *****************************************************************************/
 
-/******************************************************************************
+  /******************************************************************************
  * BEGIN ICON FUNCTIONS
  *****************************************************************************/
 
   /**
    * Determines whether a color is 'light' or 'dark'
    *
-   * @param  {string} $color     Hex representation of a color
+   * @param {string} $color Hex representation of a color
    * @return {mixed}             Either 'light' or 'dark' or FALSE on fail
    */
   private function checkColor( $color ) {
-
-    $color = $this->checkHex( $color );
     // Check if a valid hex color, if not, return FALSE
-    if ( $color === FALSE )
+    if ( ! ( $color = $this->checkHex( $color ) ) )
       return FALSE;
+    $color = $this->hexToRgb( $color );
+    if ( $this->getLuminance( $color ) > 0.5 )
+      return 'light';
+    else
+      return 'dark';
+  }
 
-  	// See if RGB value is greater than 127, if so, return light, else, return dark
-  	if ( ( ( ( hexdec( substr( $color, 0, 2 ) ) * 299 ) // R
-  		     + ( hexdec( substr( $color, 2, 2 ) ) * 587 ) // G
-  		     + ( hexdec( substr( $color, 4, 2 ) ) * 114 ) // B
-  	  ) / 1000 ) > 127 )
-  		return 'light';
-  	else
-  		return 'dark';
+  /**
+   * [getLuminance description]
+   *
+   * @param [type]  $rgb [description]
+   *
+   * @return  [type]        [description]
+   */
+  function getLuminance( $rgb ) {
+    return ( 0.3 * $rgb['r' ] + 0.59 * $rgb['g' ] + 0.11 * $rgb['b' ] ) / 255;
   }
 
   /**
    * Checks to see if a color is a valid hex and normalizes the hex color
    *
-   * @param  {string} $color A hex color
+   * @param {string} $color A hex color
    * @return {mixed}         FALSE on non-hex or hex color (normalized) to six characters and lowercased
    */
-  private function checkHex( $color ) {
-    $color = str_replace('#', '', $color);
-    $color = strtolower( $color );
+  public function checkHex( $hex ) {
+    return $this->validateHex( $this->checkHex( $hex ) );
+  }
 
-    // Check if string is either three or six characters
-    if ( strlen( $color ) != 3 && strlen( $color ) != 6 )
+  /**
+   * [normalizeHex description]
+   *
+   * @param [type]  $hex [description]
+   *
+   * @return  [type]        [description]
+   */
+  public function normalizeHex( $hex ) {
+    $hex = strtolower( str_replace( '#', '', $hex ) );
+    if ( strlen( $hex ) == 3 )
+      $hex = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $hex );
+    return $hex;
+  }
+
+  /**
+   * [validateHex description]
+   *
+   * @param [type]  $hex [description]
+   *
+   * @return  [type]        [description]
+   */
+  public function validateHex( $hex ) {
+    if ( strlen( $hex ) != 3 && strlen( $hex ) != 6 )
       return FALSE; // Not a valid hex value
-    if ( strlen( $color )  == 3 ) {
-      // Check if string has only hex characters
-      if ( ! preg_match( "/([0-9a-f]{3})/", $color) )
-        return FALSE; // Not a valid hex value
-      // Change three character hex to six character hex
-      $color = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $color );
-    } else {
-      // Check if string has only hex characters
-      if ( ! preg_match( "/([0-9a-f]{6})/", $color) )
-        return FALSE; // Not a valid hex value
-    }
-    return $color;
+    if ( ! preg_match( "/([0-9a-f]{3}|[0-9a-f]{6})/", $hex ) )
+      return FALSE; // Not a valid hex value
+    return TRUE;
   }
 
   /**
    * Converts Hex color to RGB
    *
-   * @param  {string} $color A hex color
+   * @param {string} $color A hex color
    * @return {array}         An array of RGB values
    */
-  function hexToRgb( $color ) {
-		$r = hexdec( substr( $color, 0, 2 ) );
-		$g = hexdec( substr( $color, 2, 2 ) );
-		$b = hexdec( substr( $color, 4, 2 ) );
-		return array( 'r' => $r, 'g' => $g, 'b' => $b );
-	}
+  public function hexToRgb( $hex ) {
+    $r = hexdec( substr( $hex, 0, 2 ) );
+    $g = hexdec( substr( $hex, 2, 2 ) );
+    $b = hexdec( substr( $hex, 4, 2 ) );
+    return [ 'r' => $r, 'g' => $g, 'b' => $b ];
+  }
+
+  /**
+   * [rgbToHex description]
+   *
+   * @param [type]  $rgb [description]
+   *
+   * @return  [type]        [description]
+   */
+  public function rgbToHex( $rgb ) {
+    $hex .= str_pad( dechex( $rgb['r'] ), 2, '0', STR_PAD_LEFT );
+    $hex .= str_pad( dechex( $rgb['g'] ), 2, '0', STR_PAD_LEFT );
+    $hex .= str_pad( dechex( $rgb['b'] ), 2, '0', STR_PAD_LEFT );
+    return $hex;
+  }
 
   /**
    * Lightens a color
    *
-   * @param  {string} $color  Hex color
+   * @param {string} $color Hex color
    * @return {string}         A hex color that has been 'lightened'
    */
-	function alterBrightness( $color ) {
+  public function alterBrightness( $color ) {
     $color = $this->checkHex( $color );
-    if ( $color === FALSE ) return FALSE;
+    if ( $color === FALSE )
+      return FALSE;
 
-		$rgb = $this->hexToRgb( $color );
-		$hsv = $this->rgb_to_hsv( $rgb['r'], $rgb['g'], $rgb['b'] );
-		$hsv[ 'v' ] = 1 - $hsv[ 'v' ];
-		$rgb = $this->hsv_to_rgb( $hsv[ 'h' ], $hsv[ 's' ], $hsv[ 'v' ] );
-
-    foreach ( $rgb as $key => $val ) :
-      if ( strlen( dechex( $val ) ) == 1 ) $rgb[ $key ] = '0' . dechex( $val );
-      else $rgb[ $key ] = dechex( $val );
-    endforeach;
-
-    return $rgb[ 'r' ] . $rgb[ 'g' ] . $rgb[ 'b' ];
-	}
-
-	// I don't understand colors. RGB to HSV conversions adapted from
-	// https://stackoverflow.com/questions/3512311/how-to-generate-lighter-darker-color-with-php
-	// http://www.actionscript.org/forums/showthread.php3?t=50746 and
+    $rgb = $this->hexToRgb( $color );
+    $hsv = $this->rgb_to_hsv( $rgb );
+    $hsv[ 'v' ] = 1 - $hsv[ 'v' ];
+    $rgb = $this->hsv_to_rgb( $hsv );
+    return $this->rgbToHex( $rgb );
+  }
 
   /**
    * Converts RGB color to HSV color
    *
-   * @param  {int} $r   Red value
-   * @param  {int} $g   Green value
-   * @param  {int} $b   Blue value
-   * @return {array}    An array of H S V values
+   * @param {array} $rgb associative array of rgb values
+   * @return {array}       an associate array of hsv values
    */
-	function rgb_to_hsv( $r, $g, $b ) {
+  function rgbToHsv( $rgb ) {
+    $r = $rgb[ 'r' ];
+    $g = $rgb[ 'g' ];
+    $b = $rgb[ 'b' ];
 
-		$r = ( $r / 255 );
-		$g = ( $g / 255 );
-		$b = ( $b / 255 );
-
+    $min = min( $r, $g, $b );
     $max = max( $r, $g, $b );
-		$min = min( $r, $g, $b );
+    $chroma = $max - $min;
 
-		$delta = $max - $min;
+    //if $chroma is 0, then s is 0 by definition, and h is undefined but 0 by convention.
+    if ( $chroma == 0 )
+      return [ 'h'   =>   0, 's'   =>   0, 'v'   =>   $max / 255 ];
 
-		$v = $max;
+    if ( $r == $max ) {
+      $h = ( $g - $b ) / $chroma;
 
-    if ( $max != 0.0 )
-      $s = $delta / $max;
-    else
-      $s = 0.0;
+      if ( $h < 0.0 )
+        $h += 6.0;
 
-    if ( $s == 0.0 )
-      $h = 0.0;
-    else {
-      if ( $r == $max )
-        $h = ( $g - $b ) / $delta;
-      else if ( $g == $max )
-        $h = 2 + ( $b - $r ) / $delta;
-      else if ( $b == $max )
-        $h = 4 + ( $r - $g ) / $delta;
+    } else if ( $g == $max ) {
+        $h = ( ( $b - $r ) / $chroma ) + 2.0;
+      } else {  //$b == $max
+      $h = ( ( $r - $g ) / $chroma ) + 4.0;
     }
 
     $h *= 60.0;
+    $s = $chroma / $max;
+    $v = $max / 255;
 
-    if ( $h < 0 ) {
-      $h += 360.0;
-    }
-    $h /= 360;
-    return array( 'h' => $h, 's' => $s, 'v' => $v );
-	}
+    return [ 'h' => $h, 's' => $s, 'v' => $v ];
+  }
 
   /**
    * Convert HSV color to RGB
    *
-   * @param  {float} $h H value
-   * @param  {float} $s S value
-   * @param  {float} $v V value
+   * @param {array} $hsv associative array of hsv values ( 0 <= h < 360, 0 <= s <= 1, 0 <= v <= 1)
    * @return {array}    An array of RGB values
    */
-	function hsv_to_rgb( $h, $s, $v ) {
-		$rgb = array();
+  function hsvToRgb( $hsv ) {
+    $h = $hsv[ 'h' ];
+    $s = $hsv[ 's' ];
+    $v = $hsv[ 'v' ];
 
-		if ( $s == 0 ) {
-			$r = $g = $b = $v * 255;
-		}
-		else {
-			$var_h = $h * 6;
-			$var_i = floor( $var_h );
-			$var_1 = $v * ( 1 - $s );
-			$var_2 = $v * ( 1 - $s * ( $var_h - $var_i ) );
-			$var_3 = $v * ( 1 - $s * ( 1 - ( $var_h - $var_i ) ) );
+    $chroma = $s * $v;
+    $h /= 60.0;
+    $x = $chroma * ( 1.0 - abs( ( fmod( $h, 2.0 ) ) - 1.0 ) );
+    $min = $v - $chroma;
 
-			if       ( $var_i == 0 ) { $var_r = $v     ; $var_g = $var_3  ; $var_b = $var_1 ; }
-			else if  ( $var_i == 1 ) { $var_r = $var_2 ; $var_g = $v      ; $var_b = $var_1 ; }
-			else if  ( $var_i == 2 ) { $var_r = $var_1 ; $var_g = $v      ; $var_b = $var_3 ; }
-			else if  ( $var_i == 3 ) { $var_r = $var_1 ; $var_g = $var_2  ; $var_b = $v     ; }
-			else if  ( $var_i == 4 ) { $var_r = $var_3 ; $var_g = $var_1  ; $var_b = $v     ; }
-			else 					           { $var_r = $v     ; $var_g = $var_1  ; $var_b = $var_2 ; }
+    if ( $h < 1.0 ) {
+      $r = $chroma;
+      $g = $x;
+    } else if ( $h < 2.0 ) {
+      $r = $x;
+      $g = $chroma;
+    } else if ( $h < 3.0 ) {
+      $g = $chroma;
+      $b = $x;
+    } else if ( $h < 4.0 ) {
+      $g= $x;
+      $b = $chroma;
+    } else if ( $h < 5.0 ) {
+      $r = $x;
+      $b = $chroma;
+    } else if ( $h <= 6.0 ) {
+      $r = $chroma;
+      $b = $x;
+    }
 
-			$r = $var_r * 255;
-			$g = $var_g * 255;
-			$b = $var_b * 255;
-		}
+    $r = round( ( $r + $min ) * 255 );
+    $g = round( ( $g + $min ) * 255 );
+    $b = round( ( $b + $min ) * 255 );
 
-		$rgb['r'] = $r;
-		$rgb['g'] = $g;
-		$rgb['b'] = $b;
+    return [ 'r' => $r, 'g' => $g, 'b' => $b ];
+  }
 
-		return $rgb;
-	}
-
-/*******************************************************************************
+  /*******************************************************************************
  * END ICON FUNCTIONS
  * ****************************************************************************/
 
-/*******************************************************************************
+  /*******************************************************************************
  * BEGIN HELPER FUNCTIONS
  ******************************************************************************/
 
@@ -950,8 +975,8 @@ class AlfredBundlerInternalClass {
   /**
    * Reads a plist value using PlistBuddy
    *
-   * @param  {string} $plist File path to plist
-   * @param  {string} $key   Key of plist to read
+   * @param {string} $plist File path to plist
+   * @param {string} $key   Key of plist to read
    * @return {mixed}         FALSE if plist doesn't exist, else value of key
    */
   private function readPlist( $plist, $key ) {
@@ -964,9 +989,9 @@ class AlfredBundlerInternalClass {
   /**
    * Wraps a cURL function to download files
    *
-   * @param  {string} $url            A URL to the file
-   * @param  {string} $file           The destination file
-   * @param  {int}    $timeout =  '3' A timeout variable (in seconds)
+   * @param {string} $url     A URL to the file
+   * @param {string} $file    The destination file
+   * @param {int}   $timeout =  '3' A timeout variable (in seconds)
    * @return {bool}                   True on success and error code / false on failure
    *
    * @access public
@@ -980,14 +1005,14 @@ class AlfredBundlerInternalClass {
       return FALSE;
 
     $ch = curl_init( $url );
-    $fp = fopen( $file , "w");
+    $fp = fopen( $file , "w" );
 
     curl_setopt_array( $ch, array(
-      CURLOPT_FILE => $fp,
-      CURLOPT_HEADER => FALSE,
-      CURLOPT_FOLLOWLOCATION => TRUE,
-      CURLOPT_CONNECTTIMEOUT => $timeout
-    ) );
+        CURLOPT_FILE => $fp,
+        CURLOPT_HEADER => FALSE,
+        CURLOPT_FOLLOWLOCATION => TRUE,
+        CURLOPT_CONNECTTIMEOUT => $timeout
+      ) );
 
 
     // Curl error codes: http://curl.haxx.se/libcurl/c/libcurl-errors.html
@@ -995,8 +1020,8 @@ class AlfredBundlerInternalClass {
       curl_close( $ch );
       fclose( $fp );
       return curl_error( $ch ); // Under some circumstances, if the file cannot
-                                // be downloaded, then this will return an error
-                                // stating that $ch is not a valid cURL resource
+      // be downloaded, then this will return an error
+      // stating that $ch is not a valid cURL resource
     }
 
     $line = __LINE__;
@@ -1007,18 +1032,18 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-private function reportLog( $message, $level, $file, $line ) {
+  private function reportLog( $message, $level, $file, $line ) {
 
     // These are the appropriate log levels
     $logLevels = array( 0 => 'DEBUG',
-                        1 => 'INFO',
-                        2 => 'WARNING',
-                        3 => 'ERROR',
-                        4 => 'CRITICAL',
+      1 => 'INFO',
+      2 => 'WARNING',
+      3 => 'ERROR',
+      4 => 'CRITICAL',
     );
 
     // Set date/time to avoid warnings/errors.
-    if ( ! ini_get('date.timezone') ) {
+    if ( ! ini_get( 'date.timezone' ) ) {
       $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
       ini_set( 'date.timezone', $tz );
     }
@@ -1036,22 +1061,22 @@ private function reportLog( $message, $level, $file, $line ) {
         $level = 'INFO';
       }
     } else if ( is_string( $level ) ) {
-      if ( ! in_array( $level, $logLevels ) ) {
-        file_put_contents( 'php://stderr', "[{$date}] [{$file}:{$line}] [WARNING] Log level '$level' " .
-          "is not valid. Falling back to 'INFO' (0)" );
-        $level = 'INFO';
+        if ( ! in_array( $level, $logLevels ) ) {
+          file_put_contents( 'php://stderr', "[{$date}] [{$file}:{$line}] [WARNING] Log level '$level' " .
+            "is not valid. Falling back to 'INFO' (0)" );
+          $level = 'INFO';
+        }
       }
-    }
 
     file_put_contents( 'php://stderr', "[{$date}] [" . basename( $file ) . ":{$line}] [{$level}] {$message}" . PHP_EOL );
 
-}
+  }
 
   /**
    * Prepends a datestamped message to a log file
    *
-   * @param  {string} $log     name of log file
-   * @param  {string} $message message to write to log
+   * @param {string} $log     name of log file
+   * @param {string} $message message to write to log
    * @return {[type]}          [description]
    */
   private function logInternal( $log, $message, $level = 'INFO' ) {
@@ -1060,10 +1085,10 @@ private function reportLog( $message, $level, $file, $line ) {
 
     // These are the appropriate log levels
     $logLevels = array( 0 => 'DEBUG',
-                        1 => 'INFO',
-                        2 => 'WARNING',
-                        3 => 'ERROR',
-                        4 => 'CRITICAL',
+      1 => 'INFO',
+      2 => 'WARNING',
+      3 => 'ERROR',
+      4 => 'CRITICAL',
     );
 
     // We'll convert the log level to a string; if the level is not available,
@@ -1077,15 +1102,15 @@ private function reportLog( $message, $level, $file, $line ) {
         $level = 'INFO';
       }
     } else if ( is_string( $level ) ) {
-      if ( ! in_array( $level, $logLevels ) ) {
-        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
-          "is not valid. Falling back to 'INFO' (0)" );
-        $level = 'INFO';
+        if ( ! in_array( $level, $logLevels ) ) {
+          file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+            "is not valid. Falling back to 'INFO' (0)" );
+          $level = 'INFO';
+        }
       }
-    }
 
     // Set date/time to avoid warnings/errors.
-    if ( ! ini_get('date.timezone') ) {
+    if ( ! ini_get( 'date.timezone' ) ) {
       $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
       ini_set( 'date.timezone', $tz );
     }
@@ -1093,7 +1118,7 @@ private function reportLog( $message, $level, $file, $line ) {
     if ( ! file_exists( $log ) ) {
       if ( ! file_exists( dirname( $log ) ) )
         mkdir( dirname( $log ), 0775, TRUE );
-        $file = array();
+      $file = array();
     } else {
       // This is needed because, Macs don't read EOLs well.
       if ( ! ini_get( 'auto_detect_line_endings' ) )
@@ -1104,7 +1129,7 @@ private function reportLog( $message, $level, $file, $line ) {
       // Check if the logfile is longer than 500 lines. If so, then trim the
       // last line.
       if ( count( $file ) >= 500 ) {
-          unset( $file[499] );
+        unset( $file[499] );
       }
 
     }
@@ -1118,9 +1143,9 @@ private function reportLog( $message, $level, $file, $line ) {
   /**
    * Prepends a datestamped message to a log file
    *
-   * @param  {string} $message message to write to log
-   * @param  {string} $log     name of log file
-   * @param  {mixed}  $level   log level
+   * @param {string} $message message to write to log
+   * @param {string} $log     name of log file
+   * @param {mixed} $level   log level
    */
   public function log( $message, $level = 0, $log = 'info' ) {
 
@@ -1134,10 +1159,10 @@ private function reportLog( $message, $level, $file, $line ) {
 
     // These are the appropriate log levels
     $logLevels = array( 0 => 'INFO',
-                        1 => 'WARNING',
-                        2 => 'STRICT WARNING',
-                        3 => 'RECOVERABLE ERROR',
-                        4 => 'ERROR',
+      1 => 'WARNING',
+      2 => 'STRICT WARNING',
+      3 => 'RECOVERABLE ERROR',
+      4 => 'ERROR',
     );
 
     // We'll convert the log level to a string; if the level is not available,
@@ -1151,12 +1176,12 @@ private function reportLog( $message, $level, $file, $line ) {
         $level = 'INFO';
       }
     } else if ( is_string( $level ) ) {
-      if ( ! in_array( $level, $logLevels ) ) {
-        file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
-          "is not valid. Falling back to 'INFO' (0)" );
-        $level = 'INFO';
+        if ( ! in_array( $level, $logLevels ) ) {
+          file_put_contents( 'php://stderr', "BundlerWarning: log level '$level' " .
+            "is not valid. Falling back to 'INFO' (0)" );
+          $level = 'INFO';
+        }
       }
-    }
 
     $logBase = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/" .
       "Workflow Data/{$this->bundle}/logs";
@@ -1169,13 +1194,13 @@ private function reportLog( $message, $level, $file, $line ) {
     $log = "{$logBase}/{$log}.log";
 
     // Set date/time to avoid warnings/errors.
-    if ( ! ini_get('date.timezone') ) {
+    if ( ! ini_get( 'date.timezone' ) ) {
       $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
       ini_set( 'date.timezone', $tz );
     }
 
     if ( ! file_exists( $log ) ) {
-        $file = array();
+      $file = array();
     } else {
       // This is needed because, Macs don't read EOLs well.
       if ( ! ini_get( 'auto_detect_line_endings' ) )
@@ -1186,7 +1211,7 @@ private function reportLog( $message, $level, $file, $line ) {
       // Check if the logfile is longer than 5000 lines. If so, then trim the
       // last line.
       if ( count( $file ) >= 5000 ) {
-          unset( $file[4999] );
+        unset( $file[4999] );
       }
     }
 
@@ -1201,15 +1226,15 @@ private function reportLog( $message, $level, $file, $line ) {
   }
 
   /**
-  * Recursively removes a folder along with all its files and directories
-  *
-  * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
-  *
-  * @access public
-  * @since  Taurus 1
-  *
-  * @param {string} $path Path to directory to remove
-  */
+   * Recursively removes a folder along with all its files and directories
+   *
+   * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
+   *
+   * @access public
+   * @since  Taurus 1
+   *
+   * @param {string} $path Path to directory to remove
+   */
   public function rrmdir( $path ) {
     // Open the source directory to read in files
     $i = new DirectoryIterator( $path );
@@ -1217,8 +1242,8 @@ private function reportLog( $message, $level, $file, $line ) {
       if ( $f->isFile() ) {
         unlink( $f->getRealPath() ); $line = __LINE__;
         $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
-      } else if( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
-    endforeach;
+      } else if ( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
+      endforeach;
     rmdir( $path ); $line = __LINE__;
     $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
   }
@@ -1277,10 +1302,10 @@ private function reportLog( $message, $level, $file, $line ) {
    * @access public
    * @since  Taurus 1
    *
-   * @param  {string} $name    The name of the utility
-   * @param  {string} $path    The fullpath to the utility
-   * @param  {string} $message The "permissions" message from the JSON
-   * @param  {string} $icon    The workflow icon file (if exists)
+   * @param {string} $name    The name of the utility
+   * @param {string} $path    The fullpath to the utility
+   * @param {string} $message The "permissions" message from the JSON
+   * @param {string} $icon    The workflow icon file (if exists)
    * @return {mixed}           FALSE on failure, path to utility on success
    */
   public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
@@ -1323,9 +1348,9 @@ private function reportLog( $message, $level, $file, $line ) {
 
     // Output the error to STDERR.
     $this->reportLog( "Bundler Error: '{$name}' is needed to properly run " .
-        "this workflow, and it must be whitelisted for Gatekeeper. You " .
-        "either denied the request, or another error occured with " .
-        " the Gatekeeper script.", 'ERROR', basename( __FILE__ ), $line );
+      "this workflow, and it must be whitelisted for Gatekeeper. You " .
+      "either denied the request, or another error occured with " .
+      " the Gatekeeper script.", 'ERROR', basename( __FILE__ ), $line );
 
     // So return FALSE as failure.
     return FALSE;
@@ -1339,8 +1364,8 @@ private function reportLog( $message, $level, $file, $line ) {
    * @access public
    * @since  Taurus 1
    *
-   * @param {string} $asset     Name of the asset to be registered
-   * @param {string} $version   Version of asset to use
+   * @param {string} $asset   Name of the asset to be registered
+   * @param {string} $version Version of asset to use
    * @return {bool}             Returns TRUE on success, FALSE on failure
    */
   public function register( $asset, $version ) {
@@ -1351,7 +1376,7 @@ private function reportLog( $message, $level, $file, $line ) {
 
     // Load the registry data
     if ( ! file_exists( "{$this->data}/data/registry.json" ) ) {
-        $registry = array();
+      $registry = array();
     } else {
       if ( ! ( json_decode( file_get_contents( "{$this->data}/data/registry.json" ) ) ) ) {
         // The JSON file is bad -- start over.
@@ -1361,7 +1386,7 @@ private function reportLog( $message, $level, $file, $line ) {
       }
     }
 
-   if ( isset( $registry[ $asset ] ) ) {
+    if ( isset( $registry[ $asset ] ) ) {
       if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
         $registry[ $asset ][ $version ] = array();
         $update = TRUE;
@@ -1383,35 +1408,35 @@ private function reportLog( $message, $level, $file, $line ) {
     return TRUE;
   }
 
-/******************************************************************************
+  /******************************************************************************
  * END HELPER FUNCTIONS
  *****************************************************************************/
 
-/******************************************************************************
+  /******************************************************************************
  * BEGIN BONUS FUNCTIONS
  *****************************************************************************/
 
   ///// Test function to check the new terminal notifier bindings.
   public function nope() {
-    require_once( __DIR__ . "/includes/bindings/terminal-notifier/terminalnotifier.php");
+    require_once __DIR__ . "/includes/bindings/terminal-notifier/terminalnotifier.php";
 
-    $i = new TerminalNotifier( $this->utility( 'Terminal-Notifier' ), $debug=True);
-    $i->notify([
-        'title'=>'[TITLE]',
-        'subtitle'=>'[SUBTITLE]',
-        'message'=>'[MESSAGE]',
-        'sender'=>'com.apple.Finder',
-        'sound'=>'Glass',
-        'group'=>'id.42'
-        ]);
+    $i = new TerminalNotifier( $this->utility( 'Terminal-Notifier' ), $debug=True );
+    $i->notify( [
+      'title'=>'[TITLE]',
+      'subtitle'=>'[SUBTITLE]',
+      'message'=>'[MESSAGE]',
+      'sender'=>'com.apple.Finder',
+      'sound'=>'Glass',
+      'group'=>'id.42'
+      ] );
   }
 
   /**
    * Uses Terminal Notifer to display a notification
    *
-   * @param  {string} $title             Title for notification
-   * @param  {string} $message           Message of notification
-   * @param  {array}  $options = array() An array of options that Terminal Notifer takes
+   * @param {string} $title   Title for notification
+   * @param {string} $message Message of notification
+   * @param {array} $options = array() An array of options that Terminal Notifer takes
    * @return {bool}                      TRUE on success, FALSE on failure
    */
   public function notify( $title, $message, $options = array() ) {
@@ -1492,7 +1517,7 @@ private function reportLog( $message, $level, $file, $line ) {
       return TRUE;
   }
 
-/******************************************************************************
+  /******************************************************************************
  * END BONUS FUNCTIONS
  *****************************************************************************/
 
