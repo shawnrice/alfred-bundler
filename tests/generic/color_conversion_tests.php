@@ -4,7 +4,7 @@ $hex = get_hex();
 
 function get_hex() {
     $hex = readline( "Please enter a HEX color: " );
-    if ( ! ( $hex = normalize_hex( $hex ) ) ) {
+    if ( ! ( validate_hex( $hex = normalize_hex( $hex ) ) ) ) {
         echo "That is not a valid hex color. Try again." . PHP_EOL;
         $hex = get_hex();
     }
@@ -15,7 +15,7 @@ echo 'Starting conversions for #' . $hex . PHP_EOL;
 echo "================================" . PHP_EOL;
 echo PHP_EOL;
 $rgb = hex_to_rgb( $hex );
-echo "Hex #$hex   =>   RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})" . PHP_EOL;
+echo "Hex(#$hex)   =>   RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})" . PHP_EOL;
 $hsv = rgb_to_hsv( $rgb );
 echo "RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})   =>   HSV(" .
     round( $hsv['h'] ) . "°, " .
@@ -30,7 +30,7 @@ echo "HSV(" .
     round( $hsv['s'] * 100 ) . "%, " .
     round( $hsv['v'] * 100 ) . "%)   =>   RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})" . PHP_EOL;
 $hex = rgb_to_hex( $rgb );
-echo "RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})   =>   Hex( #$hex )" . PHP_EOL;
+echo "RGB({$rgb['r']}, {$rgb['g']}, {$rgb['b']})   =>   Hex(#$hex)" . PHP_EOL;
 echo PHP_EOL;
 echo "Luminance: " . round( luminance( $rgb ) * 100 ) . "% ";
 
@@ -41,22 +41,26 @@ else
 echo PHP_EOL;
 echo "================================" . PHP_EOL;
 
+// Checks light or dark
 function luminance( $rgb ) {
     return ( 0.3 * $rgb['r' ] + 0.59 * $rgb['g' ] + 0.11 * $rgb['b' ] ) / 255;
 }
 
+// normalizes a hex
 function normalize_hex( $hex ) {
     $hex = strtolower( str_replace( '#', '', $hex ) );
-    if ( strlen( $hex ) != 3 && strlen( $hex ) != 6 )
-        return FALSE; // Not a valid hex value
-
-    if ( ! preg_match( "/([0-9a-f]{3}|[0-9a-f]{6})/", $hex ) )
-        return FALSE; // Not a valid hex value
-
     if ( strlen( $hex ) == 3 )
         $hex = preg_replace( "/(.)(.)(.)/", "\\1\\1\\2\\2\\3\\3", $hex );
-
     return $hex;
+}
+
+// Validates a hex
+function validate_hex( $hex ) {
+    if ( strlen( $hex ) != 3 && strlen( $hex ) != 6 )
+        return FALSE; // Not a valid hex value
+    if ( ! preg_match( "/([0-9a-f]{3}|[0-9a-f]{6})/", $hex ) )
+        return FALSE; // Not a valid hex value
+    return TRUE;
 }
 
 function hex_to_rgb( $hex ) {
@@ -83,26 +87,26 @@ function rgb_to_hsv( $rgb ) {
     $chroma = $max - $min;
 
     if ( $chroma == 0 ) {
+        //if $chroma is 0, then s is 0 by definition, and h is undefined but 0 by convention.
         return [ 'h'   =>   0, 's'   =>   0, 'v'   =>   $max / 255 ];
     }
 
-    //if $chroma is 0, then s is 0 by definition, and h is undefined but 0 by convention.
-    if ( $chroma != 0 ) {
-        if ( $r == $max ) {
-            $h = ( $g - $b ) / $chroma;
 
-            if ( $h < 0.0 ) {
-                $h += 6.0;
-            }
-        } else if ( $g == $max ) {
-                $h = ( ( $b - $r ) / $chroma ) + 2.0;
-            } else {  //$b == $max
-            $h = ( ( $r - $g ) / $chroma ) + 4.0;
+    if ( $r == $max ) {
+        $h = ( $g - $b ) / $chroma;
+
+        if ( $h < 0.0 ) {
+            $h += 6.0;
         }
-
-        $h *= 60.0;
-        $s = $chroma / $max;
+    } else if ( $g == $max ) {
+            $h = ( ( $b - $r ) / $chroma ) + 2.0;
+        } else {  //$b == $max
+        $h = ( ( $r - $g ) / $chroma ) + 4.0;
     }
+
+    $h *= 60.0;
+    $s = $chroma / $max;
+
 
     $v = $max / 255;
 
