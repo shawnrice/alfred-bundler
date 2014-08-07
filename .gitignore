@@ -16,3 +16,5 @@ icons.json
 bundler/test_icons.sh
 test_icons.sh
 install_confirm.scpt
+system-icons/*
+system-icons
