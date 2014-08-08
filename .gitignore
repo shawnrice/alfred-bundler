@@ -18,3 +18,5 @@ test_icons.sh
 install_confirm.scpt
 system-icons/*
 system-icons
+exclude
+exclude/*
