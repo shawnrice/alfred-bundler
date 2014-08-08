@@ -1416,21 +1416,6 @@ class AlfredBundlerInternalClass {
  * BEGIN BONUS FUNCTIONS
  *****************************************************************************/
 
-  ///// Test function to check the new terminal notifier bindings.
-  public function nope() {
-    require_once __DIR__ . "/includes/bindings/terminal-notifier/terminalnotifier.php";
-
-    $i = new TerminalNotifier( $this->utility( 'Terminal-Notifier' ), $debug=True );
-    $i->notify( [
-      'title'=>'[TITLE]',
-      'subtitle'=>'[SUBTITLE]',
-      'message'=>'[MESSAGE]',
-      'sender'=>'com.apple.Finder',
-      'sound'=>'Glass',
-      'group'=>'id.42'
-      ] );
-  }
-
   /**
    * Uses Terminal Notifer to display a notification
    *
@@ -1441,81 +1426,10 @@ class AlfredBundlerInternalClass {
    */
   public function notify( $title, $message, $options = array() ) {
 
-    if ( isset( $options[ 'sender' ] ) )
-      $sender = "-sender '" . $options['sender'] . "'";
-    else
-      $sender = "";
+    // @TODO
+    // Rewrite to use CD
 
-
-    if ( isset( $options[ 'appIcon' ] ) )
-      $appIcon = "-appIcon '" . $options['appIcon'] . "'";
-    else
-      $appIcon = "";
-
-
-    if ( isset( $options[ 'contentImage' ] ) )
-      $contentImage = "-contentImage '" . $options['contentImage'] . "'";
-    else
-      $contentImage = "";
-
-
-    if ( isset( $options[ 'subtitle' ] ) )
-      $subtitle = "-subtitle '" . $options['subtitle'] . "'";
-    else
-      $subtitle = "";
-
-
-    if ( isset( $options[ 'group' ] ) )
-      $group = "-group '" . $options['group'] . "'";
-    else
-      $group = "";
-
-
-    if ( isset( $options[ 'sound' ] ) )
-      $sound = "-sound '" . $options['sound'] . "'";
-    else
-      $sound = "";
-
-
-    if ( isset( $options[ 'remove' ] ) )
-      $remove = "-remove '" . $options['remove'] . "'";
-    else
-      $remove = "";
-
-
-    if ( isset( $options[ 'list' ] ) )
-      $list = "-list '" . $options['list'] . "'";
-    else
-      $list = "";
-
-
-    if ( isset( $options[ 'activate' ] ) )
-      $activate = "-activate '" . $options['activate'] . "'";
-    else
-      $activate = "";
-
-
-    if ( isset( $options[ 'open' ] ) )
-      $openURL = "-openURL '" . $options['openURL'] . "'";
-    else
-      $openURL = "";
-
-
-    if ( isset( $options[ 'execute' ] ) )
-      $execute = "-execute '" . $options['execute'] . "'";
-    else
-      $execute = "";
-
-
-    $tn = $this->utility( 'Terminal-Notifier' );
-    exec( "'$tn' -title '{$title}' -message '{$message}'", $output, $status );
-
-    // Return value based on exit status code
-    if ( $status )
-      return FALSE;
-    else
-      return TRUE;
-  }
+   }
 
   /******************************************************************************
  * END BONUS FUNCTIONS
