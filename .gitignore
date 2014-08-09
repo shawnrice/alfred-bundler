@@ -1,18 +1,9 @@
 bashtests.sh
 phptests.php
 include.php
-bundler/wrappers/info.plist
-build-pydocs.sh
-/pydoc/
-/wrappers/requirements.txt
-/wrappers/info.plist
-/wrappers/benchmark.py
-/wrappers/icon.png
 benchmark.sh
 benchmark.php
 bash-php-benchmark.sh
-benchmark_icons.py
-icons.json
 bundler/test_icons.sh
 test_icons.sh
 install_confirm.scpt
@@ -21,3 +12,9 @@ system-icons
 exclude
 exclude/*
 *.log
+
+# Dean's stuff
+/benchmark_icons.py
+/icons.json
+/pydoc/
+/build-pydocs.sh
