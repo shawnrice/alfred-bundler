@@ -153,7 +153,7 @@ CACHE_DIR = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'.format(BUNDLER_VERSION))
 # Script that updates the bundler
-BUNDLER_UPDATE_SCRIPT = os.path.join(DATA_DIR, 'bundler', 'meta',
+BUNDLER_UPDATE_SCRIPT = os.path.join(BUNDLER_DIR, 'bundler', 'meta',
                                      'update-wrapper.sh')
 
 # Root directory under which workflow-specific Python libraries are installed
@@ -200,13 +200,16 @@ ALFRED_PREFS_PATH = os.path.expanduser(
 # HTTP timeout
 HTTP_TIMEOUT = 5
 
-css_colour = re.compile(r'[a-f0-9]+').match
+css_colour = re.compile(r'^[abcdef012345678]+$').match
 
 _workflow_bundle_id = None
 
 # These will be set at the bottom of this file
 _log = None
 metadata = None
+
+# Prevent recursive calling of _update
+update_running = False
 
 
 ########################################################################
@@ -241,6 +244,9 @@ class Metadata(object):
     def save(self):
         """Save settings to JSON file `self._filepath`"""
         data = dict(etags=self._etags, last_updated=self._last_updated)
+
+        if not os.path.exists(os.path.dirname(self._filepath)):
+            os.makedirs(os.path.dirname(self._filepath), 0755)
 
         with open(self._filepath, 'wb') as file:
             json.dump(data, file, sort_keys=True, indent=2, encoding='utf-8')
@@ -296,6 +302,7 @@ class cached(object):
         self.cache = {}
 
         if os.path.exists(self.cachepath):
+            _log.debug('Loading cache from `{}` ...'.format(self.cachepath))
             with open(self.cachepath, 'rb') as file:
                 self.cache = cPickle.load(file)
 
@@ -319,9 +326,9 @@ class cached(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
-    def __get__(self, obj, objtype):
-        """Support instance methods."""
-        return functools.partial(self.__call__, obj)
+    # def __get__(self, obj, objtype):
+    #     """Support instance methods."""
+    #     return functools.partial(self.__call__, obj)
 
 
 def _find_file(filename, start_dir=None):
@@ -376,7 +383,7 @@ def _bundle_id():
     return _workflow_bundle_id
 
 
-def _notify(title, message):
+def _notify(title, message):  # pragma: no cover
     """Post a notification"""
     notifier = utility('Terminal-Notifier')
 
@@ -470,7 +477,7 @@ def hsv_to_rgb(h, s, v):
     :rtype: ``tuple``
 
     """
-    return map(lambda i: i * 255, colorsys.hsv_to_rgb(h, s, v))
+    return tuple(map(lambda i: int(i * 255), colorsys.hsv_to_rgb(h, s, v)))
 
 
 def rgb_to_hsv(r, g, b):
@@ -505,10 +512,10 @@ def rgba_to_rgb(rgba):
     if not m:
         raise ValueError('Unparseable RGBA colour : {}'.format(rgba))
 
-    return map(int, m.groups())
+    return tuple(map(int, m.groups()))
 
 
-def set_background():
+def set_background():  # pragma: no cover
     """Determine whether background is ``light`` or ``dark`` and save the
     value to ``BACKGROUND_COLOUR_FILE``
 
@@ -611,17 +618,17 @@ def flip_color(color):
 
     v = 1 - v  # flip Value
 
-    lighter = rgb_to_hex(*hsv_to_rgb(h, s, v))
+    flipped = rgb_to_hex(*hsv_to_rgb(h, s, v))
 
-    _log.debug('Lightened `{}` to `{}`'.format(color, lighter))
+    _log.debug('Altered `{}` to `{}`'.format(color, flipped))
 
     if not os.path.exists(COLOUR_CACHE):
         os.makedirs(COLOUR_CACHE, 0755)
 
     with open(cachepath, 'wb') as file:
-        file.write(lighter)
+        file.write(flipped)
 
-    return lighter
+    return flipped
 
 
 #-----------------------------------------------------------------------
@@ -652,6 +659,8 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 
     response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
 
+    _log.debug('[{}] {}'.format(response.getcode(), url))
+
     if response.getcode() != 200:
         raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
                       response.getcode()), url)
@@ -675,28 +684,37 @@ def _download_if_updated(url, filepath, ignore_missing=False):
 def _update():
     """Check for periodical updates of bundler and pip"""
 
-    global metadata
+    global metadata, update_running
+
+    if update_running:
+        return
 
     if not metadata.wants_update():
         return
 
-    _notify('Workflow libraries are being updated',
-            'Your workflow will continue momentarily')
+    update_running = True
 
-    # Call bundler updater
-    cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
-    _log.debug('Running command: {} ...'.format(cmd))
-    proc = subprocess.Popen(cmd)
+    try:
+        _notify('Workflow libraries are being updated',
+                'Your workflow will continue momentarily')
 
-    _install_pip()
+        # Call bundler updater
+        cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
+        _log.debug('Running command: {} ...'.format(cmd))
+        proc = subprocess.Popen(cmd)
 
-    # Wait for `update.sh` to complete
-    retcode = proc.wait()
-    if retcode:
-        _log.error('Error updating bundler. `update.sh` returned {}'.format(
-                   retcode))
+        _install_pip()
 
-    metadata.set_updated()
+        # Wait for `update.sh` to complete
+        retcode = proc.wait()
+        if retcode:
+            _log.error('Error updating bundler. `{}` returned {}'.format(
+                       BUNDLER_UPDATE_SCRIPT, retcode))
+
+        metadata.set_updated()
+
+    finally:
+        update_running = False
 
 
 def _install_pip():
@@ -851,13 +869,13 @@ def icon(font, icon, color='000000', alter=False):
 
     code = response.getcode()
 
-    _log.debug('HTTP response: {}'.format(code))
+    _log.debug('[{}] {}'.format(code, url))
 
-    if code > 399:
+    if code > 399:  # pragma: no cover
         error = response.read()
         raise ValueError(error)
 
-    elif code != 200:
+    elif code != 200:  # pragma: no cover
         raise IOError('Could not retrieve icon : {}/{}/{{'.format(font,
                                                                   icon,
                                                                   color))
@@ -934,7 +952,7 @@ def init(requirements=None):
     _update()
 
     bundle_id = _bundle_id()
-    if not bundle_id:
+    if not bundle_id:  # pragma: no cover
         raise ValueError('You *must* set a bundle ID in your workflow '
                          'to use this library.')
 
