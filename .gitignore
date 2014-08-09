@@ -1,3 +1,16 @@
+*.log
+
+# Dean's stuff
+/benchmark_icons.py
+/icons.json
+/pydoc/
+/build-pydocs.sh
+
+# Shawn's stuff
+exclude
+exclude/*
+system-icons/*
+system-icons
 bashtests.sh
 phptests.php
 include.php
@@ -7,14 +20,3 @@ bash-php-benchmark.sh
 bundler/test_icons.sh
 test_icons.sh
 install_confirm.scpt
-system-icons/*
-system-icons
-exclude
-exclude/*
-*.log
-
-# Dean's stuff
-/benchmark_icons.py
-/icons.json
-/pydoc/
-/build-pydocs.sh
