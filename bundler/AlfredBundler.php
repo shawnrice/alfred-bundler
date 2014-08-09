@@ -696,7 +696,7 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
    * @access public
    * @since  Taurus 1
    */
-  public function download( $url, $file, $timeout = '3' ) {
+  public function download( $url, $file, $timeout = '5' ) {
     // Check the URL here
 
     // Make sure that the download directory exists

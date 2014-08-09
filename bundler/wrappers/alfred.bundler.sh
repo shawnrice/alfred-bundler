@@ -159,7 +159,7 @@ function AlfredBundler::install_bundler {
   while [[ $i -lt $len ]]; do
     url="${AB_BUNDLER_SERVERS[$i]}"
     echo "Fetching ${url} ..." >&2
-    curl -fsSL --connect-timeout 4 "${url}" > "${AB_CACHE}/installer/bundler.zip"
+    curl -fsSL --connect-timeout 5 "${url}" > "${AB_CACHE}/installer/bundler.zip"
     status=$?
 
     [[ $? -eq 0 ]] && success=1 && echo "[OK] ${url}" >&2 && break || echo "Error retrieving ${url}. cURL exited with ${status}" >&2
