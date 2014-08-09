@@ -229,8 +229,8 @@ function AlfredBundler::load {
   version="$3"
   json="$4"
 
-  # Set the version to default if not specified
-  [[ -z "${version}" ]] && version="default"
+  # Set the version to latest if not specified
+  [[ -z "${version}" ]] && version="latest"
 
   AlfredBundler::report "Loading ${type} '${name}' version ${version} ..." INFO
 
@@ -420,7 +420,7 @@ function AlfredBundler::utility() {
   version="$2"
   json="$3"
 
-  [[ -z "${version}" ]] && version='default'
+  [[ -z "${version}" ]] && version='latest'
 
   path=$(AlfredBundler::load "utility" "${name}" "${version}" "${json}")
   status=$?

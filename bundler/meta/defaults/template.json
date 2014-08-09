@@ -3,7 +3,7 @@
     "type": "TYPE",
     "description": "short description — all lowercase, no end punctuation",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "COMMAND",
             "files": [
                 {

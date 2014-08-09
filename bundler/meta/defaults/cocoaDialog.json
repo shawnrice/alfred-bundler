@@ -2,7 +2,7 @@
     "name": "cocoaDialog",
     "type": "utility",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "cocoaDialog.app/Contents/MacOS/cocoaDialog",
             "files": [
                 {

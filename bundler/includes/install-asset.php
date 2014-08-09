@@ -32,7 +32,7 @@ if ( isset( $argv[1] ) ) {
 }
 
 if ( ! isset( $argv[2] ) )
-  $version = 'default';
+  $version = 'latest';
 else
   $version = $argv[2];
 

@@ -82,7 +82,7 @@ module AlfredBundler
   end
 
 
-  def load_utility(name, version='default', json='')
+  def load_utility(name, version='latest', json='')
     return load(name, version, 'utility', json='')
   end
 

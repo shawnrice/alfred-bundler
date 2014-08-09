@@ -2,7 +2,7 @@
     "name": "notificator",
     "type": "utility",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "notificator.app/Contents/Resources/Scripts/notificator",
             "files": [
                 {

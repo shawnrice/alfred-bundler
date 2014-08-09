@@ -2,7 +2,7 @@
     "name": "Workflows",
     "type": "php",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "workflows.php",
             "files": [
                 {

@@ -4,7 +4,7 @@
     "gatekeeper": "true",
     "message": "show interactive dialogs",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "viewer.app",
             "files": [
                 {

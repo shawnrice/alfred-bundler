@@ -13,7 +13,7 @@
                          # folder so as not to duplicate.
 "type":"LANGUAGE|utility", # Currently, only php and utility are fully supported.
 "versions":{
-  "default":{            # Versions are keys here but also the first value.
+  "latest":{            # Versions are keys here but also the first value.
     "invoke": "...",     # this is how the workflow invokes it. Often, it's just a path.
     "files":[
      {

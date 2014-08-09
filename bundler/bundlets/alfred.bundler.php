@@ -485,13 +485,13 @@ if ( strpos( $argv[0], basename( __FILE__ ) ) !== FALSE ) {
  * $bundle->library( 'Workflows' );
  *
  * Load a PHP library from a custom JSON file:
- * $bundle->library( 'A Custom Library', 'default', '/path/to/custom/json.json' );
+ * $bundle->library( 'A Custom Library', 'latest', '/path/to/custom/json.json' );
  *
  * Load Terminal Notifier through the generic "load" method:
  * $terminalNotifierPath = $bundle->load( 'Terminal-Notifer', '1.5.0', 'utility' );
  * exec("'$terminalNotifierPath' -title 'Title' -message 'Message'");
  *
- * Load the default version of Pashua:
+ * Load the latest version of Pashua:
  * $pashuaPath = $bundle->utility( 'Pashua' );
  *
  * Send a notification:

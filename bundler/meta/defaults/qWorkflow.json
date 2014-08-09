@@ -3,7 +3,7 @@
     "type": "applescript",
     "description": "AppleScript implementation of the Workflow object class for Alfred 2",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "q_workflow.scpt",
             "files": [
                 {

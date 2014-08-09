@@ -2,7 +2,7 @@
     "name": "CFPropertyList-php",
     "type": "php",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "CFPropertyList/CFPropertyList.php",
             "files": [
                 {

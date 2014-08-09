@@ -3,7 +3,7 @@
     "type": "utility",
     "description": "show interactive dialogs",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "Pashua.app/Contents/MacOS/Pashua",
             "files": [
                 {

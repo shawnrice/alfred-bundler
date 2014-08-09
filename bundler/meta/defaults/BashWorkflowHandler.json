@@ -2,7 +2,7 @@
     "name": "BashWorkflowHandler",
     "type": "bash",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "workflowHandler.sh",
             "files": [
                 {

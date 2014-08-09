@@ -2,7 +2,7 @@
     "name": "SetupIconsForTheme",
     "type": "utility",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "SetupIconsForTheme",
             "files": [
                 {

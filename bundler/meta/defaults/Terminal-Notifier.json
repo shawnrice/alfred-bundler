@@ -3,7 +3,7 @@
     "type": "utility",
     "description": "send notifications",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
             "files": [
                 {

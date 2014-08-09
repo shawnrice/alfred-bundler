@@ -59,7 +59,7 @@ AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MA
 function AlfredBundler::load() {
  # $1 -- type
  # $2 -- asset name
- # $3 -- version : optional, defaults to 'default'
+ # $3 -- version : optional, defaults to 'latest'
  # $4 -- json    : optional, path to json file
 
 
@@ -113,7 +113,7 @@ function AlfredBundler::icon() {
 #######################################
 function AlfredBundler::utility() {
   # $1 -- Utility Name
-  # $2 -- Utility version (optional: defaults to 'default')
+  # $2 -- Utility version (optional: defaults to 'latest')
   # $3 -- JSON File path (optional: defaults to empty)
 
   # This is a wrapper function for the AlfredBundler::load function to make

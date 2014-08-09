@@ -2,7 +2,7 @@
     "name": "GlyphManager",
     "type": "utility",
     "versions": {
-        "default": {
+        "latest": {
             "invoke": "GlyphManager",
             "files": [
                 {
