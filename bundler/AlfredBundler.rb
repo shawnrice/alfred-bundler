@@ -40,6 +40,11 @@ module AlfredBundler
   # Function to get icons from the icon server
   def icon(font, name, color='000000', alter='FALSE' )
 
+
+    #
+    # Fix for sytem icon font
+    #
+
     # Construct the icon directory
     icon_dir = File.join(@data, 'data/assets/icons', font, color)
 
