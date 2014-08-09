@@ -2030,21 +2030,21 @@ class AlfredBundlerIcon {
       $r = $chroma;
       $g = $x;
     } else if ( $h < 2.0 ) {
-        $r = $x;
-        $g = $chroma;
-      } else if ( $h < 3.0 ) {
-        $g = $chroma;
-        $b = $x;
-      } else if ( $h < 4.0 ) {
-        $g= $x;
-        $b = $chroma;
-      } else if ( $h < 5.0 ) {
-        $r = $x;
-        $b = $chroma;
-      } else if ( $h <= 6.0 ) {
-        $r = $chroma;
-        $b = $x;
-      }
+      $r = $x;
+      $g = $chroma;
+    } else if ( $h < 3.0 ) {
+      $g = $chroma;
+      $b = $x;
+    } else if ( $h < 4.0 ) {
+      $g= $x;
+      $b = $chroma;
+    } else if ( $h < 5.0 ) {
+      $r = $x;
+      $b = $chroma;
+    } else if ( $h <= 6.0 ) {
+      $r = $chroma;
+      $b = $x;
+    }
 
     $r = round( ( $r + $min ) * 255 );
     $g = round( ( $g + $min ) * 255 );
