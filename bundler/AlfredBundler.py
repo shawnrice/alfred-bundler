@@ -172,6 +172,9 @@ COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 # Where icons will be cached
 ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
 API_URL = 'http://icons.deanishe.net/icon/{font}/{color}/{icon}'
+# Location of OS X icons
+SYSTEM_ICON_DIR = ('/System/Library/CoreServices/CoreTypes.bundle'
+                   '/Contents/Resources')
 
 # The misc bash bundler wrapper script we will call to get paths to
 # utilities and install them if necessary.
@@ -840,6 +843,13 @@ def icon(font, icon, color='000000', alter=False):
     See http://icons.deanishe.net to view available icons.
 
     """
+
+    if font == 'system':
+        path = os.path.join(SYSTEM_ICON_DIR, '{}.icns'.format(icon))
+        if not os.path.exists(path):
+            raise ValueError('Unknown system icon : {}'.format(icon))
+
+        return path
 
     # Normalise arguments
     font = font.lower()

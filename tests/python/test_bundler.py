@@ -449,7 +449,7 @@ class BundlerTests(unittest.TestCase):
         self.assertTrue(os.path.exists(logpath))
 
     def test_icons(self):
-        """Icons"""
+        """Web icons"""
         # 404 for invalid font
         with self.assertRaises(urllib2.HTTPError):
             bundler.icon('spaff', 'adjust')
@@ -491,6 +491,19 @@ class BundlerTests(unittest.TestCase):
 
         if os.path.exists(path):
             os.unlink(path)
+
+    def test_system_icons(self):
+        """System icons"""
+        icondir = '/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources'
+        good = ('Accounts', 'AirDrop', 'BookmarkIcon')
+        bad = ('WindowLicker', 'Wolpertinger')
+        for name in good:
+            path = os.path.join(icondir, '{}.icns'.format(name))
+            icon = bundler.icon('system', name)
+            self.assertEqual(icon, path)
+        for name in bad:
+            with self.assertRaises(ValueError):
+                bundler.icon('system', name)
 
     def test_asset(self):
         """Load asset"""
