@@ -1,0 +1,19 @@
+{
+    "name": "portable-utf8",
+    "type": "php",
+    "description": "Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP",
+    "versions": {
+        "latest": {
+            "invoke": "portable-utf8.php",
+            "files": [
+                {
+                    "url": "http://pageconfig.com/attachments/portable-utf8.php",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/portable-utf8.php' '__DATA__'"
+            ]
+        }
+    }
+}
