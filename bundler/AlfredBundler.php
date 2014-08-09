@@ -390,6 +390,8 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
   /**
    * Loads / requires composer packages
    *
+   * @todo refactor into a composer class
+   *
    * @param array $packages An array of packages to load in composer
    * @return bool            True on success, false on failure
    */
@@ -576,6 +578,8 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
 
   /**
    * Installs composer packages
+   *
+   * @todo refactor into a composer class
    *
    * @param array $packages List of composer ready packages with versions
    * @return bool            TRUE on success, FALSE on failure
@@ -1096,12 +1100,6 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
  *****************************************************************************/
 
 }
-
-
-
-
-
-
 
 class AlfredBundlerIcon {
 
