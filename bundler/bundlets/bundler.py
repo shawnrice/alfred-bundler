@@ -166,7 +166,7 @@ _bundler = None
 #-----------------------------------------------------------------------
 
 _logdir = os.path.dirname(BUNDLER_LOGFILE)
-if not os.path.exists(_logdir):
+if not os.path.exists(_logdir):  # pragma: no cover
     os.makedirs(_logdir, 0755)
 
 _log = logging.getLogger('bundler')
@@ -281,7 +281,7 @@ def _bootstrap():
         finally:
             os.unlink(bundlet_path)
 
-        if not os.path.exists(BUNDLER_PY_LIB):
+        if not os.path.exists(BUNDLER_PY_LIB):  # pragma: no cover
             raise InstallationError(
                 'Error bootstrapping bundler. Bundler installation failed.')
 
@@ -377,7 +377,7 @@ def init(requirements=None):
     return _bundler.init(requirements)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     for name, args in [
             ('Terminal-Notifier',
                 ['-title', 'Test', '-message', 'Test']),

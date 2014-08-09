@@ -4,6 +4,8 @@
 
 # OUTPUT_PATH=$(pwd)/tests_output
 
+
+
 LOGPATH="$(pwd)/test.log"
 
 function log() {
@@ -11,6 +13,10 @@ function log() {
 }
 
 rm -rf $LOGPATH
+
+here=$(dirname "$0")
+
+cd "$here"
 
 NOSETEST_OPTIONS="-d"
 
@@ -29,7 +35,7 @@ fi
 if [ -n "$TESTS" ]; then
     NOSETEST_OPTIONS="$NOSETEST_OPTIONS $TESTS"
 else
-    NOSETEST_OPTIONS="$NOSETEST_OPTIONS -v --with-coverage --cover-min-percentage=100 --cover-package=AlfredBundler --cover-erase --logging-clear-handlers"
+    NOSETEST_OPTIONS="$NOSETEST_OPTIONS -v --with-coverage --cover-min-percentage=100 --cover-package=pybundler.AlfredBundler --cover-package=pybundler.bundler --cover-erase --logging-clear-handlers"
 fi
 
 log "Running tests..."
@@ -43,5 +49,7 @@ case "$ret" in
     0) log -e "SUCCESS" ;;
     *) log -e "FAILURE" ;;
 esac
+
+cd -
 
 exit $ret
