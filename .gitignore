@@ -20,3 +20,4 @@ system-icons/*
 system-icons
 exclude
 exclude/*
+*.log
