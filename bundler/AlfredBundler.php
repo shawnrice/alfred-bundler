@@ -34,10 +34,10 @@ class AlfredBundlerInternalClass {
   /**
    * A filepath to the bundler directory
    *
-   * @access private
+   * @access public
    * @var string
    */
-  private   $data;
+  public   $data;
 
   /**
    * A filepath to the bundler cache directory
