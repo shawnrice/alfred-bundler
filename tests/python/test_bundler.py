@@ -508,11 +508,11 @@ class BundlerTests(unittest.TestCase):
     def test_asset(self):
         """Load asset"""
         path = os.path.join(DATA_DIR, 'assets', 'utility',
-                            'Terminal-Notifier', 'default',
+                            'Terminal-Notifier', 'latest',
                             'terminal-notifier.app', 'Contents', 'MacOS',
                             'terminal-notifier')
-        self.assertEqual(bundler.utility('Terminal-Notifier', 'default'), path)
-        self.assertEqual(bundler.asset('Terminal-Notifier', 'default'), path)
+        self.assertEqual(bundler.utility('Terminal-Notifier', 'latest'), path)
+        self.assertEqual(bundler.asset('Terminal-Notifier', 'latest'), path)
         self.assertEqual(bundler.utility('Terminal-Notifier'), path)
         self.assertEqual(bundler.asset('Terminal-Notifier'), path)
 

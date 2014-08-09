@@ -896,7 +896,7 @@ def icon(font, icon, color='000000', alter=False):
 
 
 @cached
-def utility(name, version='default', json_path=None):
+def utility(name, version='latest', json_path=None):
     """Get path to specified utility or asset, installing it first if necessary.
 
     Use this method to access common command line utilities, such as
@@ -933,7 +933,7 @@ def utility(name, version='default', json_path=None):
     return path
 
 
-def asset(name, version='default', json_path=None):
+def asset(name, version='latest', json_path=None):
     """Synonym for :func:`~bundler.utility()`"""
     return utility(name, version, json_path)
 
