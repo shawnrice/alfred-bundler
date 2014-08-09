@@ -38,7 +38,7 @@ module AlfredBundler
   end
 
   # Function to get icons from the icon server
-  def icon(font, color, name)
+  def icon(font, name, color='000000', alter='FALSE' )
 
     # Construct the icon directory
     icon_dir = File.join(@data, 'data/assets/icons', font, color)
@@ -105,7 +105,7 @@ module AlfredBundler
   end
 
   # This is the function to load an asset
-  def load(name, version, type, json='')
+  def load(type, name, version, json='')
     unless json.empty?
       puts "The file does not exist" unless File.exists?(json)
     end
@@ -146,7 +146,7 @@ module AlfredBundler
       require name
       # This returns TRUE, but we need to get rid of that
     elsif type == "utility"
-      path = load_asset(name, version, type)
+      path = load_asset(type, name, version)
       return path
     end
   end
@@ -169,7 +169,7 @@ module AlfredBundler
   end
 
   # This is done internally
-  def load_asset(name, version, type, bundle='', json='')
+  def load_asset(type, name, version, bundle='', json='')
     # Need to add the path caching here
     if type == "utility"
       command = "'" + @data + "/bundler/bundlets/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
@@ -183,74 +183,9 @@ module AlfredBundler
   def notify(title, message, options)
     require 'Shellwords'
 
-    path = load_utility('Terminal-Notifier')
+    path = load_utility('CocoaDialog')
 
-    unless options["sender"].nil?
-      sender = "-sender '" + options["sender"] + "'"
-    else
-      sender = ""
-    end
-
-    unless options["appIcon"].nil?
-      appIcon = "-appIcon '" + options["appIcon"] + "'"
-    else
-      appIcon = ""
-    end
-
-    unless options["contentImage"].nil?
-      contentImage = "-contentImage '" + options["contentImage"] + "'"
-    else
-      contentImage = ""
-    end
-
-    unless options["subtitle"].nil?
-      subtitle = "-subtitle '" + options["subtitle"] + "'"
-    else
-      subtitle = ""
-    end
-
-    unless options["group"].nil?
-      group = "-group '" + options["group"] + "'"
-    else
-      group = ""
-    end
-
-    unless options["sound"].nil?
-      sound = "-sound '" + options["sound"] + "'"
-    else
-      sound = ""
-    end
-
-    unless options["remove"].nil?
-      remove = "-remove '" + options["remove"] + "'"
-    else
-      remove = ""
-    end
-
-    unless options["list"].nil?
-      list = "-list '" + options["list"] + "'"
-    else
-      list = ""
-    end
-
-    unless options["activate"].nil?
-      activate = "-activate '" + options["activate"] + "'"
-    else
-      activate = ""
-    end
-
-    unless options["open"].nil?
-      openURL = "-open '" + options["open"] + "'"
-    else
-      openURL = ""
-    end
-
-    unless options["execute"].nil?
-      execute = "-execute '" + options["execute"] + "'"
-    else
-      execute = ""
-    end
-
+# Gutted function to remove TN in order to move to CD.
     # unless icon.empty?
     # 	if (File.exists?(icon) && File.extname(icon) == '.icns')
     # 		icon_moved = true
@@ -273,11 +208,11 @@ module AlfredBundler
     # command = "#{Shellwords.escape(path)} -t '#{title}' -m '#{message}'"
     # -contentImage '/Users/Sven/Desktop/mics.png'
     # com.runningwithcrayons.Alfred-2
-    command = "#{Shellwords.escape(path)} -title '#{title}' -message '#{message}' "
-    command = "#{command} #{execute} #{openURL} #{activate} #{remove} #{sound} "
-    command = "#{command} #{list} #{subtitle} #{contentImage} #{appIcon} #{sender}"
-
-    system(command)
+    # command = "#{Shellwords.escape(path)} -title '#{title}' -message '#{message}' "
+    # command = "#{command} #{execute} #{openURL} #{activate} #{remove} #{sound} "
+    # command = "#{command} #{list} #{subtitle} #{contentImage} #{appIcon} #{sender}"
+    #
+    # system(command)
 
     # if :icon_moved
     # 	FileUtils.remove tn_icon
