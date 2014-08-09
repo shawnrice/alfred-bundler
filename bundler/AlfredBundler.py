@@ -119,7 +119,6 @@ import subprocess
 import plistlib
 import json
 import hashlib
-import functools
 import cPickle
 import urllib2
 import time
@@ -305,7 +304,6 @@ class cached(object):
         self.cache = {}
 
         if os.path.exists(self.cachepath):
-            _log.debug('Loading cache from `{}` ...'.format(self.cachepath))
             with open(self.cachepath, 'rb') as file:
                 self.cache = cPickle.load(file)
 
