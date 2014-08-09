@@ -39,8 +39,9 @@ in order to take advantage of automatic dependency installation.
 Usage
 ======
 
-Simply include this ``bundler.py`` file (from the Alfred Bundler's ``wrappers``
-directory) alongside your workflow's Python code where it can be imported.
+Simply include this ``bundler.py`` file (from the Alfred Bundler's
+``bundler/bundlets`` directory) alongside your workflow's Python code
+where it can be imported.
 
 The Python Bundler provides two main features: the ability to use common
 utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
@@ -145,9 +146,9 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
 
 # Where installer.sh can be downloaded from
-BASH_WRAPPER_URL = (
+BASH_BUNDLET_URL = (
     'https://raw.githubusercontent.com/shawnrice/alfred-bundler/'
-    '{}/bundler/wrappers/alfred.bundler.sh'.format(
+    '{}/bundler/bundlets/alfred.bundler.sh'.format(
     BUNDLER_VERSION))
 
 # Bundler log file
@@ -230,7 +231,7 @@ def _download(url, filepath):
 
 
 def _bootstrap():
-    """Check if bundler bash wrapper is installed and install it if not.
+    """Check if bundler bash bundlet is installed and install it if not.
 
     :returns: ``None``
 
@@ -252,20 +253,20 @@ def _bootstrap():
         _log.info('Installing Alfred Dependency Bundler '
                   'version `{}` ...'.format(BUNDLER_VERSION))
 
-        # Install bash wrapper from GitHub
-        wrapper_path = os.path.join(CACHE_DIR,
-                                    'wrapper--{}.sh'.format(os.getpid()))
+        # Install bash bundlet from GitHub
+        bundlet_path = os.path.join(CACHE_DIR,
+                                    'bundlet-{}.sh'.format(os.getpid()))
 
-        bash_code = 'source "{}"'.format(wrapper_path)
+        bash_code = 'source "{}"'.format(bundlet_path)
 
         try:
-            _download(BASH_WRAPPER_URL, wrapper_path)
+            _download(BASH_BUNDLET_URL, bundlet_path)
 
         except Exception as err:
             _log.exception(err)
             raise InstallationError(
                 'Error downloading `{}` to `{}`: {}'.format(
-                BASH_WRAPPER_URL, wrapper_path, err))
+                BASH_BUNDLET_URL, bundlet_path, err))
 
         _log.debug('Executing script : `{}`'.format(bash_code))
 
@@ -278,7 +279,7 @@ def _bootstrap():
                 raise InstallationError(
                     'Install script failed (code : {})'.format(proc.returncode))
         finally:
-            os.unlink(wrapper_path)
+            os.unlink(bundlet_path)
 
         if not os.path.exists(BUNDLER_PY_LIB):
             raise InstallationError(
