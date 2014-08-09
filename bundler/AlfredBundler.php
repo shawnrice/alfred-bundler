@@ -119,12 +119,28 @@ class AlfredBundlerInternalClass {
 
 
 
-// private function setup() {
-//
-// }
+private function setup() {
+// http://www.alfredforum.com/topic/4716-some-new-alfred-script-environment-variables-coming-in-alfred-24/#entry28819
+ // "alfred_preferences" = "/Users/Crayons/Dropbox/Alfred/Alfred.alfredpreferences";
+ //    "alfred_preferences_localhash" = adbd4f66bc3ae8493832af61a41ee609b20d8705;
+ //    "alfred_theme" = "alfred.theme.yosemite";
+ //    "alfred_theme_background" = "rgba(255,255,255,0.98)";
+ //    "alfred_theme_subtext" = 3;
+ //    "alfred_version" = "2.4";
+ //    "alfred_version_build" = 277;
+ //    "alfred_workflow_bundleid" = "com.alfredapp.david.googlesuggest";
+ //    "alfred_workflow_cache" = "/Users/Crayons/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/com.alfredapp.david.googlesuggest";
+ //    "alfred_workflow_data" = "/Users/Crayons/Library/Application Support/Alfred 2/Workflow Data/com.alfredapp.david.googlesuggest";
+ //    "alfred_workflow_name" = "Google Suggest";
+ //    "alfred_workflow_uid" = "user.workflow.B0AC54EC-601C-479A-9428-01F9FD732959";
+
+
+}
 //
 //
 // private function setupDeprecated() {
+//
+// for versions of Alfred pre 2.4 build 277
 //
 // }
 
