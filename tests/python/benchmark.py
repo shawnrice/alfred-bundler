@@ -60,6 +60,14 @@ def main():
     print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
 
     st = time()
+    print('Calling `bundler.utility("cocoaDialog")`')
+    for i in range(reps):
+        bundler.utility('cocoaDialog')
+        # print('[{:2d}] {}'.format(i+1, p))
+    d = time() - st
+    print('{} calls in {:0.4f} s ({:0.4f} s/call)\n'.format(reps, d, d / reps))
+
+    st = time()
     print('Calling `bundler.utility("viewer")`')
     for i in range(reps):
         bundler.utility('viewer')

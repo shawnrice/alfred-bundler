@@ -134,8 +134,8 @@ VERSION = '0.2'
 
 BUNDLER_VERSION = 'devel'
 
-if os.getenv('ALFRED_BUNDLER_DEVEL'):
-    BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
+if os.getenv('AB_BRANCH'):
+    BUNDLER_VERSION = os.getenv('AB_BRANCH')
 
 # How often to check for updates
 UPDATE_INTERVAL = 604800  # 1 week
@@ -284,43 +284,6 @@ class Metadata(object):
         if time.time() - self._last_updated > UPDATE_INTERVAL:
             return True
         return False
-
-
-class cached2(object):
-    """Decorator. Caches a function's return value each time it is called.
-    If called later with the same arguments, the cached value is returned
-    (not reevaluated).
-
-    Adapted from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
-    """
-
-    def __init__(self, name):
-        self.name = name
-        self.cachepath = os.path.join(HELPER_DIR, '{}.cache'.format(name))
-        # self.func = func
-        self.cache = {}
-
-        if os.path.exists(self.cachepath):
-            with open(self.cachepath, 'rb') as file:
-                self.cache = cPickle.load(file)
-
-    def __call__(self, func):
-        def wrapped(*args, **kwargs):
-            key = (args, frozenset(kwargs.items()))
-
-            path = self.cache.get(key, None)
-
-            # If file has disappeared, call function again
-            if path is None or not os.path.exists(path):
-                # Cache results
-                path = func(*args, **kwargs)
-                self.cache[key] = path
-                with open(self.cachepath, 'wb') as file:
-                    cPickle.dump(self.cache, file, protocol=2)
-
-            return path
-
-        return wrapped
 
 
 class cached(object):

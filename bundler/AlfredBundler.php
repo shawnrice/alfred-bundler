@@ -34,10 +34,10 @@ class AlfredBundlerInternalClass {
   /**
    * A filepath to the bundler directory
    *
-   * @access private
+   * @access public
    * @var string
    */
-  private   $data;
+  public   $data;
 
   /**
    * A filepath to the bundler cache directory
@@ -128,8 +128,8 @@ class AlfredBundlerInternalClass {
    */
   public function __construct( $plist = '' ) {
 
-    if ( isset( $_ENV['ALFRED_BUNDLER_DEVEL'] ) ) {
-      $this->major_version = $_ENV['ALFRED_BUNDLER_DEVEL'];
+    if ( isset( $_ENV['AB_BRANCH'] ) ) {
+      $this->major_version = $_ENV['AB_BRANCH'];
     } else {
 
       $this->major_version = file_get_contents(
@@ -701,7 +701,7 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
    * @access public
    * @since  Taurus 1
    */
-  public function download( $url, $file, $timeout = '3' ) {
+  public function download( $url, $file, $timeout = '5' ) {
     // Check the URL here
 
     // Make sure that the download directory exists

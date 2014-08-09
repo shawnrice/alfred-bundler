@@ -117,8 +117,8 @@ VERSION = '0.2'
 
 BUNDLER_VERSION = 'devel'
 
-if os.getenv('ALFRED_BUNDLER_DEVEL'):
-    BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
+if os.getenv('AB_BRANCH'):
+    BUNDLER_VERSION = os.getenv('AB_BRANCH')
 
 # Used for notifications, paths
 BUNDLER_ID = 'net.deanishe.alfred-bundler-python'

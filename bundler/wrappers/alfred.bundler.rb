@@ -29,8 +29,8 @@ module Alfred
     # @cache = File.expand_path(
     # 	"~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" + @major_version)
     def initialize
-      if defined? ENV['ALFRED_BUNDLER_DEVEL']
-        @major_version = ENV['ALFRED_BUNDLER_DEVEL']
+      if defined? ENV['AB_BRANCH']
+        @major_version = ENV['AB_BRANCH']
       else
         @major_version = "devel"
       end
@@ -79,32 +79,27 @@ module Alfred
       # I added a bundler backup at Bitbucket: https://bitbucket.org/shawnrice/alfred-bundler
       # bundler_urls = IO.readlines("meta/bundler_servers")
       # Bundler URLs have to be hard coded in the wrapper
-      if defined? ENV['ALFRED_BUNDLER_DEVEL']
-        suffix = ".zip"
-      else
+      if defined? ENV['AB_BRANCH']
         suffix = "-latest.zip"
+      else
+        suffix = ".zip"
       end
 
-      bundler_urls =
-        ["https://github.com/shawnrice/alfred-bundler/archive/"
-            + @major_version + suffix,
-          "https://bitbucket.org/shawnrice/alfred-bundler/get/"
-            + @major_version + suffix]
-
+      bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @major_version + suffix,
+                      "https://bitbucket.org/shawnrice/alfred-bundler/get/" + @major_version + suffix]
       url = bundler_urls.each do |x|
-        # server = URI.parse(x)
-        # Get the file if it doesn't exist
-        open(@cache + "/bundler.zip", 'wb') do |file|
-          file << open(url).read
+        server = URI.parse(x)
+        if server_test("#{server.scheme}://#{server.host}")
+          break x
         end
-        # if server_test("#{server.scheme}://#{server.host}")
-        #   break x
-        # end
       end
 
       # Pausing this until we decide to stay with zip or move to git
 
-
+      # Get the file if it doesn't exist
+      open(@cache + "/bundler.zip", 'wb') do |file|
+        file << open(url).read
+      end
       zip = unzip("bundler.zip", @cache)
 
       unless :zip

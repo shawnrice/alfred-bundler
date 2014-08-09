@@ -1,7 +1,9 @@
 Alfred Bundler -- DEVELOPMENT VERSION
 ==============
 
-a utility / workflow to handle dependencies
+Major Branch: `devel`
+
+A framework to handle dependency loading for [Alfred 2](http://www.alfredapp.com).
 
 A utility for to help Alfred 2 workflows manage shared dependencies.
 
