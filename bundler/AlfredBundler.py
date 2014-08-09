@@ -134,8 +134,8 @@ VERSION = '0.2'
 
 BUNDLER_VERSION = 'devel'
 
-if os.getenv('ALFRED_BUNDLER_DEVEL'):
-    BUNDLER_VERSION = os.getenv('ALFRED_BUNDLER_DEVEL')
+if os.getenv('AB_BRANCH'):
+    BUNDLER_VERSION = os.getenv('AB_BRANCH')
 
 # How often to check for updates
 UPDATE_INTERVAL = 604800  # 1 week

@@ -128,8 +128,8 @@ class AlfredBundlerInternalClass {
    */
   public function __construct( $plist = '' ) {
 
-    if ( isset( $_ENV['ALFRED_BUNDLER_DEVEL'] ) ) {
-      $this->major_version = $_ENV['ALFRED_BUNDLER_DEVEL'];
+    if ( isset( $_ENV['AB_BRANCH'] ) ) {
+      $this->major_version = $_ENV['AB_BRANCH'];
     } else {
 
       $this->major_version = file_get_contents(

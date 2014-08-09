@@ -83,10 +83,10 @@ class AlfredBundler {
   public function __construct( $plist = FALSE ) {
     // Added plist variable for testing purposes
 
-    if ( isset( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] )
-      && ( ! empty( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+    if ( isset( $_ENV[ 'AB_BRANCH' ] )
+      && ( ! empty( $_ENV[ 'AB_BRANCH' ] ) ) ) {
 
-      $this->major_version = $_ENV[ 'ALFRED_BUNDLER_DEVEL' ];
+      $this->major_version = $_ENV[ 'AB_BRANCH' ];
     } else {
       $this->major_version = 'devel';
     }
@@ -233,8 +233,8 @@ class AlfredBundler {
     // machine -- yet -- because this is the function that installs that file.
     // The 'latest' tag is the current release.
     $suffix = "-latest.zip";
-    if ( isset( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) &&
-      ( ! empty( $_ENV[ 'ALFRED_BUNDLER_DEVEL' ] ) ) ) {
+    if ( isset( $_ENV[ 'AB_BRANCH' ] ) &&
+      ( ! empty( $_ENV[ 'AB_BRANCH' ] ) ) ) {
       $suffix = ".zip";
     }
     $bundler_servers = array(

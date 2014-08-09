@@ -20,11 +20,11 @@ declare -r AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
 # Set the bundler version from env variable if present
 # Also set the appropriate URL suffix. Development versions, i.e. those
-# set from the ALFRED_BUNDLER_DEVEL env var, should install from HEAD.
+# set from the AB_BRANCH env var, should install from HEAD.
 # Normal releases should install from the last tagged commit, hence
 # the -latest.zip suffix.
-if [ ! -z "${ALFRED_BUNDLER_DEVEL}" ]; then
-  declare AB_MAJOR_VERSION="${ALFRED_BUNDLER_DEVEL}"
+if [ ! -z "${AB_BRANCH}" ]; then
+  declare AB_MAJOR_VERSION="${AB_BRANCH}"
   declare AB_INSTALL_SUFFIX='.zip'
 else
   # Set version from `version_major` file
