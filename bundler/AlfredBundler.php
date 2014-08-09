@@ -117,6 +117,18 @@ class AlfredBundlerInternalClass {
    */
   public $logs;
 
+
+
+// private function setup() {
+//
+// }
+//
+//
+// private function setupDeprecated() {
+//
+// }
+
+
   /**
    * The class constructor
    *
@@ -131,13 +143,13 @@ class AlfredBundlerInternalClass {
     if ( isset( $_ENV['AB_BRANCH'] ) ) {
       $this->major_version = $_ENV['AB_BRANCH'];
     } else {
-
-      $this->major_version = file_get_contents(
-        __DIR__ . '/meta/version_major' );
+      $this->major_version = file_get_contents(  __DIR__ . '/meta/version_major' );
     }
 
     $this->minor_version = file_get_contents(
       __DIR__ . '/meta/version_minor' );
+
+    // if ( isset( $_ENV[] ))
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
@@ -312,13 +324,12 @@ class AlfredBundlerInternalClass {
 
 
 
-public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
+  public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
+    if ( ! isset( $this->icon ) )
+      $this->icon = new AlfredBundlerIcon( $this );
 
-  if ( ! isset( $this->icon ) ) {
-    $this->icon = new AlfredBundlerIcon( $this );
+    return $this->icon->icon([ 'font' => $font, 'name' => $name, 'color' => $color, 'alter' => $alter ])
   }
-
-}
 
   /**
    * Loads a utility
@@ -327,11 +338,11 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
    * @access public
    *
    * @param string $name    Name of utility
-   * @param string $version = 'default' Version of utility
+   * @param string $version = 'latest' Version of utility
    * @param string $json    = ''        File path to json
    * @return mixed                       Path to utility on success, FALSE on failure
    */
-  public function utility( $name, $version = 'default', $json = '' ) {
+  public function utility( $name, $version = 'latest', $json = '' ) {
     if ( empty( $json ) ) {
       return $this->load( 'utility', $name, $version );
     } else {
@@ -349,11 +360,11 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
    * @access public
    *
    * @param string $name    Name of library
-   * @param string $version = 'default' Version of library
+   * @param string $version = 'latest' Version of library
    * @param string $json    = ''        File path to json
    * @return bool                        TRUE on success, FALSE on failure
    */
-  public function library( $name, $version = 'default', $json = '' ) {
+  public function library( $name, $version = 'latest', $json = '' ) {
     $dir = "{$this->data}/data/assets/php/{$name}/{$version}";
     if ( file_exists( "{$dir}/invoke" ) ) {
       require_once "{$dir}/" . trim( file_get_contents( "{$dir}/invoke" ) );
@@ -497,10 +508,10 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
    * Installs an asset based on JSON information
    *
    * @param string $json    File path to json
-   * @param string $version = 'default' Version of asset to install
+   * @param string $version = 'latest' Version of asset to install
    * @return bool                        TRUE on success, FALSE on failure
    */
-  public function installAsset( $json, $version = 'default' ) {
+  public function installAsset( $json, $version = 'latest' ) {
     if ( ! file_exists( $json ) ) {
       $this->reportLog( "Cannot install asset because the JSON file ('{$json}') is not present.", 'ERROR', basename( __FILE__ ), __LINE__ );
       return FALSE;
@@ -530,12 +541,12 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
     // Check to see if the version asked for is in the json; else, fallback to
     // default if exists; if not, throw error.
     if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
-      if ( ! isset( $json[ 'versions' ][ 'default' ] ) ) {
-        $this->reportLog( "Cannot install {$name} because no version found and cannot fallback to 'default'.", 'ERROR', basename( __FILE__ ), __LINE__ );
+      if ( ! isset( $json[ 'versions' ][ 'latest' ] ) ) {
+        $this->reportLog( "Cannot install {$name} because no version found and cannot fallback to 'latest'.", 'ERROR', basename( __FILE__ ), __LINE__ );
         $this->logInternal( 'asset', "Cannot install {$type}: {$name}. Version '{$version}' not found." );
         return FALSE;
       } else {
-        $version = 'default';
+        $version = 'latest';
       }
     }
     $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
