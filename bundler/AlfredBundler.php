@@ -344,7 +344,7 @@ private function setup() {
     if ( ! isset( $this->icon ) )
       $this->icon = new AlfredBundlerIcon( $this );
 
-    return $this->icon->icon([ 'font' => $font, 'name' => $name, 'color' => $color, 'alter' => $alter ])
+    return $this->icon->icon([ 'font' => $font, 'name' => $name, 'color' => $color, 'alter' => $alter ]);
   }
 
   /**

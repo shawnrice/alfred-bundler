@@ -45,8 +45,9 @@ in order to take advantage of automatic dependency installation.
 Usage
 ======
 
-Simply include this ``bundler.py`` file (from the Alfred Bundler's ``wrappers``
-directory) alongside your workflow's Python code where it can be imported.
+Simply include the ``bundler.py`` file (from the Alfred Bundler's
+``bundler/bundlets`` directory) alongside your workflow's Python code
+where it can be imported.
 
 The Python Bundler provides two main features: the ability to use common
 utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
@@ -119,7 +120,6 @@ import subprocess
 import plistlib
 import json
 import hashlib
-import functools
 import cPickle
 import urllib2
 import time
@@ -176,9 +176,9 @@ API_URL = 'http://icons.deanishe.net/icon/{font}/{color}/{icon}'
 SYSTEM_ICON_DIR = ('/System/Library/CoreServices/CoreTypes.bundle'
                    '/Contents/Resources')
 
-# The misc bash bundler wrapper script we will call to get paths to
+# The misc bash bundler bundlet script we will call to get paths to
 # utilities and install them if necessary.
-HELPER_PATH = os.path.join(BUNDLER_DIR, 'bundler', 'wrappers',
+HELPER_PATH = os.path.join(BUNDLER_DIR, 'bundler', 'bundlets',
                            'alfred.bundler.misc.sh')
 
 # Path to file storing update metadata (last update check, etc.)
@@ -305,7 +305,6 @@ class cached(object):
         self.cache = {}
 
         if os.path.exists(self.cachepath):
-            _log.debug('Loading cache from `{}` ...'.format(self.cachepath))
             with open(self.cachepath, 'rb') as file:
                 self.cache = cPickle.load(file)
 
@@ -897,7 +896,7 @@ def icon(font, icon, color='000000', alter=False):
 
 
 @cached
-def utility(name, version='default', json_path=None):
+def utility(name, version='latest', json_path=None):
     """Get path to specified utility or asset, installing it first if necessary.
 
     Use this method to access common command line utilities, such as
@@ -926,7 +925,7 @@ def utility(name, version='default', json_path=None):
 
     _update()
 
-    # Call bash wrapper with specified arguments
+    # Call bash bundlet with specified arguments
     json_path = json_path or ''
     cmd = ['/bin/bash', HELPER_PATH, 'utility', name, version, json_path]
     path = subprocess.check_output(cmd).strip().decode('utf-8')
@@ -934,7 +933,7 @@ def utility(name, version='default', json_path=None):
     return path
 
 
-def asset(name, version='default', json_path=None):
+def asset(name, version='latest', json_path=None):
     """Synonym for :func:`~bundler.utility()`"""
     return utility(name, version, json_path)
 

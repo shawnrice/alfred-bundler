@@ -16,7 +16,7 @@ from __future__ import print_function, unicode_literals
 import os
 import sys
 
-sys.path.insert(0, '../../bundler/wrappers')
+sys.path.insert(0, '../../bundler/bundlets')
 sys.path.insert(0, '../../bundler')
 
 from time import time
@@ -33,7 +33,7 @@ def main():
     reps = 100
 
     #
-    # Wrapper functions
+    # Bundlet functions
     # -------------------------------------------------------------------------
 
     st = time()
