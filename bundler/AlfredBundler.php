@@ -400,7 +400,12 @@ public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
 
     if ( ! file_exists( "{$composerDir}/composer.phar" ) ) {
       $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" ); $line = __LINE__;
-      $this->reportLog( "Installing Composer to `{$composerDir}`", 'INFO', __FILE__, $line );
+      exec( "'{$composerDir}/composer.phar'", $output, $status );
+      if ( $status !== 0 ) {
+        $this->reportLog( "Composer.phar is corrupt. Deleting...", 'CRITICAL', __FILE__, $line );
+      } else {
+        $this->reportLog( "Installing Composer to `{$composerDir}`", 'INFO', __FILE__, $line );
+      }
       // Add check to make sure the that file is complete above...
     }
 
