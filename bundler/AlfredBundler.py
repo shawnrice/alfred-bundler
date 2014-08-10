@@ -319,6 +319,11 @@ class cached(object):
             # Cache results
             path = self.func(*args, **kwargs)
             self.cache[key] = path
+
+            dirpath = os.path.dirname(self.cachepath)
+            if not os.path.exists(dirpath):
+                os.makedirs(dirpath, 0755)
+
             with open(self.cachepath, 'wb') as file:
                 cPickle.dump(self.cache, file, protocol=2)
 
