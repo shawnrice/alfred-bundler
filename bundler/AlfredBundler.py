@@ -387,13 +387,13 @@ def _bundle_id():
 
 def _notify(title, message):  # pragma: no cover
     """Post a notification"""
-    notifier = utility('Terminal-Notifier')
+    cd = utility('cocaoDialog')
 
-    cmd = [notifier, '-title', title, '-message', message]
+    cmd = [cd, 'notify', '--title', title, '--text', message]
 
     try:
         icon = _find_file('icon.png')
-        cmd += ['-contentImage', icon]
+        cmd += ['--icon-file', icon]
     except IOError:
         pass
 
