@@ -176,11 +176,11 @@ _logfile = logging.handlers.RotatingFileHandler(BUNDLER_LOGFILE,
                                                 backupCount=1)
 _console = logging.StreamHandler()
 _fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                          '[%(levelname)-8s] %(message)s',
+                          '[%(levelname)s] %(message)s',
                           datefmt='%H:%M:%S')
 
 _fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                          '[%(levelname)-8s] %(message)s',
+                          '[%(levelname)s] %(message)s',
                           datefmt='%Y-%m-%d %H:%M:%S')
 
 _logfile.setFormatter(_fmtf)

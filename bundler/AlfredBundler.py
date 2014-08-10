@@ -811,11 +811,11 @@ def logger(name, logpath=None):
         console = logging.StreamHandler()
 
         fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                                 '[%(levelname)-8s] %(message)s',
+                                 '[%(levelname)s] %(message)s',
                                  datefmt='%H:%M:%S')
 
         fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                                 '[%(levelname)-8s] %(message)s',
+                                 '[%(levelname)s] %(message)s',
                                  datefmt='%Y-%m-%d %H:%M:%S')
 
         logfile.setFormatter(fmtf)
