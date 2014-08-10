@@ -24,45 +24,11 @@ import unittest
 import time
 import urllib2
 
-bundler_dir = os.path.join(os.path.dirname(os.path.dirname(
-                           os.path.abspath(os.path.dirname(__file__)))),
-                           'bundler')
-
-# sys.path.insert(0, bundler_dir)
-
+from common import *
 from pybundler import AlfredBundler
 
 
-VERSION_FILE = os.path.join(bundler_dir, 'meta', 'version_major')
-
-if os.getenv('AB_BRANCH'):
-    BUNDLER_VERSION = os.getenv('AB_BRANCH')
-else:
-    BUNDLER_VERSION = open(VERSION_FILE).read().strip()
-
-BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
-BUNDLER_DIR = os.path.expanduser(
-    '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}'.format(BUNDLER_VERSION))
-DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
-ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
-COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
-PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
-HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
-UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
-BACKGROUND_COLOUR_FILE = os.path.join(DATA_DIR, 'theme_background')
-ALFRED_PREFS_PATH = os.path.expanduser(
-    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist')
-PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
-                     'develop/contrib/get-pip.py')
-REQUIREMENTS_TXT = os.path.join(os.path.dirname(__file__), 'requirements.txt')
-
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(filename)s:%(lineno)s '
-                           '%(levelname)-8s %(message)s',
-                    datefmt='%H:%M:%S')
-
-log = logging.getLogger('tests')
+log = logging.getLogger('tests.bundler')
 
 log.debug('Bundler version : {}'.format(BUNDLER_VERSION))
 
@@ -211,107 +177,107 @@ class HelperTests(unittest.TestCase):
                          'net.deanishe.alfred-bundler-python-test')
 
 
-class ColourTests(unittest.TestCase):
+# class ColourTests(unittest.TestCase):
 
-    def setUp(self):
-        os.environ['alfred_theme_background'] = 'rgba(255,255,255,1.00)'
+#     def setUp(self):
+#         os.environ['alfred_theme_background'] = 'rgba(255,255,255,1.00)'
 
-    def tearDown(self):
-        if 'alfred_theme_background' in os.environ:
-            del os.environ['alfred_theme_background']
+#     def tearDown(self):
+#         if 'alfred_theme_background' in os.environ:
+#             del os.environ['alfred_theme_background']
 
-    def test_convert_color(self):
-        """Convert colour"""
-        color = 'fff'
-        rgb = AlfredBundler.hex_to_rgb(color)
-        hsv = AlfredBundler.rgb_to_hsv(*rgb)
-        self.assertEqual(rgb, (255, 255, 255))
-        self.assertEqual(hsv, (0.0, 0.0, 1.0))
+#     def test_convert_color(self):
+#         """Convert colour"""
+#         color = 'fff'
+#         rgb = AlfredBundler.hex_to_rgb(color)
+#         hsv = AlfredBundler.rgb_to_hsv(*rgb)
+#         self.assertEqual(rgb, (255, 255, 255))
+#         self.assertEqual(hsv, (0.0, 0.0, 1.0))
 
-        # Round-trip hex
-        self.assertEqual('ffffff', AlfredBundler.rgb_to_hex(
-                         *AlfredBundler.hsv_to_rgb(
-                         *AlfredBundler.rgb_to_hsv(
-                         *AlfredBundler.hex_to_rgb('fff')))))
+#         # Round-trip hex
+#         self.assertEqual('ffffff', AlfredBundler.rgb_to_hex(
+#                          *AlfredBundler.hsv_to_rgb(
+#                          *AlfredBundler.rgb_to_hsv(
+#                          *AlfredBundler.hex_to_rgb('fff')))))
 
-    def test_normalize_color(self):
-        """Normalize colour"""
-        pairs = [
-            ('fff', 'ffffff'),
-            ('FFF', 'ffffff'),
-            ('FFFFFF', 'ffffff'),
-            ('01d', '0011dd'),
-            ('DE1F4A', 'de1f4a'),
-        ]
-        for color, expected in pairs:
-            self.assertEqual(AlfredBundler.normalize_hex_color(color), expected)
+#     def test_normalize_color(self):
+#         """Normalize colour"""
+#         pairs = [
+#             ('fff', 'ffffff'),
+#             ('FFF', 'ffffff'),
+#             ('FFFFFF', 'ffffff'),
+#             ('01d', '0011dd'),
+#             ('DE1F4A', 'de1f4a'),
+#         ]
+#         for color, expected in pairs:
+#             self.assertEqual(AlfredBundler.normalize_hex_color(color), expected)
 
-        bad_colors = ['dave', 'dd', 'ddddddd', 'fffffg', 'PANTS!']
-        for color in bad_colors:
-            with self.assertRaises(ValueError):
-                AlfredBundler.normalize_hex_color(color)
+#         bad_colors = ['dave', 'dd', 'ddddddd', 'fffffg', 'PANTS!']
+#         for color in bad_colors:
+#             with self.assertRaises(ValueError):
+#                 AlfredBundler.normalize_hex_color(color)
 
-    def test_flip_color(self):
-        """Flip colour"""
-        self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
-        self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
+#     def test_flip_color(self):
+#         """Flip colour"""
+#         self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
+#         self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
 
-        if os.path.exists(COLOUR_CACHE):
-            shutil.rmtree(COLOUR_CACHE)
+#         if os.path.exists(COLOUR_CACHE):
+#             shutil.rmtree(COLOUR_CACHE)
 
-        self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
-        self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
+#         self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
+#         self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
 
-    def test_rgba_colors(self):
-        """RGBA colours"""
-        pairs = [
-            ('rgba(255,255,255,1.0)', (255, 255, 255)),
-            ('rgba(0,0,0,1.0)', (0, 0, 0)),
-        ]
+#     def test_rgba_colors(self):
+#         """RGBA colours"""
+#         pairs = [
+#             ('rgba(255,255,255,1.0)', (255, 255, 255)),
+#             ('rgba(0,0,0,1.0)', (0, 0, 0)),
+#         ]
 
-        for rgba, expected in pairs:
-            self.assertEqual(expected, AlfredBundler.rgba_to_rgb(rgba))
+#         for rgba, expected in pairs:
+#             self.assertEqual(expected, AlfredBundler.rgba_to_rgb(rgba))
 
-        with self.assertRaises(ValueError):
-            AlfredBundler.rgba_to_rgb('panties')
+#         with self.assertRaises(ValueError):
+#             AlfredBundler.rgba_to_rgb('panties')
 
-    def test_background(self):
-        """Theme background"""
-        # Test against `alfred_theme_background` set in
-        # `setUp()`
-        self.assertTrue(AlfredBundler.background_is_light())
-        self.assertFalse(AlfredBundler.background_is_dark())
+#     def test_background(self):
+#         """Theme background"""
+#         # Test against `alfred_theme_background` set in
+#         # `setUp()`
+#         self.assertTrue(AlfredBundler.background_is_light())
+#         self.assertFalse(AlfredBundler.background_is_dark())
 
-        # Change background to black
-        os.environ['alfred_theme_background'] = 'rgba(0,0,0,1.0)'
+#         # Change background to black
+#         os.environ['alfred_theme_background'] = 'rgba(0,0,0,1.0)'
 
-        self.assertTrue(AlfredBundler.background_is_dark())
-        self.assertFalse(AlfredBundler.background_is_light())
+#         self.assertTrue(AlfredBundler.background_is_dark())
+#         self.assertFalse(AlfredBundler.background_is_light())
 
-        # Test fallback background value from file
-        del os.environ['alfred_theme_background']
+#         # Test fallback background value from file
+#         del os.environ['alfred_theme_background']
 
-        with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
-            file.write('light')
+#         with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
+#             file.write('light')
 
-        self.assertTrue(AlfredBundler.background_is_light())
-        self.assertFalse(AlfredBundler.background_is_dark())
+#         self.assertTrue(AlfredBundler.background_is_light())
+#         self.assertFalse(AlfredBundler.background_is_dark())
 
-        with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
-            file.write('dark')
+#         with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
+#             file.write('dark')
 
-        self.assertTrue(AlfredBundler.background_is_dark())
-        self.assertFalse(AlfredBundler.background_is_light())
+#         self.assertTrue(AlfredBundler.background_is_dark())
+#         self.assertFalse(AlfredBundler.background_is_light())
 
-    def test_dark_light_colors(self):
-        """Dark and light colours"""
-        black = '000'
-        white = 'fff'
-        self.assertTrue(AlfredBundler.color_is_dark(black))
-        self.assertFalse(AlfredBundler.color_is_light(black))
+#     def test_dark_light_colors(self):
+#         """Dark and light colours"""
+#         black = '000'
+#         white = 'fff'
+#         self.assertTrue(AlfredBundler.color_is_dark(black))
+#         self.assertFalse(AlfredBundler.color_is_light(black))
 
-        self.assertTrue(AlfredBundler.color_is_light(white))
-        self.assertFalse(AlfredBundler.color_is_dark(white))
+#         self.assertTrue(AlfredBundler.color_is_light(white))
+#         self.assertFalse(AlfredBundler.color_is_dark(white))
 
 
 class BundlerTests(unittest.TestCase):
@@ -527,8 +493,10 @@ class BundlerTests(unittest.TestCase):
                             'Terminal-Notifier', 'latest',
                             'terminal-notifier.app', 'Contents', 'MacOS',
                             'terminal-notifier')
-        self.assertEqual(AlfredBundler.utility('Terminal-Notifier', 'latest'), path)
-        self.assertEqual(AlfredBundler.asset('Terminal-Notifier', 'latest'), path)
+        self.assertEqual(AlfredBundler.utility('Terminal-Notifier', 'latest'),
+                         path)
+        self.assertEqual(AlfredBundler.asset('Terminal-Notifier', 'latest'),
+                         path)
         self.assertEqual(AlfredBundler.utility('Terminal-Notifier'), path)
         self.assertEqual(AlfredBundler.asset('Terminal-Notifier'), path)
 

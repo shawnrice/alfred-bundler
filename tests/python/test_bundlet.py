@@ -15,56 +15,17 @@ from __future__ import print_function, unicode_literals
 
 import sys
 import os
-import random
 import shutil
 import tempfile
 import logging
-import cPickle
 import unittest
-import time
 import urllib2
 
-bundler_dir = os.path.join(os.path.dirname(os.path.dirname(
-                           os.path.abspath(os.path.dirname(__file__)))),
-                           'bundler')
-# bundlet_dir = os.path.join(bundler_dir, 'bundlets')
 
-# sys.path.insert(0, bundlet_dir)
-
+from common import *
 from pybundler import bundler
 
-
-VERSION_FILE = os.path.join(bundler_dir, 'meta', 'version_major')
-
-if os.getenv('AB_BRANCH'):
-    BUNDLER_VERSION = os.getenv('AB_BRANCH')
-else:
-    BUNDLER_VERSION = open(VERSION_FILE).read().strip()
-
-BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
-BUNDLER_DIR = os.path.expanduser(
-    '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}'.format(BUNDLER_VERSION))
-BUNDLER_PY_LIB = os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
-DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
-ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
-COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
-PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
-HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
-UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
-BACKGROUND_COLOUR_FILE = os.path.join(DATA_DIR, 'theme_background')
-ALFRED_PREFS_PATH = os.path.expanduser(
-    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist')
-PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
-                     'develop/contrib/get-pip.py')
-REQUIREMENTS_TXT = os.path.join(os.path.dirname(__file__), 'requirements.txt')
-
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(filename)s:%(lineno)s '
-                           '%(levelname)-8s %(message)s',
-                    datefmt='%H:%M:%S')
-
-log = logging.getLogger('tests')
+log = logging.getLogger('tests.bundlet')
 
 log.debug('Bundler version : {}'.format(BUNDLER_VERSION))
 
