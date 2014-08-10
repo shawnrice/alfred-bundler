@@ -806,14 +806,19 @@ def logger(name, logpath=None):
     if not logger.handlers:
         logfile = logging.handlers.RotatingFileHandler(logpath,
                                                        maxBytes=1024*1024,
-                                                       backupCount=0)
+                                                       backupCount=1)
         console = logging.StreamHandler()
-        fmt = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s '
-                                '%(levelname)-8s %(message)s',
-                                datefmt='%H:%M:%S')
 
-        logfile.setFormatter(fmt)
-        console.setFormatter(fmt)
+        fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                                 '[%(levelname)-8s] %(message)s',
+                                 datefmt='%H:%M:%S')
+
+        fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                                 '[%(levelname)-8s] %(message)s',
+                                 datefmt='%Y-%m-%d %H:%M:%S')
+
+        logfile.setFormatter(fmtf)
+        console.setFormatter(fmtc)
         logger.addHandler(logfile)
         logger.addHandler(console)
 
