@@ -42,10 +42,10 @@ class AlfredBundlerInternalClass {
   /**
    * A filepath to the bundler cache directory
    *
-   * @access private
+   * @access public
    * @var string
    */
-  private   $cache;
+  public   $cache;
 
   /**
    * The MAJOR version of the bundler (which API to use)
@@ -125,7 +125,31 @@ class AlfredBundlerInternalClass {
    */
   public $env;
 
+
+  /**
+   * General setup function for variables and directories
+   *
+   */
   private function setup() {
+
+    if ( isset( $_ENV[ 'AB_TESTING' ] ) )
+      $this->setupTests();
+    elseif ( isset( $_ENV[ 'alfred_version' ] ) )
+      $this->setupModern();
+    else
+      $this->setupDeprecated();
+
+    $this->setupDirStructure();
+
+  }
+
+  /**
+   * Sets variables for Alfred v2.4:277+
+   */
+  private function setupModern() {
+
+    if ( ! file_exists( 'info.plist' ) )
+      throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
 
     $this->bundle = $_ENV[ 'alfred_workflow_bundleid' ];
     $this->name   = $_ENV[ 'alfred_workflow_name' ];
@@ -133,10 +157,12 @@ class AlfredBundlerInternalClass {
 
   }
 
-
+  /**
+   * Sets variables for versions of Alfred pre-2.4:277
+   */
   private function setupDeprecated() {
 
-    if ( file_exists( 'info.plist' ) )
+    if ( ! file_exists( 'info.plist' ) )
       throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
 
     $this->bundle = $this->readPlist( 'info.plist', 'bundleid' );
@@ -145,8 +171,12 @@ class AlfredBundlerInternalClass {
 
   }
 
+  /**
+   * Creates the directories for the bundler
+   */
   private function setupDirStructure() {
 
+    // This list is a bit redundant for the logic below, but that's fine.
     $directories = array(
       "{$this->data}/data",
       "{$this->cache}",
@@ -158,10 +188,22 @@ class AlfredBundlerInternalClass {
       "{$this->cache}/utility",
     );
 
-    if ( ! file_exists( "{$this->data}/data" ) )
-      mkdir( "{$this->data}/data", 0775, TRUE );
+    foreach ( $directories as $dir ) :
+    if ( ! file_exists( $dir ) )
+      mkdir( $dir, 0775, TRUE );
+    endforeach;
   }
 
+
+/**
+ * Simple function to setup to test the bundler outside of Alfred.
+ */
+  private function setupTests() {
+    $this->bundle = $_ENV['alfred_workflow_bundleid'];
+    $this->name = $_ENV[ 'alfred_workflow_name' ];
+
+    $this->env = TRUE;
+  }
 
   /**
    * The class constructor
@@ -182,28 +224,25 @@ class AlfredBundlerInternalClass {
 
     $this->minor_version   = file_get_contents(  __DIR__ . '/meta/version_minor' );
 
-    // if ( isset( $_ENV[] ))
-
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
 
+    $this->setup();
 
-
-
-
-    if ( isset( $_ENV[ 'alfred_version' ] ) ) {
-      // As of Alfred v2.4 Build 277, environmental variables are available
-      // that will make this process a lot easier and faster.
-      $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
-        'build'  => $_ENV[ 'alfred_version_build' ] );
-      $this->home = $_ENV[ 'HOME' ];
-      $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
-      $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
-      $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
-      $this->theme = $_ENV[ 'alfred_theme' ];
-
-      $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
-    }
+    // Old code... take this out when we know we don't need any of it.
+    // if ( isset( $_ENV[ 'alfred_version' ] ) ) {
+    //   // As of Alfred v2.4 Build 277, environmental variables are available
+    //   // that will make this process a lot easier and faster.
+    //   $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
+    //     'build'  => $_ENV[ 'alfred_version_build' ] );
+    //   $this->home = $_ENV[ 'HOME' ];
+    //   $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
+    //   $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
+    //   $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
+    //   $this->theme = $_ENV[ 'alfred_theme' ];
+    //
+    //   $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
+    // }
 
 
     // Let's just return something
@@ -1130,6 +1169,13 @@ class AlfredBundlerInternalClass {
 
 }
 
+
+/**
+ *
+ * A class used to get / manipulate icons...
+ *
+ * @TODO document further
+ */
 class AlfredBundlerIcon {
 
   private $background;
@@ -1157,7 +1203,7 @@ class AlfredBundlerIcon {
 
     $this->setBackground();
 
-    $this->cache = $this->data . '/data/caches/color';
+    $this->cache = $bundler->cache . '/color';
 
   }
 
