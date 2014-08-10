@@ -152,7 +152,8 @@ BASH_BUNDLET_URL = (
     BUNDLER_VERSION))
 
 # Bundler log file
-BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
+BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs',
+                               'bundler-{}.log'.format(BUNDLER_VERSION))
 
 # HTTP timeout
 HTTP_TIMEOUT = 5

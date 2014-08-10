@@ -789,7 +789,8 @@ def logger(name, logpath=None):
     """
 
     if name == 'bundler' and logpath is None:
-        logpath = os.path.join(DATA_DIR, 'logs', 'python.log')
+        logpath = os.path.join(DATA_DIR, 'logs',
+                               'bundler-{}.log'.format(BUNDLER_VERSION))
 
     if not logpath:
         logpath = os.path.join(
