@@ -26,9 +26,6 @@ fi
 # Set the data directory
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 
-echo "\$AB_PATH : '$AB_PATH'"
-echo "\$AB_DATA : '$AB_DATA'"
-
 # Check for updates to the bundler in the background
 bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 
@@ -265,12 +262,15 @@ function AlfredBundler::load {
     bundle=''
   fi
 
+  # Set the path to the asset
+  asset="${AB_DATA}/data/assets/${type}/${name}/${version}"
+
 
   # Handle non-utilities first
   if [ "${type}" != "utility" ]; then
     # There shouldn't be too many things that the bash bundler should need from here...
     # but, why not?
-    if [ -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
+    if [ -f "${asset}/invoke" ]; then
 
       # Register the asset
       bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
@@ -278,7 +278,7 @@ function AlfredBundler::load {
            "${bundle}" "${name}" "${version}"
 
       # Return the path
-      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
+      echo "${asset}/"$(cat "${asset}/invoke")
       return 0
     else
       # Install the asset
@@ -299,12 +299,12 @@ function AlfredBundler::load {
 
       AlfredBundler::report "Installed '${name}', type '${type}'" INFO
       # Return the path
-      echo "${AB_DATA}/data/assets/${type}/${name}/${version}/"$(cat "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke")
+      echo "${asset}/"$(cat "${asset}/invoke")
       return 0
     fi
   fi
 
-  if [ ! -f "${AB_DATA}/data/assets/${type}/${name}/${version}/invoke" ]; then
+  if [ ! -f "${asset}/invoke" ]; then
       # Install the asset
 
       AlfredBundler::report "Installing ${type} '${name}' version ${version} ..." INFO
@@ -349,8 +349,7 @@ function AlfredBundler::load {
   gatekeeper=$(php "${AB_DATA}/bundler/includes/read-json.php" "${json}" gatekeeper | tr [[:upper:]] [[:lower:]])
 
   if [ "${gatekeeper}" == "false" ]; then
-    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
-    path="${path}/"$(cat "${path}/invoke")
+    path="${asset}/$(cat "${asset}/invoke")"
     echo "${path}" > "${cache_path}"
 
     # Register the asset
@@ -370,8 +369,7 @@ function AlfredBundler::load {
     [[ -f 'icon.png' ]] && icon=$(pwd -P)"/icon.png"
     [[ -f '../icon.png' ]] && icon=$(pwd -P)"/../icon.png"
 
-    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
-    path="${path}/"$(cat "${path}/invoke")
+    path="${asset}/$(cat "${asset}/invoke")"
 
     # Call gatekeeper
     bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
@@ -380,8 +378,7 @@ function AlfredBundler::load {
     status=$?
     [[ $status -gt 0 ]] && echo "User denied whitelisting $name" && return $status
     # If we're here, then the user whitelisted the application.
-    path="${AB_DATA}/data/assets/${type}/${name}/${version}"
-    path="${path}/"$(cat "${path}/invoke")
+    path="${asset}/$(cat "${asset}/invoke")"
     echo "${path}" > "${cache_path}"
 
     # Register the asset
