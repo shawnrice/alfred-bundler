@@ -387,7 +387,7 @@ def _bundle_id():
 
 def _notify(title, message):  # pragma: no cover
     """Post a notification"""
-    cd = utility('cocaoDialog')
+    cd = utility('cocoaDialog')
 
     cmd = [cd, 'notify', '--title', title, '--text', message]
 
