@@ -228,10 +228,7 @@ function AlfredBundler::install_bundler {
   # Send notification that the installation is complete
   icon="${AB_DATA}/bundler/meta/icons/bundle.icns"
 
-  echo "\$notifier : $notifier"
-  echo "\$icon : $icon"
-
-  "${notifier}" bubble --title 'Installation Complete' --icon-file "${icon}" \
+  "${notifier}" notify --title 'Installation Complete' --icon-file "${icon}" \
     --text 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
 
   # We're successful, so return success
