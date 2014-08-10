@@ -390,17 +390,31 @@ def _bundle_id():
     return _workflow_bundle_id
 
 
-def _notify(title, message):  # pragma: no cover
-    """Post a notification"""
+def notify(title, message, icon=None):  # pragma: no cover
+    """Post a notification
+
+    :param title: The title of the notification
+    :type title: ``unicode`` or ``str``
+    :param message: Main body of the notification
+    :type message: ``unicode`` or ``str``
+    :param icon: Path to icon to show in notification. If no icon is specified,
+        the workflow's icon will be used.
+    :type icon: filepath
+
+    """
+
     cd = utility('cocoaDialog')
 
     cmd = [cd, 'notify', '--title', title, '--text', message]
 
-    try:
-        icon = _find_file('icon.png')
+    if not icon:
+        try:
+            icon = _find_file('icon.png')
+        except IOError:
+            pass
+
+    if icon:
         cmd += ['--icon-file', icon]
-    except IOError:
-        pass
 
     subprocess.call(cmd)
 
@@ -703,8 +717,8 @@ def _update():
     update_running = True
 
     try:
-        _notify('Workflow libraries are being updated',
-                'Your workflow will continue momentarily')
+        notify('Workflow libraries are being updated',
+               'Your workflow will continue momentarily')
 
         # Call bundler updater
         cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
@@ -1012,8 +1026,8 @@ def init(requirements=None):
             metadata['hash'] = h
 
             # Notify user of updates
-            _notify('Installing workflow dependencies',
-                    'Your worklow will run momentarily')
+            notify('Installing workflow dependencies',
+                   'Your worklow will run momentarily')
 
             # Install dependencies with Pip
             _add_pip_path()

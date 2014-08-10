@@ -296,6 +296,27 @@ def _bootstrap():
     _bundler.metadata.set_updated()
 
 
+########################################################################
+# User API
+########################################################################
+
+def notify(title, message, icon=None):  # pragma: no cover
+    """Post a notification
+
+    :param title: The title of the notification
+    :type title: ``unicode`` or ``str``
+    :param message: Main body of the notification
+    :type message: ``unicode`` or ``str``
+    :param icon: Path to icon to show in notification. If no icon is specified,
+        the workflow's icon will be used.
+    :type icon: filepath
+
+    """
+
+    _bootstrap()
+    return _bundler.notify(title, message, icon=None)
+
+
 def icon(font, icon, color='000000', alter=False):
     """Get path to specified icon, downloading it first if necessary.
 
@@ -406,11 +427,6 @@ if __name__ == '__main__':  # pragma: no cover
         subprocess.call([path] + args)
         print('{} : {}'.format(name, path))
 
-    # dialog = [utility('cocoaDialog'), 'msgbox', '--timeout', '1']
-
-    notification = [utility('cocoaDialog'), 'notify', '--title',
-                    'Alfred Bundler', '--text']
-
     for font, char, colour in [('elusive', 'adjust', _colour()),
                                ('elusive', 'cloud', _colour()),
                                ('elusive', 'cog', _colour()),
@@ -419,11 +435,11 @@ if __name__ == '__main__':  # pragma: no cover
                                ('elusive', 'hand-up', _colour()),
                                ('elusive', 'hand-right', _colour()),
                                ('elusive', 'hand-down', _colour())]:
-        path = icon(font, char, colour)
-        msg = '{} // {} // #{}'.format(font, char, colour)
 
-        cmd = notification + [msg, '--icon-file', path]
-        subprocess.call(cmd)
+        msg = '{} // {} // #{}'.format(font, char, colour)
+        icon_path = icon(font, char, colour)
+
+        notify('Alfred Bundler', msg, icon_path)
 
         # cmd = dialog + ['--text', msg, '--icon-file', path]
         # subprocess.call(cmd)
