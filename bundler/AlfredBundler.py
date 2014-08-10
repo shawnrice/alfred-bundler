@@ -390,16 +390,16 @@ def _bundle_id():
     return _workflow_bundle_id
 
 
-def notify(title, message, icon=None):  # pragma: no cover
+def notify(title, message, icon_path=None):  # pragma: no cover
     """Post a notification
 
     :param title: The title of the notification
     :type title: ``unicode`` or ``str``
     :param message: Main body of the notification
     :type message: ``unicode`` or ``str``
-    :param icon: Path to icon to show in notification. If no icon is specified,
-        the workflow's icon will be used.
-    :type icon: filepath
+    :param icon_path: Path to icon to show in notification. If no icon is
+        specified, the workflow's icon will be used.
+    :type icon_path: filepath
 
     """
 
@@ -407,14 +407,14 @@ def notify(title, message, icon=None):  # pragma: no cover
 
     cmd = [cd, 'notify', '--title', title, '--text', message]
 
-    if not icon:
+    if not icon_path:
         try:
-            icon = _find_file('icon.png')
+            icon_path = _find_file('icon.png')
         except IOError:
             pass
 
-    if icon:
-        cmd += ['--icon-file', icon]
+    if icon_path:
+        cmd += ['--icon-file', icon_path]
 
     subprocess.call(cmd)
 

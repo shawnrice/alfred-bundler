@@ -300,21 +300,21 @@ def _bootstrap():
 # User API
 ########################################################################
 
-def notify(title, message, icon=None):  # pragma: no cover
+def notify(title, message, icon_path=None):  # pragma: no cover
     """Post a notification
 
     :param title: The title of the notification
     :type title: ``unicode`` or ``str``
     :param message: Main body of the notification
     :type message: ``unicode`` or ``str``
-    :param icon: Path to icon to show in notification. If no icon is specified,
-        the workflow's icon will be used.
-    :type icon: filepath
+    :param icon_path: Path to icon to show in notification. If no icon is
+        specified, the workflow's icon will be used.
+    :type icon_path: filepath
 
     """
 
     _bootstrap()
-    return _bundler.notify(title, message, icon=None)
+    return _bundler.notify(title, message, icon_path)
 
 
 def icon(font, icon, color='000000', alter=False):
