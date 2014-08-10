@@ -152,7 +152,8 @@ BASH_BUNDLET_URL = (
     BUNDLER_VERSION))
 
 # Bundler log file
-BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs', 'python.log')
+BUNDLER_LOGFILE = os.path.join(DATA_DIR, 'logs',
+                               'bundler-{}.log'.format(BUNDLER_VERSION))
 
 # HTTP timeout
 HTTP_TIMEOUT = 5
@@ -172,14 +173,18 @@ if not os.path.exists(_logdir):  # pragma: no cover
 _log = logging.getLogger('bundler')
 _logfile = logging.handlers.RotatingFileHandler(BUNDLER_LOGFILE,
                                                 maxBytes=1024*1024,
-                                                backupCount=0)
+                                                backupCount=1)
 _console = logging.StreamHandler()
-_fmt = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s '
-                         '%(levelname)-8s %(message)s',
-                         datefmt='%H:%M:%S')
+_fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                          '[%(levelname)s] %(message)s',
+                          datefmt='%H:%M:%S')
 
-_logfile.setFormatter(_fmt)
-_console.setFormatter(_fmt)
+_fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                          '[%(levelname)s] %(message)s',
+                          datefmt='%Y-%m-%d %H:%M:%S')
+
+_logfile.setFormatter(_fmtf)
+_console.setFormatter(_fmtc)
 _log.addHandler(_logfile)
 _log.addHandler(_console)
 _log.setLevel(logging.DEBUG)

@@ -789,7 +789,8 @@ def logger(name, logpath=None):
     """
 
     if name == 'bundler' and logpath is None:
-        logpath = os.path.join(DATA_DIR, 'logs', 'python.log')
+        logpath = os.path.join(DATA_DIR, 'logs',
+                               'bundler-{}.log'.format(BUNDLER_VERSION))
 
     if not logpath:
         logpath = os.path.join(
@@ -806,14 +807,19 @@ def logger(name, logpath=None):
     if not logger.handlers:
         logfile = logging.handlers.RotatingFileHandler(logpath,
                                                        maxBytes=1024*1024,
-                                                       backupCount=0)
+                                                       backupCount=1)
         console = logging.StreamHandler()
-        fmt = logging.Formatter('%(asctime)s %(filename)s:%(lineno)s '
-                                '%(levelname)-8s %(message)s',
-                                datefmt='%H:%M:%S')
 
-        logfile.setFormatter(fmt)
-        console.setFormatter(fmt)
+        fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                                 '[%(levelname)s] %(message)s',
+                                 datefmt='%H:%M:%S')
+
+        fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
+                                 '[%(levelname)s] %(message)s',
+                                 datefmt='%Y-%m-%d %H:%M:%S')
+
+        logfile.setFormatter(fmtf)
+        console.setFormatter(fmtc)
         logger.addHandler(logfile)
         logger.addHandler(console)
 
