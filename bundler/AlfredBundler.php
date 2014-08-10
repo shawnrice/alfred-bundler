@@ -17,6 +17,8 @@
  */
 
 
+// We'll add this in for testing
+if ( ! class_exists( 'AlfredBundlerInternalClass' ) ) :
 /**
  * Internal API Class for Alfred Bundler
  *
@@ -382,7 +384,7 @@ class AlfredBundlerInternalClass {
 
 
 
-  public function icon( $font, $name, $color = '000000', $alter = TRUE ) {
+  public function icon( $font, $name, $color = '000000', $alter = FALSE ) {
     if ( ! isset( $this->icon ) )
       $this->icon = new AlfredBundlerIcon( $this );
 
@@ -1005,7 +1007,7 @@ class AlfredBundlerInternalClass {
   /**
    * Recursively removes a folder along with all its files and directories
    *
-   * @link http://ben.lobaugh.net/blog/910/php-recursively-remove-a-directory-and-all-files-and-folder-contained-within
+   * @link http://php.net/manual/en/function.rmdir.php#110489
    *
    * @access public
    * @since  Taurus 1
@@ -1014,14 +1016,17 @@ class AlfredBundlerInternalClass {
    */
   public function rrmdir( $path ) {
     // Open the source directory to read in files
-    $i = new DirectoryIterator( $path );
-    foreach ( $i as $f ) :
-      if ( $f->isFile() ) {
-        unlink( $f->getRealPath() ); $line = __LINE__;
-        $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
-      } else if ( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
-      endforeach;
-    rmdir( $path ); $line = __LINE__;
+    $files = array_diff( scandir( $path ), array( '.', '..' ) );
+    foreach ( $files as $file ) {
+      if ( is_dir( "{$path}/{$file}" ) )
+        $this->rrmdir( "{$path}/{$file}" );
+      else if ( file_exists( "{$path}/{$file}" ) )
+        unlink( "{$path}/{$file}" );
+      else {
+        echo "Removing dir error... uh..." . PHP_EOL; // add in proper logging
+      }
+    }
+    return rmdir( $path );
   }
 
   /**
@@ -1168,8 +1173,9 @@ class AlfredBundlerInternalClass {
  *****************************************************************************/
 
 }
+endif;
 
-
+if ( ! class_exists( 'AlfredBundlerIcon' ) ) :
 /**
  *
  * A class used to get / manipulate icons...
@@ -1178,9 +1184,9 @@ class AlfredBundlerInternalClass {
  */
 class AlfredBundlerIcon {
 
-  private $background;
-  private $data;
-  private $cache;
+  public  $background;
+  public  $data;
+  public  $cache;
 
 
   /**
@@ -2386,3 +2392,5 @@ class AlfredBundlerIcon {
  ****************************************************************************/
 
 }
+
+endif;
