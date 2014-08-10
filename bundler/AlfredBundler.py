@@ -203,7 +203,7 @@ ALFRED_PREFS_PATH = os.path.expanduser(
 # HTTP timeout
 HTTP_TIMEOUT = 5
 
-css_colour = re.compile(r'^[abcdef012345678]+$').match
+# is_css_colour = re.compile(r'^(?:[a-fA-F0-9]{3}){1,2}$').match
 
 _workflow_bundle_id = None
 
@@ -407,8 +407,8 @@ def _notify(title, message):  # pragma: no cover
 def normalize_hex_color(color):
     """Convert CSS colour to 6-characters and lowercase
 
-    :param css_colour: CSS colour of form XXX or XXXXXX
-    :type css_colour: ``unicode`` or ``str``
+    :param color: CSS colour of form XXX or XXXXXX
+    :type color: ``unicode`` or ``str``
     :returns: Normalised CSS colour of form xxxxxx
     :rtype: ``unicode``
 
@@ -416,7 +416,7 @@ def normalize_hex_color(color):
 
     color = color.lower().strip('#')
 
-    if not css_colour(color) or not len(color) in (3, 6):
+    if not re.match(r'^(?:[a-fA-F0-9]{3}){1,2}$', color):
         raise ValueError('Invalid CSS colour: {}'.format(color))
 
     if len(color) == 3:  # Expand to 6 characters
@@ -429,8 +429,8 @@ def normalize_hex_color(color):
 def hex_to_rgb(color):
     """Convert CSS-style colour to ``(r, g, b)``
 
-    :param css_colour: xxx or xxxxxx CSS colour
-    :type css_colour: ``unicode`` or ``str``
+    :param colour: xxx or xxxxxx CSS colour
+    :type colour: ``unicode`` or ``str``
     :returns: ``(r, g, b)`` tuple of ``ints`` 0-255
     :rtype: ``tuple``
 
@@ -459,7 +459,7 @@ def rgb_to_hex(r, g, b):
     """
 
     def clamp(i):
-        return int(max(0, min(i, 255)))
+        return int(max(0, min(round(i), 255)))
 
     color = '{:02x}{:02x}{:02x}'.format(clamp(r), clamp(g), clamp(b)).lower()
 
@@ -479,7 +479,8 @@ def hsv_to_rgb(h, s, v):
     :rtype: ``tuple``
 
     """
-    return tuple(map(lambda i: int(i * 255), colorsys.hsv_to_rgb(h, s, v)))
+    return tuple(map(lambda i: int(round(i * 255.0)),
+                 colorsys.hsv_to_rgb(h, s, v)))
 
 
 def rgb_to_hsv(r, g, b):
@@ -612,9 +613,9 @@ def flip_color(color):
 
     cachepath = os.path.join(COLOUR_CACHE, color)
 
-    if os.path.exists(cachepath):
-        with open(cachepath, 'rb') as file:
-            return file.read().strip()
+    # if os.path.exists(cachepath):
+    #     with open(cachepath, 'rb') as file:
+    #         return file.read().strip()
 
     h, s, v = rgb_to_hsv(*hex_to_rgb(color))
 
@@ -874,9 +875,6 @@ def icon(font, icon, color='000000', alter=False):
     if os.path.exists(path):
         return path
 
-    if not os.path.exists(icondir):
-        os.makedirs(icondir, 0755)
-
     url = API_URL.format(font=font, color=color, icon=icon)
     _log.debug('Retrieving URL `{}` ...'.format(url))
 
@@ -894,6 +892,9 @@ def icon(font, icon, color='000000', alter=False):
         raise IOError('Could not retrieve icon : {}/{}/{{'.format(font,
                                                                   icon,
                                                                   color))
+
+    if not os.path.exists(icondir):
+        os.makedirs(icondir, 0755)
 
     with open(path, 'wb') as file:
         file.write(response.read())
