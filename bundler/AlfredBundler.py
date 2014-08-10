@@ -179,7 +179,7 @@ SYSTEM_ICON_DIR = ('/System/Library/CoreServices/CoreTypes.bundle'
 # The misc bash bundler bundlet script we will call to get paths to
 # utilities and install them if necessary.
 HELPER_PATH = os.path.join(BUNDLER_DIR, 'bundler', 'bundlets',
-                           'alfred.bundler.misc.sh')
+                           'alfred.bundler.sh')
 
 # Path to file storing update metadata (last update check, etc.)
 UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')

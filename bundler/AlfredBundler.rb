@@ -192,7 +192,7 @@ module AlfredBundler
   def load_asset(type, name, version, bundle='', json='')
     # Need to add the path caching here
     if type == "utility"
-      command = "'" + @data + "/bundler/bundlets/alfred.bundler.misc.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
+      command = "'" + @data + "/bundler/bundlets/alfred.bundler.sh' '#{name}' '#{version}' '#{type}' '#{json}'"
       return `#{command}`.strip
     end
     return false
