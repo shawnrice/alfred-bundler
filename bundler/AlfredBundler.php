@@ -105,7 +105,7 @@ class AlfredBundlerInternalClass {
    * [$caches description]
    *
    * @access private
-   * @var  array
+   * @var    array
    */
   private $caches;
 
@@ -113,36 +113,54 @@ class AlfredBundlerInternalClass {
    * Desc
    *
    * @access public
-   * @var  array
+   * @var    array
    */
   public $logs;
 
+  /**
+   * Whether or not enviromental variables are present
+   *
+   * @access public
+   * @var    bool
+   */
+  public $env;
+
+  private function setup() {
+
+    $this->bundle = $_ENV[ 'alfred_workflow_bundleid' ];
+    $this->name   = $_ENV[ 'alfred_workflow_name' ];
+    $this->env    = TRUE;
+
+  }
 
 
-private function setup() {
-// http://www.alfredforum.com/topic/4716-some-new-alfred-script-environment-variables-coming-in-alfred-24/#entry28819
- // "alfred_preferences" = "/Users/Crayons/Dropbox/Alfred/Alfred.alfredpreferences";
- //    "alfred_preferences_localhash" = adbd4f66bc3ae8493832af61a41ee609b20d8705;
- //    "alfred_theme" = "alfred.theme.yosemite";
- //    "alfred_theme_background" = "rgba(255,255,255,0.98)";
- //    "alfred_theme_subtext" = 3;
- //    "alfred_version" = "2.4";
- //    "alfred_version_build" = 277;
- //    "alfred_workflow_bundleid" = "com.alfredapp.david.googlesuggest";
- //    "alfred_workflow_cache" = "/Users/Crayons/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/com.alfredapp.david.googlesuggest";
- //    "alfred_workflow_data" = "/Users/Crayons/Library/Application Support/Alfred 2/Workflow Data/com.alfredapp.david.googlesuggest";
- //    "alfred_workflow_name" = "Google Suggest";
- //    "alfred_workflow_uid" = "user.workflow.B0AC54EC-601C-479A-9428-01F9FD732959";
+  private function setupDeprecated() {
 
+    if ( file_exists( 'info.plist' ) )
+      throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
 
-}
-//
-//
-// private function setupDeprecated() {
-//
-// for versions of Alfred pre 2.4 build 277
-//
-// }
+    $this->bundle = $this->readPlist( 'info.plist', 'bundleid' );
+    $this->name   = $this->readPlist( 'info.plist', 'name' );
+    $this->env    = FALSE;
+
+  }
+
+  private function setupDirStructure() {
+
+    $directories = array(
+      "{$this->data}/data",
+      "{$this->cache}",
+      "{$this->cache}/color",
+      "{$this->cache}/misc",
+      "{$this->cache}/php",
+      "{$this->cache}/ruby",
+      "{$this->cache}/python",
+      "{$this->cache}/utility",
+    );
+
+    if ( ! file_exists( "{$this->data}/data" ) )
+      mkdir( "{$this->data}/data", 0775, TRUE );
+  }
 
 
   /**
@@ -154,7 +172,7 @@ private function setup() {
    * @param string $plist Path to workflow 'info.plist'
    * @return bool          Return 'true' regardless
    */
-  public function __construct( $plist = '' ) {
+  public function __construct() {
 
     if ( isset( $_ENV['AB_BRANCH'] ) ) {
       $this->major_version = $_ENV['AB_BRANCH'];
@@ -162,31 +180,16 @@ private function setup() {
       $this->major_version = file_get_contents(  __DIR__ . '/meta/version_major' );
     }
 
-    $this->minor_version = file_get_contents(
-      __DIR__ . '/meta/version_minor' );
+    $this->minor_version   = file_get_contents(  __DIR__ . '/meta/version_minor' );
 
     // if ( isset( $_ENV[] ))
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
 
-    if ( file_exists( $plist ) ) {
-      $this->plist  = $plist;
-    } else {
-      $this->plist = '';
-    }
 
-    if ( ! empty( $plist ) ) {
-      $this->bundle = exec( "/usr/libexec/PlistBuddy -c 'Print :bundleid' '{$this->plist}'" );
-      $this->name   = exec( "/usr/libexec/PlistBuddy -c 'Print :name'     '{$this->plist}'" );
-    } else {
-      $this->bundle = '';
-      $this->name   = '';
-    }
 
-    if ( ! file_exists( "{$this->data}/data" ) ) {
-      mkdir( "{$this->data}/data", 0775, TRUE );
-    }
+
 
     if ( isset( $_ENV[ 'alfred_version' ] ) ) {
       // As of Alfred v2.4 Build 277, environmental variables are available
@@ -980,7 +983,6 @@ private function setup() {
       } else if ( ! $f->isDot() && $f->isDir() ) $this->rrmdir( $f->getRealPath() );
       endforeach;
     rmdir( $path ); $line = __LINE__;
-    $this->reportLog( "Deleting directory `{$path}`", 'INFO', __FILE__, $line );
   }
 
   /**
