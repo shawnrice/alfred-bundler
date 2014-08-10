@@ -383,15 +383,47 @@ def init(requirements=None):
 
 
 if __name__ == '__main__':  # pragma: no cover
+    import random
+
+    def _colour():
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+
+        return '{:02x}{:02x}{:02x}'.format(r, g, b)
+
+    icon_path = icon('fontawesome', 'gift', 'bd1054')
+
     for name, args in [
-            ('Terminal-Notifier',
-                ['-title', 'Test', '-message', 'Test']),
+            # ('Terminal-Notifier',
+            #     ['-title', 'Test', '-message', 'Test']),
+            ('cocoaDialog',
+                ['notify', '--title', 'Bundler Test',
+                 '--text', "How ya doin'?", '--icon-file', icon_path]),
             ('cocoaDialog',
                 ['msgbox', '--text', 'Test', '--timeout', '2'])]:
         path = utility(name)
         subprocess.call([path] + args)
         print('{} : {}'.format(name, path))
-    for font, char, colour in [('fontawesome', 'adjust', 'fff')]:
+
+    # dialog = [utility('cocoaDialog'), 'msgbox', '--timeout', '1']
+
+    notification = [utility('cocoaDialog'), 'notify', '--title',
+                    'Alfred Bundler', '--text']
+
+    for font, char, colour in [('elusive', 'adjust', _colour()),
+                               ('elusive', 'cloud', _colour()),
+                               ('elusive', 'cog', _colour()),
+                               ('elusive', 'home-alt', _colour()),
+                               ('elusive', 'hand-left', _colour()),
+                               ('elusive', 'hand-up', _colour()),
+                               ('elusive', 'hand-right', _colour()),
+                               ('elusive', 'hand-down', _colour())]:
         path = icon(font, char, colour)
-        print('{}/{}/{}: {}'.format(font, char, colour, path))
-        subprocess.call(['open', path])
+        msg = '{} // {} // #{}'.format(font, char, colour)
+
+        cmd = notification + [msg, '--icon-file', path]
+        subprocess.call(cmd)
+
+        # cmd = dialog + ['--text', msg, '--icon-file', path]
+        # subprocess.call(cmd)
