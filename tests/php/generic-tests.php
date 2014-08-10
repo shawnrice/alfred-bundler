@@ -1,22 +1,27 @@
 <?php
 
 
-set_error_handler('myErrorHandler');
-register_shutdown_function('fatalErrorShutdownHandler');
+$errors = FALSE;
 
-function myErrorHandler($code, $message, $file, $line) {
- echo "Fatal Error: $code : $message $file $line";
-}
+if ( $errors === FALSE ) {
+  if ( function_exists( 'myErrorHandler' ) && function_exists('fatalErrorShutdownHandler') ) {
+    set_error_handler('myErrorHandler');
+    register_shutdown_function('fatalErrorShutdownHandler');
+  }
+  // We're using this to ignore errors for the fail tests
+  function myErrorHandler($code, $message, $file, $line) {
+   // echo "Fatal Error: $code : $message $file $line";
+  }
 
-function fatalErrorShutdownHandler()
-{
-  $last_error = error_get_last();
-  if ($last_error['type'] === E_ERROR) {
-    // fatal error
-    myErrorHandler(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
+  function fatalErrorShutdownHandler()
+  {
+    $last_error = error_get_last();
+    if ($last_error['type'] === E_ERROR) {
+      // fatal error
+      myErrorHandler(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
+    }
   }
 }
-
 
 // Set to use head for tests
 $_ENV['AB_BRANCH']                  = 'devel';
@@ -34,7 +39,7 @@ $i = new AlfredBundlerIcon( $b );
 $major = $b->major_version;
 $fallback = $_SERVER['HOME'] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$major}/bundler/meta/icons/default";
 
-$tests[] = 'env_bundle_test';
+// $tests[] = 'env_bundle_test';
 // $tests[] = 'normalize_color_test';
 // $tests[] = 'color_tests';
 // $tests[] = 'color_inverse_test';
@@ -45,17 +50,40 @@ $tests[] = 'env_bundle_test';
 // $tests[] = 'download_bad_icon_url';
 // $tests[] = 'get_system_icon';
 // $tests[] = 'get_bad_system_icon';
-$tests[] = 'install_bundler_test';
+// // $tests[] = 'reinstall_bundler_test'; // This test takes a long time
+// $tests[] = 'library_test';
+// $tests[] = 'library_fail_test';
 
 
-// This test will ultimately fail because it will delete the bundler directory,
-// then it will reinstall itself, and then, it will redeclare the class...
-function install_bundler_test() {
+
+function library_fail_test() {
+  global $b;
+  if ($b->library('askjdfa') )
+    return FALSE;
+  else
+    return TRUE;
+
+}
+
+function library_test() {
+  global $b;
+
+  $b->library('Workflows');
+  if ( class_exists( 'Workflows' ) )
+    return TRUE;
+  else
+    return FALSE;
+
+}
+
+function reinstall_bundler_test() {
   global $b;
   $b->rrmdir( $b->data );
   $c = new AlfredBundler;
-  echo $c->data;
-  return TRUE;
+  if ( is_object( $c ) )
+    return TRUE;
+  else
+    return FALSE;
 }
 
 function get_bad_system_icon() {
@@ -137,25 +165,25 @@ function normalize_3_hex() {
 }
 
 // For iterative color inverse tests... passing 100% on 100k checks.
-// $failed = 0;
-// $passed = 0;
-// $number = 1000;
-// $start = microtime();
-// for ( $x=0; $x<$number; $x++ ) :
-//
-//   echo "Calling color inverse test " . ($x + 1) . ": ";
-//   if ( color_inverse_test() ) {
-//     $passed++;
-//   } else {
-//     $failed++;
-//   }
-//
-// endfor;
-// echo "======================================================" . PHP_EOL;
-// echo "Completed $number tests in " . round(((microtime() - $start) / 1000000), 3) . " seconds.";
-// echo "For 100000 tests, we passed $passed (" . ($passed/$number)*100 . "%)" . PHP_EOL;
-//
-// die();
+$failed = 0;
+$passed = 0;
+$number = 1000000;
+$start = microtime();
+for ( $x=0; $x<$number; $x++ ) :
+
+  echo "Completed: " . ($x + 1) . " of $number " . PHP_EOL;
+  if ( color_inverse_test() ) {
+    $passed++;
+  } else {
+    $failed++;
+  }
+
+endfor;
+echo "======================================================" . PHP_EOL;
+echo "Completed $number tests in " . round(((microtime() - $start) / 1000000), 3) . " seconds.";
+echo "For $number tests, we passed $passed (" . ($passed/$number)*100 . "%)" . PHP_EOL;
+
+die();
 function color_inverse_test() {
   global $i;
 
@@ -172,7 +200,7 @@ function color_inverse_test() {
   else {
     // echo PHP_EOL;
     // echo "     * Debug for " . __FUNCTION__ . ':  ';
-    echo "$hex1 != $hex2" . PHP_EOL;
+    // echo "$hex1 != $hex2" . PHP_EOL;
     // print_r( $color ); echo PHP_EOL;
     // print_r( $rgb1 ); echo PHP_EOL;
     // print_r( $hsv ); echo PHP_EOL;
