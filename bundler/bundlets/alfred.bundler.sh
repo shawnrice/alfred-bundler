@@ -145,6 +145,7 @@ function AlfredBundler::install_bundler {
   local status
   local my_path
   local url
+  local icon
 
   echo "Installing Alfred Dependency Bundler version '${AB_MAJOR_VERSION}' ..." >&2
 
@@ -178,7 +179,7 @@ function AlfredBundler::install_bundler {
     echo "Error: could not install Alfred Bundler. Exiting script." >&2
 
     # Exit with appropriate error code
-    exit 21
+    return 21
   fi
 
   # Grab the current directory so we can come back
@@ -193,7 +194,11 @@ function AlfredBundler::install_bundler {
   status=$?
 
   # This needs to be expanded
-  [[ $status -ne 0 ]] && echo "Corrupted zip file" >&2 && exit 1
+  if [[ $status -ne 0 ]]; then
+    echo "Corrupted zip file" >&2
+    rm *.zip
+    return 21
+  fi
 
   unzip -oq *.zip
   rm *.zip
@@ -218,11 +223,16 @@ function AlfredBundler::install_bundler {
   . "${AB_DATA}/bundler/AlfredBundler.sh"
 
   # Load Terminal Notifier
-  notifier=$(AlfredBundler::utility 'Terminal-Notifier')
+  notifier=$(AlfredBundler::utility 'cocoaDialog')
 
   # Send notification that the installation is complete
-  "${notifier}" -title 'Instllation Complete' \
-    -message 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
+  icon="${AB_DATA}/bundler/meta/icons/bundle.icns"
+
+  echo "\$notifier : $notifier"
+  echo "\$icon : $icon"
+
+  "${notifier}" bubble --title 'Installation Complete' --icon-file "${icon}" \
+    --text 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
 
   # We're successful, so return success
   return 0
@@ -237,7 +247,7 @@ function AlfredBundler::install_bundler {
 # Returns:
 #   None
 #######################################
-function main() {
+function AlfredBundler::bootstrap() {
   # Install the Bundler if it does not already exist
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
@@ -246,4 +256,34 @@ function main() {
   fi
 }
 
-main
+#######################################
+# Load an icon/asset
+# Arguments:
+#   type
+#   name / font
+#   version / icon
+#   json / color
+#   alter
+# Returns:
+#   filepath to asset
+#######################################
+function AlfredBundler::main() {
+
+  if [[ "$1" == "icon" ]]; then
+    # <font> <icon> <color (optional)> <alter (optional)>
+    AlfredBundler::icon "$2" "$3" "$4" "$5"
+    return $?
+  else
+    # <type>, <name>, <version>, <json (optional)>
+    AlfredBundler::load "$1" "$2" "$3" "$4"
+    return $?
+  fi
+}
+
+# Install the bundler if necessary
+AlfredBundler::bootstrap
+
+if [[ "$BASH_SOURCE" == "$0" ]]; then
+  AlfredBundler::main "$1" "$2" "$3" "$4" "$5"
+  exit $?
+fi

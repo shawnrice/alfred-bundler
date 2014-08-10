@@ -26,6 +26,9 @@ fi
 # Set the data directory
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 
+echo "\$AB_PATH : '$AB_PATH'"
+echo "\$AB_DATA : '$AB_DATA'"
+
 # Check for updates to the bundler in the background
 bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 
