@@ -4,9 +4,9 @@
 
 # OUTPUT_PATH=$(pwd)/tests_output
 
-DEFAULT_BRANCH="devel"
+# DEFAULT_BRANCH="devel"
 
-[[ -z "$AB_BRANCH" ]] && export AB_BRANCH=$DEFAULT_BRANCH
+# [[ -z "$AB_BRANCH" ]] && export AB_BRANCH=$DEFAULT_BRANCH
 
 LOGPATH="$(pwd)/test.log"
 
