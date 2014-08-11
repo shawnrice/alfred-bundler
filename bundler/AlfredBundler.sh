@@ -157,7 +157,7 @@ function AlfredBundler::icon() {
   while [[ $i -lt $len ]]; do
     # Try to download the icon from the server, but give up if we cannot connect
     # in less than two seconds.
-    curl -fsSL --connect-timeout 2 "${icon_servers[$i]}/icon/${font}/${color}/${name}" > "${icon_path}"
+    curl -fsSL --connect-timeout 5 "${icon_servers[$i]}/icon/${font}/${color}/${name}" > "${icon_path}"
     status=$?
     if [[ $status -eq 0 ]]; then
       success="TRUE"
