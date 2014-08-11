@@ -53,8 +53,63 @@ $fallback = $_SERVER['HOME'] . "/Library/Application Support/Alfred 2/Workflow D
 // // $tests[] = 'reinstall_bundler_test'; // This test takes a long time
 // $tests[] = 'library_test';
 // $tests[] = 'library_fail_test';
+$tests[] = 'reflexive_color_alter_test';
+// run_tests( $tests );
+
+$dev_off = 0;
+
+reflexive_color_alter_test();
+run_verbose_iterative_color_tests( 1000 );
+
+echo PHP_EOL . "Off on avaerage by " . $dev_off /1000 . PHP_EOL;
+echo PHP_EOL . "Off on avaerage by " . ( ( $dev_off / (255 * 3) ) / 10 ) . "%" . PHP_EOL;
+
+function reflexive_color_alter_test() {
+  global $i, $dev_off;
+
+  $color = generate_hex();
+  $altered = $i->alter( $color );
+  $reflex = $i->alter( $altered );
+
+  echo "$color -> $altered -> $reflex " . PHP_EOL;
+  if ( $color == $reflex )
+    return TRUE;
+  else {
+    $dev_off += diff_hex_test( $color, $reflex );
+    return FALSE;
+  }
 
 
+}
+
+
+function diff_hex_test( $hex1, $hex2 ) {
+  $r1 = $hex1[0].$hex1[1];
+  $g1 = $hex1[2].$hex1[4];
+  $b1 = $hex1[4].$hex1[5];
+
+  $r2 = $hex2[0].$hex2[1];
+  $g2 = $hex2[2].$hex2[3];
+  $b2 = $hex2[4].$hex2[5];
+
+  $r1 = hexdec( $r1 );
+  $g1 = hexdec( $g1 );
+  $b1 = hexdec( $b1 );
+
+  $r2 = hexdec( $r2 );
+  $g2 = hexdec( $g2 );
+  $b2 = hexdec( $b2 );
+
+  $off = 0;
+
+  $off += abs( $r1 - $r2 );
+  $off += abs( $g1 - $g2 );
+  $off += abs( $b1 - $b2 );
+
+  return $off;
+
+
+}
 
 function library_fail_test() {
   global $b;
@@ -164,26 +219,6 @@ function normalize_3_hex() {
     return FALSE;
 }
 
-// For iterative color inverse tests... passing 100% on 100k checks.
-$failed = 0;
-$passed = 0;
-$number = 1000000;
-$start = microtime();
-for ( $x=0; $x<$number; $x++ ) :
-
-  echo "Completed: " . ($x + 1) . " of $number " . PHP_EOL;
-  if ( color_inverse_test() ) {
-    $passed++;
-  } else {
-    $failed++;
-  }
-
-endfor;
-echo "======================================================" . PHP_EOL;
-echo "Completed $number tests in " . round(((microtime() - $start) / 1000000), 3) . " seconds.";
-echo "For $number tests, we passed $passed (" . ($passed/$number)*100 . "%)" . PHP_EOL;
-
-die();
 function color_inverse_test() {
   global $i;
 
@@ -285,7 +320,7 @@ echo PHP_EOL;
 echo "Starting Tests...." . PHP_EOL;
 echo "======================================================" . PHP_EOL;
   foreach( $tests as $test ) {
-    echo "({$count}/{$total}) Calling {$test} test... ";
+    echo "({$count}/{$total}) Running {$test} test... ";
     $result = call_user_func( $test );
     if ( $result == TRUE ) {
       echo " ...passed." . PHP_EOL;
@@ -302,4 +337,25 @@ echo "Failed $failed of $total tests (" . ($failed/$total * 100) . "%)." . PHP_E
 
 }
 
-run_tests( $tests );
+
+
+function run_verbose_iterative_color_tests( $number = 1000 ) {
+  // For iterative color inverse tests... passing 100% on 100k checks.
+  $failed = 0;
+  $passed = 0;
+  $start = microtime( TRUE );
+  for ( $x=0; $x<$number; $x++ ) :
+
+    echo "Completed: " . ($x + 1) . " of $number " . PHP_EOL;
+    if ( reflexive_color_alter_test() ) {
+      $passed++;
+    } else {
+      $failed++;
+    }
+
+  endfor;
+  $end = microtime( TRUE );
+  echo "======================================================" . PHP_EOL;
+  echo "Completed $number tests in " . round((($end - $start) ), 3) . " seconds." . PHP_EOL;
+  echo "For $number tests, we passed $passed (" . ($passed/$number)*100 . "%)" . PHP_EOL;
+}
