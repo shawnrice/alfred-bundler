@@ -1,5 +1,78 @@
 <?php
 
+// AlfredBundlerInternalClass
+// setup
+// setupModern
+// setupDeprecated
+// setupDirStructure
+// load
+// icon
+// utility
+// library
+// wrapper
+// composer
+// icns
+// installAsset
+// installComposerPackage
+// bundle
+// readPlist
+// download
+// reportLog
+// logInternal
+// log
+// rrmdir
+// gatekeeper
+// register
+// notify
+
+
+// AlfredBundlerIcon
+// setup
+// setBackground
+// setBackgroundFromEnv
+// setBackgroundFromUtil
+// validateBackground
+// icon
+// parseIconArguments
+// getSystemIcon
+// getIcon
+// tryServers
+// downloadIcon
+// validateImage
+// color
+// prepareIcon
+// rgb
+// hsv
+// altered
+// luminance
+// brightness
+// cached
+// cache
+// hexToRgb
+// rgbToHex
+// rgbToHsv
+// hsvToRgb
+// getLuminance
+// getBrightness
+// alter
+// checkHex
+// normalizeHex
+// validateHex
+
+// AlfredBundler
+// report
+// install_bundler
+// download
+//
+// AlfredBundlerLogger
+// initializeLog
+// checkLog
+// rotateLog
+// log
+// normalizeLogLevel
+// logConsole
+// logFile
+
 
 $errors = FALSE;
 
@@ -30,6 +103,7 @@ $_ENV['AB_TESTING']                 = TRUE;
 $_ENV[ 'alfred_theme_background' ]  = 'rgba(255,255,255,0.98)';
 $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.poop';
 $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
+$_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Support/Alfred 2/Workflow Data/com.bundler.testing.poop';
 
 require_once( 'alfred.bundler.php' );
 
@@ -39,30 +113,32 @@ $i = new AlfredBundlerIcon( $b );
 $major = $b->major_version;
 $fallback = $_SERVER['HOME'] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$major}/bundler/meta/icons/default";
 
-// $tests[] = 'env_bundle_test';
-// $tests[] = 'normalize_color_test';
-// $tests[] = 'color_tests';
-// $tests[] = 'color_inverse_test';
-// $tests[] = 'color_alter_test';
-// $tests[] = 'normalize_3_hex';
-// $tests[] = 'normalize_3_hex_caps';
-// $tests[] = 'download_icon';
-// $tests[] = 'download_bad_icon_url';
-// $tests[] = 'get_system_icon';
-// $tests[] = 'get_bad_system_icon';
+$tests[] = 'env_bundle_test';
+$tests[] = 'normalize_color_test';
+$tests[] = 'color_tests';
+$tests[] = 'color_inverse_test';
+$tests[] = 'color_alter_test';
+$tests[] = 'normalize_3_hex';
+$tests[] = 'normalize_3_hex_caps';
+$tests[] = 'download_icon';
+$tests[] = 'download_bad_icon_url';
+$tests[] = 'get_system_icon';
+$tests[] = 'get_bad_system_icon';
 // // $tests[] = 'reinstall_bundler_test'; // This test takes a long time
-// $tests[] = 'library_test';
-// $tests[] = 'library_fail_test';
+$tests[] = 'library_test';
+$tests[] = 'library_fail_test';
 $tests[] = 'reflexive_color_alter_test';
-// run_tests( $tests );
+run_tests( $tests );
 
-$dev_off = 0;
 
-reflexive_color_alter_test();
-run_verbose_iterative_color_tests( 1000 );
+// print_r( $b );
+// $dev_off = 0;
 
-echo PHP_EOL . "Off on avaerage by " . $dev_off /1000 . PHP_EOL;
-echo PHP_EOL . "Off on avaerage by " . ( ( $dev_off / (255 * 3) ) / 10 ) . "%" . PHP_EOL;
+// reflexive_color_alter_test();
+// run_verbose_iterative_color_tests( 1000 );
+
+// echo PHP_EOL . "Off on avaerage by " . $dev_off /1000 . PHP_EOL;
+// echo PHP_EOL . "Off on avaerage by " . ( ( $dev_off / (255 * 3) ) / 10 ) . "%" . PHP_EOL;
 
 function reflexive_color_alter_test() {
   global $i, $dev_off;
@@ -332,8 +408,8 @@ echo "======================================================" . PHP_EOL;
     $count++;
   }
 echo "------------------------------------------------------" . PHP_EOL;
-echo "Passed $passed of $total tests (" . ($passed/$total * 100) . "%)." . PHP_EOL;
-echo "Failed $failed of $total tests (" . ($failed/$total * 100) . "%)." . PHP_EOL;
+echo "Passed $passed of $total tests (" . round( ($passed/$total * 100), 2) . "%)." . PHP_EOL;
+echo "Failed $failed of $total tests (" . round( ($failed/$total * 100), 2) . "%)." . PHP_EOL;
 
 }
 
@@ -357,5 +433,5 @@ function run_verbose_iterative_color_tests( $number = 1000 ) {
   $end = microtime( TRUE );
   echo "======================================================" . PHP_EOL;
   echo "Completed $number tests in " . round((($end - $start) ), 3) . " seconds." . PHP_EOL;
-  echo "For $number tests, we passed $passed (" . ($passed/$number)*100 . "%)" . PHP_EOL;
+  echo "For $number tests, we passed $passed (" . round( ($passed/$number)*100, 3) . "%)" . PHP_EOL;
 }
