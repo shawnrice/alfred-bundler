@@ -92,6 +92,13 @@ class AlfredBundlerInternalClass {
   private   $name;
 
   /**
+   * The data directory of the workflow using the bundler
+   *
+   * @var  [type]
+   */
+  private   $workflowData;
+
+  /**
    * The background 'color' of the user's current theme in Alfred (light or dark)
    *
    * @access private
@@ -117,9 +124,17 @@ class AlfredBundlerInternalClass {
    * Desc
    *
    * @access public
-   * @var    array
+   * @var    string
    */
-  public $logs;
+  public $log;
+
+  /**
+   * Desc
+   *
+   * @access public
+   * @var    string
+   */
+  public $internalLog;
 
   /**
    * Whether or not enviromental variables are present
@@ -155,9 +170,10 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( 'info.plist' ) )
       throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
 
-    $this->bundle = $_ENV[ 'alfred_workflow_bundleid' ];
-    $this->name   = $_ENV[ 'alfred_workflow_name' ];
-    $this->env    = TRUE;
+    $this->bundle       = $_ENV[ 'alfred_workflow_bundleid' ];
+    $this->name         = $_ENV[ 'alfred_workflow_name' ];
+    $this->workflowData = $_ENV[ 'alfred_workflow_data' ];
+    $this->env          = TRUE;
 
   }
 
@@ -169,8 +185,10 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( 'info.plist' ) )
       throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
 
-    $this->bundle = $this->readPlist( 'info.plist', 'bundleid' );
-    $this->name   = $this->readPlist( 'info.plist', 'name' );
+    $this->bundle       = $this->readPlist( 'info.plist', 'bundleid' );
+    $this->name         = $this->readPlist( 'info.plist', 'name' );
+    $this->workflowData = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/" . $this->bundle;
+
     $this->env    = FALSE;
 
   }
@@ -230,6 +248,8 @@ class AlfredBundlerInternalClass {
 
     $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
+    $this->internalLog = new AlfredBundlerLogger( "{$this->data}/data/logs/bundler-{$this->major_version}" );
+
 
     $this->setup();
 
