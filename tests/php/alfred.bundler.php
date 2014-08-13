@@ -1,12 +1,12 @@
 <?php
 
 /**
- * PHP Wrapper for the Alfred Bundler
+ * PHP implementation of the Alfred Bundler
  *
  * Main PHP interface for the Alfred Dependency Bundler. This file should be
- * the only one from the bundler that is distributed with your workflow. You can
- * use this file and the class contained within it to lazy load a variety of
- * assets that can be used in your workflows.
+ * the only one from the bundler that is distributed with your workflow.
+ * You can use this file and the class contained within it to lazy load a
+ * variety of assets that can be used in your workflows.
  *
  * This file is part of the Alfred Bundler, released under the MIT licence.
  * Copyright (c) 2014 The Alfred Bundler Team
@@ -16,6 +16,7 @@
  * @license    http://opensource.org/licenses/MIT  MIT
  * @version    Taurus 1
  * @link       http://shawnrice.github.io/alfred-bundler
+ * @package    AlfredBundler
  * @since      File available since Aries 1
  */
 
@@ -26,9 +27,51 @@
  * This class is the only one that you should interact with. The rest of the
  * magic that the bundler performs happens under the hood. Also, the backend
  * of the bundler (here the 'AlfredBundlerInternalClass') may change; however,
- * this wrapper will continue to work with the bundler API for the remainder of
- * this major version.
+ * this bundlet will continue to work with the bundler API for the remainder of
+ * this major version (Taurus).
  *
+ * Many of the methods in this class are messy, but most also exist for a one-
+ * time use to install the bundler.
+ *
+ * Example usage:
+ * <code>
+ * require_once( 'alfred.bundler.php' );
+ * $b = new AlfredBundler;
+ *
+ * // Downloads and requires David Ferguson's PHP Workflows library
+ * $b->library( 'Workflows' );
+ *
+ * // Download icons
+ * $icon1 = $b->icon( 'elusive', 'dashboard', 'ab332c', TRUE );
+ * $icon2 = $b->icon( 'fontawesome', 'adjust', 'aabbcc', '998877');
+ * $icon3 = $b->icon( 'fontawesome, 'bug' );
+ * $icon4 = $b->icon( 'system', 'Accounts' );
+ *
+ * // Send a message to the console (shows up in Alfred's debugger)
+ * $b->log( 'Loaded icons', 'INFO', 'console' );
+ * // Log a message to a logfile found in the workflow's data directory
+ * $b->log( 'Initial bootstrap complete, check the log file', 'DEBUG', 'log' );
+ * // Send the same message to the console and the log file
+ * $b->log( 'Bootstrap completed.', 'INFO', 'both' );
+ *
+ *
+ * // Get Pashua to use later
+ * $pashua = $b->utility( 'Pashua' );
+ *
+ * // Get an asset not included in the "defaults"
+ * $myAsset = $b->load( 'utility', 'myAsset', 'latest', '/path/to/json' );
+ *
+ * // Load 'cocoadialog' with the bundler's wrappers
+ * $cocoadialog = $b->wrapper( 'cocoadialog' );
+ *
+ * // Load/install composer packages
+ * $bundler->composer( array(
+ *   "monolog/monolog" => "1.10.*@dev"
+ * ));
+ *
+ * </code>
+ *
+ * @see       AlfredBundlerInternalClass
  * @since     Class available since Taurus 1
  *
  */
@@ -45,10 +88,10 @@ class AlfredBundler {
   /**
    * A filepath to the bundler directory
    *
-   * @access private
+   * @access public
    * @var string
    */
-  public   $data;
+  private   $_data;
 
   /**
    * A filepath to the bundler cache directory
@@ -56,7 +99,7 @@ class AlfredBundler {
    * @access private
    * @var string
    */
-  public   $cache;
+  private   $_cache;
 
   /**
    * The MAJOR version of the bundler (which API to use)
@@ -64,68 +107,86 @@ class AlfredBundler {
    * @access private
    * @var string
    */
-  public   $major_version;
-
-  /**
-   * Filepath to an Alfred info.plist file
-   *
-   * @access private
-   * @var string
-   */
-  private   $plist;
+  private   $_major_version;
 
   /**
    * The class constructor
    *
-   * @param {string} $plist = FALSE   Optional path to info.plist (usually for testing purposes)
-   * @return {bool}                    Returns successful / unsuccessful instantiation
+   * Basically, this does an install check and then loads the real
+   * bundler as an internal object.
+   *
+   * @return bool             Returns successful/failed instantiation
    */
-  public function __construct( $plist = FALSE ) {
-    // Added plist variable for testing purposes
+  public function __construct() {
 
-    if ( isset( $_ENV[ 'AB_BRANCH' ] ) && ( ! empty( $_ENV[ 'AB_BRANCH' ] ) ) ) {
-      $this->major_version = $_ENV[ 'AB_BRANCH' ];
+    if ( isset( $_ENV[ 'AB_BRANCH' ] ) && ! empty( $_ENV[ 'AB_BRANCH' ] ) ) {
+      $this->_major_version = $_ENV[ 'AB_BRANCH' ];
     } else {
-      $this->major_version = 'devel';
+      $this->_major_version = 'devel';
     }
 
-    $this->data  = "{$_SERVER['HOME']}/Library/Application Support/Alfred 2/" .
-      "Workflow Data/alfred.bundler-{$this->major_version}";
-    $this->cache = "{$_SERVER['HOME']}/Library/Caches/" .
-      "com.runningwithcrayons.Alfred-2/Workflow Data/" .
-      "alfred.bundler-{$this->major_version}";
+    // Set date/time to avoid warnings/errors.
+    if ( ! ini_get( 'date.timezone' ) ) {
+      $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+      ini_set( 'date.timezone', $tz );
+    }
 
-    if ( file_exists( "{$this->data}/bundler/AlfredBundler.php" ) ) {
-      require_once( $_SERVER['HOME'] . '/Documents/Alfred2 Workflows/alfred-bundler/bundler/AlfredBundler.php' );
-      // require_once ( "{$this->data}/bundler/AlfredBundler.php" );
+    $this->_data  = "{$_SERVER['HOME']}/Library/Application Support/Alfred 2/" .
+      "Workflow Data/alfred.bundler-{$this->_major_version}";
+    $this->_cache = "{$_SERVER['HOME']}/Library/Caches/" .
+      "com.runningwithcrayons.Alfred-2/Workflow Data/" .
+      "alfred.bundler-{$this->_major_version}";
+
+    if ( file_exists( "{$this->_data}/bundler/AlfredBundler.php" ) ) {
+      require_once( "{$_SERVER['HOME']}/Documents/Alfred2 Workflows/alfred-bundler/bundler/AlfredBundler.php" );
+      // require_once ( "{$this->_data}/bundler/AlfredBundler.php" );
 
       $this->bundler = new AlfredBundlerInternalClass();
     } else {
-      if ( $this->install_bundler( $plist ) === FALSE ) {
+      if ( $this->installBundler() === FALSE ) {
         // The bundler could not install itself, so return false
-        $this->report( "Alfred Bundler could not be installed...",
-          'CRITICAL', __FILE__, __LINE__ );
+        $this->report( "Alfred Bundler could not be installed...", 'CRITICAL' );
         return FALSE;
       } else {
+        chmod( "{$this->_data}/bundler/includes/LightOrDark", 0755 );
         // The bundler is now in place, so require the actual PHP Bundler file
-        require_once "{$this->data}/bundler/AlfredBundler.php";
-        chmod( "{$this->data}/bundler/includes/LightOrDark", 0755 );
-        // The 'AlfredBundler' class is a small wrapper of a class. All the calls
-        // send to an 'AlfredBundler' object that do not fit are passed to an
-        // 'AlfredBundlerInternalClass' object that does all the heavy lifting.
-        $this->bundler = new AlfredBundlerInternalClass( $this->plist );
+        require_once "{$this->_data}/bundler/AlfredBundler.php";
+        // Create the internal class object
+        $this->bundler = new AlfredBundlerInternalClass();
+        $cd = $this->bundler->wrapper('cocoadialog');
+        $cd->notify([ 'title' => "{$this->name} Setup",
+          'description' => 'Alfred Bundler installation successful.',
+          'icon_file' => $this->bundler->icon( 'system', 'AlertNoteIcon' ) ]);
       }
     }
 
-    // Call the wrapper to update itself, this will fork the process to make
-    // sure that we do not need to wait and slow down results.
-    exec( "bash '{$this->data}/bundler/meta/update-wrapper.sh'" );
+    // Call the wrapper to update itself, processed is forked for speed
+    exec( "bash '{$this->_data}/bundler/meta/update-wrapper.sh'" );
 
     return TRUE;
   }
 
-  // this might need to go somewhere else...
-  public function report( $message, $level, $file, $line ) {
+  /**
+   * Logs output to the console
+   *
+   * This method provides very limited console logging functionality. It is
+   * employed only by this bundlet only when it is installing the PHP
+   * implementation of the Alfred Bundler. A much more robust logging
+   * functionality is the the backend, so those methods will be used at all
+   * other times.
+   *
+   * @see     AlfredBundlerInternalClass::log
+   * @see     AlfredBundlerLogger::log
+   * @see     AlfredBundlerLogger::logFile
+   * @see     AlfredBundlerLogger::logConsole
+   *
+   * @param   string  $message  message to be logged
+   * @param   mixed   $level    log level to be recorded
+   *
+   * @since   Taurus 1
+   *
+   */
+  private function report( $message, $level ) {
 
     // These are the appropriate log levels
     $logLevels = array( 0 => 'DEBUG',
@@ -135,83 +196,124 @@ class AlfredBundler {
       4 => 'CRITICAL',
     );
 
-    // Set date/time to avoid warnings/errors.
-    if ( ! ini_get( 'date.timezone' ) ) {
-      $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
-      ini_set( 'date.timezone', $tz );
-    }
-
-    $date = date( 'Y-m-d H:i:s', time() );
-
-    // We'll convert the log level to a string; if the level is not available,
-    // then we'll default to INFO
-    if ( is_int( $level ) ) {
-      if ( isset( $logLevels[ $level ] ) ) {
-        $level = $logLevels[ $level ];
-      } else {
-        file_put_contents( 'php://stderr',
-          "[{$date}] [{$file},{$line}] [WARNING] Log level '$level' " .
-          "is not valid. Falling back to 'INFO' (0)" . PHP_EOL );
-        $level = 'INFO';
-      }
-    } else if ( is_string( $level ) ) {
-        if ( ! in_array( $level, $logLevels ) ) {
-          file_put_contents( 'php://stderr',
-            "[{$date}] [{$file}:{$line}] [WARNING] Log level '$level' " .
-            "is not valid. Falling back to 'INFO' (0)" . PHP_EOL );
-          $level = 'INFO';
-        }
-      }
-
-    file_put_contents( 'php://stderr',
-      "[{$date}] [" . basename( $file ) .
-      ":{$line}] [{$level}] {$message}" . PHP_EOL );
+    $date = date( 'H:i:s', time() );
+    file_put_contents( 'php://stderr', "[{$date}] [{$level}] {$message}" . PHP_EOL );
 
   }
 
+/**
+ * Validates and checks variables for installation
+ *
+ * @return  bool returns false on failure
+ * @since   Taurus 1
+ */
+private function prepareInstallation() {
+  if ( ! file_exists( 'info.plist' ) ) {
+    $this->report( "You need a valid `info.plist` to use the Alfred Bundler.", 'CRITICAL' );
+    return FALSE;
+  }
+  if ( isset( $_ENV[ 'alfred_version' ] ) )
+    $this->prepareModern();
+  else
+    $this->prepareDeprecated();
+
+}
+
+/**
+ * Sets the name of the workflow
+ * Method used for Alfredv2.4:277+
+ *
+ * @since Taurus 1
+ */
+private function prepareModern() {
+  $this->name = $_ENV[ 'alfred_workflow_name' ];
+}
+
+/**
+ * Sets the name of the workflow
+ * This method is used only for version < Alfredv2.4:277
+ *
+ * @since Taurus 1
+ */
+private function prepareDeprecated() {
+  $this->name = exec( "/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist'" );
+}
+
+/**
+ * Prepares the text for the installation confirmation AS dialog
+ *
+ * @since Taurus 1
+ */
+private function prepareASDialog() {
+
+  // Text for the dialog message.
+  $text = "{$this->name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
+
+You may be asked to allow some components to run, depending on your security settings.
+
+You can decline this installation, but {$this->name} may not work without them. There will be a slight delay after accepting.";
+
+  $this->script = "display dialog \"$text\" " .
+    "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 " .
+    "with title \"Alfred Bundler\" with icon file \"System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns\"";
+
+}
+
+/**
+ * Executes AppleScript dialog confirmation and handles return value
+ *
+ * @todo decide and implement proper exit behavior for failure
+ * @return  bool  confirmation / refusal to install the bundler
+ *
+ * @since Taurus 1
+ */
+private function processASDialog() {
+  $info = "https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler";
+  $confirm = str_replace( 'button returned:', '', exec( "osascript -e '{$this->script}'" ) );
+  if ( $confirm == 'More Info' ) {
+    exec( "open {$info}" );
+    die(); // Stop the workflow. Should we not do this?
+  }
+  if ( $confirm == 'Cancel' ) {
+    $this->report( "User canceled installation of Alfred Bundler. Unknown " .
+      "and possibly catastrophic effects to follow.",
+      'CRITICAL' );
+    $_ENV[ 'ALFRED_BUNDLER_INSTALL_REFUSED' ] = TRUE;
+    return FALSE;
+  }
+  return TRUE;
+}
+
+  /**
+   * Makes the data and cache directories for the Bundler
+   *
+   * @TODO: add in error handling for failed permissions (should be _very_ rare)
+   * @since  Taurus 1
+   */
+  private function prepareDirectories() {
+    // Make the bundler cache directory
+    if ( ! file_exists( $this->_cache ) )
+      mkdir( $this->_cache, 0755, TRUE );
+    // Make the bundler data directory
+    if ( ! file_exists( $this->_data ) )
+      mkdir( $this->_data, 0755, TRUE );
+  }
 
   /**
    * Installs the Alfred Bundler
    *
-   * @return {bool} Success or failure of installation
+   * @return bool Success or failure of installation
    *
-   * @access private
    * @since  Taurus 1
    */
-  private function install_bundler( $plist ) {
+  private function installBundler() {
 
-    // Should we put in an AS dialog confirming this?
-    if ( file_exists( $plist ) ) {
-      $name = "[" .
-        exec( "/usr/libexec/PlistBuddy -c 'Print :name' '{$plist}'" ) . "]";
-    } else {
-      $name = "A workflow that you just invoked";
-    }
+    $this->prepareInstallation();
+    $this->prepareASDialog();
 
-    $script = "display dialog \"{%Workflow Name%} needs to install the " . "
-      Alfred Bundler in order to function.\" " .
-      "buttons {\"More Info\",\"Stop\",\"Proceed\"} default button 3 " .
-      "with title \"Alfred Bundler\" with icon Note";
-    $script = str_replace( '{%Workflow Name%}', $name, $script );
-    $confirm = str_replace( 'button returned:', '',
-      exec( "osascript -e '$script'" ) );
-    if ( $confirm == 'More Info' ) {
-      exec( "open http://shawnrice.github.io/alfred-bundler" );
-      die();
-    }
-    if ( $confirm == 'Stop' ) {
-      $line = __LINE__;
-      $this->report( "User canceled installation of Alfred Bundler. Unknown " .
-        "and possibly catastrophic effects to follow.",
-        'CRITICAL', __FILE__, $line );
+    if ( ! $this->processASDialog() )
       return FALSE;
-    }
-    // Make the bundler cache directory
-    if ( ! file_exists( $this->cache ) )
-      mkdir( $this->cache, 0755, TRUE );
-    // Make the bundler data directory
-    if ( ! file_exists( $this->data ) )
-      mkdir( $this->data, 0755, TRUE );
+    $this->prepareDirectories();
 
     // This is a list of mirrors that host the bundler. A current list is in
     // bundler/meta/bundler_servers, but that file should not exist on the
@@ -223,74 +325,64 @@ class AlfredBundler {
       $suffix = ".zip";
     }
     $bundler_servers = array(
-      "https://github.com/shawnrice/alfred-bundler/archive/{$this->major_version}{$suffix}",
-      "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->major_version}{$suffix}"
+      "https://github.com/shawnrice/alfred-bundler/archive/{$this->_major_version}{$suffix}",
+      "https://bitbucket.org/shawnrice/alfred-bundler/get/{$this->_major_version}{$suffix}"
     );
 
     // Cycle through the servers until we find one that is up.
     foreach ( $bundler_servers as $server ) :
-      $success = $this->download( $server, "{$this->cache}/bundler.zip" );
+      $success = $this->dl( $server, "{$this->_cache}/bundler.zip" );
       if ( $success === TRUE ) {
-        $this->report( "Downloaded Bundler Installation from... {$server}",
-          'DEBUG', __FILE__, __LINE__ );
+        $this->report( "Downloaded Bundler Installation from... {$server}", 'INFO' );
         break; // We found one, so break
       }
     endforeach;
 
     // If success is true, then we downloaded a copy of the bundler
-    if ( $success !== TRUE ) { $line = __LINE__;
-      $this->report( "Could not reach server to download and install " .
-        "Alfred Bundler.", 'CRITICAL', __FILE__, $line );
-      unlink( "{$this->cache}/bundler.zip" );
-      return FALSE; // Add in error reporting
+    if ( $success !== TRUE ) {
+      $this->report( "Could not reach server to install Alfred Bundler.", 'CRITICAL' );
+      unlink( "{$this->_cache}/bundler.zip" );
+      return FALSE;
     }
 
     // Unzip the bundler archive
     $zip = new ZipArchive;
-    $resource = $zip->open( "{$this->cache}/bundler.zip" );
-    if ( $resource !== TRUE ) { $line = __LINE__;
-      $this->report( "Bundler installation zip file corrupt.",
-        'CRITICAL', __FILE__, $line );
-      if ( file_exists( "{$this->cache}/bundler.zip" ) ) {
-        unlink( "{$this->cache}/bundler.zip" );
+    $resource = $zip->open( "{$this->_cache}/bundler.zip" );
+    if ( $resource !== TRUE ) {
+      $this->report( "Bundler install zip file corrupt.", 'CRITICAL' );
+      if ( file_exists( "{$this->_cache}/bundler.zip" ) ) {
+        unlink( "{$this->_cache}/bundler.zip" );
       }
-      return FALSE; // Add in error reporting
+      return FALSE;
     } else {
-      $zip->extractTo( "{$this->cache}" );
+      $zip->extractTo( "{$this->_cache}" );
       $zip->close();
     }
 
-    if ( file_exists( "{$this->data}/bundler" ) ) { $line = __LINE__;
-      $this->report( "Bundler already installed. Exiting install script.",
-        'WARNING', __FILE__, $line );
+    if ( file_exists( "{$this->_data}/bundler" ) ) {
+      $this->report( "Bundler already installed. Exiting install script.", 'WARNING' );
       return FALSE; // Add in error reporting
     }
 
     // Move the bundler into place
-    // Bitbucket will call this folder something else... dammit.
-    // @TODO -- fix for filenames from places other than github
-    $directoryHandle = opendir( $this->cache );
+    $directoryHandle = opendir( $this->_cache );
     while ( FALSE !== ( $file = readdir( $directoryHandle ) ) ) {
-        if ( is_dir( "{$this->cache}/{$file}" )
-          && (strpos( $file, "alfred-bundler-" ) === 0 ) ) {
-
-          $bundlerFolder = "{$this->cache}/{$file}";
+        if ( is_dir( "{$this->_cache}/{$file}" ) && (strpos( $file, "alfred-bundler-" ) === 0 ) ) {
+          $bundlerFolder = "{$this->_cache}/{$file}";
           closedir( $directoryHandle );
           break;
         }
     }
 
     if ( ( ! isset( $bundlerFolder ) ) || ( empty( $bundlerFolder ) ) ) {
-      $this->report( "Could not find Alfred Bundler folder in installation zip.",
-       'CRITICAL', basename( __FILE__ ), $line );
+      $this->report( "Could not find Alfred Bundler folder in installation zip.", 'CRITICAL' );
       return FALSE;
     }
 
-    rename( "{$bundlerFolder}/bundler", "{$this->data}/bundler" );
+    rename( "{$bundlerFolder}/bundler", "{$this->_data}/bundler" );
 
-    $this->report( "Alfred Bundler successfully installed, cleaning up...",
-      'INFO', __FILE__, __LINE__ );
-    unlink( "{$this->cache}/bundler.zip" );
+    $this->report( 'Alfred Bundler successfully installed, cleaning up...', 'INFO');
+    unlink( "{$this->_cache}/bundler.zip" );
     // We'll do a cheat here to remove the leftover installation files
     exec( "rm -fR '{$bundlerFolder}'" );
     return TRUE; // The bundler should be in place now
@@ -299,20 +391,24 @@ class AlfredBundler {
   /**
    * Wraps a cURL function to download files
    *
-   * @param {string} $url     A URL to the file
-   * @param {string} $file    The destination file
-   * @param {int}    $timeout = '3' A timeout variable (in seconds)
-   * @return {bool}            True on success and error code / false on failure
+   * This method should be used only by the bundlet to download the
+   * bundler from the server
    *
-   * @access public
+   * @param string $url     A URL to the file
+   * @param string $file    The destination file
+   * @param int    $timeout = '5' A timeout variable (in seconds)
+   * @return bool            True on success and error code / false on failure
+   *
    * @since  Taurus 1
    */
-  public function download( $url, $file, $timeout = '5' ) {
+  private function dl( $url, $file, $timeout = '5' ) {
     // Check the URL here
 
     // Make sure that the download directory exists
-    if ( ! ( file_exists( dirname( $file ) ) && is_dir( dirname( $file ) ) ) )
+    if ( ! file_exists( realpath( dirname( $file ) ) ) ) {
+      $this->report( "Bundler install directory could not be created.", 'CRITICAL' );
       return FALSE;
+    }
 
     // Create the cURL object
     $ch = curl_init( $url );
@@ -360,14 +456,25 @@ class AlfredBundler {
    * Wrapper function that passes all other calls to the internal object when
    * the method has not been found in this class
    *
-   * @param {string} $method Name of method
-   * @param {array} $args   An array of args passed
-   * @return {mixed}          Whatever the internal function sends back
+   * @param string $method Name of method
+   * @param array $args   An array of args passed
+   * @return mixed          Whatever the internal function sends back
    *
-   * @access public
    * @since  Taurus 1
    */
   public function __call( $method, $args ) {
+
+    // Make sure that the bundler installation was not refused
+    if ( isset( $_ENV[ 'ALFRED_BUNDLER_INSTALL_REFUSED'] ) ) {
+      $bt = array_unshift( debug_backtrace() );
+      $date = date( 'H:i:s' );
+      $trace = basename( $bt[ 'file' ] ) . ':' . $bt[ 'line' ];
+      $message = "Trying to call an Alfred Bundler method ({$method}), but user refused to install the bundler.";
+      $this->report( "[{$date}] [{$trace}] {$message}", 'CRITICAL' );
+      return FALSE;
+    }
+
+
     // Check to make sure that the method exists in the
     // 'AlfredBundlerInternalClass' class
     if ( ! method_exists( $this->bundler, $method ) ) {
@@ -380,7 +487,26 @@ class AlfredBundler {
     // The method exists, so call it and return the output
     return call_user_func_array( array( $this->bundler, $method ), $args );
   }
+
+  /**
+   * Gets variables from the AlfredBundlerInternalClass
+   *
+   * @param   string  $name  name of variable to get
+   * @return  mixed         the variable from the internal class object
+   *
+   * @access public
+   * @since  Taurus 1
+   */
+  public function &__get( $name ) {
+    if ( isset( $this->bundler ) && is_object( $this->bundler ) ) {
+      if ( isset( $this->bundler->$name ) )
+        return $this->bundler->$name;
+    }
+  }
+
+
 }
+
 
 // Update logic for the bundler
 // ----------------------------
@@ -406,89 +532,3 @@ class AlfredBundler {
 //           print "In parent!\n";
 //   }
 // }
-
-/*******************************************************************************
- * BEGIN TESTING CODE
- *******************************************************************************/
-
-if ( strpos( $argv[0], basename( __FILE__ ) ) !== FALSE ) {
-
-  $bundler = new AlfredBundler;
-
-  // Icon test
-  echo $bundler->icon( 'fontawesome', 'align-center', 'acc321', TRUE );     echo PHP_EOL;
-  echo $bundler->icon( 'fontawesome', 'align-center', 'acc321', 'ffffff' ); echo PHP_EOL;
-
-  // Composer Test -- This will not work unless a Bundle ID is present
-  $success = $bundler->composer( array(
-    "monolog/monolog" => "1.10.*@dev"
-  ));
-
-  // Utility Test
-  $bundler->utility( 'CocoaDialog' );
-  // Library Test
-  $bundler->library( 'Workflows' );
-
-
-
-}
-
-/*******************************************************************************
- * END TESTING CODE
- *******************************************************************************/
-
-/*******************************************************************************
- * INTERNAL DOCUMENTATION
- *
- * See https://shawnrice.github.io/alfred-bundler for more detailed and current
- * documentation.
- *
- * The Alfred Bundler allows you to lazy load assets. In other words, you do not
- * need to bundle any dependencies with your workflows. Other wrappers for
- * the bundler are available in Bash, Python, and Ruby. There is a simple bundler
- * wrapper that allows any other language to load assets via a Bash script.
- *
- * Assets available:
- *   -- PHP Libraries
- *   -- Utilties (programs)
- *   -- Composer (Packagist) packages
- *   -- Icons
- *
- * Available Methods
- *
- * load:     loads a generic asset
- * library:  loads a PHP library
- * utility:  loads a utility
- * composer: loads any composer packages
- * notify:   sends a notification
- * icon:     loads an icon
- *
- * Examples:
- * $bundle = new AlfredBundler();
- *
- * Load David Ferguson's 'Workflows' Library:
- * $bundle->library( 'Workflows' );
- *
- * Load a PHP library from a custom JSON file:
- * $bundle->library( 'A Custom Library', 'latest', '/path/to/custom/json.json' );
- *
- * Load Terminal Notifier through the generic "load" method:
- * $terminalNotifierPath = $bundle->load( 'Terminal-Notifer', '1.5.0', 'utility' );
- * exec("'$terminalNotifierPath' -title 'Title' -message 'Message'");
- *
- * Load the latest version of Pashua:
- * $pashuaPath = $bundle->utility( 'Pashua' );
- *
- * Send a notification:
- * $bundle->notify( 'Example Notification', 'This is an example notification.', array( 'sender' => 'Alfred2' ) );
- *
- * Load a 'white' 'fire' icon from the 'elusive' icon font:
- * $icon = $bundle->icon( 'fire', 'elusive', 'ffffff' );
-
- * Load a 'white' 'fire' icon from the 'elusive' icon font, and fallback to black if the theme is light:
- * $icon = $bundle->icon( 'fire', 'elusive', 'ffffff', '000000' );
- *
- * Load a 'white' 'fire' icon from the 'elusive' icon font, and automatically adjust the icon color if the theme is light:
- * $icon = $bundle->icon( 'fire', 'elusive', 'ffffff', TRUE );
- *
- ******************************************************************************/

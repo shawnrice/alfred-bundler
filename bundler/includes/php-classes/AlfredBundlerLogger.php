@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * Alfred Bundler Logging Fiel
+ *
+ * Generic interface for logging to files and the console to be used with the
+ * PHP implementation of the Alfred Bundler.
+ *
+ * This file is part of the Alfred Bundler, released under the MIT licence.
+ * Copyright (c) 2014 The Alfred Bundler Team
+ * See https://github.com/shawnrice/alfred-bundler for more information
+ *
+ * @copyright  The Alfred Bundler Team 2014
+ * @license    http://opensource.org/licenses/MIT  MIT
+ * @version    Taurus 1
+ * @link       http://shawnrice.github.io/alfred-bundler
+ * @package    AlfredBundler
+ * @since      File available since Taurus 1
+ */
+
 
 if ( ! class_exists( 'AlfredBundlerLogger' ) ) :
 /**
@@ -19,6 +37,12 @@ if ( ! class_exists( 'AlfredBundlerLogger' ) ) :
  * bundler object.
  *
  * @see       AlfredBundlerInternalClass::log
+ * @see       AlfredBundlerInternalClass::debug
+ * @see       AlfredBundlerInternalClass::info
+ * @see       AlfredBundlerInternalClass::warning
+ * @see       AlfredBundlerInternalClass::error
+ * @see       AlfredBundlerInternalClass::critical
+ * @see       AlfredBundlerInternalClass::console
  *
  * @package   AlfredBundler
  * @since     Class available since Taurus 1
@@ -82,17 +106,29 @@ class AlfredBundlerLogger {
    */
   private $level;
 
+  /**
+   * Default destination to send a log message to
+   *
+   * @var  string   options: file, console, both
+   */
+  private $defaultDestination;
 
   /**
    * Sets variables and ini settings to ensure there are no errors
    *
-   * @param  string  $log  filename to use as a log
+   * @param  string  $log                   filename to use as a log
+   * @param  string  $destination = 'file'  default destination for messages
    * @since Taurus 1
    */
-  public function __construct( $log ) {
+  public function __construct( $log, $destination = 'file' ) {
 
     $this->log = $log . '.log';
     $this->initializeLog();
+
+    if ( ! in_array( $destination, [ 'file', 'console', 'both' ] ) )
+      $this->defaultDestination = 'file';
+    else
+      $this->defaultDestination = $destination;
 
     // These are the appropriate log levels
     $this->logLevels = array( 0 => 'DEBUG',
@@ -114,6 +150,55 @@ class AlfredBundlerLogger {
 
   }
 
+  /**
+   * Logs a message to either a file or STDERR
+   *
+   * After initializing the log object, this should be the only
+   * method with which you interact.
+   *
+   * While you could use this separate from the bundler itself, it is
+   * easier to use the logging functionality from the bundler object.
+   *
+   * @see AlfredBundlerInternalClass::log
+   *
+   * <code>
+   * $log = new AlfredBundlerLogger( '/full/path/to/mylog' );
+   * $log->log( 'Write this to a file', 'INFO' );
+   * $log->log( 'Warning message to console', 2, 'console' );
+   * $log->log( 'This message will go to both the console and the log', 3, 'both');
+   * </code>
+   *
+   *
+   * @param   string  $message      message to log
+   * @param   mixed   $level        either int or string of log level
+   * @param   string  $destination  where the message should appear:
+   *                                valid options: 'file', 'console', 'both'
+   * @since Taurus 1
+   */
+  public function log( $message, $level = 'INFO', $destination = '', $trace = 0 ) {
+
+    // Set the destination to the default if not implied
+    if ( empty( $destination ) )
+      $destination = $this->defaultDestination;
+
+    // print_r( debug_backtrace() );
+
+    // Get the relevant information from the backtrace
+    $this->trace = debug_backtrace();
+    $this->trace = $this->trace[ $trace ];
+    $this->file  = basename( $this->trace[ 'file' ] );
+    $this->line  = $this->trace[ 'line' ];
+
+    // check / normalize the arguments
+    $this->level = $this->normalizeLogLevel( $level );
+    $destination = strtolower( $destination );
+
+    if ( $destination == 'file' || $destination == 'both' )
+      $this->logFile( $message );
+    if ( $destination == 'console' || $destination == 'both' )
+      $this->logConsole( $message );
+
+  }
 
   /**
    * Creates log directory and file if necessary
@@ -149,50 +234,6 @@ class AlfredBundlerLogger {
 
       rename( $this->log, $old . '1.log' );
       file_put_contents( $this->log, '' );
-  }
-
-
-  /**
-   * Logs a message to either a file or STDERR
-   *
-   * After initializing the log object, this should be the only
-   * method with which you interact.
-   *
-   * While you could use this separate from the bundler itself, it is
-   * easier to use the logging functionality from the bundler object.
-   *
-   * @see AlfredBundlerInternalClass::log
-   *
-   * <code>
-   * $log = new AlfredBundlerLogger( '/full/path/to/mylog' );
-   * $log->log( 'Write this to a file', 'INFO' );
-   * $log->log( 'Warning message to console', 2, 'console' );
-   * $log->log( 'This message will go to both the console and the log', 3, 'both');
-   * </code>
-   *
-   *
-   * @param   string  $message      message to log
-   * @param   mixed   $level        either int or string of log level
-   * @param   string  $destination  where the message should appear:
-   *                                valid options: 'log', 'console', 'both'
-   * @since Taurus 1
-   */
-  public function log( $message, $level = 'INFO', $destination = 'log' ) {
-
-    // Get the relevant information from the backtrace
-    $this->trace = array_shift( debug_backtrace() );
-    $this->file = basename( $this->trace[ 'file' ] );
-    $this->line = $this->trace[ 'line' ];
-
-    // check / normalize the arguments
-    $this->level = $this->normalizeLogLevel( $level );
-    $destination = strtolower( $destination );
-
-    if ( $destination == 'log' || $destination == 'both' )
-      $this->logFile( $message );
-    if ( $destination == 'console' || $destination == 'both' )
-      $this->logConsole( $message );
-
   }
 
   /**
