@@ -37,6 +37,12 @@ if ( ! class_exists( 'AlfredBundlerLogger' ) ) :
  * bundler object.
  *
  * @see       AlfredBundlerInternalClass::log
+ * @see       AlfredBundlerInternalClass::debug
+ * @see       AlfredBundlerInternalClass::info
+ * @see       AlfredBundlerInternalClass::warning
+ * @see       AlfredBundlerInternalClass::error
+ * @see       AlfredBundlerInternalClass::critical
+ * @see       AlfredBundlerInternalClass::console
  *
  * @package   AlfredBundler
  * @since     Class available since Taurus 1
@@ -119,7 +125,7 @@ class AlfredBundlerLogger {
     $this->log = $log . '.log';
     $this->initializeLog();
 
-    if ( ! in_array( $destination, [ 'file', 'console', 'both' ]) )
+    if ( ! in_array( $destination, [ 'file', 'console', 'both' ] ) )
       $this->defaultDestination = 'file';
     else
       $this->defaultDestination = $destination;
