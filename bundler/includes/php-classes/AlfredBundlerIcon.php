@@ -127,9 +127,10 @@ class AlfredBundlerIcon {
     $pattern = "/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/";
     preg_match_all( $pattern, $_ENV[ 'alfred_theme_background' ], $matches );
 
-    $this->background = $this->getLuminance(  array( 'r' => $matches[1],
-                                                     'g' => $matches[2],
-                                                     'b' => $matches[3] ) );
+    $this->background = $this->getLuminance(  array( 'r' => $matches[1][0],
+                                                     'g' => $matches[2][0],
+                                                     'b' => $matches[3][0] ) );
+
   }
 
 
