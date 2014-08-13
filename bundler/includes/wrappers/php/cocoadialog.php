@@ -2,10 +2,10 @@
 
 /**
  * PHP API for interacting with OSX dialog spawner CocoaDialog.
- * 
+ *
  * CocoaDialog is a resource which allows the user to spawn MacOSX aqua dialogs
  * from the command-line. Dialogs are predefined and return input via echo.
- * 
+ *
  * Official Documentation {@link http://mstratman.github.io/cocoadialog/}
  * LICENSE: GPLv3 {@link https://www.gnu.org/licenses/gpl-3.0.txt}
  *
@@ -19,7 +19,7 @@
  *
  *     include('cocoadialog');
  *     $client = new CocoaDialog('path to CocoaDialog.app or exec', $debug=Boolean);
- *     
+ *
  * Now that you have access to the client, you can call specific dialogs:
  *
  *     $my_message_box = $client->msgbox([
@@ -35,7 +35,7 @@
  * If the user clicks on the "Ok" button, my_message_box will return ["Ok"]
  * in this script. If, however, the user presses "Cancel", ["Cancel"] will
  * be returned.
- * 
+ *
  * **NOTE**: The included `debug` parameter is very useful for finding out why
  * your specified parameters are not being shown, or why your parameters are not
  * passing as valid parameters, and thus the dialog is not being spawned.
@@ -44,7 +44,7 @@
  * For more info on what parameters are available for a specifc dialog, please
  * visit the `Official Documentation` or play with `debug=True` for a while.
  *
- * To create a progress bar dialog, you have to create a new instance for the 
+ * To create a progress bar dialog, you have to create a new instance for the
  * progress bar object.
  *
  *     $my_progress_bar = new ProgressBar(
@@ -80,17 +80,17 @@
  *
  * The `update` function, returns 1 to signify it is running. When the user stops
  * the progress bar, the `finish` function is called and returns 0 instead.
- * 
+ *
  *
  * -> Revisions
  * ============================================================================
  * 1.0, 07-28-14: Initial release for (3.0, 0, 'beta')
- * 
+ *
  * @copyright  Ritashugisha 2014
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
  * @version    1.0
  */
- 
+
 $AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>';
 $DATE = '07-28-14';
 $VERSION = 1.0;
@@ -115,7 +115,7 @@ class CocoaDialog {
      * @var string
      */
     private $cocoa;
-    
+
     /**
      * Switch used for logging to the console.
      * @access private
@@ -146,7 +146,7 @@ class CocoaDialog {
 
     /**
      * This function prints debug logs to the console.
-     * 
+     *
      * @param string $level Logging level (adapted from Python's logging module)
      * @param string $funct Calling function's name
      * @param integer $lineno Calling functions line number
@@ -160,7 +160,7 @@ class CocoaDialog {
 
     /**
      * CocoaDialog class constructor.
-     * 
+     *
      * @access public
      * @param string $cocoa Path to either CocoaDialog.app or exec
      * @param boolean $debug True if logging is enabled
@@ -230,7 +230,7 @@ class CocoaDialog {
 
     public function _format_notify( $passed ) {
 
-        // Cleanup for passed hexadecimal colors. CocoaDialog only accepts 
+        // Cleanup for passed hexadecimal colors. CocoaDialog only accepts
         // numbers (xxx or xxxxxx), so just in case users get crazy, we will
         // regrex it.
         $valid_x_placement = ['center', 'left', 'right'];
@@ -242,7 +242,7 @@ class CocoaDialog {
                     $passed[$i] = $group['hex'];
                 }
                 else {
-                    $this->log('warning', __FUNCTION__, __LINE__, 
+                    $this->log('warning', __FUNCTION__, __LINE__,
                         sprintf('removing invalid (%s), got (%s), expected (#XXX or #XXXXXX)',
                             $i, $passed[$i]));
                     unset($passed[$i]);
@@ -253,8 +253,8 @@ class CocoaDialog {
         // Cleanup/validation for x_placement and y_placement
         foreach ([['x_placement', $valid_x_placement], ['y_placement', $valid_y_placement]] as $i) {
             if ( in_array($i[0], array_keys( $passed ) ) && !( in_array( $passed[$i[0]], $i[1] ) ) ) {
-                $this->log('warning', __FUNCTION__, __LINE__, 
-                    sprintf('removing invalid (%s), got (%s), expected (%s)', 
+                $this->log('warning', __FUNCTION__, __LINE__,
+                    sprintf('removing invalid (%s), got (%s), expected (%s)',
                         $i[0], $passed[$i[0]], implode(' or ', $i[1])));
                 unset($passed[$i[0]]);
             }
@@ -264,7 +264,7 @@ class CocoaDialog {
 
     /**
      * Run a process on the host system.
-     * 
+     *
      * @param string $process Process to be run
      * @return string Output of process
      */
@@ -278,7 +278,7 @@ class CocoaDialog {
 
     /**
      * Validate and clean up passed dialog options.
-     * 
+     *
      * @param array $passed Associative array of passed dialog arguemnts
      * @param array $custom_options Associative array of calling dialog's unique arguments
      * @return boolean True if OK for dialog to be shown
@@ -296,18 +296,18 @@ class CocoaDialog {
         foreach ( array_keys( $passed ) as $passed_key ) {
             if ( in_array( $passed_key, array_keys( $valid_passed ) ) ) {
                 if ( ! in_array( gettype( $passed[$passed_key] ), $valid_passed[$passed_key] ) ) {
-                    $this->log( 'warning', __FUNCTION__, __LINE__, 
-                        sprintf( 'removing (%s) invalid type, expected (%s), got (%s)', 
-                            $passed_key, 
-                            implode( ' or ', array_values( $valid_passed[$passed_key] ) ), 
+                    $this->log( 'warning', __FUNCTION__, __LINE__,
+                        sprintf( 'removing (%s) invalid type, expected (%s), got (%s)',
+                            $passed_key,
+                            implode( ' or ', array_values( $valid_passed[$passed_key] ) ),
                             gettype( $passed[$passed_key] ) ) );
-                    unset( $passed[$passed_key] ); 
+                    unset( $passed[$passed_key] );
                 }
             }
             else {
-                $this->log( 'warning', __FUNCTION__, __LINE__, 
+                $this->log( 'warning', __FUNCTION__, __LINE__,
                     sprintf( 'removing (%s) invalid parameter, available are (%s)',
-                        $passed_key, 
+                        $passed_key,
                         implode( ', ', array_keys( $valid_passed ) ) ) );
                 unset( $passed[$passed_key] );
             }
@@ -321,13 +321,13 @@ class CocoaDialog {
                        if ( count( $passed[$_lists] ) <= 0) {
                             $this->log('error', __FUNCTION__, __LINE__, 'length of items must be > 0');
                             $_is_valid = False;
-                        } 
+                        }
                     }
                 }
             }
             else {
-                $this->log( 'error', __FUNCTION__, __LINE__, 
-                    sprintf( 'missing required parameter (%s)', 
+                $this->log( 'error', __FUNCTION__, __LINE__,
+                    sprintf( 'missing required parameter (%s)',
                         $required_key ) );
                 $_is_valid = False;
             }
@@ -336,9 +336,9 @@ class CocoaDialog {
         // Finally, check that (if icon is passed), it is a valid icon in CocoaDialog.
         if ( in_array( 'icon', array_keys( $passed ) ) ) {
             if ( ! in_array( $passed['icon'], $this->global_icons ) ) {
-                $this->log( 'warning', __FUNCTION__, __LINE__, 
-                    sprintf( 'removing invalid icon (%s), available are (%s)', 
-                        $passed['icon'], 
+                $this->log( 'warning', __FUNCTION__, __LINE__,
+                    sprintf( 'removing invalid icon (%s), available are (%s)',
+                        $passed['icon'],
                         implode( ', ', $this->global_icons ) ) );
                 unset( $passed['icon'] );
             }
@@ -351,7 +351,7 @@ class CocoaDialog {
 
     /**
      * Display the passed dialog after some crutial formatting.
-     * 
+     *
      * @param string $funct Dialog name
      * @param array $passed Associative array of passed dialog options
      * @param boolean $return_process True if return process array instead of display
@@ -364,7 +364,7 @@ class CocoaDialog {
         }
         $process = ["'$this->cocoa'", str_replace( '_', '-', $funct )];
         foreach ( $passed as $k => $v ) {
-            if ( 'string' === gettype( $v ) || 'integer' === gettype( $v ) || 
+            if ( 'string' === gettype( $v ) || 'integer' === gettype( $v ) ||
                 'float' === gettype( $v ) || ( 'array' === gettype( $v ) && count( $v ) > 0 ) ) {
                 array_push( $process, $k );
                 if ( 'array' === gettype( $v ) ) {
@@ -402,7 +402,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/bubble_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -433,7 +433,7 @@ class CocoaDialog {
 
     /**
      * Dialog type notify
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -466,7 +466,7 @@ class CocoaDialog {
 
     /**
      * Dialog type checkbox
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -496,7 +496,7 @@ class CocoaDialog {
 
     /**
      * Dialog type radio
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -526,7 +526,7 @@ class CocoaDialog {
 
     /**
      * Dialog type slider
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -561,7 +561,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/msgbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -592,7 +592,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/ok-msgbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -620,7 +620,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/yesno-msgbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -648,7 +648,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/inputbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -680,7 +680,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/standard-box_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -709,7 +709,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/secure-inputbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -740,7 +740,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/secure-standard-inputbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -768,7 +768,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -800,7 +800,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -830,7 +830,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/textbox_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -865,7 +865,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/dropdown_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -897,7 +897,7 @@ class CocoaDialog {
      *
      * Valid parameters are listed at:
      * <http://mstratman.github.io/cocoadialog/#documentation3.0/standard-dropdown_control>
-     * 
+     *
      * @param array $_passed Dialog paramenters
      * @return string Output from dialog
      */
@@ -926,7 +926,7 @@ class CocoaDialog {
  * Seperate class used for interaction with CocoaDialog's progress bar.
  *
  * Client inintialization is built by:
- * 
+ *
  *     $client = new ProgressBar('path to CocoaDialog.app or exec', [associative array of dialog arguements], $dialog=bool)
  *
  * NOTE: Currently broken due to CocoaDialog's exception thrown when opening process with stdin.
@@ -960,7 +960,7 @@ class ProgressBar {
 
     /**
      * Persistent storage of read/write pipes
-     * 
+     *
      * @access private
      * @var IO
      */
@@ -976,7 +976,7 @@ class ProgressBar {
 
     /**
      * Progress class constructor.
-     * 
+     *
      * @param string $cocoa Path to CocoaDialog.app or exec
      * @param array $_passed Progress dialog arguemnts (associative array)
      * @param boolean $debug True if logging is enabled
@@ -984,7 +984,7 @@ class ProgressBar {
     public function __construct( $cocoa, array $_passed ) {
         $this->cocoa = $cocoa;
         if ( get_class($this->cocoa) != 'CocoaDialog' ) {
-            echo sprintf( "[%-8s] <%s:%d>....%s\n", 
+            echo sprintf( "[%-8s] <%s:%d>....%s\n",
                 'CRITICAL', get_class($this), __LINE__, 'invalid cocoadialog client' );
             die();
         }
@@ -1015,7 +1015,7 @@ class ProgressBar {
 
     /**
      * Update the current progress bar's state.
-     * 
+     *
      * @param integer $percent Percentage filled of progress bar dialog
      * @param string $text Test of progress bar dialog
      * @return integer 1 if running 0 if stopped
@@ -1026,7 +1026,7 @@ class ProgressBar {
         if ( is_resource( $this->proc ) && ( proc_get_status( $this->proc )['running'] ) ) {
             fwrite( $this->pipe[0], sprintf( "%s %s\n", $this->percent, $this->text ) );
             return 1;
-        } 
+        }
         else {
             return $this->finish();
         }
@@ -1034,7 +1034,7 @@ class ProgressBar {
 
     /**
      * Kill the progress bar dialog.
-     * 
+     *
      * @return integer 0 when killed
      */
     public function finish() {
