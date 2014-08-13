@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * Alfred Bundler Logging Fiel
+ *
+ * Generic interface for logging to files and the console to be used with the
+ * PHP implementation of the Alfred Bundler.
+ *
+ * This file is part of the Alfred Bundler, released under the MIT licence.
+ * Copyright (c) 2014 The Alfred Bundler Team
+ * See https://github.com/shawnrice/alfred-bundler for more information
+ *
+ * @copyright  The Alfred Bundler Team 2014
+ * @license    http://opensource.org/licenses/MIT  MIT
+ * @version    Taurus 1
+ * @link       http://shawnrice.github.io/alfred-bundler
+ * @package    AlfredBundler
+ * @since      File available since Taurus 1
+ */
+
 
 if ( ! class_exists( 'AlfredBundlerLogger' ) ) :
 /**
