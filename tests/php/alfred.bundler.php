@@ -30,6 +30,9 @@
  * this bundlet will continue to work with the bundler API for the remainder of
  * this major version (Taurus).
  *
+ * Many of the methods in this class are messy, but most also exist for a one-
+ * time use to install the bundler.
+ *
  * Example usage:
  * <code>
  * require_once( 'alfred.bundler.php' );
@@ -109,6 +112,9 @@ class AlfredBundler {
   /**
    * The class constructor
    *
+   * Basically, this does an install check and then loads the real
+   * bundler as an internal object.
+   *
    * @return bool             Returns successful/failed instantiation
    */
   public function __construct() {
@@ -147,6 +153,10 @@ class AlfredBundler {
         require_once "{$this->_data}/bundler/AlfredBundler.php";
         // Create the internal class object
         $this->bundler = new AlfredBundlerInternalClass();
+        $cd = $this->bundler->wrapper('cocoadialog');
+        $cd->notify([ 'title' => "{$this->name} Setup",
+          'description' => 'Alfred Bundler installation successful.',
+          'icon_file' => $this->bundler->icon( 'system', 'AlertNoteIcon' ) ]);
       }
     }
 
@@ -165,13 +175,15 @@ class AlfredBundler {
    * functionality is the the backend, so those methods will be used at all
    * other times.
    *
-   * @see AlfredBundlerInternalClass::log
-   * @see AlfredBundlerLogger::log
-   * @see AlfredBundlerLogger::logFile
-   * @see AlfredBundlerLogger::logConsole
+   * @see     AlfredBundlerInternalClass::log
+   * @see     AlfredBundlerLogger::log
+   * @see     AlfredBundlerLogger::logFile
+   * @see     AlfredBundlerLogger::logConsole
    *
    * @param   string  $message  message to be logged
    * @param   mixed   $level    log level to be recorded
+   *
+   * @since   Taurus 1
    *
    */
   private function report( $message, $level ) {
@@ -189,7 +201,12 @@ class AlfredBundler {
 
   }
 
-
+/**
+ * Validates and checks variables for installation
+ *
+ * @return  bool returns false on failure
+ * @since   Taurus 1
+ */
 private function prepareInstallation() {
   if ( ! file_exists( 'info.plist' ) ) {
     $this->report( "You need a valid `info.plist` to use the Alfred Bundler.", 'CRITICAL' );
@@ -202,29 +219,54 @@ private function prepareInstallation() {
 
 }
 
+/**
+ * Sets the name of the workflow
+ * Method used for Alfredv2.4:277+
+ *
+ * @since Taurus 1
+ */
 private function prepareModern() {
   $this->name = $_ENV[ 'alfred_workflow_name' ];
 }
 
+/**
+ * Sets the name of the workflow
+ * This method is used only for version < Alfredv2.4:277
+ *
+ * @since Taurus 1
+ */
 private function prepareDeprecated() {
   $this->name = exec( "/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist'" );
 }
 
+/**
+ * Prepares the text for the installation confirmation AS dialog
+ *
+ * @since Taurus 1
+ */
 private function prepareASDialog() {
 
   // Text for the dialog message.
-  $text = "'{$this->name}' needs to install additional components, which will be placed in Alfred's storage and will not interfere with your system.
+  $text = "{$this->name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
 
-  You may be asked to allow some components to run, depending on your security settings.
+You may be asked to allow some components to run, depending on your security settings.
 
-  You can decline this installation, but '{$this->name}' may not work without them. There will be a slight delay after accepting.";
+You can decline this installation, but {$this->name} may not work without them. There will be a slight delay after accepting.";
 
-  $this->script = "display dialog \"{$text}\" " .
+  $this->script = "display dialog \"$text\" " .
     "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 " .
     "with title \"Alfred Bundler\" with icon file \"System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns\"";
 
 }
 
+/**
+ * Executes AppleScript dialog confirmation and handles return value
+ *
+ * @todo decide and implement proper exit behavior for failure
+ * @return  bool  confirmation / refusal to install the bundler
+ *
+ * @since Taurus 1
+ */
 private function processASDialog() {
   $info = "https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler";
   $confirm = str_replace( 'button returned:', '', exec( "osascript -e '{$this->script}'" ) );
@@ -246,7 +288,7 @@ private function processASDialog() {
    * Makes the data and cache directories for the Bundler
    *
    * @TODO: add in error handling for failed permissions (should be _very_ rare)
-   *
+   * @since  Taurus 1
    */
   private function prepareDirectories() {
     // Make the bundler cache directory
@@ -262,7 +304,6 @@ private function processASDialog() {
    *
    * @return bool Success or failure of installation
    *
-   * @access private
    * @since  Taurus 1
    */
   private function installBundler() {
@@ -350,20 +391,24 @@ private function processASDialog() {
   /**
    * Wraps a cURL function to download files
    *
+   * This method should be used only by the bundlet to download the
+   * bundler from the server
+   *
    * @param string $url     A URL to the file
    * @param string $file    The destination file
    * @param int    $timeout = '5' A timeout variable (in seconds)
    * @return bool            True on success and error code / false on failure
    *
-   * @access public
    * @since  Taurus 1
    */
   private function dl( $url, $file, $timeout = '5' ) {
     // Check the URL here
 
     // Make sure that the download directory exists
-    if ( ! file_exists( dirname( $file ) && is_dir( dirname( $file ) ) ) )
+    if ( ! file_exists( realpath( dirname( $file ) ) ) ) {
+      $this->report( "Bundler install directory could not be created.", 'CRITICAL' );
       return FALSE;
+    }
 
     // Create the cURL object
     $ch = curl_init( $url );
@@ -415,7 +460,6 @@ private function processASDialog() {
    * @param array $args   An array of args passed
    * @return mixed          Whatever the internal function sends back
    *
-   * @access public
    * @since  Taurus 1
    */
   public function __call( $method, $args ) {
@@ -444,10 +488,18 @@ private function processASDialog() {
     return call_user_func_array( array( $this->bundler, $method ), $args );
   }
 
+  /**
+   * Gets variables from the AlfredBundlerInternalClass
+   *
+   * @param   string  $name  name of variable to get
+   * @return  mixed         the variable from the internal class object
+   *
+   * @access public
+   * @since  Taurus 1
+   */
   public function &__get( $name ) {
     if ( isset( $this->bundler ) && is_object( $this->bundler ) ) {
       if ( isset( $this->bundler->$name ) )
-        echo "TRYING TO GET $name";
         return $this->bundler->$name;
     }
   }
