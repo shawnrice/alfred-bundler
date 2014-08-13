@@ -100,6 +100,8 @@ if ( $errors === FALSE ) {
 $_ENV['AB_BRANCH']                  = 'devel';
 $_ENV['AB_TESTING']                 = TRUE;
 
+
+$_ENV[ 'alfred_version' ]  = '2.4';
 $_ENV[ 'alfred_theme_background' ]  = 'rgba(255,255,255,0.98)';
 $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.poop';
 $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
@@ -128,6 +130,11 @@ $tests[] = 'get_bad_system_icon';
 $tests[] = 'library_test';
 $tests[] = 'library_fail_test';
 $tests[] = 'reflexive_color_alter_test';
+$tests[] = 'wrapper_test';
+$tests[] = 'default_classes_loaded_test';
+$tests[] = 'user_log_tests';
+
+
 run_tests( $tests );
 
 
@@ -139,6 +146,56 @@ run_tests( $tests );
 
 // echo PHP_EOL . "Off on avaerage by " . $dev_off /1000 . PHP_EOL;
 // echo PHP_EOL . "Off on avaerage by " . ( ( $dev_off / (255 * 3) ) / 10 ) . "%" . PHP_EOL;
+
+
+function default_classes_loaded_test() {
+  if ( ! class_exists( 'AlfredBundler' ) )
+    return FALSE;
+  if ( ! class_exists( 'AlfredBundlerInternalClass' ) )
+    return FALSE;
+  if ( ! class_exists( 'AlfredBundlerLogger' ) )
+    return FALSE;
+  if ( ! class_exists( 'AlfredBundlerIcon' ) )
+    return FALSE;
+  return TRUE;
+}
+
+function user_log_tests() {
+  global $b;
+  file_put_contents( 'php://stderr', PHP_EOL );
+  $b->log( 'Testing', 'INFO', 'console' );
+  $b->debug( 'Testing', 'console' );
+  $b->info( 'Testing', 'console' );
+  $b->warning( 'Testing', 'console' );
+  $b->error( 'Testing', 'console' );
+  $b->critical( 'Testing', 'console' );
+}
+
+
+function gatekeeper_path_tests() {
+// The only ones that have the gatekeeper flags are:
+// 1 viewer.app
+// 2 notificator
+
+// Steps:
+//  delete label paths already applied
+//  delete all assets
+//  reinstall assets. manual intervention required
+
+
+}
+
+function wrapper_test() {
+  global $b;
+  $cd = $b->wrapper( 'cocoadialog' );
+  $cd->notify(['title'       => 'Testing Title',
+               'description' => 'Testing text',
+               'icon_file'   => $b->icon( 'system', 'Accounts' ) ]);
+  if ( class_exists( 'CocoaDialog' ) )
+    return TRUE;
+  else
+    return FALSE;
+}
 
 function reflexive_color_alter_test() {
   global $i, $dev_off;
