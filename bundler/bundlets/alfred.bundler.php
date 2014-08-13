@@ -133,6 +133,7 @@ class AlfredBundler {
 
     if ( file_exists( "{$this->_data}/bundler/AlfredBundler.php" ) ) {
       require_once ( "{$this->_data}/bundler/AlfredBundler.php" );
+
       $this->bundler = new AlfredBundlerInternalClass();
     } else {
       if ( $this->installBundler() === FALSE ) {
@@ -235,13 +236,13 @@ private function prepareDeprecated() {
 private function prepareASDialog() {
 
   // Text for the dialog message.
-  $text = "'{$this->name}' needs to install additional components, which will be placed in Alfred's storage and will not interfere with your system.
+  $text = "{$this->name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
 
-  You may be asked to allow some components to run, depending on your security settings.
+You may be asked to allow some components to run, depending on your security settings.
 
-  You can decline this installation, but '{$this->name}' may not work without them. There will be a slight delay after accepting.";
+You can decline this installation, but {$this->name} may not work without them. There will be a slight delay after accepting.";
 
-  $this->script = "display dialog \"{$text}\" " .
+  $this->script = "display dialog \"$text\" " .
     "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 " .
     "with title \"Alfred Bundler\" with icon file \"System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns\"";
 
@@ -393,8 +394,10 @@ private function processASDialog() {
     // Check the URL here
 
     // Make sure that the download directory exists
-    if ( ! file_exists( dirname( $file ) && is_dir( dirname( $file ) ) ) )
+    if ( ! file_exists( realpath( dirname( $file ) ) ) ) {
+      $this->report( "Bundler install directory could not be created.", 'CRITICAL' );
       return FALSE;
+    }
 
     // Create the cURL object
     $ch = curl_init( $url );
