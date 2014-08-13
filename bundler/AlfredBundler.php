@@ -13,8 +13,8 @@
  * @license    http://opensource.org/licenses/MIT  MIT
  * @version    Taurus 1
  * @link       http://shawnrice.github.io/alfred-bundler
- * @since      File available since Aries 1
  * @package    AlfredBundler
+ * @since      File available since Taurus 1
  */
 
 
@@ -33,7 +33,7 @@ if ( ! class_exists( 'AlfredBundlerInternalClass' ) ) :
  * this major version.
  *
  * @since     Class available since Taurus 1
- * @package AlfredBundler
+ * @package   AlfredBundler
  *
  */
 class AlfredBundlerInternalClass {
@@ -60,7 +60,7 @@ class AlfredBundlerInternalClass {
    * @access private
    * @var string
    */
-  private   $major_version;
+  public   $major_version;
 
   /**
    * The MINOR version of the bundler
@@ -68,7 +68,7 @@ class AlfredBundlerInternalClass {
    * @access private
    * @var string
    */
-  private   $minor_version;
+  public   $minor_version;
 
   /**
    * Filepath to an Alfred info.plist file
@@ -84,7 +84,7 @@ class AlfredBundlerInternalClass {
    * @access private
    * @var string
    */
-  private   $bundle;
+  public   $bundle;
 
   /**
    * The name of the workflow using the bundler
@@ -92,14 +92,14 @@ class AlfredBundlerInternalClass {
    * @access private
    * @var string
    */
-  private   $name;
+  public   $name;
 
   /**
    * The data directory of the workflow using the bundler
    *
    * @var  string
    */
-  private   $workflowData;
+  public   $workflowData;
 
   /**
    * The background 'color' of the user's current theme in Alfred (light or dark)
@@ -107,7 +107,7 @@ class AlfredBundlerInternalClass {
    * @access private
    * @var string
    */
-  private   $background;
+  public   $background;
 
   // Just a resource to check on a fileinfo thingie.
   public $finfo;
@@ -147,6 +147,55 @@ class AlfredBundlerInternalClass {
    */
   public $env;
 
+
+  /**
+   * The class constructor
+   *
+   * Sets necessary variables.
+   *
+   * @access public
+   * @param string $plist Path to workflow 'info.plist'
+   * @return bool          Return 'true' regardless
+   */
+  public function __construct() {
+
+    if ( isset( $_ENV['AB_BRANCH'] ) ) {
+      $this->major_version = $_ENV['AB_BRANCH'];
+    } else {
+      $this->major_version = file_get_contents(  __DIR__ . '/meta/version_major' );
+    }
+
+    $this->minor_version   = file_get_contents(  __DIR__ . '/meta/version_minor' );
+
+    $this->data  = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
+    $this->cache = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
+
+    $this->setup();
+
+    $this->log = new AlfredBundlerLogger( "{$this->data}/data/logs/bundler-{$this->major_version}" );
+    $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}" );
+
+
+
+    // Old code... take this out when we know we don't need any of it.
+    // if ( isset( $_ENV[ 'alfred_version' ] ) ) {
+    //   // As of Alfred v2.4 Build 277, environmental variables are available
+    //   // that will make this process a lot easier and faster.
+    //   $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
+    //     'build'  => $_ENV[ 'alfred_version_build' ] );
+    //   $this->home = $_ENV[ 'HOME' ];
+    //   $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
+    //   $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
+    //   $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
+    //   $this->theme = $_ENV[ 'alfred_theme' ];
+    //
+    //   $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
+    // }
+
+
+    // Let's just return something
+    return TRUE;
+  }
 
   /**
    * General setup function for variables and directories
@@ -232,54 +281,7 @@ class AlfredBundlerInternalClass {
 
   }
 
-  /**
-   * The class constructor
-   *
-   * Sets necessary variables.
-   *
-   * @access public
-   * @param string $plist Path to workflow 'info.plist'
-   * @return bool          Return 'true' regardless
-   */
-  public function __construct() {
 
-    if ( isset( $_ENV['AB_BRANCH'] ) ) {
-      $this->major_version = $_ENV['AB_BRANCH'];
-    } else {
-      $this->major_version = file_get_contents(  __DIR__ . '/meta/version_major' );
-    }
-
-    $this->minor_version   = file_get_contents(  __DIR__ . '/meta/version_minor' );
-
-    $this->data   = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
-    $this->cache  = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
-
-    $this->setup();
-
-    $this->log = new AlfredBundlerLogger( "{$this->data}/data/logs/bundler-{$this->major_version}" );
-    $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}" );
-
-
-
-    // Old code... take this out when we know we don't need any of it.
-    // if ( isset( $_ENV[ 'alfred_version' ] ) ) {
-    //   // As of Alfred v2.4 Build 277, environmental variables are available
-    //   // that will make this process a lot easier and faster.
-    //   $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
-    //     'build'  => $_ENV[ 'alfred_version_build' ] );
-    //   $this->home = $_ENV[ 'HOME' ];
-    //   $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
-    //   $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
-    //   $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
-    //   $this->theme = $_ENV[ 'alfred_theme' ];
-    //
-    //   $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
-    // }
-
-
-    // Let's just return something
-    return TRUE;
-  }
 
   /**
    * Load an asset using a generic function
