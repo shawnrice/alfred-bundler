@@ -478,14 +478,14 @@ class AlfredBundlerInternalClass {
    *
    * @return  [type]            [description]
    */
-  public function wrapper( $wrapper ) {
-    $bindingsDir = "{$this->data}/bundler/includes/wrapper/php";
-    if ( file_exists( "{$wrapperDir}/{$wrapper}.php" ) ) {
-      require_once "{$wrapperDir}/{$wrapper}.php"; $line = __LINE__;
+  public function wrapper( $wrapper, $debug = FALSE ) {
+    $wrappersDir = "{$this->data}/bundler/includes/wrappers/php";
+    if ( file_exists( "{$wrappersDir}/{$wrapper}.php" ) ) {
+      require_once "{$wrappersDir}/{$wrapper}.php";
       $this->log->log( "Loaded '{$wrapper}' bindings", 'INFO', 'console' );
-      return 0;
+      return new $wrapper( $this->utility( 'CocoaDialog' ), $debug );
     } else {
-      $this->log->log( "'{$wrapper}' not found.", 'CRITICAL', 'console' );
+      $this->log->log( "'{$wrapper}' not found.", 'ERROR', 'console' );
       return 10;
     }
   }
