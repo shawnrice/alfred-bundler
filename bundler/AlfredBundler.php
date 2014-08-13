@@ -154,10 +154,10 @@ class AlfredBundlerInternalClass {
    * Sets necessary variables.
    *
    * @access public
-   * @param string $plist Path to workflow 'info.plist'
+   * @param string $options a list of options to configure the instance
    * @return bool          Return 'true' regardless
    */
-  public function __construct() {
+  public function __construct( $options = [] ) {
 
     if ( isset( $_ENV['AB_BRANCH'] ) ) {
       $this->major_version = $_ENV['AB_BRANCH'];
@@ -173,7 +173,13 @@ class AlfredBundlerInternalClass {
     $this->setup();
 
     $this->log = new AlfredBundlerLogger( "{$this->data}/data/logs/bundler-{$this->major_version}" );
-    $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}" );
+
+    if ( isset( $options[ 'log' ] ) )
+      $log = $options[ 'log' ];
+    else
+      $log = 'file';
+
+    $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}", $log );
 
 
 
@@ -843,17 +849,111 @@ class AlfredBundlerInternalClass {
   /**
    * Log function for the user to employ
    *
-   * @param   string  $message      message to log
-   * @param   mixed   $level        [description]
-   * @param   string  $destination  [description]
-   *
-   * @return  [type]                [description]
+   * @param   string  $message        message to log
+   * @param   mixed   $level='INFO'   level of the log message
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
    *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    */
-  public function log( $message, $level = 'INFO', $destination = 'log' ) {
-    $this->userLog( $message, $level, $destination );
+  public function log( $message, $level = 'INFO', $destination = '' ) {
+    $this->userLog->log( $message, $level, $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to level 'DEBUG'
+   *
+   * @param   string  $message        message to log
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function debug( $message, $destination = '' ) {
+    $this->userLog->log( $message, 'DEBUG', $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to level 'INFO'
+   *
+   * @param   string  $message        message to log
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function info( $message, $destination = '' ) {
+    $this->userLog->log( $message, 'INFO', $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to level 'WARNING'
+   *
+   * @param   string  $message        message to log
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function warning( $message, $destination = '' ) {
+    $this->userLog->log( $message, 'WARNING', $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to level 'ERROR'
+   *
+   * @param   string  $message        message to log
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function error( $message, $destination = '' ) {
+    $this->userLog->log( $message, 'ERROR', $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to level 'CRITICAL'
+   *
+   * @param   string  $message        message to log
+   * @param   string  $destination='' destination ( file, console, both )
+   *                                  an empty argument will use the default
+   *                                  destination set at instantiation
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function critical( $message, $destination = '' ) {
+    $this->userLog->log( $message, 'CRITICAL', $destination, 3 );
+  }
+
+  /**
+   * Wraps around 'log' to send to 'console'
+   *
+   * @param   string  $message  message to log
+   * @param   mixed   $level    level of log
+   *
+   * @since Taurus 1
+   * @see AlfredBundlerLogger:log
+   * @see AlfredBundlerInternalClass:log
+   */
+  public function console( $message, $level = 'INFO' ) {
+    $this->userLog->log( $message, $level, 'console', 3 );
   }
 
   /**
