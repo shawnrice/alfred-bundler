@@ -74,6 +74,7 @@ function AlfredBundler::alter_color() {
 
   # We need two arguments
   if [[ $# -ne 2 ]]; then
+    echo $@ #send the arguments back
     return 0
   fi
   color="$1"
@@ -83,7 +84,7 @@ function AlfredBundler::alter_color() {
     return 0
   fi
 
-  if [[ $(AlfredBundler::check_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
+  if [[ $(AlfredBundler::get_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
 
     if [[ -f "${AB_DATA}/data/color-cache/${color}" ]]; then
       echo $(cat "${AB_DATA}/data/color-cache/${color}")
@@ -136,37 +137,6 @@ function AlfredBundler::get_background() {
   echo "${background}"
 }
 
-#######################################
-# Checks whether a color is light or dark
-# Globals:
-#   None
-# Arguments:
-#   color
-# Returns:
-#   'light' or 'dark'
-#######################################
-function AlfredBundler::check_brightness() {
-  local color
-  local r
-  local g
-  local b
-  local brightness
-  # add in validation of the arguments here
-  color="$1"
-
-  r=$(Math::hex_to_dec ${color:0:2})
-  g=$(Math::hex_to_dec ${color:2:2})
-  b=$(Math::hex_to_dec ${color:4:2})
-
-  brightness=$(( ( (r * 299) + ( g * 587 ) + ( b * 114 ) ) / 1000 ))
-  if [[ "${brightness}" -gt 130 ]]; then
-    echo "light"
-  else
-    echo "dark"
-  fi
-
-  return 0
-}
 
 #######################################
 # Converts an RGB color to HSV
@@ -366,6 +336,45 @@ function AlfredBundler::rgb_to_hex() {
   echo "${r}${g}${b}" | tr [[:upper:]] [[:lower:]]
 }
 
-################################################################################
+
+
+function AlfredBundler::get_luminance() {
+
+    local hex="$1"
+    local rgb=$(AlfredBundler::hex_to_rgb $hex)
+    local r=${rgb[0]}
+    local g=${rgb[1]}
+    local b=${rgb[2]}
+    r=$(Math::Times $r .299)
+    g=$(Math::Times $g .587)
+    b=$(Math::Times $b .114)
+    r=$(Math::Plus $r $g)
+    r=$(Math::Plus $r $b)
+    echo $(Math::Divide $r 255)
+}
+
+
+#######################################
+# Checks whether a color is light or dark
+# Globals:
+#   None
+# Arguments:
+#   color
+# Returns:
+#   'light' or 'dark'
+#######################################
+function AlfredBundler::get_brightness() {
+  local luminance=$(AlfredBundler::get_luminance "$1")
+  if [[ $(Math::GT $luminance .5) == '1' ]]; then
+    echo 'light'
+  else
+    echo 'dark'
+  fi
+
+  return 0
+}
+
+
+###############################################################################
 ### End Icon Functions
-################################################################################
+###############################################################################
