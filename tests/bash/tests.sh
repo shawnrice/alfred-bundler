@@ -20,27 +20,36 @@ declare -r ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 # hex2=$(AlfredBundler::rgb_to_hex ${rgb})
 # echo "Hex: #"$hex2
 
+###############################################################################
+#### Log Tests
+
+function check_level_string {
+    a=1
+}
+
+function check_level_int {
+    a=1
+}
+
+function check_bad_level_string {
+    a=1
+}
+
+function check_bad_level_int() {
+    a=1
+}
+
+
+###############################################################################
 #### Math Tests (the child in me shudders)
 # We'll check to make sure that our functions output the same
 # as the logic in a PHP function does (i.e. check our floating
 # point math in a language that doesn't do it against one that
 # does).
 
-function rfloat() {
-    echo $(php -r "echo mt_rand(0,100*100000)/100000;")
-}
 
-normalize() {
-    bash=$1
-    bash=${bash%%0} # delete trailing 0's
-    [[ ${bash:0:1} == '.' ]] && bash=0${bash}
-    if [ ${bash:0:2} == '-.' ]; then
-        bash=-0${bash:1:${#bash}-2}
-    fi
-    echo $bash
-}
-
-check_result() {
+# a little function to check on things...
+function check_result() {
     if [[ $1 == $2 ]]; then
         echo true
     else
@@ -50,7 +59,27 @@ check_result() {
 }
 
 
-plus_test() {
+# Generate numbers for testing
+function rfloat() {
+    echo $(php -r "echo mt_rand(0,100*100000)/100000;")
+}
+
+function rhex() {
+    echo $(php -r 'echo sprintf("%02x", mt_rand(0, 0xff));')
+}
+
+# To strip trailing 0's and make sure values where -1 < x < 1 have 0's before the decimal
+function normalize() {
+    bash=$1
+    bash=${bash%%0} # delete trailing 0's
+    [[ ${bash:0:1} == '.' ]] && bash=0${bash}
+    if [ ${bash:0:2} == '-.' ]; then
+        bash=-0${bash:1:${#bash}-2}
+    fi
+    echo $bash
+}
+
+function plus_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Plus $one $two)
@@ -59,7 +88,7 @@ plus_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-minus_test() {
+function minus_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Minus $one $two)
@@ -68,7 +97,7 @@ minus_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-times_test() {
+function times_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Times $one $two)
@@ -77,7 +106,7 @@ times_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-divide_test() {
+function divide_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Divide $one $two)
@@ -86,7 +115,7 @@ divide_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-mod_test() {
+function mod_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Mod $one $two)
@@ -95,21 +124,21 @@ mod_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-floor_test() {
+function floor_test() {
     one=$(echo $(rfloat))
     bash=$(Math::Floor $one)
     php=$(php -r "echo floor($one);")
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-round_test() {
+function round_test() {
     one=$(echo $(rfloat))
     bash=$(Math::Round $one)
     php=$(php -r "echo round($one, 0);")
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-abs_test() {
+function abs_test() {
     one=$(echo $(rfloat))
     bash=$(Math::Abs $one)
     bash=$(normalize $bash)
@@ -117,7 +146,7 @@ abs_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-gt_test() {
+function gt_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::GT $one $two)
@@ -126,7 +155,7 @@ gt_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-lt_test() {
+function lt_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::LT $one $two)
@@ -135,7 +164,7 @@ lt_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-equals_test() {
+function equals_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     bash=$(Math::Equals $one $two)
@@ -144,7 +173,7 @@ equals_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-min_test() {
+function min_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     three=$(echo $(rfloat))
@@ -153,7 +182,7 @@ min_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-max_test() {
+function max_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     three=$(echo $(rfloat))
@@ -162,7 +191,7 @@ max_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-mean_test() {
+function mean_test() {
     one=$(echo $(rfloat))
     two=$(echo $(rfloat))
     three=$(echo $(rfloat))
@@ -172,18 +201,14 @@ mean_test() {
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-rhex() {
-    echo $(php -r 'echo sprintf("%02x", mt_rand(0, 0xff));')
-}
-
-hex_to_dec_test() {
+function hex_to_dec_test() {
     hex=$(rhex)
     bash=$(Math::hex_to_dec $hex)
     php=$(php -r "echo hexdec('$hex');")
     [[ $(check_result $bash $php) == 'true' ]] && return 0 || return 1
 }
 
-dec_to_hex_test() {
+function dec_to_hex_test() {
     dec=$(php -r "echo rand(0,255);")
     bash=$(Math::dec_to_hex $dec)
     bash=$(echo $bash | tr [[:upper:]] [[:lower:]]) #php uses lower
@@ -236,4 +261,11 @@ function math_tests() {
     echo "Failed: ${failed} / ${num}"
 }
 
-math_tests
+###############################################################################
+### End math tests
+###############################################################################
+
+AB::Log::Log "Testing" INFO both
+
+
+# math_tests
