@@ -1,6 +1,16 @@
-################################################################################
+#!/bin/bash
+#
+# A basic floating point math library
+#
+# This file is part of the Alfred Bundler, released under the MIT licence.
+#
+# Copyright (c) 2014 The Alfred Bundler Team
+#
+# See https://github.com/shawnrice/alfred-bundler for more information.
+
+###############################################################################
 ### Math Functions to help with color calculations
-################################################################################
+###############################################################################
 
 #######################################
 # Finds the max value among a set of numbers
@@ -121,6 +131,142 @@ function Math::Floor() {
   local tmp
   tmp=$(echo "scale=0; $1 - ($1 % 1)" | bc -l)
   echo ${tmp%.*}
+}
+
+#######################################
+# Rounds a float to nearest int
+# Globals:
+#   None
+# Arguments:
+#   float
+# Returns:
+#   Integer
+#######################################
+function Math::Round() {
+  echo "scale=0; ($1 + .5) / 1" | bc -l
+}
+
+#######################################
+# Multiplies two floats
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Times() {
+  echo "scale=10; $1 * $2" | bc -l
+}
+
+#######################################
+# Divides two floats
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Divide() {
+  echo "scale=10; $1 / $2" | bc -l
+}
+
+#######################################
+# Return the absolute value of a number
+# Globals:
+#   None
+# Arguments:
+#   float|int
+# Returns:
+#   float|int
+#######################################
+function Math::Abs() {
+  local var="$1"
+  echo ${var#-}
+}
+
+#######################################
+# Modulous from two floats
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Mod() {
+  local division=$(echo "scale=10; $1 / $2" | bc -l)
+  local whole=${division%\.*}
+  if [ -z $whole ]; then
+    whole='0'
+  fi
+  echo "scale=10; $1 - (${whole} * $2 )" | bc -l
+}
+
+#######################################
+# Adds two floats
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Plus() {
+  echo "scale=10; $1 + $2" | bc -l
+}
+
+#######################################
+# Subtracts one float from another
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Minus() {
+  echo "scale=10; $1 - $2" | bc -l
+}
+
+#######################################
+# Checks if one float is less than another
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::LT() {
+  echo "$1 < $2" | bc -l
+}
+
+#######################################
+# Checks if one float is greater than another
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::GT() {
+  echo "$1 > $2" | bc -l
+}
+
+#######################################
+# Checks if one float is equal to another
+# Globals:
+#   None
+# Arguments:
+#   float|int float|int
+# Returns:
+#   float
+#######################################
+function Math::Equals() {
+  echo "$1 == $2" | bc -l
 }
 
 #######################################
