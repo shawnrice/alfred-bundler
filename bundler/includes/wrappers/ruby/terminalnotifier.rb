@@ -83,8 +83,13 @@ class TerminalNotifier
     # :type message: str
     def self.log(level, funct, lineno, message)
         if @@debug
-            $stdout.write "[%-8s] <%s:%d>....%s\n" % [
-                level.upcase, funct, lineno, message]
+            $stdout.write "[%s] [%s:%d] [%s] %s\n" % [
+                Time.now.strftime('%Y-%m-%d %H:%M:%S'),
+                File.basename(__FILE__),
+                lineno,
+                level.upcase,
+                message
+            ]
         end
     end
 

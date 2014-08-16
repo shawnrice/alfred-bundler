@@ -100,7 +100,7 @@ class TerminalNotifier {
      */
     function log( $level, $funct, $lineno, $message ) {
         if ( $this->debug ) {
-            echo sprintf( "[%-8s] <%s:%d>....%s\xA", strtoupper( $level ), $funct, $lineno, $message );
+            echo sprintf( "[%s] [%s:%d] [%s] %s\xA", date('Y-m-d h:i:s'), basename(__FILE__), $lineno, strtoupper( $level ), $message );
         }
     }
 
@@ -114,6 +114,7 @@ class TerminalNotifier {
     public function __construct( $notifier, $debug=False ) {
         $this->notifier = $notifier;
         $this->debug = $debug;
+        date_default_timezone_set('UTC');
         if ( file_exists( $this->notifier ) ) {
             if ( 'app' === strtolower( pathinfo( $notifier, PATHINFO_EXTENSION ) ) ) {
                 $this->notifier = '/' . join( '/', array( trim( $notifier, '/' ), 
