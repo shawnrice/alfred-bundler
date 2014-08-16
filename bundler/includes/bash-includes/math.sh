@@ -105,11 +105,10 @@ function Math::Mean() {
   total=0
   len=${#numbers[@]}
   while [[ $i -lt $len ]]; do
-    total=$(( total + ${numbers[$i]} ))
+    total=$(echo "scale=10; $total + ${numbers[$i]}" | bc -l )
     : $[ i++ ]
   done;
-  if [[ "${total}" -eq 0 ]]; then
-    echo "Total ${total}"
+  if [[ "${total}" == "0" ]]; then
     echo 0
     return 0
   else
