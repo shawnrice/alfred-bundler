@@ -5,57 +5,12 @@
 ################################################################################
 
 # User facing log function
-# Currently, this is a duplicate of the internal one... but I need to
-# figure out a way to combine them that doesn't hurt the call syntax much...
 function AlfredBundler::Log() {
+  [[ $# -eq 3 ]] && AB::Log::Log $@ "$(caller)" && return 0
+  [[ $# -eq 2 ]] && AB::Log::Log $1 'console' "$(caller)" && return 0
+  [[ $# -eq 1 ]] && AB::Log::Log $1 'INFO' 'console' "$(caller)" && return 0
 
-  local message
-  local level
-  local file
-  local line
-  local internal
-  local date
-
-  # Set necessary variables
-  date=$(date +%H:%M:%S)
-  internal=$(caller)
-  line=$(echo "${internal}" | cut -d ' ' -f1)
-  file="${internal#${line}}"
-  file=$(basename "${file}")
-
-  # Check to see if we have the right number of arguments
-  if [[ $# -lt 2 ]]; then
-    echo "[${date}] [${file}:${line}] [DEBUG] The logging function needs to " \
-        "be used with a log level and message." >&2
-    return 0
-  fi
-
-   # Set the arguments
-  message="$1"
-
-  level=$(AB::Log::normalize_log_level "$2")
-  # Check for valid log level
-  if [[ $? -eq 1 ]]; then
-    echo "[${date}] [${file}:${line}] [WARNING] Log level '$2' is not valid. " \
-         "Falling back to 'INFO' (1)" >&2
-  fi
-
-  [[ -z "${destination}" ]] && destination='console'
-  destination=$(AB::Log::normalize_destination $3)
-  # Check for valid destination
-  if [[ $? -eq 1 ]]; then
-    echo "[${date}] [${file}:${line}] [WARNING] Destination '$2' is not " \
-         "valid. Falling back to 'console'" >&2
-  fi
-
-  message="[${file}:${line}] [${level}] ${message}"
-
-  if [[ "${destination}" == 'console' ]] || [[ "${destination}" == 'both' ]]; then
-    AB::Log::Console "${message}"
-  fi
-  if [[ "${destination}" == 'file' ]] || [[ "${destination}" == 'both' ]]; then
-    AB::Log::File "${message}" "${WF_LOG}"
-  fi
+  ## We need some better error checking put in right here.
 
 }
 
@@ -66,14 +21,25 @@ function AB::Log::Log() {
   local line
   local internal
   local date
+  local log
+
+  # Get the routing information (user or bundler?)
+  if [ -z "$4" ]; then
+    internal=$(caller)
+    log="${AB_LOG}"
+  else
+    internal="$4"
+    log="${WF_LOG}"
+  fi
 
   # Set necessary variables
   date=$(date +%H:%M:%S)
-  internal=$(caller)
+
+  # Information for the trace
   line=$(echo "${internal}" | cut -d ' ' -f1)
-  file="${internal#${line}}"
-  file=${file## } # remove whitespace from the front
-  file=$(basename "${file}")
+  file="${internal#${line}}"  # get the file without the line number
+  file=${file## }             # remove whitespace from the front
+  file=$(basename "${file}")  # just get the filename
 
   # Check to see if we have the right number of arguments
   if [[ $# -lt 2 ]]; then
@@ -106,13 +72,9 @@ function AB::Log::Log() {
     AB::Log::Console "${message}"
   fi
   if [[ "${destination}" == 'file' ]] || [[ "${destination}" == 'both' ]]; then
-    AB::Log::File "${message}" "${AB_LOG}"
+    AB::Log::File "${message}" "${log}"
   fi
 }
-
-
-
-
 
 # Function that outputs information to the terminal (STDERR)
 function AB::Log::Console() {
