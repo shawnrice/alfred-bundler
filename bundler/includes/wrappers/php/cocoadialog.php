@@ -144,6 +144,7 @@ class CocoaDialog {
      */
     private $global_icons;
 
+
     /**
      * This function prints debug logs to the console.
      *
@@ -154,7 +155,7 @@ class CocoaDialog {
      */
     function log( $level, $funct, $lineno, $message ) {
         if ( $this->debug ) {
-            echo sprintf( "[%-8s] <%s:%d>....%s\xA", strtoupper( $level ), $funct, $lineno, $message );
+            echo sprintf( "[%s] [%s:%d] [%s] %s\xA", date('Y-m-d h:i:s'), basename(__FILE__), $lineno, strtoupper( $level ), $message );
         }
     }
 
@@ -168,6 +169,7 @@ class CocoaDialog {
     public function __construct( $cocoa, $debug=False ) {
         $this->cocoa = $cocoa;
         $this->debug = $debug;
+        date_default_timezone_set('UTC');
         if ( file_exists( $this->cocoa ) ) {
             if ( 'app' === strtolower( pathinfo( $cocoa, PATHINFO_EXTENSION ) ) ) {
                 $this->cocoa = '/' . join( '/', array( trim( $cocoa, '/' ), trim( '/Contents/MacOS/cocoadialog', '/' ) ) );

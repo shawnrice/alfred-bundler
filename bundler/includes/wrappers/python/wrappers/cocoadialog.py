@@ -105,9 +105,12 @@ import subprocess
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format=('[%(levelname)-8s] '
-            '<%(name)s, %(funcName)s:%(lineno)d>'
-            '....%(message)s'))
+    format=('[%(asctime)s] '
+            '[{}:%(lineno)d] '
+            '[%(levelname)s] '
+            '%(message)s').format(os.path.basename(__file__)),
+    datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
 AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
 DATE = '07-28-14'
