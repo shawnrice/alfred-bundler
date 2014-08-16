@@ -20,8 +20,8 @@ declare -r AB_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 # Define a general include directory to split this file into multiple ones
 declare -r AB_INCLUDE_DIR="${AB_PATH}/includes/bash-includes"
 
-. "${AB_INCLUDE_DIR}/math.sh"
 . "${AB_INCLUDE_DIR}/logging.sh"
+. "${AB_INCLUDE_DIR}/math.sh"
 . "${AB_INCLUDE_DIR}/icons.sh"
 
 
