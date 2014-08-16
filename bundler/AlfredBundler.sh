@@ -20,11 +20,6 @@ declare -r AB_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 # Define a general include directory to split this file into multiple ones
 declare -r AB_INCLUDE_DIR="${AB_PATH}/includes/bash-includes"
 
-. "${AB_INCLUDE_DIR}/logging.sh"
-. "${AB_INCLUDE_DIR}/math.sh"
-. "${AB_INCLUDE_DIR}/icons.sh"
-
-
 # Get the major version from the file
 if [ ! -z "${AB_BRANCH}" ]; then
   declare -r AB_MAJOR_VERSION="${AB_BRANCH}"
@@ -32,8 +27,29 @@ else
   declare -r AB_MAJOR_VERSION=$(cat "${AB_PATH}/meta/version_major")
 fi
 
-# Set the data directory
+# Set the data directory, and the log file location
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
+declare -r AB_LOG="${AB_DATA}/data/logs/bundler-${AB_MAJOR_VERSION}.log"
+
+# Set some variables about the workflow
+declare -r WF_BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :bundleid' 'info.plist')
+declare -r WF_NAME=$(/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist')
+declare -r WF_DATA=$(dirname "${AB_DATA}")"/${WF_BUNDLE}"
+declare -r WF_LOG="${WF_DATA}/${WF_BUNDLE}.log"
+
+
+. "${AB_INCLUDE_DIR}/logging.sh"
+. "${AB_INCLUDE_DIR}/math.sh"
+. "${AB_INCLUDE_DIR}/icons.sh"
+
+# Make the log directory if it does not exist
+AB::Log::Setup
+# Rotate the logs if necessary
+AB::Log::Rotate "${AB_LOG}"
+AB::Log::Rotate "${WF_LOG}"
+
+#### I need to bootstrap some things here (to get some variables: workflow directory, etc...)
+
 
 # Check for updates to the bundler in the background
 bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
