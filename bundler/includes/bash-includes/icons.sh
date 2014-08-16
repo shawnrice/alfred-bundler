@@ -190,39 +190,42 @@ function AlfredBundler::rgb_to_hsv() {
   local min
   local delta
 
-  r=$( echo "scale=10; $1 / 255" | bc -l)
-  g=$( echo "scale=10; $2 / 255" | bc -l)
-  b=$( echo "scale=10; $3 / 255" | bc -l)
+  r="$1"
+  g="$2"
+  b="$3"
 
-  max=$(Math::Max $r $g $b)
+  min='0'
+  max='0'
   min=$(Math::Min $r $g $b)
-  delta=$(echo "scale=10; ${max} - ${min}" | bc -l)
-  v="${max}"
+  max=$(Math::Max $r $g $b)
+  chroma=$(Math::Minus $max $min)
 
-  if [[ $(echo "${max} != 0.0" | bc -l) -eq 1 ]]; then
-    s=$(echo "scale=10; ${delta} / ${max}" | bc -l )
-  else
-    s="0.0"
+  if [[ $(Math::Equals $chroma 0) -eq 1 ]]; then
+    echo 0 0 $(Math::Divide $max 255)
+    return 0
   fi
 
-  if [[ $(echo "scale=10; ${s} == 0" | bc -l) -eq 1 ]]; then
-    h="0.0"
-  else
-    if [[ $(echo "${r} == ${max}" | bc -l) -eq 1 ]]; then
-      h=$(echo "scale=10; (${g} - ${b}) / ${delta}" | bc -l)
-    elif [[ $(echo "${g} == ${max}" | bc -l) -eq 1 ]]; then
-      h=$(echo "scale=10; 2 + ((${b} - ${r}) / ${delta})" | bc -l)
-    elif [[ $(echo "${b} == ${max}" | bc -l) -eq 1 ]]; then
-      h=$(echo "scale=10; 4 + ((${r} - ${g}) / ${delta})" | bc -l)
+  if [[ $r -eq $max ]]; then
+    h=$(( g - b ))
+    h=$(Math::Divide $h $chroma)
+
+    if [[ $(Math::LT $h 0 ) -eq 1 ]]; then
+      h=$(Math::Plus $h 6)
     fi
+  elif [[ $g -eq $max ]]; then
+    h=$(( b - r ))
+    h=$(Math::Divide $h $chroma)
+    h=$(Math::Plus $h 2)
+  else
+    h=$(( r - g ))
+    h=$(Math::Divide $h $chroma)
+    h=$(Math::Plus $h 4)
   fi
 
-  h=$(echo "scale=10; ${h} * 60" | bc -l)
+  h=$(Math::Times $h 60)
+  s=$(Math::Divide $chroma $max)
+  v=$(Math::Divide $max 255)
 
-  if [[ $(echo "${h} < 0" | bc -l) -eq 1 ]]; then
-    h=$(echo "scale=10; ${h} += 360" | bc -l)
-  fi
-  h=$(echo "scale=10; ${h} / 360" | bc -l)
   echo "${h} ${s} ${v}"
   return 0
 }
@@ -245,59 +248,65 @@ function AlfredBundler::hsv_to_rgb() {
   local h
   local s
   local v
-  local var_1
-  local var_2
-  local var_3
-  local var_h
-  local var_i
+  local x
+  local min
+  local chroma
 
   h="$1"
   s="$2"
   v="$3"
 
-  if [[ $(echo "${s} == 0" | bc -l) -eq 1 ]]; then
-    t=$(echo "${v} * 255" | bc -l)
-    echo "${t} ${t} ${t}"
-    return 0
-  fi
+  r='0'
+  g='0'
+  b='0'
 
-  var_h=$(echo "scale=10; ${h} * 6" | bc -l)
-  var_i=$(Math::Floor ${var_h})
-  var_1=$(echo "${v} * (1 - ${s})" | bc -l)
-  var_2=$(echo "${v} * (1 - ${s} * (${var_h} - ${var_i}))" | bc -l)
-  var_3=$(echo "${v} * (1 - ${s} * (1 - (${var_h} - ${var_i})))" | bc -l)
-  if [[ $( echo "${var_i} == 0" | bc -l) -eq 1 ]]; then
-    r=${v}
-    g=${var_3}
-    b=${var_1}
-  elif [[ $( echo "${var_i} == 1" | bc -l) -eq 1 ]]; then
-    r=${var_2}
-    g=${v}
-    b=${var_1}
-  elif [[ $( echo "${var_i} == 2" | bc -l) -eq 1 ]]; then
-    r=${var_1}
-    g=${v}
-    b=${var_3}
-  elif [[ $( echo "${var_i} == 3" | bc -l) -eq 1 ]]; then
-    r=${var_1}
-    g=${var_2}
-    b=${v}
-  elif [[ $( echo "${var_i} == 4" | bc -l) -eq 1 ]]; then
-    r=${var_3}
-    g=${var_1}
-    b=${v}
+  chroma=$(Math::Times $s $v )
+  h=$(Math::Divide $h 60 )
+
+  # We need to get the x value through the following formula
+  # (from the PHP)  $x = $chroma * ( 1.0 - abs( ( fmod( $h, 2.0 ) ) - 1.0 ) );
+  # So, let's do that in steps.
+  x=$(Math::Mod $h 2)
+  x=$(Math::Minus $x 1)
+  x=$(Math::Abs $x)
+  x=$(Math::Minus 1 $x)
+  x=$(Math::Times $chroma $x)
+
+  min=$(Math::Minus $v $chroma)
+
+  if [[ $(Math::LT $h 1) == '1' ]]; then
+    r=$chroma
+    g=$x
+  elif [[ $(Math::LT $h 2) == '1' ]]; then
+    r=$x
+    g=$chroma
+  elif [[ $(Math::LT $h 3) == '1' ]]; then
+    g=$chroma
+    b=$x
+  elif [[ $(Math::LT $h 4) == '1' ]]; then
+    g=$x
+    b=$chroma
+  elif [[ $(Math::LT $h 5) == '1' ]]; then
+    r=$x
+    b=$chroma
   else
-    r=${v}
-    g=${var_1}
-    b=${var_2}
+    r=$chroma
+    b=$x
   fi
 
-  r=$(Math::Floor $(echo "${r} * 255" | bc -l))
-  g=$(Math::Floor $(echo "${g} * 255" | bc -l))
-  b=$(Math::Floor $(echo "${b} * 255" | bc -l))
+  # $r = round( ( $r + $min ) * 255 );
+  r=$(Math::Plus $r $min)
+  g=$(Math::Plus $g $min)
+  b=$(Math::Plus $b $min)
+  r=$(Math::Times $r 255)
+  g=$(Math::Times $g 255)
+  b=$(Math::Times $b 255)
+  r=$(Math::Round $r)
+  g=$(Math::Round $g)
+  b=$(Math::Round $b)
 
   echo "${r} ${g} ${b}"
-
+  return 0
 }
 
 #######################################
@@ -354,7 +363,7 @@ function AlfredBundler::rgb_to_hex() {
     b=${b}${b}
   fi
 
-  echo "${r}${g}${b}"
+  echo "${r}${g}${b}" | tr [[:upper:]] [[:lower:]]
 }
 
 ################################################################################
