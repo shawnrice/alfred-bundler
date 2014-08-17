@@ -440,6 +440,17 @@ private function processASDialog() {
   }
 
   /**
+   * Passes notification call to internal bundler
+   * 
+   * @param string $title Notification title
+   * @param string $message Notification message
+   * @param string $icon CD supported icon or absolute icon file path
+   */
+  private function notify( $title, $message, $icon = None ) {
+    $this->bundler->notify( $title, $message, $icon = $icon );
+  }
+
+  /**
    * Passes calls to the internal object
    *
    * Wrapper function that passes all other calls to the internal object when
