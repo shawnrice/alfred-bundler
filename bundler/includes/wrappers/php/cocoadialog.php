@@ -142,7 +142,7 @@ class CocoaDialog {
      * @access private
      * @var array
      */
-    private $global_icons;
+    public $global_icons;
 
 
     /**
