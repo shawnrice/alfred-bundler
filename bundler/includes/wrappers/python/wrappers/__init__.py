@@ -10,4 +10,4 @@ _wrappers = {
 
 def wrapper(desired, debug=False):
     if desired in _wrappers.keys():
-        return wrappers[desired](AlfredBundler.utility(desired), debug=debug)
+        return _wrappers[desired](AlfredBundler.utility(desired), debug=debug)

@@ -142,7 +142,7 @@ PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 # Wrappers module path
 WRAPPERS_DIR = os.path.join(
     BUNDLER_DIR, 'bundler', 'includes',
-    'wrappers', 'python', 'wrappers', '__init__.py'
+    'wrappers', 'python'
 )
 
 # Where helper scripts and metadata are stored
@@ -302,7 +302,10 @@ def _bootstrap():
 
     # Import bundler
     _bundler = imp.load_source('AlfredBundler', BUNDLER_PY_LIB)
-    _wrappers = imp.load_source('__init__', WRAPPERS_DIR)
+    _wrappers_file, _wrappers_filename, _wrappers_data = imp.find_module(
+        'wrappers', [WRAPPERS_DIR])
+    _wrappers = imp.load_module(
+        'wrappers', _wrappers_file, _wrappers_filename, _wrappers_data)
     _log.debug('AlfredBundler.py imported')
     _bundler.metadata.set_updated()
 
