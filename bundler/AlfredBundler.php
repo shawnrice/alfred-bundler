@@ -999,7 +999,7 @@ class AlfredBundlerInternalClass {
    */
   public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
 
-    $assetCache = "{$this->cache}/utilities"
+    $assetCache = "{$this->cache}/utilities";
 
     // Make sure the directory exists
     if ( ! ( ( file_exists( $assetCache ) && is_dir( $assetCache ) ) ) )
