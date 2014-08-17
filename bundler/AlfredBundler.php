@@ -1110,14 +1110,42 @@ class AlfredBundlerInternalClass {
    *
    * @param string $title   Title for notification
    * @param string $message Message of notification
-   * @param array $options = array() An array of options that Terminal Notifer takes
+   * @param string $icon = null An array of options that Terminal Notifer takes
    * @return bool                      TRUE on success, FALSE on failure
    */
-  public function notify( $title, $message, $options = array() ) {
-
-    // @TODO
-    // Rewrite to use CD
-
+  public function notify( $title, $message, $icon = null ) {
+    if ( gettype( $title) === 'string' && gettype( $message ) === 'string' ) {
+      $client = $this->wrapper( 'CocoaDialog' );
+      $icon_type = 'icon';
+      if ( ( ! is_null( $icon ) ) && ( gettype( $icon ) === 'string' ) ) {
+        if ( ! file_exists( $icon ) ) {
+          if ( ! in_array( $icon, $client->global_icons ) ) {
+            $icon_type = null;
+          }
+        } else {
+          $icon_type = 'icon_file';
+        }
+      } else {
+        $icon_type = null;
+      }
+      $notification = [
+        'title'=>$title,
+        'description'=>$message,
+        'alpha'=>1,
+        'background_top'=>'ffffff',
+        'background_bottom'=>'ffffff',
+        'border_color'=>'ffffff',
+        'text_color'=>'000000',
+        'no_growl'=>true,
+      ];
+      if ( ! is_null( $icon_type ) ) {
+        $notification[$icon_type] = $icon;
+      }
+      $client->notify( $notification );
+      return true;
+    } else {
+      return false;
+    }
    }
 
   /******************************************************************************
