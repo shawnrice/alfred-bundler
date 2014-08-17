@@ -265,7 +265,7 @@ class AlfredBundlerInternalClass {
       "{$this->cache}/php",
       "{$this->cache}/ruby",
       "{$this->cache}/python",
-      "{$this->cache}/utility",
+      "{$this->cache}/utilities",
     );
 
     foreach ( $directories as $dir ) :
@@ -999,7 +999,7 @@ class AlfredBundlerInternalClass {
    */
   public function gatekeeper( $name, $path, $message = '', $icon = '' ) {
 
-    $assetCache = "{$this->data}/data/call-cache";
+    $assetCache = "{$this->cache}/utilities"
 
     // Make sure the directory exists
     if ( ! ( ( file_exists( $assetCache ) && is_dir( $assetCache ) ) ) )
