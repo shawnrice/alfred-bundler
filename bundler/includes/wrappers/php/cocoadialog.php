@@ -169,7 +169,11 @@ class CocoaDialog {
     public function __construct( $cocoa, $debug=False ) {
         $this->cocoa = $cocoa;
         $this->debug = $debug;
-        date_default_timezone_set('UTC');
+        // Set date/time to avoid warnings/errors.
+        if ( ! ini_get( 'date.timezone' ) ) {
+          $tz = exec( 'tz=`ls -l /etc/localtime` && echo ${tz#*/zoneinfo/}' );
+          ini_set( 'date.timezone', $tz );
+        }
         if ( file_exists( $this->cocoa ) ) {
             if ( 'app' === strtolower( pathinfo( $cocoa, PATHINFO_EXTENSION ) ) ) {
                 $this->cocoa = '/' . join( '/', array( trim( $cocoa, '/' ), trim( '/Contents/MacOS/cocoadialog', '/' ) ) );
