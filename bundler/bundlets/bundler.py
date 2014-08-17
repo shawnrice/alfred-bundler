@@ -139,6 +139,11 @@ BUNDLER_PY_LIB = os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
 # Root directory under which workflow-specific Python libraries are installed
 PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
 
+# Wrappers module path
+WRAPPERS_DIR = os.path.join(
+    BUNDLER_DIR, 'bundler', 'includes', 'wrappers', 'python', 'wrappers'
+)
+
 # Where helper scripts and metadata are stored
 HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 
@@ -160,6 +165,9 @@ HTTP_TIMEOUT = 5
 
 # The actual bundler module will be imported into this variable
 _bundler = None
+
+# The wrappers object will be saved to here
+_wrappers = None
 
 
 #-----------------------------------------------------------------------
@@ -243,6 +251,7 @@ def _bootstrap():
     """
 
     global _bundler
+    global _wrappers
 
     if _bundler is not None:  # Already bootstrapped
         return
@@ -271,7 +280,7 @@ def _bootstrap():
             _log.exception(err)
             raise InstallationError(
                 'Error downloading `{}` to `{}`: {}'.format(
-                BASH_BUNDLET_URL, bundlet_path, err))
+                    BASH_BUNDLET_URL, bundlet_path, err))
 
         _log.debug('Executing script : `{}`'.format(bash_code))
 
@@ -292,6 +301,7 @@ def _bootstrap():
 
     # Import bundler
     _bundler = imp.load_source('AlfredBundler', BUNDLER_PY_LIB)
+    _wrappers = imp.load_source('wrappers', WRAPPERS_DIR)
     _log.debug('AlfredBundler.py imported')
     _bundler.metadata.set_updated()
 
@@ -299,6 +309,11 @@ def _bootstrap():
 ########################################################################
 # User API
 ########################################################################
+
+def wrapper(wrapper, debug=False):
+    _bootstrap()
+    return _wrappers.wrapper(wrapper, debug=debug)
+
 
 def notify(title, message, icon_path=None):  # pragma: no cover
     """Post a notification
