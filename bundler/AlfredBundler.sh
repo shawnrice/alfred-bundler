@@ -30,7 +30,9 @@ fi
 # Set the data directory, and the log file location
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 declare -r AB_LOG="${AB_DATA}/data/logs/bundler-${AB_MAJOR_VERSION}.log"
-
+declare -r AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
+declare -r AB_COLOR_CACHE="{$AB_CACHE}/color"
+declare -r AB_PATH_CACHE="{$AB_CACHE}/utilities"
 # Set some variables about the workflow
 declare -r WF_BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :bundleid' 'info.plist')
 declare -r WF_NAME=$(/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist')
