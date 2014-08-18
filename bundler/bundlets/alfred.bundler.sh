@@ -18,6 +18,21 @@
 declare AB_MAJOR_VERSION="devel"
 declare AB_INSTALL_SUFFIX="-latest.zip"
 
+if [ ! -f 'info.plist' ]; then
+  # TODO : use a real error message
+  echo "Alfred Bundler Error.... need an info.plist to use the bundler." >&2
+  # Okay, so, do something to err... I don't know, not fail?
+fi
+
+# Set the workflow name from an ENV variable if available. Otherwise
+# fallback to the plist.
+if [ ! -z "${alfred_workflow_name}" ]; then
+  declare WF_NAME=${alfred_workflow_name}
+else
+  declare WF_NAME=$(/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist')
+fi
+
+
 # Set the bundler version from env variable if present
 # Also set the appropriate URL suffix. Development versions, i.e. those
 # set from the AB_BRANCH env var, should install from HEAD.
@@ -234,6 +249,40 @@ function AlfredBundler::install_bundler {
   # We're successful, so return success
   return 0
 }
+
+AlfredBundler::confirm_install() {
+  local icon
+  if [ -f 'icon.png' ]; then
+    # there has to be a better way to do this...
+    icon=$(echo $(pwd)'/icon.png' | tr '/' ':')
+    icon=${icon:1:${#icon}-1}
+  else
+    icon="System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns"
+  fi
+
+  text="${WF_NAME} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
+
+You may be asked to allow some components to run, depending on your security settings.
+
+You can decline this installation, but ${WF_NAME} may not work without them. There will be a slight delay after accepting.";
+
+  script="display dialog \"${text}\" buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 with title \"Setup ${WF_NAME}\" with icon file \"${icon}\"";
+
+  # a="button returned:Proceed" && echo ${a#button returned:}
+  response=$(osascript -e "${script}")
+  response=${response#button returned:}
+  if [ $response == 'More Info' ]; then
+    open "https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler"
+  elif [ $response == 'Proceed' ]; then
+    # @TODO do something with this
+    echo "Everything is pretty great. You liked me enough to install." >&2
+  else
+    # @TODO do some other things here
+    echo "User canceled installation, so do something here." >&2
+  fi
+
+}
+
 
 #######################################
 # Includes the backend of the bundler
