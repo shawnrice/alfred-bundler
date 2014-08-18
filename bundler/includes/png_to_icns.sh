@@ -38,7 +38,7 @@ function check_arguments() {
   fi
 
   # Directory for Argument 2 needs to exist
-  if [[ ! -e $(dirname ${2%/*}) ]]; then
+  if [[ ! -e "${2%/*}" ]]; then
     echo "Error: destination directory must exist" >&2
     return 1
   fi
