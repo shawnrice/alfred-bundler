@@ -31,8 +31,9 @@ fi
 declare -r AB_DATA="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
 declare -r AB_LOG="${AB_DATA}/data/logs/bundler-${AB_MAJOR_VERSION}.log"
 declare -r AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${AB_MAJOR_VERSION}"
-declare -r AB_COLOR_CACHE="{$AB_CACHE}/color"
-declare -r AB_PATH_CACHE="{$AB_CACHE}/utilities"
+declare -r AB_COLOR_CACHE="${AB_CACHE}/color"
+declare -r AB_PATH_CACHE="${AB_CACHE}/utilities"
+
 # Set some variables about the workflow
 declare -r WF_BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :bundleid' 'info.plist')
 declare -r WF_NAME=$(/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist')
@@ -76,141 +77,6 @@ bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 ################################################################################
 
 #######################################
-# Downloads icons
-# Globals:
-#   AB_DATA
-# Arguments:
-#   font
-#   name
-#   color
-#   alter
-# Returns:
-#   File path to an icon
-#
-#######################################
-function AlfredBundler::icon() {
-
-  local font
-  local name
-  local color
-  local alter
-  local icon_server
-  local icon_dir
-  local icon_path
-  local status
-  local url
-  local system_icon_dir
-  # Set font name
-  if [ ! -z "$1" ]; then
-    font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
-  else
-    # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
-    return 1
-  fi
-
-  # Set icon name
-  if [ ! -z "$2" ]; then
-    name="$2"
-  else
-    # Send error to STDERR
-    echo "ERROR: AlfredBundler::icon needs a minimum of two arguments" >&2
-    return 1
-  fi
-
-  # Take care of the system font first
-  if [ "${font}" == "system" ]; then
-    system_icon_dir="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources"
-    if [ -f "${system_icon_dir}/${name}.icns" ]; then
-      echo "${system_icon_dir}/${name}.icns"
-      return 0
-    else
-      echo "ERROR: System icon '${name}' not found" >&2
-      echo "${AB_DATA}/bundler/meta/icons/default.icns"
-      return 0
-    fi
-  fi
-
-  # Set color or default to black
-  if [ ! -z "$3" ]; then
-    color="$3"
-  else
-    color="000000"
-  fi
-
-  # Normalize and check the color for valid hex
-  color=$(AlfredBundler::check_hex "${color}")
-  # If not a valid hex, then return 0
-  [[ $? -ne 0 ]] && return 1
-
-
-  # See if the alter variable is set
-  if [ ! -z "$4" ]; then
-    alter=$(echo "$4" | tr [[:lower:]] [[:upper:]])
-  elif [[ -z "$3" ]] && [[ -z "$4" ]]; then
-    alter="TRUE"
-  else
-    alter="FALSE"
-  fi
-
-  # Make the color cache directory if it doesn't exist
-  [[ ! -d "${AB_DATA}/data/color-cache" ]] && mkdir -m 775 -p "${AB_DATA}/data/color-cache"
-
-
-  if [[ "${alter}" == "TRUE" ]]; then
-    color=$(AlfredBundler::alter_color ${color} TRUE)
-  elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
-    color=$(AlfredBundler::alter_color ${color} ${alter})
-  fi
-  color=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
-  icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
-  icon_path="${icon_dir}/${name}.png"
-
-  # Make the icon directory if it doesn't exist
-  [[ ! -d "${icon_dir}" ]] && mkdir -m 775 -p "${icon_dir}"
-
-  if [[ -f "${icon_path}" ]]; then
-    echo "${icon_path}"
-    return 0
-  fi
-
-  i=0
-  icon_servers=$(cat "${AB_DATA}/bundler/meta/icon_servers")
-  len=${#icon_servers[@]}
-  success="FALSE"
-
-  # Download icon from web service and cache it
-  # Loop through the bundler servers until we get one that works
-  while [[ $i -lt $len ]]; do
-    # Try to download the icon from the server, but give up if we cannot connect
-    # in less than two seconds.
-    curl -fsSL --connect-timeout 5 "${icon_servers[$i]}/icon/${font}/${color}/${name}" > "${icon_path}"
-    status=$?
-    if [[ $status -eq 0 ]]; then
-      success="TRUE"
-      AlfredBundler::report "Downloaded icon ${name} from ${font} in color ${color}" INFO
-      break
-    else
-      AlfredBundler::report "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" ERROR
-      [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
-      success="FALSE"
-    fi
-    : $[ i++ ]
-  done;
-
-  # Here, we're doing a post-mortem to make sure that we got through to one
-  # of the icon servers
-  if [[ $success == "TRUE" ]]; then
-    echo "${icon_path}"
-  else
-    echo "${AB_DATA}/bundler/meta/icons/default.png"
-    AlfredBundler::report "Could not download icon ${name}" 3
-    return 1
-  fi
-
-} # End AlfredBundler::icon
-
-#######################################
 # Downloads and loads an asset
 # Globals:
 #   AB_DATA
@@ -232,8 +98,8 @@ function AlfredBundler::load {
   # We need two arguments at minimum
   if [ "$#" -lt 2 ]; then
     # Send message to STDERR
-    AlfredBundler::report "Trying to load asset requires a minimum of two arguments." CRITICAL
-    return 1
+    AB::Log::Log "Trying to load asset requires a minimum of two arguments." CRITICAL console
+    return 11
   fi
 
   # Keep the variables local so as not to interfere with the rest of the script
@@ -241,7 +107,6 @@ function AlfredBundler::load {
   local name
   local version
   local json
-  local bundle
   local asset
   local status
   local gatekeeper
@@ -259,7 +124,7 @@ function AlfredBundler::load {
   # Set the version to latest if not specified
   [[ -z "${version}" ]] && version="latest"
 
-  AlfredBundler::report "Loading ${type} '${name}' version ${version} ..." INFO
+  AB::Log::Log "Loading ${type} '${name}' version ${version} ..." INFO console
 
   # Check to make sure that the json file exists
   if [ -z "${json}" ]; then
@@ -268,15 +133,15 @@ function AlfredBundler::load {
       json="${AB_DATA}/bundler/meta/defaults/${name}.json"
     else
       # Send error message to STDERR
-      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL
-      return 1
+      AlfredBundler::Log::Log "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL both
+      return 11
     fi
   else
     # Trying to use custom json
     if [ ! -f "${json}" ]; then
       # json file does not exist; send error message to STDERR
-      AlfredBundler::report "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL
-      return 1
+      AB::Log::Log "Error: no valid JSON file found. This is a problem with the __implementation__ with the Alfred Bundler. Please let the workflow author know." CRITICAL both
+      return 11
     fi
   fi
 
@@ -302,7 +167,7 @@ function AlfredBundler::load {
       # Register the asset
       bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
            "${AB_DATA}/bundler/includes/registry.php" \
-           "${bundle}" "${name}" "${version}"
+           "${WF_BUNDLE}" "${name}" "${version}"
 
       # Return the path
       echo "${asset}/"$(cat "${asset}/invoke")
@@ -315,16 +180,16 @@ function AlfredBundler::load {
       # the error messages were written to STDERR by the install script.
       status=$?
       if [[ $status -ne 0 ]]; then
-        AlfredBundler::report "Could not install '${name}', type '${type}'" CRITICAL
+        AB::Log::Log "Could not install '${name}', type '${type}'" CRITICAL both
         return 1
       fi
 
       # Register the asset
       bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' \
            "${AB_DATA}/bundler/includes/registry.php" \
-           "${bundle}" "${name}" "${version}"
+           "${WF_BUNDLE}" "${name}" "${version}"
 
-      AlfredBundler::report "Installed '${name}', type '${type}'" INFO
+      AB::Log::Log "Installed '${name}', type '${type}'" INFO both
       # Return the path
       echo "${asset}/"$(cat "${asset}/invoke")
       return 0
@@ -334,7 +199,7 @@ function AlfredBundler::load {
   if [ ! -f "${asset}/invoke" ]; then
       # Install the asset
 
-      AlfredBundler::report "Installing ${type} '${name}' version ${version} ..." INFO
+      AB::Log::Log "Installing ${type} '${name}' version ${version} ..." INFO console
 
       php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
 
@@ -352,15 +217,14 @@ function AlfredBundler::load {
   # Step 3: Run gatekeeper script
 
   # Create cache directory if it doesn't exist
-  cache_dir="${AB_DATA}/data/call-cache"
   if [[ ! -d "${cache_dir}" ]]; then
     mkdir -p -m 775 "${cache_dir}"
-    [[ $? -ne 0 ]] && AlfredBundler::report "Could not make directory: ${cache_dir}" CRITICAL || AlfredBundler::report "Created directory: ${cache_dir}" INFO
+    [[ $? -ne 0 ]] && AB::Log::Log "Could not make directory: ${AB_PATH_CACHE}" CRITICAL both || AB::Log::Log "Created directory: ${cache_dir}" INFO both
   fi
 
   # Cache path for this call
   key=$(md5 -q -s "${name}-${version}-${type}-${json}")
-  cache_path="${cache_dir}/${key}"
+  cache_path="${AB_PATH_CACHE}/${key}"
 
   # Check the cache
   if [[ -f "${cache_path}" ]]; then
@@ -381,7 +245,7 @@ function AlfredBundler::load {
 
     # Register the asset
     bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
-      "${bundle}" "${name}" "${version}"
+      "${WF_BUNDLE}" "${name}" "${version}"
 
     # Echo the path and return a successful status
     echo "${path}"
@@ -399,7 +263,7 @@ function AlfredBundler::load {
     path="${asset}/$(cat "${asset}/invoke")"
 
     # Call gatekeeper
-    bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${bundle}"
+    bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${WF_BUNDLE}"
 
     # get response and do the rest of the handling.
     status=$?
@@ -410,7 +274,7 @@ function AlfredBundler::load {
 
     # Register the asset
     bash "${AB_DATA}/bundler/meta/fork.sh" '/usr/bin/php' "${AB_DATA}/bundler/includes/registry.php" \
-      "${bundle}" "${name}" "${version}"
+      "${WF_BUNDLE}" "${name}" "${version}"
 
     # Echo the path and return a successful status
     echo "${path}"
@@ -419,8 +283,8 @@ function AlfredBundler::load {
   fi
 
   # Send message to STDERR
-  AlfredBundler::report "You've encountered a problem with the __implementation__ of" "the Alfred Bundler; please let the workflow author know." "ERROR"
-  return 1
+  AB::Log::Log "You've encountered a problem with the __implementation__ of" "the Alfred Bundler; please let the workflow author know." ERROR both
+  return 11
 
 } # End AlfredBundler::load
 
