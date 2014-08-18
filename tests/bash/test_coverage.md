@@ -90,3 +90,18 @@ _At least, all returned values are possible. Cannot programmatically check actua
 * AB::Log::File
 * AB::Log::Setup
 * AB::Log::Rotate
+
+
+
+#### AlfredBundler.sh / alfred.bundler.sh
+
+* AlfredBundler::load
+  * Covered by `load_test`
+  * Covered by `library_load_test`
+  * Covered by `utility_load_test`
+* AlfredBundler::utility
+  * Covered by `utility_load_test`
+* AlfredBundler::library
+  * Covered by `library_load_test`
+
+_Note: all are tested if you set the `full_tests` flag to "TRUE"_

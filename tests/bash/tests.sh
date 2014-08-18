@@ -6,10 +6,85 @@ function onexit() {
   exit $exit_status
 }
 
-declare -r ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+full_tests='TRUE'
 
-. "${ME}/../../bundler/AlfredBundler.sh"
-# . "${ME}/../../bundler/bundlets/alfred.bundler.sh"
+declare -r ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+declare AB_BRANCH='devel'
+
+if [ $full_tests == 'TRUE' ]; then
+  rm -fR "${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${AB_BRANCH}"
+fi
+
+. "${ME}/../../bundler/bundlets/alfred.bundler.sh"
+
+if [ ! -z $ALFRED_BUNDLER_INSTALL_REFUSED ]; then
+  # This is kind of an install test for cancelation. No other tests will run.
+  echo "User canceled install"
+  exit 1
+fi
+
+
+###############################################################################
+#### Bundler Tests...
+
+function utility_load_test() {
+  if [[ ! -z $(AlfredBundler::utility CocoaDialog) ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function load_test() {
+  if [[ ! -z $(AlfredBundler::load utility CocoaDialog) ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function library_load_test() {
+  if [[ ! -z $(AlfredBundler::library BashWorkflowHandler) ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
+function bundler_tests() {
+  local passed=0
+  local failed=0
+
+  # Queue Tests
+  local tests=()
+  tests+=(load_test)
+  tests+=(library_load_test)
+  tests+=(utility_load_test)
+
+  local num=${#tests[@]}
+
+  echo "Starting Bundler Tests. Note: some are visual"
+  echo "========================================================================="
+
+  # Do tests
+  #
+  for test in ${tests[@]}; do
+    echo -n "Doing $test..."
+    $test
+    if [[ $? -eq 0 ]]; then
+      echo " ...passed"
+      passed=$(( passed + 1 ))
+    else
+      echo " ...failed"
+      failed=$(( failed + 1 ))
+    fi
+  done
+  echo "========================================================================="
+  echo "Passed: ${passed} / ${num}"
+  echo "Failed: ${failed} / ${num}"
+}
+
 
 
 ###############################################################################
@@ -423,12 +498,8 @@ function math_tests() {
 ### End math tests
 ###############################################################################
 
-# function testing() {
-#   AlfredBundler::Log "Testing2" INFO console
-# }
-# testing
 
-# math_tests
-# icon_tests
-
+math_tests
+icon_tests
 log_tests
+bundler_tests
