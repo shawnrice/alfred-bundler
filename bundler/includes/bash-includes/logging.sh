@@ -54,8 +54,8 @@ function AB::Log::Log() {
   level=$(AB::Log::normalize_log_level "$2")
   # Check for valid log level
   if [[ $? -eq 1 ]]; then
-    echo "[${date}] [${file}:${line}] [WARNING] Log level '$2' is not valid. " \
-         "Falling back to 'INFO' (1)" >&2
+    echo "[${date}] [${file}:${line}] [WARNING] Log level '$2' is not valid." \
+         " Falling back to 'INFO' (1)" >&2
   fi
 
   [[ -z "${destination}" ]] && destination='console'
