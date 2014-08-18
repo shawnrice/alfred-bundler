@@ -522,19 +522,6 @@ private function processASDialog() {
     return TRUE;
   }
 
-  /**
-   * Passes notification call to internal bundler
-   *
-   * @param string $title Notification title
-   * @param string $message Notification message
-   * @param string $icon CD supported icon or absolute icon file path
-   *
-   * @since Taurus 1
-   */
-  // private function notify( $title, $message, $icon = None ) {
-  //   $this->bundler->notify( $title, $message, $icon = $icon );
-  // }
-
 /******************************************************************************
  *** End Installation Functions
  *****************************************************************************/
