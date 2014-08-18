@@ -181,24 +181,6 @@ class AlfredBundlerInternalClass {
 
     $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}", $log );
 
-
-
-    // Old code... take this out when we know we don't need any of it.
-    // if ( isset( $_ENV[ 'alfred_version' ] ) ) {
-    //   // As of Alfred v2.4 Build 277, environmental variables are available
-    //   // that will make this process a lot easier and faster.
-    //   $this->alfredVersion = array( 'version' => $_ENV[ 'alfred_version' ],
-    //     'build'  => $_ENV[ 'alfred_version_build' ] );
-    //   $this->home = $_ENV[ 'HOME' ];
-    //   $this->alfredPreferences = $_ENV[ 'alfred_preferences' ];
-    //   $this->preferencesHash = $_ENV[ 'alfred_preferences_local_hash' ];
-    //   $this->themeBackground = $_ENV[ 'alfred_theme_background' ];
-    //   $this->theme = $_ENV[ 'alfred_theme' ];
-    //
-    //   $plist = "{$this->alfredPreferences}/preferences/local/{$this->preferencesHash}/appearance/prefs.plist";
-    // }
-
-
     // Let's just return something
     return TRUE;
   }
@@ -209,9 +191,11 @@ class AlfredBundlerInternalClass {
    */
   private function setup() {
 
-    if ( isset( $_ENV[ 'AB_TESTING' ] ) )
-      $this->setupTests();
-    elseif ( isset( $_ENV[ 'alfred_version' ] ) )
+    // This should be taken care of by the bundlet, but for redundnacy...
+    if ( ! file_exists( 'info.plist' ) )
+          throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
+
+    if ( isset( $_ENV[ 'alfred_version' ] ) )
       $this->setupModern();
     else
       $this->setupDeprecated();
@@ -225,9 +209,6 @@ class AlfredBundlerInternalClass {
    */
   private function setupModern() {
 
-    if ( ! file_exists( 'info.plist' ) )
-      throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
-
     $this->bundle       = $_ENV[ 'alfred_workflow_bundleid' ];
     $this->name         = $_ENV[ 'alfred_workflow_name' ];
     $this->workflowData = $_ENV[ 'alfred_workflow_data' ];
@@ -240,14 +221,11 @@ class AlfredBundlerInternalClass {
    */
   private function setupDeprecated() {
 
-    if ( ! file_exists( 'info.plist' ) )
-      throw new Exception( 'Using the Alfred Bundler requires a valid info.plist file to be found; in other words, it needs to be used in a workflow. ');
-
     $this->bundle       = $this->readPlist( 'info.plist', 'bundleid' );
     $this->name         = $this->readPlist( 'info.plist', 'name' );
-    $this->workflowData = $_SERVER[ 'HOME' ] . "/Library/Application Support/Alfred 2/Workflow Data/" . $this->bundle;
-
-    $this->env    = FALSE;
+    $this->workflowData = $_SERVER[ 'HOME' ] .
+      "/Library/Application Support/Alfred 2/Workflow Data/" . $this->bundle;
+    $this->env          = FALSE;
 
   }
 
@@ -269,25 +247,11 @@ class AlfredBundlerInternalClass {
     );
 
     foreach ( $directories as $dir ) :
-    if ( ! file_exists( $dir ) )
-      mkdir( $dir, 0775, TRUE );
+      // @TODO add in better error handling here (for redundancy)
+      if ( ! file_exists( $dir ) )
+        mkdir( $dir, 0775, TRUE );
     endforeach;
   }
-
-
-/**
- * Simple function to setup to test the bundler outside of Alfred.
- */
-  private function setupTests() {
-    $this->bundle = $_ENV['alfred_workflow_bundleid'];
-    $this->name = $_ENV[ 'alfred_workflow_name' ];
-    $this->workflowData = $_ENV[ 'alfred_workflow_data' ];
-
-    $this->env = TRUE;
-
-  }
-
-
 
   /**
    * Load an asset using a generic function
@@ -383,8 +347,8 @@ class AlfredBundlerInternalClass {
     // At this point, we need to check in with gatekeeper
 
     // Find the icon to pass to the Gatekeeper script
-    if ( file_exists( realpath( dirname( $this->plist ) ) . "/icon.png" ) )
-      $icon = realpath( dirname( $this->plist ) ) . "/icon.png";
+    if ( file_exists( 'icon.png' ) )
+      $icon = realpath( dirname( 'icon.png' ) );
     else
       $icon = '';
 
@@ -400,7 +364,7 @@ class AlfredBundlerInternalClass {
 
     // Double check with the gatekeeper function (doesn't necessarily
     // run the gatekeeper script).
-    if ( $this->gatekeeper( $name, $path, $message, $icon, $this->bundle ) ) {
+    if ( $this->gatekeeper( $name, $path, $message, $icon ) ) {
       // The utility has been whitelisted, so return the path
       $this->log->log( "Loaded '{$name}' v{$version} of type '{$type}'.",
         'INFO', 'console' );
@@ -1027,10 +991,10 @@ class AlfredBundlerInternalClass {
     $gatekeeper = realpath( dirname( __FILE__ ) ) . '/includes/gatekeeper.sh';
 
     // Execute the Gatekeeper script
-    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status ); $line = __LINE__;
+    exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
 
-    // If the previous call returns a successful status code, then cache the path
-    // and return it. Else, move to failure.
+    // If the previous call returns a successful status code, then cache
+    // the path and return it. Else, move to failure.
     if ( $status == 0 ) {
       file_put_contents( $cachePath, $path );
       return $path;
@@ -1043,7 +1007,7 @@ class AlfredBundlerInternalClass {
     $this->log->log( "Bundler Error: '{$name}' is needed to properly run " .
       "this workflow, and it must be whitelisted for Gatekeeper. You " .
       "either denied the request, or another error occured with " .
-      " the Gatekeeper script.", 'ERROR', 'console' );
+      " the Gatekeeper script.", 'ERROR', 'both' );
 
     // So return FALSE as failure.
     return FALSE;
@@ -1101,13 +1065,13 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-  /******************************************************************************
- * END HELPER FUNCTIONS
- *****************************************************************************/
+  /****************************************************************************
+   * END HELPER FUNCTIONS
+   ***************************************************************************/
 
-  /******************************************************************************
- * BEGIN BONUS FUNCTIONS
- *****************************************************************************/
+  /****************************************************************************
+   * BEGIN BONUS FUNCTIONS
+   ***************************************************************************/
 
   /**
    * Uses CocoaDialog to display a notification
@@ -1152,9 +1116,9 @@ class AlfredBundlerInternalClass {
     }
    }
 
-  /******************************************************************************
- * END BONUS FUNCTIONS
- *****************************************************************************/
+  /****************************************************************************
+   * END BONUS FUNCTIONS
+   ***************************************************************************/
 
 }
 endif;
