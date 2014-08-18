@@ -284,7 +284,8 @@ function AlfredBundler::get_background_from_env() {
   g=$(echo "${alfred_theme_background}" | cut -d ',' -f 2)
   b=$(echo "${alfred_theme_background}" | cut -d ',' -f 3)
 
-  local luminance=$(AlfredBundler::get_luminance "${r} ${g} ${b}")
+  local luminance=$(AlfredBundler::get_luminance ${r} ${g} ${b})
+
   if [[ $(Math::GT $luminance .5) == '1' ]]; then
     echo 'light'
   else
