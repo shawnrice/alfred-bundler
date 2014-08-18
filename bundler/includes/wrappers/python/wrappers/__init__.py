@@ -10,5 +10,6 @@ _wrappers = {
 
 def wrapper(desired, debug=False):
     if desired in _wrappers.keys():
+        # This key conform is questionable
         return _wrappers[desired.lower()][0](
             AlfredBundler.utility(_wrappers[desired.lower()][1]), debug=debug)

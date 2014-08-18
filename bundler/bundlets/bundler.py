@@ -323,7 +323,7 @@ def wrapper(wrapper, debug=False):
     :type debug: bool
     """
     _bootstrap()
-    return _wrappers.wrapper(wrapper, debug=debug)
+    return _wrappers.wrapper(wrapper.lower(), debug=debug)
 
 
 def notify(title, message, icon=None):  # pragma: no cover
@@ -342,7 +342,7 @@ def notify(title, message, icon=None):  # pragma: no cover
     _bootstrap()
     if (isinstance(title, str) or isinstance(title, unicode)) and \
        (isinstance(message, str) or isinstance(message, unicode)):
-        client = wrapper('cocoaDialog')
+        client = wrapper('cocoadialog', debug=True)
         icon_type = 'icon'
         if icon and (isinstance(icon, str) or isinstance(icon, unicode)):
             if not os.path.exists(icon):
