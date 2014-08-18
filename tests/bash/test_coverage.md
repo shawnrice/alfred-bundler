@@ -68,4 +68,25 @@
   * Covered by `get_background_from_env_test`
 * AlfredBundler::get_brightness
   * Covered by `download_icon_alter_test`
-    * Covered by `get_background_from_env_test`
+  * Covered by `get_background_from_env_test`
+
+
+#### Logging (100%)
+_At least, all returned values are possible. Cannot programmatically check actual logging functions_
+
+* AB::Log::normalize_log_level
+  * Covered by `check_level_string`
+  * Covered by `check_level_int`
+  * Covered by `check_bad_level_string`
+  * Covered by `check_bad_level_int`
+* AB::Log::normalize_destination
+  * Covered by `normalize_destination_test`
+  * Covered by `normalize_destination_fail_test`
+
+###### Not tested:
+* AlfredBundler::Log
+* AB::Log::Log
+* AB::Log::Console
+* AB::Log::File
+* AB::Log::Setup
+* AB::Log::Rotate

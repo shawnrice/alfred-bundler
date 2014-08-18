@@ -16,19 +16,77 @@ declare -r ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 #### Log Tests
 
 function check_level_string {
-  a=1
-}
-
-function check_level_int {
-  a=1
+  out=$(AB::Log::normalize_log_level 'CRITICAL')
+  return $?
 }
 
 function check_bad_level_string {
-  a=1
+  out=$(AB::Log::normalize_log_level 'asdfas')
+  [[ $? -eq 1 ]] && return 0 || return 1
+}
+
+function check_level_int() {
+  level=$(php -r 'echo mt_rand(0,4);')
+  out=$(AB::Log::normalize_log_level $level)
+  return $?
 }
 
 function check_bad_level_int() {
-  a=1
+  out=$(AB::Log::normalize_log_level 25)
+  [[ $? -eq 1 ]] && return 0 || return 1
+}
+
+function normalize_destination_test() {
+  out=$(AB::Log::normalize_destination 'console')
+  return $?
+}
+
+function normalize_destination_fail_test() {
+  out=$(AB::Log::normalize_destination 'asdg')
+  if [ $out == 'console' ]; then
+    return 0
+  else
+    return 1
+  fi
+  # [[ $? -eq 1 ]] && return 0 || return 1
+}
+
+
+function log_tests() {
+  local passed=0
+  local failed=0
+
+  # Queue Tests
+  local tests=()
+  tests+=(normalize_destination_test)
+  tests+=(normalize_destination_fail_test)
+  tests+=(check_level_int)
+  tests+=(check_bad_level_int)
+  tests+=(check_level_string)
+  tests+=(check_bad_level_string)
+
+
+  local num=${#tests[@]}
+
+  echo "Starting Log Tests. Note: some are visual"
+  echo "========================================================================="
+
+  # Do tests
+  #
+  for test in ${tests[@]}; do
+    echo -n "Doing $test..."
+    $test
+    if [[ $? -eq 0 ]]; then
+      echo " ...passed"
+      passed=$(( passed + 1 ))
+    else
+      echo " ...failed"
+      failed=$(( failed + 1 ))
+    fi
+  done
+  echo "========================================================================="
+  echo "Passed: ${passed} / ${num}"
+  echo "Failed: ${failed} / ${num}"
 }
 
 ###############################################################################
@@ -370,5 +428,7 @@ function math_tests() {
 # }
 # testing
 
-math_tests
-icon_tests
+# math_tests
+# icon_tests
+
+log_tests
