@@ -489,7 +489,7 @@ class AlfredBundlerInternalClass {
     if ( file_exists( "{$wrappersDir}/{$wrapper}.php" ) ) {
       require_once "{$wrappersDir}/{$wrapper}.php";
       $this->log->log( "Loaded '{$wrapper}' bindings", 'INFO', 'console' );
-      return new $wrapper( $this->utility( 'CocoaDialog' ), $debug );
+      return new $wrapper( $this->utility( $wrapper ), $debug );
     } else {
       $this->log->log( "'{$wrapper}' not found.", 'ERROR', 'console' );
       return 10;
