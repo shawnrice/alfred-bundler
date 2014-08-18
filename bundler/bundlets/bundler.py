@@ -315,11 +315,18 @@ def _bootstrap():
 ########################################################################
 
 def wrapper(wrapper, debug=False):
+    """ Grab a wrapper's object.
+
+    :param wrapper: Title of wrapper referenced at wrappers/__init__.py
+    :type wrapper: ``str`` or ``unicode``
+    :param debug: Toggle debugging for returned wrapper
+    :type debug: bool
+    """
     _bootstrap()
     return _wrappers.wrapper(wrapper, debug=debug)
 
 
-def notify(title, message, icon_path=None):  # pragma: no cover
+def notify(title, message, icon=None):  # pragma: no cover
     """Post a notification
 
     :param title: The title of the notification
@@ -333,7 +340,35 @@ def notify(title, message, icon_path=None):  # pragma: no cover
     """
 
     _bootstrap()
-    return _bundler.notify(title, message, icon_path)
+    if (isinstance(title, str) or isinstance(title, unicode)) and \
+       (isinstance(message, str) or isinstance(message, unicode)):
+        client = wrapper('cocoaDialog')
+        icon_type = 'icon'
+        if icon and (isinstance(icon, str) or isinstance(icon, unicode)):
+            if not os.path.exists(icon):
+                if icon not in client.global_icons:
+                    icon_type = None
+            else:
+                icon_type = 'icon_file'
+        else:
+            icon_type = None
+        notification = {
+            'title': title,
+            'description': message,
+            'alpha': 1,
+            'background_top': 'ffffff',
+            'background_bottom': 'ffffff',
+            'border_color': 'ffffff',
+            'text_color': '000000',
+            'no_growl': True
+        }
+        if icon_type:
+            notification[icon_type] = icon
+        client.notify(**notification)
+        return True
+    else:
+        return False
+
 
 
 def icon(font, icon, color='000000', alter=False):
