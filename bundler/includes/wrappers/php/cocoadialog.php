@@ -59,7 +59,7 @@
  *         time_nanosleep(0, 100000000);
  *     }
  *
- * Whenever the progress bar reaches an EOF, the dialog with kill itself.
+ * Whenever the progress bar reaches an EOF, the dialog will kill itself.
  *
  * If you plan to add the `stoppable` feature in your progress bar, you will need
  * to format your loop a little differently.
