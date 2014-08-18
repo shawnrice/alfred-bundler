@@ -320,8 +320,25 @@ function AlfredBundler::utility() {
   return 1
 } # End AlfredBundler::utility
 
+function AlfredBundler::library() {
+  local name
+  local version
+  local json
 
-################################################################################
+  name="$1"
+  version="$2"
+  json="$3"
+
+  [[ -z "${version}" ]] && version='latest'
+
+  path=$(AlfredBundler::load "bash" "${name}" "${version}" "${json}")
+  status=$?
+  [[ $status -eq 0 ]] && echo ${path} && return 0
+  return 1
+}
+
+
+###############################################################################
 ### End Asset Functions
-################################################################################
+###############################################################################
 
