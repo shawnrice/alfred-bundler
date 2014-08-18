@@ -17,11 +17,11 @@
 # Define default bundler major version.
 declare AB_MAJOR_VERSION="devel"
 declare AB_INSTALL_SUFFIX="-latest.zip"
+declare AB_ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 
 if [ ! -f 'info.plist' ]; then
   # TODO : use a real error message
   echo "Alfred Bundler Error.... need an info.plist to use the bundler." >&2
-  # Okay, so, do something to err... I don't know, not fail?
 fi
 
 # Set the workflow name from an ENV variable if available. Otherwise
@@ -58,7 +58,6 @@ declare AB_CACHE="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflo
 AB_BUNDLER_SERVERS=("https://github.com/shawnrice/alfred-bundler/archive/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 AB_BUNDLER_SERVERS+=("https://bitbucket.org/shawnrice/alfred-bundler/get/${AB_MAJOR_VERSION}${AB_INSTALL_SUFFIX}")
 
-
 #######################################
 # Loads an asset
 # Globals:
@@ -76,7 +75,6 @@ function AlfredBundler::load {
  # $2 -- asset name
  # $3 -- version : optional, defaults to 'latest'
  # $4 -- json    : optional, path to json file
-
 
   a=0
   # Function is empty here because it is overridden in the backend.
@@ -162,6 +160,12 @@ function AlfredBundler::install_bundler {
   local url
   local icon
 
+  AlfredBundler::confirm_install
+  status=$?
+  if [[ $status -ne 0 ]]; then
+    return $status
+  fi
+
   echo "Installing Alfred Dependency Bundler version '${AB_MAJOR_VERSION}' ..." >&2
 
   # Make the install directory if it doesn't exist
@@ -210,9 +214,10 @@ function AlfredBundler::install_bundler {
 
   # This needs to be expanded
   if [[ $status -ne 0 ]]; then
-    echo "Corrupted zip file" >&2
+    echo "Alfred Bundler Install Error: Installation zipfile is corrupted." >&2
+    echo "Exiting Bundler installation..." >&2
     rm *.zip
-    return 21
+    return 22
   fi
 
   unzip -oq *.zip
@@ -271,14 +276,16 @@ You can decline this installation, but ${WF_NAME} may not work without them. The
   # a="button returned:Proceed" && echo ${a#button returned:}
   response=$(osascript -e "${script}")
   response=${response#button returned:}
-  if [ $response == 'More Info' ]; then
+  if [[ $response == 'More Info' ]]; then
     open "https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler"
-  elif [ $response == 'Proceed' ]; then
-    # @TODO do something with this
-    echo "Everything is pretty great. You liked me enough to install." >&2
+    echo "Opening Bundler 'Information Page', so killing workflow process." >&2
+    return 1
+  elif [[ $response == 'Proceed' ]]; then
+    # Installing...
+    return 0
   else
-    # @TODO do some other things here
-    echo "User canceled installation, so do something here." >&2
+    # User canceled installation, throw an exception (return 1)
+    return 23 # Bundler installation failure.
   fi
 
 }
@@ -297,9 +304,18 @@ function AlfredBundler::bootstrap() {
   # Install the Bundler if it does not already exist
   if [[ ! -f "${AB_DATA}/bundler/AlfredBundler.sh" ]]; then
     AlfredBundler::install_bundler
-  else
-    . "${AB_DATA}/bundler/AlfredBundler.sh"
+    status=$?
+
+    # Install exited with some error
+    # if 23, then set the refusal flag
+    if [[ $status -eq 23 ]]; then
+      ALFRED_BUNDLER_INSTALL_REFUSED='TRUE'
+      exit 23
+    fi
+    # Just return the status for all others
+    exit $status
   fi
+  return 0
 }
 
 #######################################
@@ -314,10 +330,6 @@ function AlfredBundler::bootstrap() {
 #   filepath to asset
 #######################################
 function AlfredBundler::main() {
-
-  # Install the bundler if necessary
-  AlfredBundler::bootstrap
-
   if [[ "$1" == "icon" ]]; then
     # <font> <icon> <color (optional)> <alter (optional)>
     AlfredBundler::icon "$2" "$3" "$4" "$5"
@@ -328,6 +340,13 @@ function AlfredBundler::main() {
     return $?
   fi
 }
+
+# Install the bundler if necessary
+AlfredBundler::bootstrap
+if [[ $? -eq 0 ]]; then
+  . "${AB_DATA}/AlfredBundler.sh"
+  # . "${AB_DATA}/bundler/AlfredBundler.sh"
+fi
 
 if [[ "$BASH_SOURCE" == "$0" ]]; then
   AlfredBundler::main "$1" "$2" "$3" "$4" "$5"
