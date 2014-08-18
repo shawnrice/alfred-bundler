@@ -96,6 +96,7 @@ $DATE = '07-28-14';
 $VERSION = 1.0;
 $COCOA_VERSION = [3.0, 0, 'beta'];
 
+if ( ! class_exists( 'CocoaDialog' ) ):
 
 /**
  * Main class used for interaction with CocoaDialog.
@@ -927,7 +928,10 @@ class CocoaDialog {
         }
     }
 }
+endif;
 
+
+if ( ! class_exists( 'ProgressBar' ) ):
 /**
  * Seperate class used for interaction with CocoaDialog's progress bar.
  *
@@ -1049,3 +1053,4 @@ class ProgressBar {
     }
 
 }
+endif;
