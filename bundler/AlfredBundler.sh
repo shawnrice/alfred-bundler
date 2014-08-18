@@ -70,11 +70,12 @@ bash "${AB_PATH}/meta/update-wrapper.sh" > /dev/null 2>&1
 # 20 : Connectivity issue, no internet connection
 # 21 : Connectivity issue, could not connect to server
 # 22 : Connectivity issue, corrupt download file
+# 23 : User canceled bundler installation
 
 
-################################################################################
+###############################################################################
 ### Begin Asset Functions
-################################################################################
+###############################################################################
 
 #######################################
 # Downloads and loads an asset
@@ -217,8 +218,8 @@ function AlfredBundler::load {
   # Step 3: Run gatekeeper script
 
   # Create cache directory if it doesn't exist
-  if [[ ! -d "${cache_dir}" ]]; then
-    mkdir -p -m 775 "${cache_dir}"
+  if [[ ! -d "${AB_PATH_CACHE}" ]]; then
+    mkdir -p -m 775 "${AB_PATH_CACHE}"
     [[ $? -ne 0 ]] && AB::Log::Log "Could not make directory: ${AB_PATH_CACHE}" CRITICAL both || AB::Log::Log "Created directory: ${cache_dir}" INFO both
   fi
 
