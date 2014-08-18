@@ -315,6 +315,9 @@ function AlfredBundler::bootstrap() {
 #######################################
 function AlfredBundler::main() {
 
+  # Install the bundler if necessary
+  AlfredBundler::bootstrap
+
   if [[ "$1" == "icon" ]]; then
     # <font> <icon> <color (optional)> <alter (optional)>
     AlfredBundler::icon "$2" "$3" "$4" "$5"
@@ -325,9 +328,6 @@ function AlfredBundler::main() {
     return $?
   fi
 }
-
-# Install the bundler if necessary
-AlfredBundler::bootstrap
 
 if [[ "$BASH_SOURCE" == "$0" ]]; then
   AlfredBundler::main "$1" "$2" "$3" "$4" "$5"
