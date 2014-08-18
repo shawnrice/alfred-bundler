@@ -79,17 +79,19 @@ function AB::Log::Log() {
 # Function that outputs information to the terminal (STDERR)
 function AB::Log::Console() {
   # Message — $1
+
   local date=$(date +%H:%M:%S)
   echo "[${date}] $1" >&2
   return 0
 }
 
 function AB::Log::File() {
+
   local date=$(date +"%Y-%m-%d %H:%M:%S")
   local message="$1"
   local log="$2"
 
-  if [[ ! -d $(dirname "${log}") ]]; then
+  if [[ ! -e $(dirname "${log}") ]]; then
     AB::Log::Log "Log directory '${log}' does not exist" ERROR console
     return 1
   fi
@@ -101,13 +103,13 @@ function AB::Log::File() {
 # Make log directories
 function AB::Log::Setup() {
   # This is internal setup...
-  if [[ ! -e "${AB_LOG}" ]]; then
-    mkdir -m 0775 -p "${AB_LOG}"
+  if [[ ! -d "${AB_LOG%/*}" ]]; then
+    mkdir -m 0775 -p "${AB_LOG%/*}"
     if [[ $? -eq 0 ]]; then
-      AB::Log::Log "Created directory '${AB_LOG}'" INFO console
+      AB::Log::Log "Created directory '${AB_LOG%/*}'" INFO console
       return 0
     else
-      AB::Log::Log "Could not create directory '${AB_LOG}'" ERROR console
+      AB::Log::Log "Could not create directory '${AB_LOG%/*}'" ERROR console
       return 1
     fi
   fi
