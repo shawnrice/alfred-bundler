@@ -1,6 +1,142 @@
-################################################################################
+###############################################################################
 ### Functions to support icon manipulation
 ###############################################################################
+
+
+#######################################
+# Downloads icons
+# Globals:
+#   AB_DATA
+# Arguments:
+#   font
+#   name
+#   color
+#   alter
+# Returns:
+#   File path to an icon
+#
+#######################################
+function AlfredBundler::icon() {
+
+  local font
+  local name
+  local color
+  local alter
+  local icon_server
+  local icon_dir
+  local icon_path
+  local status
+  local url
+  local system_icon_dir
+  # Set font name
+  if [ ! -z "$1" ]; then
+    font=$(echo "$1" | tr [[:upper:]] [[:lower:]])
+  else
+    # Send error to STDERR
+    AB::Log::Log "AlfredBundler::icon needs a minimum of two arguments" ERROR both
+    return 11
+  fi
+
+  # Set icon name
+  if [ ! -z "$2" ]; then
+    name="$2"
+  else
+    # Send error to STDERR
+    AB::Log::Log "AlfredBundler::icon needs a minimum of two arguments" ERROR both
+    return 1
+  fi
+
+  # Take care of the system font first
+  if [ "${font}" == "system" ]; then
+    system_icon_dir="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources"
+    if [ -f "${system_icon_dir}/${name}.icns" ]; then
+      echo "${system_icon_dir}/${name}.icns"
+      return 0
+    else
+      AB::Log::Log "System icon '${name}' not found" ERROR both
+      echo "${AB_DATA}/bundler/meta/icons/default.icns"
+      return 0
+    fi
+  fi
+
+  # Set color or default to black
+  if [ ! -z "$3" ]; then
+    color="$3"
+  else
+    color="000000"
+  fi
+
+  # Normalize and check the color for valid hex
+  color=$(AlfredBundler::check_hex "${color}")
+  # If not a valid hex, then return 0
+  [[ $? -ne 0 ]] && return 1
+
+  # See if the alter variable is set
+  if [ ! -z "$4" ]; then
+    alter=$(echo "$4" | tr [[:lower:]] [[:upper:]])
+  elif [[ -z "$3" ]] && [[ -z "$4" ]]; then
+    alter="TRUE"
+  else
+    alter="FALSE"
+  fi
+
+  # Make the color cache directory if it doesn't exist
+  [[ ! -d "${AB_COLOR_CACHE}" ]] && mkdir -m 775 -p "${AB_COLOR_CACHE}"
+
+  if [[ "${alter}" == "TRUE" ]]; then
+    color=$(AlfredBundler::alter_color ${color} TRUE)
+  elif [[ ! -z $(AlfredBundler::check_hex ${alter} 2> /dev/null) ]]; then
+    color=$(AlfredBundler::alter_color ${color} ${alter})
+  fi
+  color=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
+  icon_dir="${AB_DATA}/data/assets/icons/${font}/${color}"
+  icon_path="${icon_dir}/${name}.png"
+
+  # Make the icon directory if it doesn't exist
+  [[ ! -d "${icon_dir}" ]] && mkdir -m 775 -p "${icon_dir}"
+
+  if [[ -f "${icon_path}" ]]; then
+    echo "${icon_path}"
+    return 0
+  fi
+
+  i=0
+  icon_servers=$(cat "${AB_DATA}/bundler/meta/icon_servers")
+  len=${#icon_servers[@]}
+  success="FALSE"
+
+  # Download icon from web service and cache it
+  # Loop through the bundler servers until we get one that works
+  while [[ $i -lt $len ]]; do
+    # Try to download the icon from the server, but give up if we cannot connect
+    # in less than two seconds.
+    curl -fsSL --connect-timeout 5 "${icon_servers[$i]}/icon/${font}/${color}/${name}" > "${icon_path}"
+    status=$?
+    if [[ $status -eq 0 ]]; then
+      success="TRUE"
+      AB::Log::Log "Downloaded icon ${name} from ${font} in color ${color}" INFO both
+      break
+    else
+      AB::Log::Log "Error retrieving icon from ${icon_servers[$i]}. cURL exited with ${status}" ERROR both
+      [[ -f "${icon_path}" ]] && rm -f "${icon_path}"
+      success="FALSE"
+    fi
+    : $[ i++ ]
+  done;
+
+  # Here, we're doing a post-mortem to make sure that we got through to one
+  # of the icon servers
+  if [[ $success == "TRUE" ]]; then
+    echo "${icon_path}"
+  else
+    echo "${AB_DATA}/bundler/meta/icons/default.png"
+    AB::Log::Log "Could not download icon ${name}" ERROR both
+    return 1
+  fi
+
+} # End AlfredBundler::icon
+
+
 
 #######################################
 # Checks and normalizes hex colors
@@ -71,6 +207,7 @@ function AlfredBundler::check_hex() {
 function AlfredBundler::alter_color() {
 
   local color
+  local cached
 
   # We need two arguments
   if [[ $# -ne 2 ]]; then
@@ -85,12 +222,13 @@ function AlfredBundler::alter_color() {
   fi
 
   if [[ $(AlfredBundler::get_brightness "${color}") == $(AlfredBundler::get_background) ]]; then
+    # The cache key for the color
+    cached=$(md5 -q -s "${color}")
 
-    if [[ -f "${AB_DATA}/data/color-cache/${color}" ]]; then
-      echo $(cat "${AB_DATA}/data/color-cache/${color}")
+    if [[ -f "${AB_COLOR_CACHE}/${cached}" ]]; then
+      echo $(cat "${AB_COLOR_CACHE}/${cached}")
       return 0
     fi
-
     # Since they're the same, we'll alter the color
     if [ $2 == "TRUE" ]; then
       tmpcolor=$(echo "${color}" | tr [[:upper:]] [[:lower:]])
@@ -99,7 +237,7 @@ function AlfredBundler::alter_color() {
       color=(${color[0]} ${color[1]} $(echo "scale=10; 1 - ${color[2]}" | bc -l))
       color=$(AlfredBundler::hsv_to_rgb ${color[@]})
       color=$(AlfredBundler::rgb_to_hex ${color[@]})
-      echo "${color}" | tr [[:upper:]] [[:lower:]] > "${AB_DATA}/data/color-cache/${tmpcolor}"
+      echo "${color}" | tr [[:upper:]] [[:lower:]] > "${AB_COLOR_CACHE}/${cached}"
       echo ${color}
       return 0
     else
@@ -107,6 +245,7 @@ function AlfredBundler::alter_color() {
       return 0
     fi
   else
+
     # Since they're different, we'll just return the original color
     echo ${color}
     return 0
@@ -125,18 +264,62 @@ function AlfredBundler::alter_color() {
 #######################################
 function AlfredBundler::get_background() {
 
-  # Add in error checking
-
-  local plist=$(stat -f%m "${HOME}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist")
-  local background=$(stat -f%m "${AB_DATA}/data/theme_background")
-  if [[ $plist -gt $background ]]; then
-    echo $("${AB_PATH}/includes/LightOrDark") > "${AB_DATA}/data/theme_background"
+  if [ ! -z $alfred_version ]; then
+    background=$(AlfredBundler::get_background_from_env)
+  else
+    background=$(AlfredBundler::get_background_from_util)
   fi
 
-  background=$(cat "${AB_DATA}/data/theme_background")
+
   echo "${background}"
 }
 
+
+function AlfredBundler::get_background_from_env() {
+  local r
+  local g
+  local b
+  r=$(echo "${alfred_theme_background}" | cut -d ',' -f 1)
+  r=${r#rgba(} # Get rid of the "rgba(" that's on the front of that
+  g=$(echo "${alfred_theme_background}" | cut -d ',' -f 2)
+  b=$(echo "${alfred_theme_background}" | cut -d ',' -f 3)
+
+  local luminance=$(AlfredBundler::get_luminance "${r} ${g} ${b}")
+  if [[ $(Math::GT $luminance .5) == '1' ]]; then
+    echo 'light'
+  else
+    echo 'dark'
+  fi
+  return 0
+
+}
+
+function AlfredBundler::get_background_from_util() {
+  # This is incredibly inelegant...
+
+  # Add in error checking
+  local plist
+  local background
+
+  if [ ! -f "${HOME}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist" ]; then
+    # Uh... something is wrong. There should be a plist here.
+    echo 'dark'
+    return 1
+  fi
+
+  if [ -f "${AB_CACHE}/misc/theme_background" ]; then
+    plist=$(stat -f%m "${HOME}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist")
+    background=$(stat -f%m "${AB_CACHE}/misc/theme_background")
+    if [[ $plist -gt $background ]]; then
+      echo $("${AB_PATH}/includes/LightOrDark") > "${AB_CACHE}/misc/theme_background"
+    fi
+  else
+    echo $("${AB_PATH}/includes/LightOrDark") > "${AB_CACHE}/misc/theme_background"
+  fi
+  echo $(cat "${AB_CACHE}/misc/theme_background")
+  return 0
+
+}
 
 #######################################
 # Converts an RGB color to HSV
@@ -337,14 +520,27 @@ function AlfredBundler::rgb_to_hex() {
 }
 
 
-
+# Feed me a hex or a spaced rgb value
 function AlfredBundler::get_luminance() {
 
-    local hex="$1"
-    local rgb=$(AlfredBundler::hex_to_rgb $hex)
-    local r=${rgb[0]}
-    local g=${rgb[1]}
-    local b=${rgb[2]}
+    local hex
+    local rgb
+    local r
+    local g
+    local b
+
+    if [[ $# -eq 1 ]]; then
+      hex="$1"
+      rgb=$(AlfredBundler::hex_to_rgb $hex)
+      r=$(echo $rgb | cut -d ' ' -f 1)
+      g=$(echo $rgb | cut -d ' ' -f 2)
+      b=$(echo $rgb | cut -d ' ' -f 3)
+    else
+      r="$1"
+      g="$2"
+      b="$3"
+    fi
+
     r=$(Math::Times $r .299)
     g=$(Math::Times $g .587)
     b=$(Math::Times $b .114)
@@ -364,6 +560,7 @@ function AlfredBundler::get_luminance() {
 #   'light' or 'dark'
 #######################################
 function AlfredBundler::get_brightness() {
+
   local luminance=$(AlfredBundler::get_luminance "$1")
   if [[ $(Math::GT $luminance .5) == '1' ]]; then
     echo 'light'
