@@ -1,3 +1,7 @@
+## Bash Bundler Test Coverage
+
+Check all coverage in `{bundler_dir}/tests/bash/tests.sh`
+
 #### Math (100%)
 
 * Math::Plus
