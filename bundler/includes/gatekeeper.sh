@@ -8,20 +8,20 @@
 #
 # See https://github.com/shawnrice/alfred-bundler for more information.
 
-################################################################################
+###############################################################################
 # In 10.8, Apple introduced something called "Gatekeeper," which is that
 # annoying thing that will warn you when opening up an unsigned application in
 # 10.8+. Since we can't rely on a user to have changed these settings, then we
 # might have to seek exceptions. This script checks to see if Gatekeeper will
 # deny an app from opening and ask permission if it will. Otherwise, it exits
 # with a hunky-dorey status.
-################################################################################
+###############################################################################
 
 # This script is called internally from the bundler, so you shouldn't ever need
 # to call it. However, it's nice of you to have opened this file and read this
 # explanatory note.
 
-################################################################################
+###############################################################################
 # Internal notes:
 # Commands to use later to "deauthorize"
 # Full list of labels
@@ -40,8 +40,8 @@
 
 # Exit codes:
 #    0  : Success.
-#    10 : Failure to invoke script properly.
 #    2  : User denied request, alas.
+#    10 : Failure to invoke script properly.
 
 # Path to this file
 me="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P )"
@@ -140,7 +140,7 @@ function main() {
 
   # Construct the Applescript dialog
   read -d '' script <<-"_EOF_"
-display dialog "A workflow that you have downloaded uses the Alfred Bundler to install required support software, and it wants to use '$name.'
+display dialog "A workflow that you have downloaded uses the Alfred Bundler to install required support software, and it wants to use '$name' in order to $message
 
 Will you allow it?
 
@@ -151,6 +151,7 @@ _EOF_
   # Replace variables in AS
   script=$(echo "${script}" | sed 's|$icon|'"${icon}"'|g')
   script=$(echo "${script}" | sed 's|$name|'"${name}"'|g')
+  script=$(echo "${script}" | sed 's|$message|'"${message}"'|g')
 
   response=$(osascript -e "${script}")
 
