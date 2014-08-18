@@ -235,6 +235,13 @@ private function prepareDeprecated() {
  */
 private function prepareASDialog() {
 
+  if ( file_exists( 'icon.png' ) ) {
+    $icon = realpath( 'icon.png' );
+    $icon = str_replace('/', ':', 'icon');
+    $icon = substr( $icon, 1, strlen( $icon ) - 1 );
+  } else {
+    $icon = "System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns";
+  }
   // Text for the dialog message.
   $text = "{$this->name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
 
@@ -244,7 +251,7 @@ You can decline this installation, but {$this->name} may not work without them. 
 
   $this->script = "display dialog \"$text\" " .
     "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 " .
-    "with title \"Alfred Bundler\" with icon file \"System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns\"";
+    "with title \"{$this->name} Setup\" with icon file \"$icon\"";
 
 }
 
@@ -261,7 +268,7 @@ private function processASDialog() {
   $confirm = str_replace( 'button returned:', '', exec( "osascript -e '{$this->script}'" ) );
   if ( $confirm == 'More Info' ) {
     exec( "open {$info}" );
-    die(); // Stop the workflow. Should we not do this?
+    die(); // Stop the workflow. If it's a script filter, then this will happen anyway.
   }
   if ( $confirm == 'Cancel' ) {
     $this->report( "User canceled installation of Alfred Bundler. Unknown " .
@@ -288,6 +295,10 @@ private function processASDialog() {
       mkdir( $this->_data, 0755, TRUE );
   }
 
+  private function userCanceledInstallation() {
+    throw new Exception('The user canceled the installation of the Alfred Bundler.');
+  }
+
   /**
    * Installs the Alfred Bundler
    *
@@ -301,7 +312,7 @@ private function processASDialog() {
     $this->prepareASDialog();
 
     if ( ! $this->processASDialog() )
-      return FALSE;
+      $this->userCanceledInstallation(); // Throw an exception.
     $this->prepareDirectories();
 
     // This is a list of mirrors that host the bundler. A current list is in
@@ -441,7 +452,7 @@ private function processASDialog() {
 
   /**
    * Passes notification call to internal bundler
-   * 
+   *
    * @param string $title Notification title
    * @param string $message Notification message
    * @param string $icon CD supported icon or absolute icon file path
