@@ -120,6 +120,11 @@ class AlfredBundler {
    */
   public function __construct() {
 
+    if ( ! file_exists( 'info.plist' ) ) {
+      throw new Exception('The Alfred Bundler cannot be used without an `info.plist` file present.');
+      return FALSE;
+    }
+
     if ( isset( $_ENV[ 'AB_BRANCH' ] ) && ! empty( $_ENV[ 'AB_BRANCH' ] ) ) {
       $this->_major_version = $_ENV[ 'AB_BRANCH' ];
     } else {
