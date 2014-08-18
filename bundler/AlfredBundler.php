@@ -618,9 +618,9 @@ class AlfredBundlerInternalClass {
       return FALSE;
     }
 
-    // @TODO: Add error checking to make sure that the file is good JSON
     $json = json_decode( file_get_contents( $json ), TRUE );
 
+    // Check to make sure that the JSON is valid.
     if ( $json == null ) {
       $this->log->log( "Cannot install asset because the JSON file ('{$json}') is not valid.", 'ERROR', 'console' );
       return FALSE;
@@ -1110,7 +1110,7 @@ class AlfredBundlerInternalClass {
  *****************************************************************************/
 
   /**
-   * Uses Terminal Notifer to display a notification
+   * Uses CocoaDialog to display a notification
    *
    * @param string $title   Title for notification
    * @param string $message Message of notification
