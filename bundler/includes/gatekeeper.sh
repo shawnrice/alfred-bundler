@@ -37,7 +37,6 @@
 # spctl --remove --label "LABEL"
 ################################################################################
 
-
 # Exit codes:
 #    0  : Success.
 #    2  : User denied request, alas.
@@ -77,6 +76,8 @@ function main() {
   icon="$4"     # Icon file to create
   bundle="$5"   # Bundle ID for icns file
 
+
+
   version=`sw_vers -productVersion`
   data="${HOME}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-${major_version}"
   cache="${HOME}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-${major_version}"
@@ -114,12 +115,18 @@ function main() {
   # Create custom icns file
   if [ ! -z "${icon}" ]; then
     if [ -f "${icon}" ]; then
-      [[ ! -d "${cache}/icns" ]] && mkdir -p -m 0775 "${cache}/icns"
-      bash "${me}/includes/png_to_icns.sh" "${icon}" "${cache}/icns/${bundle}.icns"
-      if [[ $? == 0 ]]; then
+      if [ -f "${cache}/icns/${bundle}.icns" ]; then
         icon="${cache}/icns/${bundle}.icns"
       else
-        icon="${data}/bundler/meta/icons/bundle.icns"
+        [[ ! -d "${cache}/icns" ]] && mkdir -p -m 0775 "${cache}/icns"
+        bash "${me}/includes/png_to_icns.sh" "${icon}" \
+        "${cache}/icns/${bundle}.icns"
+
+        if [[ $? == 0 ]]; then
+          icon="${cache}/icns/${bundle}.icns"
+        else
+          icon="${data}/bundler/meta/icons/bundle.icns"
+        fi
       fi
     else
       icon="${data}/bundler/meta/icons/bundle.icns"
@@ -140,7 +147,7 @@ function main() {
 
   # Construct the Applescript dialog
   read -d '' script <<-"_EOF_"
-display dialog "A workflow that you have downloaded uses the Alfred Bundler to install required support software, and it wants to use '$name' in order to $message
+display dialog "A workflow that you have downloaded uses the Alfred Bundler to install required support software, and it wants to use '$name' in order to '$message.'
 
 Will you allow it?
 
@@ -176,4 +183,4 @@ _EOF_
   exit 0
 }
 
-main $@
+main "$1" "$2" "$3" "$4" "$5"
