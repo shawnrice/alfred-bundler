@@ -248,8 +248,8 @@ function AlfredBundler::install_bundler {
   # Send notification that the installation is complete
   icon="${AB_DATA}/bundler/meta/icons/bundle.icns"
 
-  "${notifier}" notify --title 'Installation Complete' --icon-file "${icon}" \
-    --text 'The Alfred Bundler has been successfully installed. Your workflow will now continue'
+  "${notifier}" notify --title 'Alfred Bundler' --icon-file "${icon}" \
+    --text 'Installation successful. Thank you for waiting.'
 
   # We're successful, so return success
   return 0
@@ -310,10 +310,10 @@ function AlfredBundler::bootstrap() {
     # if 23, then set the refusal flag
     if [[ $status -eq 23 ]]; then
       ALFRED_BUNDLER_INSTALL_REFUSED='TRUE'
-      exit 23
+      return 23
     fi
     # Just return the status for all others
-    exit $status
+    return $status
   fi
   return 0
 }
@@ -343,9 +343,13 @@ function AlfredBundler::main() {
 
 # Install the bundler if necessary
 AlfredBundler::bootstrap
-if [[ $? -eq 0 ]]; then
-  . "${AB_DATA}/AlfredBundler.sh"
-  # . "${AB_DATA}/bundler/AlfredBundler.sh"
+status=$?
+if [[ $status -eq 0 ]]; then
+  . "${AB_DATA}/bundler/AlfredBundler.sh"
+elif [[ $status -eq 1 ]]; then
+  exit 1
+else
+  return $status
 fi
 
 if [[ "$BASH_SOURCE" == "$0" ]]; then
