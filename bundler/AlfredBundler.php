@@ -485,11 +485,15 @@ class AlfredBundlerInternalClass {
    * @return  [type]            [description]
    */
   public function wrapper( $wrapper, $debug = FALSE ) {
+    $wrapperPointer = [
+        'cocoadialog'=>'cocoaDialog',
+        'terminalnotifier'=>'terminal-notifier'
+    ];
     $wrappersDir = "{$this->data}/bundler/includes/wrappers/php";
     if ( file_exists( "{$wrappersDir}/{$wrapper}.php" ) ) {
       require_once "{$wrappersDir}/{$wrapper}.php";
       $this->log->log( "Loaded '{$wrapper}' bindings", 'INFO', 'console' );
-      return new $wrapper( $this->utility( $wrapper ), $debug );
+      return new $wrapper( $this->utility( $wrapperPointer[strtolower( $wrapper )] ), $debug );
     } else {
       $this->log->log( "'{$wrapper}' not found.", 'ERROR', 'console' );
       return 10;

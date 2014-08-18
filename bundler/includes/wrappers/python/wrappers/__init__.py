@@ -3,11 +3,12 @@ from cocoadialog import CocoaDialog
 from terminalnotifier import TerminalNotifier
 
 _wrappers = {
-    'cocoaDialog': CocoaDialog,
-    'terminal-notifier': TerminalNotifier
+    'cocoadialog': (CocoaDialog, 'cocoaDialog'),
+    'terminalnotifier': (TerminalNotifier, 'terminal-notifier')
 }
 
 
 def wrapper(desired, debug=False):
     if desired in _wrappers.keys():
-        return _wrappers[desired](AlfredBundler.utility(desired), debug=debug)
+        return _wrappers[desired.lower()][0](
+            AlfredBundler.utility(_wrappers[desired.lower()][1]), debug=debug)
