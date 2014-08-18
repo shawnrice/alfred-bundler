@@ -30,9 +30,6 @@
  * this bundlet will continue to work with the bundler API for the remainder of
  * this major version (Taurus).
  *
- * Many of the methods in this class are messy, but most also exist for a one-
- * time use to install the bundler.
- *
  * Example usage:
  * <code>
  * require_once( 'alfred.bundler.php' );
@@ -112,10 +109,7 @@ class AlfredBundler {
   /**
    * The class constructor
    *
-   * Basically, this does an install check and then loads the real
-   * bundler as an internal object.
-   *
-   * @return bool             Returns successful/failed instantiation
+   * @return bool Returns successful/failed instantiation
    */
   public function __construct() {
 
@@ -138,8 +132,7 @@ class AlfredBundler {
       "alfred.bundler-{$this->_major_version}";
 
     if ( file_exists( "{$this->_data}/bundler/AlfredBundler.php" ) ) {
-      require_once( "{$_SERVER['HOME']}/Documents/Alfred2 Workflows/alfred-bundler/bundler/AlfredBundler.php" );
-      // require_once ( "{$this->_data}/bundler/AlfredBundler.php" );
+      require_once ( "../../bundler/AlfredBundler.php" );
 
       $this->bundler = new AlfredBundlerInternalClass();
     } else {
@@ -150,13 +143,9 @@ class AlfredBundler {
       } else {
         chmod( "{$this->_data}/bundler/includes/LightOrDark", 0755 );
         // The bundler is now in place, so require the actual PHP Bundler file
-        require_once "{$this->_data}/bundler/AlfredBundler.php";
+        require_once "../../bundler/AlfredBundler.php";
         // Create the internal class object
         $this->bundler = new AlfredBundlerInternalClass();
-        $cd = $this->bundler->wrapper('cocoadialog');
-        $cd->notify([ 'title' => "{$this->name} Setup",
-          'description' => 'Alfred Bundler installation successful.',
-          'icon_file' => $this->bundler->icon( 'system', 'AlertNoteIcon' ) ]);
       }
     }
 
@@ -246,6 +235,13 @@ private function prepareDeprecated() {
  */
 private function prepareASDialog() {
 
+  if ( file_exists( 'icon.png' ) ) {
+    $icon = realpath( 'icon.png' );
+    $icon = str_replace('/', ':', 'icon');
+    $icon = substr( $icon, 1, strlen( $icon ) - 1 );
+  } else {
+    $icon = "System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns";
+  }
   // Text for the dialog message.
   $text = "{$this->name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
 
@@ -255,7 +251,7 @@ You can decline this installation, but {$this->name} may not work without them. 
 
   $this->script = "display dialog \"$text\" " .
     "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 " .
-    "with title \"Alfred Bundler\" with icon file \"System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns\"";
+    "with title \"{$this->name} Setup\" with icon file \"$icon\"";
 
 }
 
@@ -272,9 +268,10 @@ private function processASDialog() {
   $confirm = str_replace( 'button returned:', '', exec( "osascript -e '{$this->script}'" ) );
   if ( $confirm == 'More Info' ) {
     exec( "open {$info}" );
-    die(); // Stop the workflow. Should we not do this?
-  }
-  if ( $confirm == 'Cancel' ) {
+    die(); // Stop the workflow. If it's a script filter, then this will happen anyway.
+  } else if ( $confirm == 'Proceed' ) {
+    return TRUE;
+  } else {
     $this->report( "User canceled installation of Alfred Bundler. Unknown " .
       "and possibly catastrophic effects to follow.",
       'CRITICAL' );
@@ -299,6 +296,10 @@ private function processASDialog() {
       mkdir( $this->_data, 0755, TRUE );
   }
 
+  private function userCanceledInstallation() {
+    throw new Exception('The user canceled the installation of the Alfred Bundler.');
+  }
+
   /**
    * Installs the Alfred Bundler
    *
@@ -311,8 +312,10 @@ private function processASDialog() {
     $this->prepareInstallation();
     $this->prepareASDialog();
 
-    if ( ! $this->processASDialog() )
+    if ( ! $this->processASDialog() ) {
+      $this->userCanceledInstallation(); // Throw an exception.
       return FALSE;
+    }
     $this->prepareDirectories();
 
     // This is a list of mirrors that host the bundler. A current list is in
@@ -448,6 +451,17 @@ private function processASDialog() {
 
     // Return success
     return TRUE;
+  }
+
+  /**
+   * Passes notification call to internal bundler
+   *
+   * @param string $title Notification title
+   * @param string $message Notification message
+   * @param string $icon CD supported icon or absolute icon file path
+   */
+  private function notify( $title, $message, $icon = None ) {
+    $this->bundler->notify( $title, $message, $icon = $icon );
   }
 
   /**
