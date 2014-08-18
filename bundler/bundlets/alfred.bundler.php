@@ -10,7 +10,7 @@
  *
  * This file is part of the Alfred Bundler, released under the MIT licence.
  * Copyright (c) 2014 The Alfred Bundler Team
- * See https://github.com/shawnrice/alfred-bundler for more information
+ * See https://shawnrice.github.io/alfred-bundler for more information.
  *
  * @copyright  The Alfred Bundler Team 2014
  * @license    http://opensource.org/licenses/MIT  MIT
@@ -28,7 +28,8 @@
  * magic that the bundler performs happens under the hood. Also, the backend
  * of the bundler (here the 'AlfredBundlerInternalClass') may change; however,
  * this bundlet will continue to work with the bundler API for the remainder of
- * this major version (Taurus).
+ * this major version (Taurus). Limited documentation is below, for more
+ * detailed documentation, see http://shawnrice.github.io/alfred-bundler.
  *
  * Example usage:
  * <code>
@@ -85,6 +86,9 @@ class AlfredBundler {
   /**
    * A filepath to the bundler directory
    *
+   * We're using this name so it doesn't clash with the internal $data
+   * variable.
+   *
    * @access public
    * @var string
    */
@@ -92,6 +96,9 @@ class AlfredBundler {
 
   /**
    * A filepath to the bundler cache directory
+   *
+   * We're using this name so it doesn't clash with the internal $data
+   * variable.
    *
    * @access private
    * @var string
@@ -133,12 +140,11 @@ class AlfredBundler {
 
     if ( file_exists( "{$this->_data}/bundler/AlfredBundler.php" ) ) {
       require_once ( "{$this->_data}/bundler/AlfredBundler.php" );
-
       $this->bundler = new AlfredBundlerInternalClass();
     } else {
       if ( $this->installBundler() === FALSE ) {
-        // The bundler could not install itself, so return false
-        $this->report( "Alfred Bundler could not be installed...", 'CRITICAL' );
+        // The bundler could not install itself, so throw an exception.
+        throw new Exception('The Alfred Bundler could not be installed.');
         return FALSE;
       } else {
         chmod( "{$this->_data}/bundler/includes/LightOrDark", 0755 );
@@ -146,6 +152,11 @@ class AlfredBundler {
         require_once "{$this->_data}/bundler/AlfredBundler.php";
         // Create the internal class object
         $this->bundler = new AlfredBundlerInternalClass();
+        $this->bundler->notify(
+        'Alfred Bundler',
+        'Installation successful. Thank you for waiting.',
+        "{$this->_data}/bundler/meta/icons/bundle.png"
+      );
       }
     }
 
@@ -189,6 +200,64 @@ class AlfredBundler {
     file_put_contents( 'php://stderr', "[{$date}] [{$level}] {$message}" . PHP_EOL );
 
   }
+
+  /**
+   * Passes calls to the internal object
+   *
+   * Wrapper function that passes all other calls to the internal object when
+   * the method has not been found in this class
+   *
+   * @param string $method Name of method
+   * @param array $args   An array of args passed
+   * @return mixed          Whatever the internal function sends back
+   *
+   * @since  Taurus 1
+   */
+  public function __call( $method, $args ) {
+
+    // Make sure that the bundler installation was not refused
+    if ( isset( $_ENV[ 'ALFRED_BUNDLER_INSTALL_REFUSED'] ) ) {
+      $bt = array_unshift( debug_backtrace() );
+      $date = date( 'H:i:s' );
+      $trace = basename( $bt[ 'file' ] ) . ':' . $bt[ 'line' ];
+      $message = "Trying to call an Alfred Bundler method ({$method}), but user refused to install the bundler.";
+      $this->report( "[{$date}] [{$trace}] {$message}", 'CRITICAL' );
+      return FALSE;
+    }
+
+
+    // Check to make sure that the method exists in the
+    // 'AlfredBundlerInternalClass' class
+    if ( ! method_exists( $this->bundler, $method ) ) {
+      // Whoops. We called a non-existent method
+      $this->report( "Could not find method [$method] in class 'AlfredBundler'.",
+        'ERROR', __FILE__, __LINE__ );
+      return FALSE;
+    }
+
+    // The method exists, so call it and return the output
+    return call_user_func_array( array( $this->bundler, $method ), $args );
+  }
+
+  /**
+   * Gets variables from the AlfredBundlerInternalClass
+   *
+   * @param   string  $name  name of variable to get
+   * @return  mixed         the variable from the internal class object
+   *
+   * @access public
+   * @since  Taurus 1
+   */
+  public function &__get( $name ) {
+    if ( isset( $this->bundler ) && is_object( $this->bundler ) ) {
+      if ( isset( $this->bundler->$name ) )
+        return $this->bundler->$name;
+    }
+  }
+
+/******************************************************************************
+ *** Begin Installation Functions
+ *****************************************************************************/
 
 /**
  * Validates and checks variables for installation
@@ -459,65 +528,16 @@ private function processASDialog() {
    * @param string $title Notification title
    * @param string $message Notification message
    * @param string $icon CD supported icon or absolute icon file path
+   *
+   * @since Taurus 1
    */
-  private function notify( $title, $message, $icon = None ) {
-    $this->bundler->notify( $title, $message, $icon = $icon );
-  }
+  // private function notify( $title, $message, $icon = None ) {
+  //   $this->bundler->notify( $title, $message, $icon = $icon );
+  // }
 
-  /**
-   * Passes calls to the internal object
-   *
-   * Wrapper function that passes all other calls to the internal object when
-   * the method has not been found in this class
-   *
-   * @param string $method Name of method
-   * @param array $args   An array of args passed
-   * @return mixed          Whatever the internal function sends back
-   *
-   * @since  Taurus 1
-   */
-  public function __call( $method, $args ) {
-
-    // Make sure that the bundler installation was not refused
-    if ( isset( $_ENV[ 'ALFRED_BUNDLER_INSTALL_REFUSED'] ) ) {
-      $bt = array_unshift( debug_backtrace() );
-      $date = date( 'H:i:s' );
-      $trace = basename( $bt[ 'file' ] ) . ':' . $bt[ 'line' ];
-      $message = "Trying to call an Alfred Bundler method ({$method}), but user refused to install the bundler.";
-      $this->report( "[{$date}] [{$trace}] {$message}", 'CRITICAL' );
-      return FALSE;
-    }
-
-
-    // Check to make sure that the method exists in the
-    // 'AlfredBundlerInternalClass' class
-    if ( ! method_exists( $this->bundler, $method ) ) {
-      // Whoops. We called a non-existent method
-      $this->report( "Could not find method [$method] in class 'AlfredBundler'.",
-        'ERROR', __FILE__, __LINE__ );
-      return FALSE;
-    }
-
-    // The method exists, so call it and return the output
-    return call_user_func_array( array( $this->bundler, $method ), $args );
-  }
-
-  /**
-   * Gets variables from the AlfredBundlerInternalClass
-   *
-   * @param   string  $name  name of variable to get
-   * @return  mixed         the variable from the internal class object
-   *
-   * @access public
-   * @since  Taurus 1
-   */
-  public function &__get( $name ) {
-    if ( isset( $this->bundler ) && is_object( $this->bundler ) ) {
-      if ( isset( $this->bundler->$name ) )
-        return $this->bundler->$name;
-    }
-  }
-
+/******************************************************************************
+ *** End Installation Functions
+ *****************************************************************************/
 
 }
 
