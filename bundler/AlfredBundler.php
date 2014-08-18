@@ -17,7 +17,6 @@
  * @since      File available since Taurus 1
  */
 
-
 require_once( __DIR__ . '/includes/php-classes/AlfredBundlerLogger.php' );
 require_once( __DIR__ . '/includes/php-classes/AlfredBundlerIcon.php' );
 
@@ -348,9 +347,9 @@ class AlfredBundlerInternalClass {
 
     // Find the icon to pass to the Gatekeeper script
     if ( file_exists( 'icon.png' ) )
-      $icon = realpath( dirname( 'icon.png' ) );
+      $icon = realpath( 'icon.png' );
     else
-      $icon = '';
+      $icon = 'default';
 
     // Create the path variable
     $path = "{$this->data}/data/assets/{$type}/{$name}/{$version}/"
@@ -442,11 +441,12 @@ class AlfredBundlerInternalClass {
   }
 
   /**
-   * [binding description]
+   * Loads a wrapper object
    *
-   * @param [type]  $binding [description]
+   * @param   string   $wrapper  name of wrapper to load
+   * @param   boolean  $debug    turn debugging off / on
    *
-   * @return  [type]            [description]
+   * @return  object             a wrapper object
    */
   public function wrapper( $wrapper, $debug = FALSE ) {
     $wrapperPointer = [
@@ -988,8 +988,7 @@ class AlfredBundlerInternalClass {
     // If we're here, then we need to run the Gatekeeper script
 
     // Path to gatekeeper script
-    $gatekeeper = realpath( dirname( __FILE__ ) ) . '/includes/gatekeeper.sh';
-
+    $gatekeeper = realpath( __DIR__ ) . '/includes/gatekeeper.sh';
     // Execute the Gatekeeper script
     exec( "bash '{$gatekeeper}' '{$name}' '{$path}' '{$message}' '{$icon}' '{$this->bundle}'", $output, $status );
 
