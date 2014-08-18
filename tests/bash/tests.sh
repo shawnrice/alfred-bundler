@@ -11,18 +11,6 @@ declare -r ME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 . "${ME}/../../bundler/AlfredBundler.sh"
 # . "${ME}/../../bundler/bundlets/alfred.bundler.sh"
 
-# echo $(Math::Fmod '3.22' '1.2')
-
-# hex1="12ffed"
-# echo "Hex: #"$hex1
-# rgb=$(AlfredBundler::hex_to_rgb $hex1)
-# echo "RGB:" $rgb
-# hsv=$(AlfredBundler::rgb_to_hsv ${rgb})
-# echo "HSV ${hsv}"
-# rgb=$(AlfredBundler::hsv_to_rgb ${hsv})
-# echo "RGB ${rgb}"
-# hex2=$(AlfredBundler::rgb_to_hex ${rgb})
-# echo "Hex: #"$hex2
 
 ###############################################################################
 #### Log Tests
@@ -45,10 +33,6 @@ function check_bad_level_int() {
 
 ###############################################################################
 #### Icon and color tests
-
-# function check_icon_results() {
-#   check_result
-# }
 
 function rrgb() {
   r=$(php -r 'echo mt_rand(0,255);')
@@ -108,7 +92,6 @@ function get_background_from_util_test() {
 
 function get_background_from_env_test() {
   alfred_theme_background="rgba("$(rrgb)','$(rrgb)','$(rrgb)',0.5)'
-  echo $alfred_theme_background >&2
   background=$(AlfredBundler::get_background_from_env)
   if [[ $background == 'light' ]] || [[ $background == 'dark' ]]; then
     return 0
@@ -123,15 +106,13 @@ function icon_tests() {
 
   # Queue Tests
   local tests=()
-  # tests+=(recursive_color_test)
-  # tests+=(download_icon_test)
-  # tests+=(download_icon_alter_test)
-  # tests+=(download_icon_hex_3_test)
-  # tests+=(get_background_test)
-  # tests+=(get_background_from_util_test)
+  tests+=(recursive_color_test)
+  tests+=(download_icon_test)
+  tests+=(download_icon_alter_test)
+  tests+=(download_icon_hex_3_test)
+  tests+=(get_background_test)
+  tests+=(get_background_from_util_test)
   tests+=(get_background_from_env_test)
-
-
 
   local num=${#tests[@]}
 
@@ -387,8 +368,7 @@ function math_tests() {
 # function testing() {
 #   AlfredBundler::Log "Testing2" INFO console
 # }
-# echo $(AlfredBundler::icon elusive fire abcabc true)
 # testing
 
-# math_tests
+math_tests
 icon_tests
