@@ -269,8 +269,9 @@ private function processASDialog() {
   if ( $confirm == 'More Info' ) {
     exec( "open {$info}" );
     die(); // Stop the workflow. If it's a script filter, then this will happen anyway.
-  }
-  if ( $confirm == 'Cancel' ) {
+  } else if ( $confirm == 'Proceed' ) {
+    return TRUE;
+  } else {
     $this->report( "User canceled installation of Alfred Bundler. Unknown " .
       "and possibly catastrophic effects to follow.",
       'CRITICAL' );
@@ -311,8 +312,10 @@ private function processASDialog() {
     $this->prepareInstallation();
     $this->prepareASDialog();
 
-    if ( ! $this->processASDialog() )
+    if ( ! $this->processASDialog() ) {
       $this->userCanceledInstallation(); // Throw an exception.
+      return FALSE;
+    }
     $this->prepareDirectories();
 
     // This is a list of mirrors that host the bundler. A current list is in
