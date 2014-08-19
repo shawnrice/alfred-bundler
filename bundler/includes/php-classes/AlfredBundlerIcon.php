@@ -904,7 +904,7 @@ class AlfredBundlerIcon {
         $h += 6.0;
 
     } else if ( $g == $max ) {
-        $h = ( ( $b - $r ) / $chroma ) + 2.0;
+      $h = ( ( $b - $r ) / $chroma ) + 2.0;
     } else {  //$b == $max
       $h = ( ( $r - $g ) / $chroma ) + 4.0;
     }
@@ -966,7 +966,7 @@ class AlfredBundlerIcon {
       $g = $chroma;
       $b = $x;
     } else if ( $h < 4.0 ) {
-      $g= $x;
+      $g = $x;
       $b = $chroma;
     } else if ( $h < 5.0 ) {
       $r = $x;
