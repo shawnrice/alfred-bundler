@@ -1,12 +1,30 @@
 
-module AlfredBundlerIcon
+module Alfred
+
+class Icon
+
+  def get_system_icon(icon)
+
+    # This is where the icon should be
+    icon = "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/#{icon}.icns";
+
+    # Return the System icon if it exists
+    return icon if File.exists?(icon)
+
+    # Icon didn't exist, so send the fallback
+    return File.join(@data, 'bundler', 'meta', 'icons', 'default.icns')
+
+
+
+  end
+
   # Function to get icons from the icon server
   def icon(font, name, color='000000', alter='FALSE' )
 
+    fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
 
-    #
-    # Fix for sytem icon font
-    #
+    # Deal with System icons first
+    return get_system_icon(name) if font.downcase == 'system'
 
     # Construct the icon directory
     icon_dir = File.join(@data, 'data/assets/icons', font, color)
@@ -23,30 +41,31 @@ module AlfredBundlerIcon
     # The file doesn't exist, so we'll have to go through the effort to get it
 
     # A list of icon servers so that we can have fallbacks
-    icon_servers = IO.readlines("bundler/meta/icon_servers")
-
+    # we're going to find that file based on a relative path to "me"
+    # @TODO find a more elegant way to do this
+    me = File.expand_path(File.dirname(__FILE__))
+    icon_servers = File.join(me, '../../meta/icon_servers')
+    icon_servers = IO.readlines(icon_servers)
 
     # Loop through the list of servers until we find one that is working
-    server = icon_servers.each do |x|
-      if server_test(x)
-        break x
+    icon_servers.each do |x|
+      icon_url = "#{x}/icon/#{font}/#{color}/#{name}"
+      begin
+        # Get the file if it doesn't exist
+        File.open(icon_path, 'wb') do |file|
+          file.write open(icon_url).read
+        end
+      rescue
+        File.delete(icon_path)
+        # @TODO Fix this with real error logging
+        $stderr.puts "didn't work with #{x}"
+      else
+        return icon_path
+        break
       end
     end
 
-    # So, none of the servers were reachable. So, we exit, disgracefully.
-    unless :server
-      return false
-    end
-    # Finish constructing the URL
-    icon_url = "#{server}/icon/#{font}/#{color}/#{name}"
-
-    unless
-      # Get the file if it doesn't exist
-      open(icon_path, 'wb') do |file|
-        file << open(icon_url).read
-      end
-    end
-    icon_path
+    return fallback
   end
 
 
@@ -209,3 +228,4 @@ module AlfredBundlerIcon
   end
 
 end # End icon module
+end
