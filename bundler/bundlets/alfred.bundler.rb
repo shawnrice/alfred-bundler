@@ -1,10 +1,12 @@
 #!/bin/ruby
 
+# All of these are native
 require 'uri'
 require 'fileutils'
 require 'open-uri'
 require 'logger'
 require 'pathname'
+require 'digest'
 
 ENV['AB_BRANCH'] = 'ruby-dev'
 
@@ -23,6 +25,7 @@ module Alfred
               'com.runningwithcrayons.Alfred-2', 'Workflow Data',
               'alfred.bundler-' + @@major_version)
 
+    # For development, we'll use the AlfredBundler.rb file that we're editing
     # @@bundler = File.join(@@data, 'bundler', 'AlfredBundler.rb')
     @@bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
@@ -44,10 +47,7 @@ module Alfred
         self.install_bundler
       end
 
-      # @@bundler
       require_relative @@bundler
-      # @@bundler = Alfred::Internal.new
-      # require './internal.rb'
 
       # Initialize an internal object
       @@internal = Internal.new(@@data, @@cache)
@@ -79,8 +79,8 @@ module Alfred
         File.join(@@cache, 'icns'),
         File.join(@@cache, 'color'),
         File.join(@@cache, 'utilities'),
-        File.join(@@data, 'data'),
-        File.join(@@data, 'data', 'logs')
+        File.join(@@data,  'data'),
+        File.join(@@data,  'data', 'logs')
       ]
 
       directories.each do |dir|
@@ -99,11 +99,10 @@ module Alfred
 
     def install_bundler
 
-      # File.rename('internal.rb.old', 'internal.rb')
-
-
+      # Make all the directories
       self.make_install_directories()
 
+      # See if we're getting the head or the release
       if defined? ENV['AB_BRANCH']
         suffix = ".zip"
       else
@@ -143,9 +142,6 @@ module Alfred
       end
 
     end
-
-
-
 
     #### INSTALL FUNCTIONS
     ######################
