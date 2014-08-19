@@ -1,11 +1,3 @@
-# http://hawkins.io/2013/08/using-the-ruby-logger/
-# class CustomFormater < Logger::Formater
-#   def call(severity, time, progname, msg)
-#    # msg2str is the internal helper that handles different msgs correctly
-#     "#{time} - #{msg2str(msg)}"
-#   end
-# end
-
 module Alfred
 
   class Internal
@@ -19,38 +11,106 @@ module Alfred
         'Application Support', 'Alfred 2', 'Workflow Data', @@bundle)
 
       self.initialize_logs()
+      self.plist_check()
+
+      unless ENV['alfred_version'].nil?
+        self.initialize_modern()
+      else
+        self.initialize_deprecated()
+      end
+
     end
 
+    def plist_check
+      self.console('No plist exists.', 'fatal') unless File.exists? './info.plist'
+    end
 
     def method_missing(name, *arguments)
-      self.console("'#{name}' does not exist either externally or internally.")
+      self.console("'#{name}' does not exist either externally or internally.", 'error')
     end
 
     def initialize_modern
       # For Alfred >= v2.4:277
+      @@background = ENV['alfred_theme_background']
+      @@wf_data    = ENV['alfred_workflow_data']
+      @@bundle     = ENV['alfred_workflow_bundleid']
+      @@name       = ENV['alfred_workflow_name']
     end
 
     def initialize_deprecated
       # For Alfred < v2.4:277
+      @@name   = read_plist_value('name', 'info.plist')
+      @@bundle = read_plist_value('bundleid', 'info.plist')
     end
+
+    # We could do this with a Gem... but let's just not.
+    def read_plist_value(key, plist)
+      return `/usr/libexec/PlistBuddy -c 'Print :#{key}' '#{plist}'`
+    end
+
+
+    ######################
+    #### LOAD FUNCTIONS
+
+    def check_load_args(*args)
+
+    end
+
+    def load(*args)
+
+      if args.count == 1
+        return "here"
+        # They called using a hash... or didn't
+      else
+        type    = args[0]
+        name    = args[1]
+        version = 'latest'
+        json    = 'default'
+
+        if args.count == 3
+          version = args[3]
+        end
+        if args.count == 4
+          version = args[3]
+          json    = args[4]
+        end
+      end
+
+      json = File.join(@@data, 'bundler', 'meta', 'defaults', "#{name}.json") if json == 'default'
+      return false unless File.exists? json
+
+      # We need to deal with utilities
+      if type == 'utility'
+        path_hash = File.join(@@cache, 'utilities',
+          Digest::MD5.hexdigest "#{name}-#{version}-#{type}-#{json}")
+        return File.readlines(path_hash).first.chomp if File.exists? path_hash
+      end
+
+      path = File.join(@@data, 'data', 'assets', type, name, version, 'invoke')
+      return File.readlines(path).first.chomp if File.exists? path
+
+      # This should install the asset; we might find a native way to do this later
+      command = "'" + @@data + "/bundler/bundlets/alfred.bundler.sh' '#{type}' '#{name}' '#{version}' '#{json}'"
+      return `#{command}`.strip
+
+    end
+
+
+    def utility(*args)
+
+    end
+
+    def gem
+
+    end
+
+
+    #### LOAD FUNCTIONS
+    ######################
+
 
     ######################
     #### ICON FUNCTIONS
-
-    def get_system_icon(icon)
-
-        # This is where the icon should be
-        icon = "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/#{icon}.icns";
-
-        # Return the System icon if it exists
-        return icon if File.exists?(icon)
-
-        # Icon didn't exist, so send the fallback
-        return File.join(@@data, 'bundler', 'meta', 'icons', 'default.icns')
-
-
-
-    end
 
     # Function to get icons from the icon server
     def icon(*args)
@@ -131,6 +191,20 @@ module Alfred
       return fallback
     end
 
+    def get_system_icon(icon)
+        # This is where the icon should be
+        icon = "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/#{icon}.icns";
+
+        # Return the System icon if it exists
+        return icon if File.exists?(icon)
+
+        # Icon didn't exist, so send the fallback
+        return File.join(@@data, 'bundler', 'meta', 'icons', 'default.icns')
+    end
+
+    #######################
+    ### Icon Validation Functions
+    #######################
 
     # checks to see if string is a valid hex color
     def is_hex(color)
@@ -140,6 +214,10 @@ module Alfred
         false
       end
     end
+
+    #######################
+    #### Conversion methods
+    #######################
 
     # converts 3 hex to 6 hex
     def convert_hex(color)
@@ -170,9 +248,6 @@ module Alfred
       end
       return hex
     end
-
-    #######################
-    #### Conversion methods
 
     # converts hex to rgb
     def hex_to_rgb(hex)
