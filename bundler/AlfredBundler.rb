@@ -57,32 +57,17 @@ module Alfred
     end
 
     def load(*args)
-
-      if args.count == 1
-        return "here"
-        # They called using a hash... or didn't
-      else
-        type    = args[0]
-        name    = args[1]
-        version = 'latest'
-        json    = 'default'
-
-        if args.count == 3
-          version = args[3]
-        end
-        if args.count == 4
-          version = args[3]
-          json    = args[4]
-        end
-      end
-
+      args = parse_load_args(args)
+      type = args['type']
+      name = args['name']
+      version = args['version']
+      json = args['json']
       json = File.join(@@data, 'bundler', 'meta', 'defaults', "#{name}.json") if json == 'default'
       return false unless File.exists? json
 
       # We need to deal with utilities
       if type == 'utility'
-        path_hash = File.join(@@cache, 'utilities',
-          Digest::MD5.hexdigest "#{name}-#{version}-#{type}-#{json}")
+        path_hash = File.join(@@cache, 'utilities', Digest::MD5.hexdigest("#{name}-#{version}-#{type}-#{json}"))
         return File.readlines(path_hash).first.chomp if File.exists? path_hash
       end
 
@@ -95,9 +80,43 @@ module Alfred
 
     end
 
+    def parse_load_args(*args)
+      args = args.shift
+      if args.class.to_s == 'Array' && args.count == 1
+        args = args.shift
+      end
+      case args.class.to_s
+      when 'Hash'
+        args.merge!('version' => 'latest') unless args.has_key?('version')
+        args.merge!('json' => 'default') unless args.has_key?('json')
+      when 'Array'
+        keys = ['type', 'name', 'version', 'json']
+        args = Hash[keys.zip args]
+      end
+      args['version'] = 'latest' if args['version'].nil?
+      args['json'] = 'default' if args['json'].nil?
+      return args
+    end
 
+    # Use a has or string args
     def utility(*args)
+      if args.count > 1
+        args.unshift('utility')
+      else
+        args = args.shift
+        if args.is_a? Array
+          if args.count > 1
+            args.unshift('utility')
+          end
+        elsif args.is_a? Hash
+          args.merge!('type' => 'utility')
+        elsif args.is_a? String
+          args = {'type' => 'utility', 'name' => args}
+        end
+      end
+      return self.load(args)
 
+      # puts "HERE #{args}"
     end
 
     def gem
