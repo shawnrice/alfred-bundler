@@ -11,7 +11,7 @@ module Alfred
         'Application Support', 'Alfred 2', 'Workflow Data', @@bundle)
 
 
-      # self.initialize_logs()
+      self.initialize_logs()
       self.plist_check()
 
       unless ENV['alfred_version'].nil?
@@ -417,71 +417,46 @@ module Alfred
 
     # @TODO combine the log and file commands
 
-    def initialize_logs
+    def initialize_logs( user = false )
       self.initialize_bundler_log()
-      self.initialize_user_log()
+      if user == true
+        self.initialize_user_log()
+      end
     end
 
-
-    def initialize_user_log
-
-      FileUtils.mkdir(@@wf_data) unless File.directory?(@@wf_data)
-
-      file = File.join(@@wf_data, @@bundle + '.log')
-      file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
-
-      @@user    = Logger.new(file, 1, 1048576)
-      # Redo formatting to make everythng nice
-      @@user.formatter = proc do |severity, datetime, progname, msg|
+    def init_log(location = STDERR)
+      if location.is_a? String
+        FileUtils.mkpath(File.dirname(location)) unless File.exists? File.dirname(location)
+        file = File.open(location, File::WRONLY | File::APPEND | File::CREAT)
+        var  = Logger.new(file, 1, 1048576)
+        date = "%Y-%m-%d %H:%M:%S"
+      else
+        var  = Logger.new(location)
+        date = "%H:%M:%S"
+      end
+      var.formatter = proc do |severity, datetime, progname, msg|
         trace = caller.last.split(':')
         file = Pathname.new(trace[0]).basename
         line = trace[1]
-        date = Time.now.strftime("%Y-%m-%d %H:%M:%S")
 
         if severity == 'FATAL'
           severity = 'CRITICAL'
         elsif severity == 'WARN'
           severity = 'WARNING'
         end
-
         "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
       end
+      return var
+    end
+
+    def initialize_user_log()
+      @@user = self.init_log(File.join(@@wf_data, @@bundle + '.log'))
     end
 
     def initialize_bundler_log()
+      log = File.join(@@data, 'data', 'logs', 'bundler-' + @@major_version + '.log')
+      @@file    = self.init_log(log)
       @@console = Logger.new(STDERR)
-
-      # Redo formatting to make everythng nice
-      @@console.formatter = proc do |severity, datetime, progname, msg|
-        trace = caller.last.split(':')
-        file = Pathname.new(trace[0]).basename
-        line = trace[1]
-        date = Time.now.strftime("%H:%M:%S")
-        if severity == 'FATAL'
-          severity = 'CRITICAL'
-        elsif severity == 'WARN'
-          severity = 'WARNING'
-        end
-        "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
-      end
-
-      file = File.join(@@data, 'data', 'logs', 'bundler-' + @@major_version + '.log')
-      file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
-
-      @@file    = Logger.new(file, 1, 1048576)
-      # Redo formatting to make everythng nice
-      @@file.formatter = proc do |severity, datetime, progname, msg|
-        trace = caller.last.split(':')
-        file = Pathname.new(trace[0]).basename
-        line = trace[1]
-        date = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-        if severity == 'FATAL'
-          severity = 'CRITICAL'
-        elsif severity == 'WARN'
-          severity = 'WARNING'
-        end
-        "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
-      end
     end
 
     def log(msg, level = 'info' )

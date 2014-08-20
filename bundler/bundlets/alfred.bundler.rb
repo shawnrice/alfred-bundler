@@ -30,7 +30,7 @@ module Alfred
     @@bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
     # The class constructor
-    def initialize
+    def initialize(options = {})
 
       unless File.exists? @@bundler
         ### Let's reset everything here...
