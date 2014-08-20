@@ -10,6 +10,7 @@ module Alfred
       @@wf_data = File.join( File.expand_path('~/'), 'Library',
         'Application Support', 'Alfred 2', 'Workflow Data', @@bundle)
 
+
       self.initialize_logs()
       self.plist_check()
 
@@ -18,6 +19,12 @@ module Alfred
       else
         self.initialize_deprecated()
       end
+
+      # Add our local gem repository
+      @@gem_dir = @@data + "/data/assets/ruby/gems"
+      Gem.path.unshift(@@gem_dir) unless Gem.path.include?(@@gem_dir)
+      # install_gem("CFPropertyList", "default") unless Dir["#{gems}/CFPropertyList-*"][0]
+      # require 'CFPropertyList'
 
     end
 
@@ -51,10 +58,6 @@ module Alfred
 
     ######################
     #### LOAD FUNCTIONS
-
-    def check_load_args(*args)
-
-    end
 
     def load(*args)
       args = parse_load_args(args)
@@ -115,18 +118,41 @@ module Alfred
         end
       end
       return self.load(args)
-
-      # puts "HERE #{args}"
     end
-
-    def gem
-
-    end
-
 
     #### LOAD FUNCTIONS
     ######################
 
+    ######################
+    #### GEM FUNCTIONS
+
+
+    # Install the CFPropertyList for us to use if necessary
+    # gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems/gems")
+
+ def install_gem(*g)
+
+  gem_dir="/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-ruby-dev/data/assets/ruby/gems"
+  command  = "gem install --no-document --install-dir '#{gem_dir}' #{g[0]} "
+  command += "--version '#{g[1]}'" unless g[1].nil?
+  #### Currently, this doesn't quite work. I need to experiment with backticks more and other things
+  return `"#{command}"`
+end
+
+
+def gems(*gems)
+  gems.each do |g|
+    begin
+      gem *g
+    rescue LoadError
+      install_gem(*g)
+      gem *g
+    end
+  end
+end
+
+    #### GEM FUNCTIONS
+    ######################
 
     ######################
     #### ICON FUNCTIONS
