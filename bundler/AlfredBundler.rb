@@ -11,7 +11,7 @@ module Alfred
         'Application Support', 'Alfred 2', 'Workflow Data', @@bundle)
 
 
-      self.initialize_logs()
+      # self.initialize_logs()
       self.plist_check()
 
       unless ENV['alfred_version'].nil?
@@ -422,11 +422,15 @@ module Alfred
       self.initialize_user_log()
     end
 
+
     def initialize_user_log
 
       FileUtils.mkdir(@@wf_data) unless File.directory?(@@wf_data)
 
-      @@user    = Logger.new(File.join(@@wf_data, @@bundle + '.log'), 1, 1048576)
+      file = File.join(@@wf_data, @@bundle + '.log')
+      file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
+
+      @@user    = Logger.new(file, 1, 1048576)
       # Redo formatting to make everythng nice
       @@user.formatter = proc do |severity, datetime, progname, msg|
         trace = caller.last.split(':')
@@ -444,7 +448,7 @@ module Alfred
       end
     end
 
-    def initialize_bundler_log
+    def initialize_bundler_log()
       @@console = Logger.new(STDERR)
 
       # Redo formatting to make everythng nice
@@ -453,31 +457,29 @@ module Alfred
         file = Pathname.new(trace[0]).basename
         line = trace[1]
         date = Time.now.strftime("%H:%M:%S")
-
         if severity == 'FATAL'
           severity = 'CRITICAL'
         elsif severity == 'WARN'
           severity = 'WARNING'
         end
-
         "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
       end
 
-      @@file    = Logger.new(File.join(@@data, 'data', 'logs', 'bundler-' + @@major_version + '.log'), 1, 1048576)
+      file = File.join(@@data, 'data', 'logs', 'bundler-' + @@major_version + '.log')
+      file = File.open(file, File::WRONLY | File::APPEND | File::CREAT)
+
+      @@file    = Logger.new(file, 1, 1048576)
       # Redo formatting to make everythng nice
       @@file.formatter = proc do |severity, datetime, progname, msg|
         trace = caller.last.split(':')
         file = Pathname.new(trace[0]).basename
         line = trace[1]
         date = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-
         if severity == 'FATAL'
           severity = 'CRITICAL'
         elsif severity == 'WARN'
           severity = 'WARNING'
         end
-
-
         "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
       end
     end
