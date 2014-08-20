@@ -126,30 +126,26 @@ module Alfred
     ######################
     #### GEM FUNCTIONS
 
+    def install_gem(*g)
 
-    # Install the CFPropertyList for us to use if necessary
-    # gems = File.expand_path("~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" + @major_version + "/data/assets/ruby/gems/gems")
-
- def install_gem(*g)
-
-  gem_dir="/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-ruby-dev/data/assets/ruby/gems"
-  command  = "gem install --no-document --install-dir '#{gem_dir}' #{g[0]} "
-  command += "--version '#{g[1]}'" unless g[1].nil?
-  #### Currently, this doesn't quite work. I need to experiment with backticks more and other things
-  return `"#{command}"`
-end
-
-
-def gems(*gems)
-  gems.each do |g|
-    begin
-      gem *g
-    rescue LoadError
-      install_gem(*g)
-      gem *g
+      # gem_dir="/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-ruby-dev/data/assets/ruby/gems"
+      command  = "gem install --no-document --install-dir '#{@@gem_dir}' #{g[0]} "
+      command += "--version '#{g[1]}'" unless g[1].nil?
+      #### Currently, this doesn't quite work. I need to experiment with backticks more and other things
+      return `#{command}`
     end
-  end
-end
+
+
+    def gems(*gems)
+      gems.each do |g|
+        begin
+          gem *g
+        rescue LoadError
+          install_gem(*g)
+          gem *g
+        end
+      end
+    end
 
     #### GEM FUNCTIONS
     ######################
