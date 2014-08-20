@@ -108,10 +108,12 @@ $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
 $_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Support/Alfred 2/Workflow Data/com.bundler.testing.poop';
 
 require_once( 'alfred.bundler.php' );
+// require_once( '../../bundler/bundlets/alfred.bundler.php' );
 
 $b = new AlfredBundler;
 $i = new AlfredBundlerIcon( $b );
-
+$viewer = $b->utility('viewer');
+exec( "open '$viewer' --args 'http://www.google.com'");
 $major = $b->major_version;
 $fallback = $_SERVER['HOME'] . "/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$major}/bundler/meta/icons/default";
 
@@ -188,9 +190,9 @@ function gatekeeper_path_tests() {
 function wrapper_test() {
   global $b;
   $cd = $b->wrapper( 'cocoadialog' );
-  $cd->notify(['title'       => 'Testing Title',
-               'description' => 'Testing text',
-               'icon_file'   => $b->icon( 'system', 'Accounts' ) ]);
+  // $cd->notify(['title'       => 'Testing Title',
+               // 'description' => 'Testing text',
+               // 'icon_file'   => $b->icon( 'system', 'Accounts' ) ]);
   if ( class_exists( 'CocoaDialog' ) )
     return TRUE;
   else

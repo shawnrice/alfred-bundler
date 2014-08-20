@@ -126,6 +126,7 @@ module Alfred
     ######################
     #### GEM FUNCTIONS
 
+    # Based on # # http://mlen.pl/posts/protip-installing-gems-programmatically/
     def install_gem(name, version = Gem::Requirement.default)
       require 'rubygems'
       require 'rubygems/dependency_installer'

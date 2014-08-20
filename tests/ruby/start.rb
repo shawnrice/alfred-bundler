@@ -1,28 +1,4 @@
 #!/bin/ruby
-# require "stringio"
-# def capture_stdout
-#   # The output stream must be an IO-like object. In this case we capture it in
-#   # an in-memory IO object so we can return the string value. You can assign any
-#   # IO object here.
-#   previous_stdout, $stdout = $stdout, StringIO.new
-#   yield
-#   $stdout.string
-# ensure
-#   # Restore the previous value of stderr (typically equal to STDERR).
-#   $stdout = previous_stdout
-# end
-
-# def capture_stderr
-#   # The output stream must be an IO-like object. In this case we capture it in
-#   # an in-memory IO object so we can return the string value. You can assign any
-#   # IO object here.
-#   previous_stderr, $stderr = $stderr, StringIO.new
-#   yield
-#   $stderr.string
-# ensure
-#   # Restore the previous value of stderr (typically equal to STDERR).
-#   $stderr = previous_stderr
-# end
 
 require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
 
@@ -32,21 +8,11 @@ bundler  = Alfred::Bundler.new
 
 # puts "We're about to load some gems"
 bundler.gems( ['rdoc'], ['plist', '~>3.1.0'])
-# puts "We finished loading some gems..."
-# puts "So..."
-# puts $captured_output
 require 'plist'
 p = Plist::Listener.new
 puts p.inspect
 
-
 exit
-
-# # http://mlen.pl/posts/protip-installing-gems-programmatically/
-
-
-
-
 
 # # puts bundler.load( 'utility', 'Pashua' )
 # # puts bundler.load( 'php', 'Workflows' )

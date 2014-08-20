@@ -268,7 +268,7 @@ class AlfredBundlerInternalClass {
   public function load( $type, $name, $version, $json = '' ) {
 
     if ( empty( $json ) ) {
-      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) { $line = __LINE__;
+      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
         $json_path = __DIR__ . "/meta/defaults/{$name}.json";
       } else {
         // JSON File cannot be found
