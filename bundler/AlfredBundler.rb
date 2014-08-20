@@ -3,12 +3,12 @@ module Alfred
   class Internal
 
     def initialize(data, cache)
-      @@data   = data
-      @@cache  = cache
-      @@bundle = 'foo.my.poop'
-      @@major_version = 'ruby-dev'
-      @@wf_data = File.join( File.expand_path('~/'), 'Library',
-        'Application Support', 'Alfred 2', 'Workflow Data', @@bundle)
+      @data   = data
+      @cache  = cache
+      @bundle = 'foo.my.poop'
+      @major_version = 'ruby-dev'
+      @wf_data = File.join( File.expand_path('~/'), 'Library',
+        'Application Support', 'Alfred 2', 'Workflow Data', @bundle)
 
 
       self.initialize_logs()
@@ -21,8 +21,8 @@ module Alfred
       end
 
       # Add our local gem repository
-      @@gem_dir = @@data + "/data/assets/ruby/gems"
-      Gem.path.unshift(@@gem_dir) unless Gem.path.include?(@@gem_dir)
+      @gem_dir = @data + "/data/assets/ruby/gems"
+      Gem.path.unshift(@gem_dir) unless Gem.path.include?(@gem_dir)
       # install_gem("CFPropertyList", "default") unless Dir["#{gems}/CFPropertyList-*"][0]
       # require 'CFPropertyList'
 
@@ -38,16 +38,16 @@ module Alfred
 
     def initialize_modern
       # For Alfred >= v2.4:277
-      @@background = ENV['alfred_theme_background']
-      @@wf_data    = ENV['alfred_workflow_data']
-      @@bundle     = ENV['alfred_workflow_bundleid']
-      @@name       = ENV['alfred_workflow_name']
+      @background = ENV['alfred_theme_background']
+      @wf_data    = ENV['alfred_workflow_data']
+      @bundle     = ENV['alfred_workflow_bundleid']
+      @name       = ENV['alfred_workflow_name']
     end
 
     def initialize_deprecated
       # For Alfred < v2.4:277
-      @@name   = read_plist_value('name', 'info.plist')
-      @@bundle = read_plist_value('bundleid', 'info.plist')
+      @name   = read_plist_value('name', 'info.plist')
+      @bundle = read_plist_value('bundleid', 'info.plist')
     end
 
     # We could do this with a Gem... but let's just not.
@@ -65,20 +65,20 @@ module Alfred
       name = args['name']
       version = args['version']
       json = args['json']
-      json = File.join(@@data, 'bundler', 'meta', 'defaults', "#{name}.json") if json == 'default'
+      json = File.join(@data, 'bundler', 'meta', 'defaults', "#{name}.json") if json == 'default'
       return false unless File.exists? json
 
       # We need to deal with utilities
       if type == 'utility'
-        path_hash = File.join(@@cache, 'utilities', Digest::MD5.hexdigest("#{name}-#{version}-#{type}-#{json}"))
+        path_hash = File.join(@cache, 'utilities', Digest::MD5.hexdigest("#{name}-#{version}-#{type}-#{json}"))
         return File.readlines(path_hash).first.chomp if File.exists? path_hash
       end
 
-      path = File.join(@@data, 'data', 'assets', type, name, version, 'invoke')
+      path = File.join(@data, 'data', 'assets', type, name, version, 'invoke')
       return File.readlines(path).first.chomp if File.exists? path
 
       # This should install the asset; we might find a native way to do this later
-      command = "'" + @@data + "/bundler/bundlets/alfred.bundler.sh' '#{type}' '#{name}' '#{version}' '#{json}'"
+      command = "'" + @data + "/bundler/bundlets/alfred.bundler.sh' '#{type}' '#{name}' '#{version}' '#{json}'"
       return `#{command}`.strip
 
     end
@@ -131,7 +131,7 @@ module Alfred
       require 'rubygems'
       require 'rubygems/dependency_installer'
       # $captured_output = capture_stdout do
-        installer      = Gem::DependencyInstaller.new({:install_dir => "#{@@gem_dir}"})
+        installer      = Gem::DependencyInstaller.new({:install_dir => "#{@gem_dir}"})
         installed_gems = installer.install name, version
       # end
     end
@@ -176,7 +176,7 @@ module Alfred
         alter = false
       end
 
-      fallback = File.join(@@data, 'bundler', 'meta', 'icons', 'default.png')
+      fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
       font.downcase!  # normalize the args
       color.downcase! # normalize the args
 
@@ -191,7 +191,7 @@ module Alfred
       color = convert_hex(color)
 
       # Construct the icon directory
-      icon_dir = File.join(@@data, 'data/assets/icons', font, color)
+      icon_dir = File.join(@data, 'data/assets/icons', font, color)
 
       #  Make the icon directory if it doesn't exist
       FileUtils.mkpath(icon_dir) unless File.directory?(icon_dir)
@@ -241,7 +241,7 @@ module Alfred
         return icon if File.exists?(icon)
 
         # Icon didn't exist, so send the fallback
-        return File.join(@@data, 'bundler', 'meta', 'icons', 'default.icns')
+        return File.join(@data, 'bundler', 'meta', 'icons', 'default.icns')
     end
 
     #######################
@@ -450,57 +450,44 @@ module Alfred
     end
 
     def initialize_user_log()
-      @@user = self.init_log(File.join(@@wf_data, @@bundle + '.log'))
+      @user = self.init_log(File.join(@wf_data, @bundle + '.log'))
     end
 
     def initialize_bundler_log()
-      log = File.join(@@data, 'data', 'logs', 'bundler-' + @@major_version + '.log')
-      @@file    = self.init_log(log)
-      @@console = Logger.new(STDERR)
+      log = File.join(@data, 'data', 'logs', 'bundler-' + @major_version + '.log')
+      @file    = self.init_log(log)
+      @console = Logger.new(STDERR)
+    end
+
+    def fix_level(level)
+      # Lowercase the level name
+      level.downcase!
+
+      # define the levels and their
+      levels = {
+        'debug' => 'debug',
+        'info'  => 'info',
+        'warning' => 'warn',
+        'warn' => 'warn',
+        'error' => 'error',
+        'fatal' => 'fatal',
+        'critical' => 'fatal'
+      }
+      unless levels.has_key?(level)
+        self.console("#{level} is not a valid level, falling back to 'info'", 'debug')
+        level = 'info'
+      end
+      return levels[level]
     end
 
     def log(msg, level = 'info' )
-      # Lowercase the level name
-      level.downcase!
-
-      # define the levels and their
-      levels = {
-        'debug' => 'debug',
-        'info'  => 'info',
-        'warning' => 'warn',
-        'warn' => 'warn',
-        'error' => 'error',
-        'fatal' => 'fatal',
-        'critical' => 'fatal'
-      }
-      unless levels.has_key?(level)
-        self.console("#{level} is not a valid level, falling back to 'info'", 'debug')
-        level = 'info'
-      end
-      level = levels[level]
-      @@file.send(level, msg)
+      level = fix_level(level)
+      @file.send(level, msg)
     end
 
     def console(msg, level='info')
-      # Lowercase the level name
-      level.downcase!
-
-      # define the levels and their
-      levels = {
-        'debug' => 'debug',
-        'info'  => 'info',
-        'warning' => 'warn',
-        'warn' => 'warn',
-        'error' => 'error',
-        'fatal' => 'fatal',
-        'critical' => 'fatal'
-      }
-      unless levels.has_key?(level)
-        self.console("#{level} is not a valid level, falling back to 'info'", 'debug')
-        level = 'info'
-      end
-      level = levels[level]
-      @@console.send(level, msg)
+      level = fix_level(level)
+      @console.send(level, msg)
     end
 
 

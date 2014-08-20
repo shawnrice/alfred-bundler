@@ -15,31 +15,31 @@ module Alfred
   # This is the external Bundler class
   class Bundler
 
-    @@major_version = 'ruby-dev'
-
-    @@home  = File.expand_path('~/')
-    @@data  = File.join(@@home, 'Library', 'Application Support', 'Alfred 2',
-              'Workflow Data', 'alfred.bundler-' + @@major_version)
-
-    @@cache = File.join(@@home, 'Library', 'Caches',
-              'com.runningwithcrayons.Alfred-2', 'Workflow Data',
-              'alfred.bundler-' + @@major_version)
-
-    # For development, we'll use the AlfredBundler.rb file that we're editing
-    # @@bundler = File.join(@@data, 'bundler', 'AlfredBundler.rb')
-    @@bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
-
     # The class constructor
     def initialize(options = {})
 
-      unless File.exists? @@bundler
+    @major_version = 'ruby-dev'
+
+    @home  = File.expand_path('~/')
+    @data  = File.join(@home, 'Library', 'Application Support', 'Alfred 2',
+              'Workflow Data', 'alfred.bundler-' + @major_version)
+
+    @cache = File.join(@home, 'Library', 'Caches',
+              'com.runningwithcrayons.Alfred-2', 'Workflow Data',
+              'alfred.bundler-' + @major_version)
+
+    # For development, we'll use the AlfredBundler.rb file that we're editing
+    # @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
+    @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
+
+      unless File.exists? @bundler
         ### Let's reset everything here...
-        if File.directory?(@@data)
-          command = "rm -fR '#{@@data}'"
+        if File.directory?(@data)
+          command = "rm -fR '#{@data}'"
           success = system(command)
         end
-        if File.directory?(@@cache)
-          command = "rm -fR '#{@@cache}'"
+        if File.directory?(@cache)
+          command = "rm -fR '#{@cache}'"
           success = system(command)
         end
 
@@ -47,21 +47,16 @@ module Alfred
         self.install_bundler
       end
 
-      require_relative @@bundler
+      require_relative @bundler
 
       # Initialize an internal object
-      @@internal = Internal.new(@@data, @@cache)
+      @internal = Internal.new(@data, @cache)
 
     end
 
     def method_missing(name, *arguments)
-      @@internal.send("#{name}", *arguments)
+      @internal.send("#{name}", *arguments)
     end
-
-
-
-
-
 
     ######################
     #### INSTALL FUNCTIONS
@@ -69,18 +64,18 @@ module Alfred
     # Make the install directories
     def make_install_directories
       directories = [
-        @@data,
-        @@cache,
-        File.join(@@cache, 'install'),
-        File.join(@@cache, 'php'),
-        File.join(@@cache, 'python'),
-        File.join(@@cache, 'ruby'),
-        File.join(@@cache, 'misc'),
-        File.join(@@cache, 'icns'),
-        File.join(@@cache, 'color'),
-        File.join(@@cache, 'utilities'),
-        File.join(@@data,  'data'),
-        File.join(@@data,  'data', 'logs')
+        @data,
+        File.join(@data,  'data'),
+        File.join(@data,  'data', 'logs'),
+        @cache,
+        File.join(@cache, 'install'),
+        File.join(@cache, 'php'),
+        File.join(@cache, 'python'),
+        File.join(@cache, 'ruby'),
+        File.join(@cache, 'misc'),
+        File.join(@cache, 'icns'),
+        File.join(@cache, 'color'),
+        File.join(@cache, 'utilities')
       ]
 
       directories.each do |dir|
@@ -111,10 +106,10 @@ module Alfred
 
       # Bundler Install URLs
       # Bundler URLs have to be hard coded in the bundlet
-      bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @@major_version + suffix,
-                      "https://bitbucket.org/shawnrice/alfred-bundler/get/"  + @@major_version + suffix]
+      bundler_urls = ["https://github.com/shawnrice/alfred-bundler/archive/" + @major_version + suffix,
+                      "https://bitbucket.org/shawnrice/alfred-bundler/get/"  + @major_version + suffix]
 
-      install_path = File.join(@@cache, 'install', 'bundler.zip')
+      install_path = File.join(@cache, 'install', 'bundler.zip')
       bundler_urls.each do |server|
         begin
           File.open(install_path, 'wb') do |file|
@@ -127,18 +122,18 @@ module Alfred
         end
       end
 
-      zip = unzip("bundler.zip", @@cache + '/install')
+      zip = unzip("bundler.zip", @cache + '/install')
 
       unless :zip
-        File.delete(@@cache + "/install/bundler.zip")
+        File.delete(@cache + "/install/bundler.zip")
 
         # @TODO: bring in line with proper error handling
         abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
       end
 
       # Move the bundler installation into the data directory
-      Dir[@@cache + '/install/*'].each do |dir|
-        FileUtils.move("#{dir}/bundler", "#{@@data}") if File.directory? dir + '/bundler'
+      Dir[@cache + '/install/*'].each do |dir|
+        FileUtils.move("#{dir}/bundler", "#{@data}") if File.directory? dir + '/bundler'
       end
 
     end
