@@ -1,11 +1,40 @@
 #!/bin/ruby
+# require "stringio"
+# def capture_stdout
+#   # The output stream must be an IO-like object. In this case we capture it in
+#   # an in-memory IO object so we can return the string value. You can assign any
+#   # IO object here.
+#   previous_stdout, $stdout = $stdout, StringIO.new
+#   yield
+#   $stdout.string
+# ensure
+#   # Restore the previous value of stderr (typically equal to STDERR).
+#   $stdout = previous_stdout
+# end
 
-require_relative "../../bundler/bundlets/alfred.bundler.rb"
+# def capture_stderr
+#   # The output stream must be an IO-like object. In this case we capture it in
+#   # an in-memory IO object so we can return the string value. You can assign any
+#   # IO object here.
+#   previous_stderr, $stderr = $stderr, StringIO.new
+#   yield
+#   $stderr.string
+# ensure
+#   # Restore the previous value of stderr (typically equal to STDERR).
+#   $stderr = previous_stderr
+# end
+
+require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
 
 bundle   = 'com.poop'
 bundler  = Alfred::Bundler.new
 
+
+# puts "We're about to load some gems"
 bundler.gems( ['rdoc'], ['plist', '~>3.1.0'])
+# puts "We finished loading some gems..."
+# puts "So..."
+# puts $captured_output
 require 'plist'
 p = Plist::Listener.new
 puts p.inspect
@@ -14,15 +43,9 @@ puts p.inspect
 exit
 
 # # http://mlen.pl/posts/protip-installing-gems-programmatically/
-# require 'rubygems'
-# require 'rubygems/dependency_installer'
 
-# def install_gem(name, options = {})
-#   gem_dir="/Users/Sven/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-ruby-dev/data/assets/ruby/gems"
-#   version     = options.fetch(:version, Gem::Requirement.default)
-#   installer = Gem::DependencyInstaller.new({:install_dir => "#{gem_dir}"})
-#   installed_gems = installer.install name, version
-# end
+
+
 
 
 # # puts bundler.load( 'utility', 'Pashua' )
