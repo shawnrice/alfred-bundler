@@ -24,3 +24,6 @@ bash-php-benchmark.sh
 bundler/test_icons.sh
 test_icons.sh
 install_confirm.scpt
+.yardoc
+bundler/doc
+doc
