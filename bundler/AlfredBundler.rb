@@ -343,7 +343,7 @@ module Alfred
     def icon(*args)
 
       a = parse_icon_args(args.shift)
-# exit
+
       fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
 
       a[:font].downcase!  # normalize the args
@@ -351,11 +351,12 @@ module Alfred
       a[:color].downcase! # normalize the args
       # Deal with System icons first
       # Check the hex, for now
+
       unless is_hex(a[:color])
-        @log.error("#{a[:color]} is not a valid hex. Falling back to black.", 'error')
+        @log.error("#{a[:color]} is not a valid hex. Falling back to black.")
         raise "Not a valid color"
       end
-      a[:color] = convert_hex(a[:color])
+      a[:color] = self.convert_hex(a[:color])
 
       # Construct the icon directory
       icon_dir = File.join(@data, 'data/assets/icons', a[:font], a[:color])
@@ -433,7 +434,7 @@ module Alfred
     def convert_hex(color)
       return color if /^[0-9a-f]{6}$/.match(color)
       if /^[0-9a-f]{3}$/.match(color)
-        color[0] + color[0] + color[1] + color[1] + color[2] + color[2]
+        return color[0] + color[0] + color[1] + color[1] + color[2] + color[2]
       end
       false
     end
