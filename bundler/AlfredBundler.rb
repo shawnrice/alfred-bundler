@@ -314,11 +314,25 @@ module Alfred
     end
 
     def get_background_modern
-      ENV['alfred_theme_background'].nil?
+      matches = /rgba\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9.]{4,})\)/
+        .match(ENV['alfred_theme_background'])
+      r, g, b = matches[1].to_i, matches[2].to_i, matches[3].to_i
+      @background = brightness([r, g, b])
     end
 
     def get_background_deprecated
+      plist = "#{ENV['HOME']}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
+      cache = File.join(@cache, '..', 'misc', 'theme_background')
+      util  = File.join(@data, 'bundler', 'includes', 'LightOrDark')
+      if File.exists? cache
+        return File.open(cache).read.chomp if File.mtime(cache) > File.mtime(plist)
+      end
 
+      return false unless File.exists? util
+
+      background = `"#{util}"`
+      File.open(cache, 'w') {|f| f.write(background) }
+      return background
     end
 
     def parse_icon_args(*args)
@@ -358,7 +372,7 @@ module Alfred
         raise "Not a valid color"
       end
       a[:color] = self.convert_hex(a[:color])
-
+      a[:color] = self.alter(a[:color]) if check_for_alter(a[:color]) == true
       # Construct the icon directory
       icon_dir = File.join(@data, 'data/assets/icons', a[:font], a[:color])
 
@@ -377,15 +391,14 @@ module Alfred
       # A list of icon servers so that we can have fallbacks
       # we're going to find that file based on a relative path to "me"
       # @TODO find a more elegant way to do this
-      servers = File.join(File.expand_path(File.dirname(__FILE__)),
-                     '/meta/icon_servers')
+      servers = File.join(File.expand_path(File.dirname(__FILE__)), '/meta/icon_servers')
       servers = IO.readlines(servers).map! {|server|
         server = "#{server}/icon/#{a[:font]}/#{a[:color]}/#{a[:name]}"
       }
       http = Alfred::HTTP.new
       icon = http.try_servers(servers, icon_path)
       return icon unless icon == false
-      @log.error("Could not download file from #{icon}")
+      @log.error("Could not download file from #{server}")
       return fallback
     end
 
@@ -588,10 +601,12 @@ module Alfred
       'dark'
     end
 
-    # lightens or darkens a hex value or rgb space returning a hex
+    def check_for_alter(color)
+      return true if @background == brightness(color)
+      false
+    end
 
-    #
-    # [alter description]
+    # lightens or darkens a hex value or rgb space returning a hex
     # @param color [type] [description]
     #
     # @return [type] [description]
