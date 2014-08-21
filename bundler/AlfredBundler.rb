@@ -29,6 +29,7 @@ module Alfred
       @major_version = 'ruby-dev'
       @wf_data = File.join( File.expand_path('~/'), 'Library',
         'Application Support', 'Alfred 2', 'Workflow Data', @bundle)
+      @icon = Alfred::Icon.new(@data, @cache)
 
 
       self.initialize_logs()
@@ -233,21 +234,90 @@ module Alfred
     ######################
 
     ######################
-    #### ICON FUNCTIONS
+    #### LOG FUNCTIONS
+
 
     #
-    # [icon description]
-    # @param *args [type] [description]
+    # [initialize_logs description]
+    # @param user = false [type] [description]
     #
     # @return [type] [description]
-    def icon(*args)
+    def initialize_logs( user = false )
+      self.initialize_bundler_log
+      self.initialize_user_log if user == true
+    end
 
+
+    #
+    # [initialize_user_log description]
+    #
+    # @return [type] [description]
+    def initialize_user_log(level = Logger::INFO)
+      @user = Alfred::Log.new(File.join(@wf_data, @bundle + '.log'), level)
+    end
+
+
+    #
+    # [log description]
+    # @param msg [type] [description]
+    # @param level = 'info' [type] [description]
+    #
+    # @return [type] [description]
+    def log(msg, level = 'info' )
+      @file.send(fix_level(level), msg)
+    end
+
+
+    #
+    # [console description]
+    # @param msg [type] [description]
+    # @param level='info' [type] [description]
+    #
+    # @return [type] [description]
+    def console(msg, level='info')
+      @console.send(fix_level(level), msg)
+    end
+
+    #
+    # [initialize_bundler_log description]
+    #
+    # @return [type] [description]
+    def initialize_bundler_log(level = Logger::DEBUG)
+      # Create the bundler's log file
+      log = File.join(@data, 'data', 'logs', 'bundler-' + @major_version + '.log')
+      @file    = Alfred::Log.new(log, level)
+      # Create the console log
+      @console = Alfred::Log.new(STDERR, level)
+    end
+
+    def icon(*args)
+      @icon.icon(args)
+    end
+
+  end
+
+  class Icon
+    ######################
+    #### ICON FUNCTIONS
+
+    def initialize(data, cache, err = Logger::INFO)
+      @data  = data
+      @cache = File.join(cache, 'color')
+      @log = Alfred::Log.new(STDERR, err)
+    end
+
+
+    def parse_icon_args(*args)
+      args = args.shift
       if args.count == 1
         if args.is_a? Array
-          font = args[0]['font']
-          name = args[0]['name']
-          color = args[0]['color']
-          alter = args[0]['alter']
+          args = args.shift
+          font, name, color, alter = args[0], args[1], args[2], args[3]
+        end
+        if args.is_a? Hash
+          for key, value in args # or for args[0..args.length] ?
+            eval "#{key} = #{value.inspect}"
+          end
         end
       elsif args.count == 2
         font  = args[0]
@@ -259,30 +329,42 @@ module Alfred
         name  = args[1]
         color = args[2]
         alter = false
+      else
+        font, name, color, alter = args[0], args[1], args[2], args[3]
       end
+      return {:font => font, :name => name, :color => color, :alter => alter}
+    end
 
+    #
+    # [icon description]
+    # @param *args [type] [description]
+    #
+    # @return [type] [description]
+    def icon(*args)
+
+      a = parse_icon_args(args.shift)
+# exit
       fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
-      font.downcase!  # normalize the args
-      color.downcase! # normalize the args
 
+      a[:font].downcase!  # normalize the args
+      return get_system_icon(a[:name]) if a[:font] == 'system'
+      a[:color].downcase! # normalize the args
       # Deal with System icons first
-      return get_system_icon(name) if font == 'system'
-
       # Check the hex, for now
-      unless is_hex(color)
-        self.console("#{color} is not a valid hex. Falling back to black.", 'error')
-        color = '000000'
+      unless is_hex(a[:color])
+        @log.error("#{a[:color]} is not a valid hex. Falling back to black.", 'error')
+        raise "Not a valid color"
       end
-      color = convert_hex(color)
+      a[:color] = convert_hex(a[:color])
 
       # Construct the icon directory
-      icon_dir = File.join(@data, 'data/assets/icons', font, color)
+      icon_dir = File.join(@data, 'data/assets/icons', a[:font], a[:color])
 
       #  Make the icon directory if it doesn't exist
       FileUtils.mkpath(icon_dir) unless File.directory?(icon_dir)
 
       # Construct the icon path
-      icon_path = File.join(icon_dir, name + '.png')
+      icon_path = File.join(icon_dir, a[:name] + '.png')
 
       # The file exists, so we'll just return the path
       # we should probably check the integrity of the file
@@ -293,28 +375,15 @@ module Alfred
       # A list of icon servers so that we can have fallbacks
       # we're going to find that file based on a relative path to "me"
       # @TODO find a more elegant way to do this
-      me = File.expand_path(File.dirname(__FILE__))
-      icon_servers = File.join(me, '/meta/icon_servers')
-      icon_servers = IO.readlines(icon_servers)
-
-      # Loop through the list of servers until we find one that is working
-      icon_servers.each do |x|
-        icon_url = "#{x}/icon/#{font}/#{color}/#{name}"
-        begin
-          # Get the file if it doesn't exist
-          File.open(icon_path, 'wb') do |file|
-            file.write open(icon_url).read
-          end
-        rescue
-          File.delete(icon_path)
-          # @TODO Fix this with real error logging
-          self.console("Could not download icon from #{x}", 'ERROR')
-        else
-          return icon_path
-          break
-        end
-      end
-
+      servers = File.join(File.expand_path(File.dirname(__FILE__)),
+                     '/meta/icon_servers')
+      servers = IO.readlines(servers).map! {|server|
+        server = "#{server}/icon/#{a[:font]}/#{a[:color]}/#{a[:name]}"
+      }
+      http = Alfred::HTTP.new
+      icon = http.try_servers(servers, icon_path)
+      return icon unless icon == false
+      @log.error("Could not download file from #{icon}")
       return fallback
     end
 
@@ -330,9 +399,8 @@ module Alfred
 
         # Return the System icon if it exists
         return icon if File.exists?(icon)
-
-        # Icon didn't exist, so send the fallback
-        return File.join(@data, 'bundler', 'meta', 'icons', 'default.icns')
+        @log.error("#{icon} is not a valid system icon (not found).")
+        false
     end
 
     #######################
@@ -395,7 +463,7 @@ module Alfred
           hex << h
         end
       end
-      return hex
+      hex
     end
 
     # converts hex to rgb
@@ -403,7 +471,7 @@ module Alfred
     #
     # @return [type] [description]
     def hex_to_rgb(hex)
-      return hex_to_dec(hex.scan(/.{2}/))
+      hex_to_dec(hex.scan(/.{2}/))
     end
 
     # converts rgb color to hex color
@@ -537,19 +605,50 @@ module Alfred
     #### ICON FUNCTIONS
     ######################
 
+  end
+
+  class HTTP
+
+    def get(url, path)
+      begin
+        # Get the file if it doesn't exist
+        File.open(path, 'wb') do |file|
+          file.write open(url).read
+        end
+      rescue
+        File.delete(path)
+        return false
+      end
+      path
+    end
+
+    def try_servers(servers, path)
+      # Loop through the list of servers until we find one that is working
+      servers.each do |url|
+        file = self.get(url, path)
+        return file unless file == false
+      end
+      false
+    end
+
+  end
+
+
+  class Log
+
     ######################
     #### LOG FUNCTIONS
 
-    #
-    # [initialize_logs description]
-    # @param user = false [type] [description]
-    #
-    # @return [type] [description]
-    def initialize_logs( user = false )
-      self.initialize_bundler_log
-      self.initialize_user_log if user == true
+    def initialize(location, level = Logger::INFO)
+      @log = init_log(location)
+      @log.level = level
     end
 
+
+    def method_missing(name, *arguments)
+      return @log.send("#{name}", *arguments) if @log.respond_to?(:method)
+      raise "Error with logging"
+    end
 
     #
     # [init_log description]
@@ -559,22 +658,34 @@ module Alfred
     def init_log(location = STDERR)
       # Check to see the type of log
       if location.is_a? String
-        # The log is a file, so let's make the path if it doesn't exist
-        FileUtils.mkpath(File.dirname(location)) unless File.exists? File.dirname(location)
-        # Make and / or open the log file
-        file = File.open(location, File::WRONLY | File::APPEND | File::CREAT)
+        # Creates the log file
+        file = self.create_log_file(location)
         # Create the log with only one backup and a max size of 1MB
-        var  = Logger.new(file, 1, 1048576)
+        log  = Logger.new(file, 1, 1048576)
         # Set the date format to YYYY-MM-DD HH:MM:SS
         date = "%Y-%m-%d %H:%M:%S"
       else
         # The log is to STDOUT / STDERR (probably just the latter)
-        var  = Logger.new(location)
+        log  = Logger.new(location)
         # Set the date format to HH:MM:SS
         date = "%H:%M:%S"
       end
-      # We need to make the format match the bundler's
-      var.formatter = proc do |severity, datetime, progname, msg|
+      log = self.format_log(log, date)
+      # Return the newly created log object
+      return log
+    end
+
+    def create_log_file(location)
+       # The log is a file, so let's make the path if it doesn't exist
+        FileUtils.mkpath(File.dirname(location)) unless File.exists? File.dirname(location)
+        # Make and / or open the log file
+        file = File.open(location, File::WRONLY | File::APPEND | File::CREAT)
+        return file
+    end
+
+    def format_log(log, date)
+     # We need to make the format match the bundler's
+      log.formatter = proc do |severity, datetime, progname, msg|
         # Get the last stack trace
         trace = caller.last.split(':')
         # Get the filename from the stacktrace without the directory
@@ -589,30 +700,7 @@ module Alfred
         # Set the message format to the bundler standard
         "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
       end
-      # Return the newly created log object
-      return var
-    end
-
-
-    #
-    # [initialize_user_log description]
-    #
-    # @return [type] [description]
-    def initialize_user_log()
-      @user = self.init_log(File.join(@wf_data, @bundle + '.log'))
-    end
-
-
-    #
-    # [initialize_bundler_log description]
-    #
-    # @return [type] [description]
-    def initialize_bundler_log()
-      # Create the bundler's log file
-      log = File.join(@data, 'data', 'logs', 'bundler-' + @major_version + '.log')
-      @file    = self.init_log(log)
-      # Create the console log
-      @console = self.init_log(STDERR)
+      return log
     end
 
 
@@ -643,26 +731,6 @@ module Alfred
     end
 
 
-    #
-    # [log description]
-    # @param msg [type] [description]
-    # @param level = 'info' [type] [description]
-    #
-    # @return [type] [description]
-    def log(msg, level = 'info' )
-      @file.send(fix_level(level), msg)
-    end
-
-
-    #
-    # [console description]
-    # @param msg [type] [description]
-    # @param level='info' [type] [description]
-    #
-    # @return [type] [description]
-    def console(msg, level='info')
-      @console.send(fix_level(level), msg)
-    end
 
 
     #### LOG FUNCTIONS

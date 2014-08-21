@@ -10,12 +10,28 @@ require 'digest'
 
 ENV['AB_BRANCH'] = 'ruby-dev'
 
+
+#
+# [module description]
+#
+# @author [Sven]
+#
 module Alfred
 
-  # This is the external Bundler class
+
+  #
+  # [class description]
+  #
+  # @author [Sven]
+  #
   class Bundler
 
-    # The class constructor
+
+    #
+    # [initialize description]
+    # @param options = {} [type] [description]
+    #
+    # @return [type] [description]
     def initialize(options = {})
 
     @major_version = 'ruby-dev'
@@ -58,10 +74,15 @@ module Alfred
       @internal.send("#{name}", *arguments)
     end
 
-    ######################
-    #### INSTALL FUNCTIONS
 
-    # Make the install directories
+
+    # @!group Install Functions
+
+
+    #
+    # [make_install_directories description]
+    #
+    # @return [type] [description]
     def make_install_directories
       directories = [
         @data,
@@ -86,12 +107,24 @@ module Alfred
 
     # This is real fucking inelegant, but we can't assume that the
     # native gems are available to unzip files, so we'll go through the system
+
+    #
+    # [unzip description]
+    # @param file [type] [description]
+    # @param destination [type] [description]
+    #
+    # @return [type] [description]
     def unzip(file, destination)
       command = "cd \"#{destination}\"; unzip -oq #{file}; cd - 1>&2 > /dev/null"
       success = system(command)
       success && $?.exitstatus == 0
     end
 
+
+    #
+    # [install_bundler description]
+    #
+    # @return [type] [description]
     def install_bundler
 
       # Make all the directories
@@ -138,8 +171,8 @@ module Alfred
 
     end
 
-    #### INSTALL FUNCTIONS
-    ######################
+    # @!endgroup
+
 
   end
 end
