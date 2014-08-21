@@ -124,7 +124,7 @@ class AlfredBundlerIcon {
    *
    */
   private function setBackgroundFromEnv() {
-    $pattern = "/rgba\(([0-9]{3}),([0-9]{3}),([0-9]{3}),([0-9.]{4,})\)/";
+    $pattern = "/rgba\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9.]{4,})\)/";
     preg_match_all( $pattern, $_ENV[ 'alfred_theme_background' ], $matches );
 
     $this->background = $this->getLuminance(  array( 'r' => $matches[1][0],
