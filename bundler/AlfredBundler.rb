@@ -324,11 +324,8 @@ module Alfred
     def parse_icon_args(*args)
       args = args.shift
 
-      if args.count == 1 and args.is_a? Array
-        args = args.shift
-      end
+      args = args.shift if args.count == 1 and args.is_a? Array
       font, name, color, alter = args[0], args[1], args[2], args[3]
-
       color, alter = '000000', true if args.count == 2
       alter = false if args.count == 3
 
