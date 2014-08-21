@@ -73,7 +73,7 @@ module Alfred
     # @return [type] [description]
     def initialize_modern
       # For Alfred >= v2.4:277
-      @background = ENV['alfred_theme_background']
+
       @wf_data    = ENV['alfred_workflow_data']
       @bundle     = ENV['alfred_workflow_bundleid']
       @name       = ENV['alfred_workflow_name']
@@ -304,34 +304,40 @@ module Alfred
       @data  = data
       @cache = File.join(cache, 'color')
       @log = Alfred::Log.new(STDERR, err)
+      @background = self.get_background
+
     end
 
+    def get_background()
+      return self.get_background_modern unless ENV['alfred_theme_background'].nil?
+      return self.get_background_deprecated
+    end
+
+    def get_background_modern
+      ENV['alfred_theme_background'].nil?
+    end
+
+    def get_background_deprecated
+
+    end
 
     def parse_icon_args(*args)
       args = args.shift
-      if args.count == 1
-        if args.is_a? Array
-          args = args.shift
-          font, name, color, alter = args[0], args[1], args[2], args[3]
-        end
-        if args.is_a? Hash
-          for key, value in args # or for args[0..args.length] ?
-            eval "#{key} = #{value.inspect}"
-          end
-        end
-      elsif args.count == 2
-        font  = args[0]
-        name  = args[1]
-        color = '000000'
-        alter = true
-      elsif args.count == 3
-        font  = args[0]
-        name  = args[1]
-        color = args[2]
-        alter = false
-      else
-        font, name, color, alter = args[0], args[1], args[2], args[3]
+
+      if args.count == 1 and args.is_a? Array
+        args = args.shift
       end
+      font, name, color, alter = args[0], args[1], args[2], args[3]
+
+      color, alter = '000000', true if args.count == 2
+      alter = false if args.count == 3
+
+      if args.is_a? Hash
+        for key, value in args # or for args[0..args.length] ?
+          eval "#{key} = #{value.inspect}"
+        end
+      end
+
       return {:font => font, :name => name, :color => color, :alter => alter}
     end
 
@@ -341,17 +347,15 @@ module Alfred
     #
     # @return [type] [description]
     def icon(*args)
-
       a = parse_icon_args(args.shift)
 
-      fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
-
       a[:font].downcase!  # normalize the args
+      # Deal with System icons first
       return get_system_icon(a[:name]) if a[:font] == 'system'
       a[:color].downcase! # normalize the args
-      # Deal with System icons first
-      # Check the hex, for now
+      fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
 
+      # Check the hex, for now
       unless is_hex(a[:color])
         @log.error("#{a[:color]} is not a valid hex. Falling back to black.")
         raise "Not a valid color"
