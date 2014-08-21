@@ -153,7 +153,7 @@ class AlfredBundlerIcon {
 
     // The Alfred preferences plist where the theme information is stored
     $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
-    $cache = "{$this->data}/data/theme_background";
+    $cache = "{$this->data}/cache/misc/theme_background";
     $util  = "{$this->data}/bundler/includes/LightOrDark";
 
     if ( ! file_exists( "{$this->data}/data" ) ) {
@@ -161,7 +161,7 @@ class AlfredBundlerIcon {
     }
 
     if ( file_exists( $cache ) ) {
-      if ( filemtime( $cache > $plist ) ) {
+      if ( filemtime( $cache ) > filemtime( $plist ) ) {
         $this->background = file_get_contents( $cache );
         return TRUE;
       }
