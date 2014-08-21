@@ -8,8 +8,6 @@ require 'logger'
 require 'pathname'
 require 'digest'
 
-ENV['AB_BRANCH'] = 'ruby-dev'
-
 
 #
 # [module description]
@@ -45,8 +43,8 @@ module Alfred
               'alfred.bundler-' + @major_version)
 
     # For development, we'll use the AlfredBundler.rb file that we're editing
-    # @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
-    @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
+    @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
+    # @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
       unless File.exists? @bundler
         ### Let's reset everything here...
