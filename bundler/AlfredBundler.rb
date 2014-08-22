@@ -225,13 +225,13 @@ module Alfred
     #
     # @return [type] [description]
     def gems(*gems)
-      gems.each do |g|
+      gems.each { |g|
         begin
           gem *g
         rescue LoadError
           install_gem(*g)
         end
-      end
+      }
     end
 
     #### GEM FUNCTIONS
@@ -311,11 +311,11 @@ module Alfred
         'title' => title,
         'description' => message,
         'alpha' => 1,
-        'background_top' => 'ffffff',
-        'background_bottom' => 'ffffff',
-        'border_color' => 'ffffff',
-        'text_color' => '000000',
-        'no_growl' => true
+        # 'background_top' => 'ffffff',
+        # 'background_bottom' => 'ffffff',
+        # 'border_color' => 'ffffff',
+        # 'text_color' => '000000',
+        # 'no_growl' => true
       }
 
       notification['icon_file'] = icon unless icon == false
@@ -396,7 +396,7 @@ module Alfred
       fallback = File.join(@data, 'bundler', 'meta', 'icons', 'default.png')
 
       # Check the hex, for now
-      unless is_hex(a[:color])
+      unless is_hex?(a[:color])
         @log.error("#{a[:color]} is not a valid hex. Falling back to black.")
         raise "Not a valid color"
       end
@@ -458,7 +458,7 @@ module Alfred
     # @param color [type] [description]
     #
     # @return [type] [description]
-    def is_hex(color)
+    def is_hex?(color)
       return true if /^[0-9a-f]{6}$|^[0-9a-f]{3}$/.match(color)
       false
     end
@@ -658,9 +658,7 @@ module Alfred
     def get(url, path)
       begin
         # Get the file if it doesn't exist
-        File.open(path, 'wb') do |file|
-          file.write open(url).read
-        end
+        File.open(path, 'wb') { |file| file.write open(url).read }
       rescue
         File.delete(path)
         return false
@@ -670,10 +668,8 @@ module Alfred
 
     def try_servers(servers, path)
       # Loop through the list of servers until we find one that is working
-      servers.each do |url|
-        file = self.get(url, path)
-        return file unless file == false
-      end
+      servers.each { |url| file = self.get(url, path)
+        return file unless file == false }
       false
     end
 
@@ -731,7 +727,7 @@ module Alfred
 
     def format_log(log, date)
      # We need to make the format match the bundler's
-      log.formatter = proc do |severity, datetime, progname, msg|
+      log.formatter = proc { |severity, datetime, progname, msg|
         # Get the last stack trace
         trace = caller.last.split(':')
         # Get the filename from the stacktrace without the directory
@@ -744,8 +740,7 @@ module Alfred
         severity = 'WARNING'  if severity == 'WARN'
 
         # Set the message format to the bundler standard
-        "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n"
-      end
+        "[#{date}] [#{file}:#{line}] [#{severity}] #{msg}\n" }
       return log
     end
 
