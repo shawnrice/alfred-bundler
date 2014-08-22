@@ -44,7 +44,7 @@ property _bundler : missing value
 
 
 --get_icon("fontawesome", "ambulance", "000", true)
-my load_utility("pashua", missing value, missing value)
+--my load_utility("pashua", missing value, missing value)
 
 
 
@@ -58,16 +58,19 @@ on load_utility(_name, _version, _json)
 		set _version to "latest"
 	end if
 	if my _is_empty(_json) then
-		set _json to false
+		set _json to ""
 	end if
 	
 	set utility to APPLESCRIPT_LIB_DIR & "/" & _name & "/" & _version
 	if my _folder_exists(utility) = false then
-		set bash_bundlet to (my _pwd()) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
-			return "/bin/bash " & cmd
+			set response to (do shell script "/bin/bash " & cmd)
+			return response
+		else
+			return "ERROR"
 		end if
 	end if
 end load_utility
