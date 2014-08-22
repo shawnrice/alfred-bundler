@@ -1,3 +1,10 @@
+# I hate to do this, but until we can figure out a common way to store
+# global variables between releases, I'll have to reference the "devel"
+# VERSION.
+#
+# This will need to be updated with release.
+#
+# TODO: Figure out an easier way to point to AlfredBundler.py for self import.
 BUNDLER_VERSION = 'devel'
 
 try:
@@ -8,7 +15,7 @@ except ImportError:
     AlfredBundler = imp.load_source('AlfredBundler', os.path.expanduser(
         '~/Library/Application Support/Alfred 2/Workflow Data/'
         'alfred.bundler-{}/bundler/AlfredBundler.py'.format(BUNDLER_VERSION)))
-    
+
 from cocoadialog import CocoaDialog
 from terminalnotifier import TerminalNotifier
 
