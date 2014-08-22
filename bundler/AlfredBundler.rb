@@ -26,7 +26,7 @@ module Alfred
       @data   = data
       @cache  = cache
       @bundle = 'foo.my.poop'
-      @major_version = 'ruby-dev'
+      @major_version = 'devel'
       @wf_data = File.join( File.expand_path('~/'), 'Library',
         'Application Support', 'Alfred 2', 'Workflow Data', @bundle)
       @icon = Alfred::Icon.new(@data, @cache)
@@ -202,10 +202,8 @@ module Alfred
     def install_gem(name, version = Gem::Requirement.default)
       require 'rubygems'
       require 'rubygems/dependency_installer'
-      # $captured_output = capture_stdout do
-        installer      = Gem::DependencyInstaller.new({:install_dir => "#{@gem_dir}"})
-        installed_gems = installer.install name, version
-      # end
+      installer      = Gem::DependencyInstaller.new({:install_dir => "#{@gem_dir}"})
+      installed_gems = installer.install name, version
     end
 
 
@@ -292,6 +290,30 @@ module Alfred
 
     def icon(*args)
       @icon.icon(args)
+    end
+
+    def wrapper(wrapper)
+      wrapper.downcase!
+      require_relative File.join(File.dirname(__FILE__), 'includes', 'wrappers', 'ruby', wrapper + '.rb')
+    end
+
+    def notify(title, message, icon='null')
+      self.wrapper('cocoadialog')
+      @cd = Alfred::CocoaDialog.new(self.utility('cocoaDialog'), true) if @cd.nil?
+
+      notification = {
+        'title' => title,
+        'description' => message,
+        'alpha' => 1,
+        'background_top' => 'ffffff',
+        'background_bottom' => 'ffffff',
+        'border_color' => 'ffffff',
+        'text_color' => '000000',
+        'no_growl' => true
+      }
+
+      puts @cd.notify(notification)
+
     end
 
   end
