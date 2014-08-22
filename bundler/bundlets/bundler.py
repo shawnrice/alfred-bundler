@@ -370,7 +370,6 @@ def notify(title, message, icon=None):  # pragma: no cover
         return False
 
 
-
 def icon(font, icon, color='000000', alter=False):
     """Get path to specified icon, downloading it first if necessary.
 

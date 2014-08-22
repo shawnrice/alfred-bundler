@@ -116,6 +116,7 @@ from __future__ import print_function, unicode_literals
 import sys
 import os
 import re
+import imp
 import subprocess
 import plistlib
 import json
@@ -165,6 +166,15 @@ HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
 # Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
 # at the moment
 UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
+
+# Wrappers module path
+WRAPPERS_DIR = os.path.join(
+    BUNDLER_DIR, 'bundler', 'includes',
+    'wrappers', 'python'
+)
+
+# Hold wrappers object
+_wrappers = None
 
 # Where colour alternatives are cached
 COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
@@ -623,6 +633,51 @@ def flip_color(color):
 
     return flipped
 
+#-----------------------------------------------------------------------
+# Wrapper Functions
+#-----------------------------------------------------------------------
+
+
+def wrapper(wrapper, debug=False):
+    global _wrappers
+    if not _wrappers:
+        _wrappers_file, _wrappers_filename, _wrappers_data = imp.find_module(
+            'wrappers', [WRAPPERS_DIR])
+        _wrappers = imp.load_module(
+            'wrappers', _wrappers_file, _wrappers_filename, _wrappers_data)
+    return _wrappers.wrapper(wrapper.lower(), debug=debug)
+
+
+def notify(title, message, icon=None):
+    if (isinstance(title, str) or isinstance(title, unicode)) and \
+       (isinstance(message, str) or isinstance(message, unicode)):
+        client = wrapper('cocoadialog', debug=True)
+        icon_type = 'icon'
+        if icon and (isinstance(icon, str) or isinstance(icon, unicode)):
+            if not os.path.exists(icon):
+                if icon not in client.global_icons:
+                    icon_type = None
+            else:
+                icon_type = 'icon_file'
+        else:
+            icon_type = None
+        notification = {
+            'title': title,
+            'description': message,
+            'alpha': 1,
+            'background_top': 'ffffff',
+            'background_bottom': 'ffffff',
+            'border_color': 'ffffff',
+            'text_color': '000000',
+            'no_growl': True
+        }
+        if icon_type:
+            notification[icon_type] = icon
+        client.notify(**notification)
+        return True
+    else:
+        return False
+
 
 #-----------------------------------------------------------------------
 # Installation/update functions
@@ -766,6 +821,7 @@ def _add_pip_path():
 ########################################################################
 # API functions
 ########################################################################
+
 
 def logger(name, logpath=None):
     """Return ``~logging.Logger`` object that logs to ``logpath`` and STDERR.
