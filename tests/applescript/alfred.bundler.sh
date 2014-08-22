@@ -14,6 +14,10 @@
 #
 # See https://github.com/shawnrice/alfred-bundler for more information.
 
+####### FOR TESTING PURPOSES:
+AB_BRACH='devel'
+
+
 # Define default bundler major version.
 declare AB_MAJOR_VERSION="devel"
 declare AB_INSTALL_SUFFIX="-latest.zip"
@@ -345,7 +349,12 @@ function AlfredBundler::main() {
 AlfredBundler::bootstrap
 status=$?
 if [[ $status -eq 0 ]]; then
-  . "${AB_DATA}/bundler/AlfredBundler.sh"
+
+##### FOR TESTING PURPOSES
+
+. "${AB_ME}/../../bundler/AlfredBundler.sh"
+
+#  . "${AB_DATA}/bundler/AlfredBundler.sh"
 elif [[ $status -eq 1 ]]; then
   exit 1
 else
