@@ -43,7 +43,8 @@ set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_V
 property _bundler : missing value
 
 
-get_icon("fontawesome", "ambulance", "000", true)
+--get_icon("fontawesome", "ambulance", "000", true)
+my load_utility("X", missing value, missing value)
 
 
 
@@ -52,18 +53,38 @@ USER API
 /// *)
 
 on load_utility(_name, _version, _json)
+	--# partial support for "optional" args in Applescript
+	if my _is_empty(_version) then
+		set _version to "latest"
+	end if
+	if my _is_empty(_json) then
+		set _json to false
+	end if
+	
 	set utility to APPLESCRIPT_LIB_DIR & "/" & _name & "/" & _version
 	if my _folder_exists(utility) = false then
 		set bash_bundlet to (my _pwd()) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
-			
-			
+			set bash_bundlet_cmd to quoted form of bash_bundlet
+			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
+			return cmd
 		end if
 	end if
 end load_utility
 
 
 on get_icon(_font, _name, _color, _alter)
+	--# partial support for "optional" args in Applescript
+	if my _is_empty(_color) then
+		set _color to "000000"
+		if my _is_empty(_alter) then
+			set _alter to true
+		end if
+	end if
+	if my _is_empty(_alter) then
+		set _alter to false
+	end if
+	
 	set icon to BUNDLER_ICONS_LIB & "/" & _font & "/" & _color & "/" & _name
 	if my _folder_exists(icon) = false then
 		set bash_bundlet to (my _pwd()) & "bundlets/alfred.bundler.sh"
