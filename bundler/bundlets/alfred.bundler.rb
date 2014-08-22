@@ -17,6 +17,13 @@ require 'digest'
 module Alfred
 
   class BundlerInstallError < RuntimeError
+
+    attr :reason
+
+    def initialize(reason)
+      @reason = reason
+    end
+
   end
 
   #
@@ -45,12 +52,15 @@ module Alfred
               'com.runningwithcrayons.Alfred-2', 'Workflow Data',
               'alfred.bundler-' + @major_version)
 
+    @name  = get_workflow_name.chomp
+
+
     # For development, we'll use the AlfredBundler.rb file that we're editing
     @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
     # @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
-      unless File.exists? @bundler
-        ### Let's reset everything here...
+      # unless File.exists? @bundler
+        ## Let's reset everything here...
         if File.directory?(@data)
           command = "rm -fR '#{@data}'"
           success = system(command)
@@ -62,6 +72,7 @@ module Alfred
 
         ### And let's reinstall
         self.install_bundler unless confirm_installation == 'Proceed'
+        installed = true
       end
 
       # For testing...
@@ -72,7 +83,7 @@ module Alfred
 
       # Initialize an internal object
       @internal = Internal.new(@data, @cache)
-
+      @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
     end
 
     def method_missing(name, *arguments)
@@ -211,10 +222,13 @@ module Alfred
       result = do_confirm_dialog.chomp
       if result == 'More Info'
         system("open 'https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler'")
+        raise Alfred::BundlerInstallError.new('More Info'),
+          'User canceled installation of the Alfred Bundler by looking for more info.'
       elsif result == 'Proceed'
         return true
       end
-      raise Alfred::BundlerInstallError.new('User canceled installation of the Alfred Bundler.')
+      raise Alfred::BundlerInstallError.new('Deny'),
+        'User canceled installation of the Alfred Bundler.'
     end
 
 
