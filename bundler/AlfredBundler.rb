@@ -348,6 +348,8 @@ module Alfred
     ######################
     #### ICON FUNCTIONS
 
+benchmark :⋅
+
     def initialize(data, cache, err = Logger::INFO)
       @data  = data
       @cache = File.join(cache, 'color')

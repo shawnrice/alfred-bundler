@@ -1,1 +1,3 @@
 --output-dir ./docs/ruby --db exclude/.yardoc bundler/*.rb bundler/bundlets/*.rb bundler/includes/wrappers/ruby/*.rb --files LICENSE, README.md
+
+# SITEMAP_BASEURL=http://example.org yard doc --plugin sitemap
