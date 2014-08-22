@@ -463,7 +463,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>ICON FUNCTIONS.</p>
+<p>A new instance of Icon.</p>
 </div></span>
   
 </li>
@@ -605,7 +605,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>ICON FUNCTIONS</p>
+<p>Returns a new instance of Icon</p>
 
 
   </div>
@@ -635,16 +635,16 @@
       <pre class="lines">
 
 
-351
-352
 353
 354
 355
 356
-357</pre>
+357
+358
+359</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 351</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 353</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_cache'>cache</span><span class='comma'>,</span> <span class='id identifier rubyid_err'>err</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>INFO</span><span class='rparen'>)</span>
   <span class='ivar'>@data</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
@@ -745,16 +745,16 @@
       <pre class="lines">
 
 
-661
-662
 663
 664
 665
 666
-667</pre>
+667
+668
+669</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 661</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 663</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alter'>alter</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_color'>color</span> <span class='op'>=</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_color'>color</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
@@ -848,13 +848,13 @@
       <pre class="lines">
 
 
-647
-648
 649
-650</pre>
+650
+651
+652</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 647</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 649</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_brightness'>brightness</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>light</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_luminance'>luminance</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='op'>&gt;</span> <span class='float'>0.5</span>
@@ -905,13 +905,13 @@
       <pre class="lines">
 
 
-652
-653
 654
-655</pre>
+655
+656
+657</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 652</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 654</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_check_for_alter'>check_for_alter</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='ivar'>@background</span> <span class='op'>==</span> <span class='id identifier rubyid_brightness'>brightness</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -1002,16 +1002,16 @@
       <pre class="lines">
 
 
-496
-497
 498
 499
 500
 501
-502</pre>
+502
+503
+504</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 496</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 498</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_convert_hex'>convert_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_color'>color</span> <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{6}$</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -1105,8 +1105,6 @@
       <pre class="lines">
 
 
-519
-520
 521
 522
 523
@@ -1116,10 +1114,12 @@
 527
 528
 529
-530</pre>
+530
+531
+532</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 519</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 521</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dec_to_hex'>dec_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hex'>hex</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
@@ -1178,13 +1178,13 @@
       <pre class="lines">
 
 
-359
-360
 361
-362</pre>
+362
+363
+364</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 359</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 361</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background'>get_background</span><span class='lparen'>(</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_background_modern'>get_background_modern</span> <span class='kw'>unless</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_theme_background</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -1235,8 +1235,6 @@
       <pre class="lines">
 
 
-371
-372
 373
 374
 375
@@ -1248,10 +1246,12 @@
 381
 382
 383
-384</pre>
+384
+385
+386</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 371</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 373</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background_deprecated'>get_background_deprecated</span>
   <span class='id identifier rubyid_plist'>plist</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HOME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist</span><span class='tstring_end'>&quot;</span></span><span class='semicolon'>;</span>
@@ -1312,15 +1312,15 @@
       <pre class="lines">
 
 
-364
-365
 366
 367
 368
-369</pre>
+369
+370
+371</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 364</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 366</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background_modern'>get_background_modern</span>
   <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>rgba\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9.]{4,})\)</span><span class='regexp_end'>/</span></span><span class='period'>
@@ -1413,18 +1413,18 @@
       <pre class="lines">
 
 
-459
-460
 461
 462
 463
 464
 465
 466
-467</pre>
+467
+468
+469</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 459</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 461</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_system_icon'>get_system_icon</span><span class='lparen'>(</span><span class='id identifier rubyid_icon'>icon</span><span class='rparen'>)</span>
     <span class='comment'># This is where the icon should be
@@ -1520,12 +1520,12 @@
       <pre class="lines">
 
 
-511
-512
-513</pre>
+513
+514
+515</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 511</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 513</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hex_to_dec'>hex_to_dec</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_color'>color</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_item'>item</span><span class='op'>|</span> <span class='id identifier rubyid_item'>item</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='rbrace'>}</span>
@@ -1615,12 +1615,12 @@
       <pre class="lines">
 
 
-536
-537
-538</pre>
+538
+539
+540</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 536</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 538</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_hex'>hex</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hex_to_dec'>hex_to_dec</span><span class='lparen'>(</span><span class='id identifier rubyid_hex'>hex</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>.{2}</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1710,8 +1710,6 @@
       <pre class="lines">
 
 
-593
-594
 595
 596
 597
@@ -1744,10 +1742,12 @@
 624
 625
 626
-627</pre>
+627
+628
+629</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 593</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 595</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hsv_to_rgb'>hsv_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_hsv'>hsv</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_h'>h</span> <span class='op'>=</span> <span class='const'>Float</span><span class='lparen'>(</span><span class='id identifier rubyid_hsv'>hsv</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -1869,8 +1869,6 @@
       <pre class="lines">
 
 
-408
-409
 410
 411
 412
@@ -1912,10 +1910,12 @@
 448
 449
 450
-451</pre>
+451
+452
+453</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 408</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 410</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_icon'>icon</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_icon_args'>parse_icon_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='rparen'>)</span>
@@ -2046,13 +2046,13 @@
       <pre class="lines">
 
 
-480
-481
 482
-483</pre>
+483
+484
+485</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 480</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 482</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_is_hex?'>is_hex?</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{6}$|^[0-9a-f]{3}$</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -2143,13 +2143,13 @@
       <pre class="lines">
 
 
-635
-636
 637
-638</pre>
+638
+639
+640</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 635</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 637</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_luminance'>luminance</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_rgb'>rgb</span> <span class='op'>=</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_rgb'>rgb</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
@@ -2200,8 +2200,6 @@
       <pre class="lines">
 
 
-386
-387
 388
 389
 390
@@ -2215,10 +2213,12 @@
 398
 399
 400
-401</pre>
+401
+402
+403</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 386</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 388</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_parse_icon_args'>parse_icon_args</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
@@ -2321,12 +2321,12 @@
       <pre class="lines">
 
 
-547
-548
-549</pre>
+549
+550
+551</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 547</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 549</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rgb_to_hex'>rgb_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_dec_to_hex'>dec_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
@@ -2416,8 +2416,6 @@
       <pre class="lines">
 
 
-558
-559
 560
 561
 562
@@ -2443,10 +2441,12 @@
 582
 583
 584
-585</pre>
+585
+586
+587</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 558</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 560</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rgb_to_hsv'>rgb_to_hsv</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
 
@@ -2486,7 +2486,7 @@
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 03:38:07 2014 by
+  Generated on Fri Aug 22 04:20:45 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>
