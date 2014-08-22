@@ -1081,38 +1081,38 @@ class AlfredBundlerInternalClass {
    * @return bool                      TRUE on success, FALSE on failure
    */
   public function notify( $title, $message, $icon = null ) {
-    if ( gettype( $title) === 'string' && gettype( $message ) === 'string' ) {
-      $client = $this->wrapper( 'CocoaDialog' );
-      $icon_type = 'icon';
-      if ( ( ! is_null( $icon ) ) && ( gettype( $icon ) === 'string' ) ) {
-        if ( ! file_exists( $icon ) ) {
-          if ( ! in_array( $icon, $client->global_icons ) ) {
-            $icon_type = null;
-          }
-        } else {
-          $icon_type = 'icon_file';
+    if ( gettype( $title ) !== 'string' || gettype( $message ) !== 'string' )
+      return false;
+
+    $client = $this->wrapper( 'CocoaDialog' );
+    $icon_type = 'icon';
+    if ( ( ! is_null( $icon ) ) && ( gettype( $icon ) === 'string' ) ) {
+      if ( ! file_exists( $icon ) ) {
+        if ( ! in_array( $icon, $client->global_icons ) ) {
+          $icon_type = null;
         }
       } else {
-        $icon_type = null;
+        $icon_type = 'icon_file';
       }
-      $notification = [
-        'title'=>$title,
-        'description'=>$message,
-        'alpha'=>1,
-        'background_top'=>'ffffff',
-        'background_bottom'=>'ffffff',
-        'border_color'=>'ffffff',
-        'text_color'=>'000000',
-        'no_growl'=>true,
-      ];
-      if ( ! is_null( $icon_type ) ) {
-        $notification[$icon_type] = $icon;
-      }
-      $client->notify( $notification );
-      return true;
     } else {
-      return false;
+      $icon_type = null;
     }
+    $notification = [
+      'title'=>$title,
+      'description'=>$message,
+      'alpha'=>1,
+      'background_top'=>'ffffff',
+      'background_bottom'=>'ffffff',
+      'border_color'=>'ffffff',
+      'text_color'=>'000000',
+      'no_growl'=>true,
+    ];
+    if ( ! is_null( $icon_type ) ) {
+      $notification[$icon_type] = $icon;
+    }
+    $client->notify( $notification );
+    return true;
+
    }
 
   /****************************************************************************
