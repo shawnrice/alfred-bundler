@@ -32,7 +32,7 @@ module Alfred
     # @return [type] [description]
     def initialize(options = {})
 
-    @major_version = 'ruby-dev'
+    @major_version = 'devel'
 
     @home  = File.expand_path('~/')
     @data  = File.join(@home, 'Library', 'Application Support', 'Alfred 2',
@@ -60,6 +60,10 @@ module Alfred
         ### And let's reinstall
         self.install_bundler
       end
+
+      # For testing...
+      @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
+      # End for testing...
 
       require_relative @bundler
 
