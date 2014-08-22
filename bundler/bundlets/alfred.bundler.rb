@@ -16,6 +16,8 @@ require 'digest'
 #
 module Alfred
 
+  class BundlerInstallError < RuntimeError
+  end
 
   #
   # [class description]
@@ -24,6 +26,7 @@ module Alfred
   #
   class Bundler
 
+    attr_reader :data
 
     #
     # [initialize description]
@@ -58,7 +61,7 @@ module Alfred
         end
 
         ### And let's reinstall
-        self.install_bundler
+        self.install_bundler unless confirm_installation == 'Proceed'
       end
 
       # For testing...
@@ -76,7 +79,15 @@ module Alfred
       @internal.send("#{name}", *arguments)
     end
 
-
+    #
+    # [read_plist_value description]
+    # @param key [type] [description]
+    # @param plist [type] [description]
+    #
+    # @return [type] [description]
+    def read_plist_value(key, plist)
+      return `/usr/libexec/PlistBuddy -c 'Print :#{key}' '#{plist}'`
+    end
 
     # @!group Install Functions
 
@@ -172,6 +183,40 @@ module Alfred
       end
 
     end
+
+    def get_confurm_dialog_icon
+      icon = ":System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns"
+      icon = File.expand_path('icon.png').gsub('/', ':') if File.exists? 'icon.png'
+      icon[0] = '' # Remove the first semi-colon
+      return icon
+    end
+
+    def construct_confirm_dialog
+      name = get_workflow_name.chomp
+      icon = get_confurm_dialog_icon
+      text = "#{name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.\\n\\nYou may be asked to allow some components to run, depending on your security settings.\\n\\nYou can decline this installation, but #{name} may not work without them. There will be a slight delay after accepting."
+      return "display dialog \"#{text}\" buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 with title \"#{name} Setup\" with icon file \"#{icon}\"";
+    end
+
+    def get_workflow_name
+      return `/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist'`
+    end
+
+    def do_confirm_dialog
+      dialog = construct_confirm_dialog
+      return `osascript -e '#{dialog}'`.gsub('button returned:', '')
+    end
+
+    def confirm_installation
+      result = do_confirm_dialog.chomp
+      if result == 'More Info'
+        system("open 'https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler'")
+      elsif result == 'Proceed'
+        return true
+      end
+      raise Alfred::BundlerInstallError.new('User canceled installation of the Alfred Bundler.')
+    end
+
 
     # @!endgroup
 
