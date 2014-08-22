@@ -15,6 +15,7 @@ module Alfred
   #
   class Internal
 
+    attr_reader :data
 
     #
     # [initialize description]
@@ -89,7 +90,6 @@ module Alfred
       @name   = read_plist_value('name', 'info.plist')
       @bundle = read_plist_value('bundleid', 'info.plist')
     end
-
 
 
     #
@@ -202,8 +202,16 @@ module Alfred
     def install_gem(name, version = Gem::Requirement.default)
       require 'rubygems'
       require 'rubygems/dependency_installer'
-      installer      = Gem::DependencyInstaller.new({:install_dir => "#{@gem_dir}"})
-      installed_gems = installer.install name, version
+      icon = File.join(@data, 'bundler', 'meta', 'icons', 'gem.png')
+      self.notify('Alfred Bundler', "Installing Gem: '#{name}'\nPlease be patient.", icon)
+      begin
+        installer      = Gem::DependencyInstaller.new({:install_dir => "#{@gem_dir}"})
+        installed_gems = installer.install name, version
+      rescue Gem::GemNotFoundException
+        console("Cannot install Gem #{name}. Either the name/version is bad or the Internet connection is lacking.", 'CRITICAL')
+        log("Failed to install Gem #{name}.", 'CRITICAL')
+        self.notify('Alfred Bundler', "Could not install Gem #{name}", icon)
+      end
     end
 
 
@@ -221,9 +229,7 @@ module Alfred
         begin
           gem *g
         rescue LoadError
-          # Add in a notification here because installing gems might take a while
           install_gem(*g)
-          gem *g
         end
       end
     end
@@ -297,9 +303,9 @@ module Alfred
       require_relative File.join(File.dirname(__FILE__), 'includes', 'wrappers', 'ruby', wrapper + '.rb')
     end
 
-    def notify(title, message, icon='null')
+    def notify(title, message, icon = 'icon.png')
       self.wrapper('cocoadialog')
-      @cd = Alfred::CocoaDialog.new(self.utility('cocoaDialog'), true) if @cd.nil?
+      @cd = Alfred::CocoaDialog.new(self.utility('cocoaDialog')) if @cd.nil?
 
       notification = {
         'title' => title,
@@ -312,7 +318,8 @@ module Alfred
         'no_growl' => true
       }
 
-      puts @cd.notify(notification)
+      notification['icon_file'] = icon unless icon == false
+      @cd.notify(notification)
 
     end
 
