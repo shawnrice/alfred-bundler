@@ -235,8 +235,8 @@ class AlfredBundler {
     // 'AlfredBundlerInternalClass' class
     if ( ! method_exists( $this->bundler, $method ) ) {
       // Whoops. We called a non-existent method
-      $this->report( "Could not find method [$method] in class 'AlfredBundler'.",
-        'ERROR', __FILE__, __LINE__ );
+      $this->bundler->log( "Could not find method [$method] in class 'AlfredBundler'.",
+        'ERROR', 'console' );
       return FALSE;
     }
 
