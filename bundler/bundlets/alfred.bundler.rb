@@ -59,7 +59,7 @@ module Alfred
     @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
     # @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
-      # unless File.exists? @bundler
+      unless File.exists? @bundler
         ## Let's reset everything here...
         if File.directory?(@data)
           command = "rm -fR '#{@data}'"
