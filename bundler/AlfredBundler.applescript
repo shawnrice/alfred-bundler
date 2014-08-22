@@ -44,7 +44,7 @@ property _bundler : missing value
 
 
 --get_icon("fontawesome", "ambulance", "000", true)
-my load_utility("X", missing value, missing value)
+my load_utility("pashua", missing value, missing value)
 
 
 
@@ -67,7 +67,7 @@ on load_utility(_name, _version, _json)
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
-			return cmd
+			return "/bin/bash " & cmd
 		end if
 	end if
 end load_utility
@@ -91,7 +91,7 @@ on get_icon(_font, _name, _color, _alter)
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
-			do shell script cmd
+			return "/bin/bash " & cmd
 		end if
 	else
 		return "exists"
