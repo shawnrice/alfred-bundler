@@ -1,17 +1,23 @@
 #!/bin/ruby
 
-ENV['alfred_theme_background'] = "rgba(0,173,0,0.98)"
+ENV['AB_BRANCH'] = 'devel'
 require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
 
-bundle   = 'com.poop'
+begin
 bundler  = Alfred::Bundler.new
-# puts ENV['HOME']
+rescue Alfred::BundlerInstallError => error
+  raise StandardError.new("If you don't want to use the Bundler, uninstall this workflow") if error.reason == 'Deny'
+  raise StandardError.new("We'll wait for you to try again later.") if error.reason == 'More Info'
+end
+
+
 
 # log = Alfred::Log.new(STDERR, Logger::DEBUG)
 # log.debug('test')
 # log.info('test')
+# bundler.notify('title', 'message', File.join(bundler.data, 'bundler', 'meta', 'icons', 'gem.png'))
 
-
+# exit
 # puts foo.inspect
 # foo.info('test')
 # puts bundler.load( 'utility', 'Pashua' )
@@ -53,7 +59,7 @@ puts bundler.icon({:font => 'elusive', :name => 'fire', :color => 'abcabc'})
 # bundler.log('Testing', 'FATAL')
 
 # # puts "We're about to load some gems"
-# bundler.gems( ['rdoc'], ['plist', '~>3.1.0'])
+bundler.gems( ['rdoc'], ['plist', '~>3.1.0'])
 # require 'plist'
 # p = Plist::Listener.new
 # p.tap{ |p| p p}

@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Alfred::ProgressBar
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Alfred/ProgressBar.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Alfred.html" title="Alfred (module)">Alfred</a></span></span>
+     &raquo; 
+    <span class="title">ProgressBar</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Alfred::ProgressBar
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Alfred::ProgressBar</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">bundler/includes/wrappers/ruby/cocoadialog.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>CocoaDialog progress bar implementation</p>
+
+<p>Since Ruby **does not** support nested classes, we have to build progress
+bar outside of the client.</p>
+
+<p>Progress bar client build:</p>
+
+<pre class="code ruby"><code class="ruby">@client = CocoaDialog.new(&#39;path to CocoaDialog.app or exec&#39;, @debug=Boolean)
+@progress_bar = ProgressBar.new(@client, **Dialog Arguments**)</code></pre>
+
+<p>Progress bar class opens own subprocess with open PIPE.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="cocoa_object-classvariable" class="">@@cocoa_object =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="percent-classvariable" class="">@@percent =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="text-classvariable" class="">@@text =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="pipe_in-classvariable" class="">@@pipe_in =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="pipe_out-classvariable" class="">@@pipe_out =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#finish-instance_method" title="#finish (instance method)">- (Object) <strong>finish</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Kill progress bar.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (ProgressBar) <strong>initialize</strong>(cocoa_object, _passed) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Progress bar class constructor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">- (Object) <strong>update</strong>(percent = nil, text = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Update function for progress bar.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Alfred::ProgressBar (class)">ProgressBar</a></span></tt>) <strong>initialize</strong>(cocoa_object, _passed) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Progress bar class constructor.</p>
+
+<p>:param cocoa_object: CocoaDialog object :type cocoa_object: CocoaDialog
+:param _passed: Progress bar arguments :type _passed: hash</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/includes/wrappers/ruby/cocoadialog.rb', line 887</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_cocoa_object'>cocoa_object</span><span class='comma'>,</span> <span class='id identifier rubyid__passed'>_passed</span><span class='rparen'>)</span>
+    <span class='cvar'>@@cocoa_object</span> <span class='op'>=</span> <span class='id identifier rubyid_cocoa_object'>cocoa_object</span>
+    <span class='kw'>unless</span> <span class='cvar'>@@cocoa_object</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='const'>CocoaDialog</span><span class='rparen'>)</span>
+        <span class='gvar'>$stdout</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[%-8s] &lt;%s:%d&gt;....%s\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CRITICAL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>invalid cocoadialog client</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_abort'>abort</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_custom_options'>custom_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>percent</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'>Fixnum</span><span class='comma'>,</span> <span class='const'>Float</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>indeterminate</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'>TrueClass</span><span class='comma'>,</span> <span class='const'>FalseClass</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>float</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'>TrueClass</span><span class='comma'>,</span> <span class='const'>FalseClass</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stoppable</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'>TrueClass</span><span class='comma'>,</span> <span class='const'>FalseClass</span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_custom_options'>custom_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dialog_name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>required_options</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>percent</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>custom_options</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_custom_options'>custom_options</span>
+    <span class='rbrace'>}</span>
+    <span class='kw'>if</span> <span class='cvar'>@@cocoa_object</span><span class='period'>.</span><span class='id identifier rubyid__valid_options'>_valid_options</span><span class='lparen'>(</span><span class='id identifier rubyid__passed'>_passed</span><span class='comma'>,</span> <span class='id identifier rubyid_custom_options'>custom_options</span><span class='rparen'>)</span>
+        <span class='cvar'>@@percent</span> <span class='op'>=</span> <span class='id identifier rubyid__passed'>_passed</span><span class='lbracket'>[</span><span class='symbol'>:percent</span><span class='rbracket'>]</span>
+        <span class='cvar'>@@text</span> <span class='op'>=</span> <span class='id identifier rubyid__passed'>_passed</span><span class='lbracket'>[</span><span class='symbol'>:text</span><span class='rbracket'>]</span>
+        <span class='ivar'>@process</span> <span class='op'>=</span> <span class='cvar'>@@cocoa_object</span><span class='period'>.</span><span class='id identifier rubyid__display'>_display</span><span class='lparen'>(</span>
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span> <span class='id identifier rubyid__passed'>_passed</span><span class='comma'>,</span> <span class='ivar'>@return_process</span><span class='op'>=</span><span class='kw'>true</span>
+        <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='cvar'>@@pipe_in</span><span class='comma'>,</span> <span class='cvar'>@@pipe_out</span> <span class='op'>=</span> <span class='const'>Open3</span><span class='period'>.</span><span class='id identifier rubyid_popen2'>popen2</span><span class='lparen'>(</span><span class='ivar'>@process</span><span class='rparen'>)</span>
+        <span class='cvar'>@@pipe_out</span>
+    <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="finish-instance_method">
+  
+    - (<tt>Object</tt>) <strong>finish</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Kill progress bar.</p>
+
+<p>:returns: 0 if dead :rtype: int</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+940
+941
+942
+943
+944</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/includes/wrappers/ruby/cocoadialog.rb', line 940</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_finish'>finish</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='cvar'>@@pipe_in</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='cvar'>@@pipe_out</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update-instance_method">
+  
+    - (<tt>Object</tt>) <strong>update</strong>(percent = nil, text = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Update function for progress bar.</p>
+
+<p>:param percent: Percent value to be updated :param text: Text string to be
+updated :type percent: int :type text: str :returns: 1 if running :rtype:
+int</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+925
+926
+927
+928
+929
+930
+931
+932
+933
+934</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/includes/wrappers/ruby/cocoadialog.rb', line 925</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_percent'>percent</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_text'>text</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='cvar'>@@percent</span> <span class='op'>=</span> <span class='id identifier rubyid_percent'>percent</span> <span class='op'>||</span> <span class='cvar'>@@percent</span>
+    <span class='cvar'>@@text</span> <span class='op'>=</span> <span class='id identifier rubyid_text'>text</span> <span class='op'>||</span> <span class='cvar'>@@text</span>
+    <span class='kw'>begin</span>
+        <span class='cvar'>@@pipe_in</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%s %s\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span><span class='cvar'>@@percent</span><span class='comma'>,</span> <span class='cvar'>@@text</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='kw'>return</span> <span class='int'>1</span>
+    <span class='kw'>rescue</span>
+        <span class='id identifier rubyid_finish'>finish</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Aug 22 03:38:07 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.0.0).
+</div>
+
+  </body>
+</html>

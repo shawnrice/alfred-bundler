@@ -12,7 +12,7 @@ require 'digest'
 #
 # [module description]
 #
-# @author [Sven]
+# @author The Alfred Bundler Team
 #
 module Alfred
 
@@ -29,7 +29,7 @@ module Alfred
   #
   # [class description]
   #
-  # @author [Sven]
+  # @author The Alfred Bundler Team
   #
   class Bundler
 
@@ -59,7 +59,7 @@ module Alfred
     @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
     # @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
-      unless File.exists? @bundler
+      # unless File.exists? @bundler
         ## Let's reset everything here...
         if File.directory?(@data)
           command = "rm -fR '#{@data}'"
@@ -73,7 +73,7 @@ module Alfred
         ### And let's reinstall
         self.install_bundler unless confirm_installation == 'Proceed'
         installed = true
-      end
+      # end
 
       # For testing...
       @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
@@ -123,14 +123,9 @@ module Alfred
         File.join(@cache, 'utilities')
       ]
 
-      directories.each do |dir|
-        FileUtils.mkpath(dir) unless File.directory?(dir)
-      end
+      directories.each { |dir| FileUtils.mkpath(dir) unless File.directory?(dir) }
 
     end
-
-    # This is real fucking inelegant, but we can't assume that the
-    # native gems are available to unzip files, so we'll go through the system
 
     #
     # [unzip description]
@@ -183,20 +178,20 @@ module Alfred
 
       unless :zip
         File.delete(@cache + "/install/bundler.zip")
-
-        # @TODO: bring in line with proper error handling
-        abort("ERROR: Cannot install Alfred Bundler -- bad zip file.")
+        raise Alfred::BundlerInstallError('corrupt'),
+          "Bundler downloaded zip file corrupted."
       end
 
       # Move the bundler installation into the data directory
-      Dir[@cache + '/install/*'].each do |dir|
-        FileUtils.move("#{dir}/bundler", "#{@data}") if File.directory? dir + '/bundler'
-      end
+      Dir[@cache + '/install/*'].each { |dir|
+        FileUtils.move("#{dir}/bundler", "#{@data}") if File.directory? "#{dir}/bundler"
+      }
 
     end
 
     def get_confurm_dialog_icon
-      icon = ":System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns"
+      icon =  ":System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:"
+      icon << "SideBarDownloadsFolder.icns"
       icon = File.expand_path('icon.png').gsub('/', ':') if File.exists? 'icon.png'
       icon[0] = '' # Remove the first semi-colon
       return icon
@@ -205,8 +200,17 @@ module Alfred
     def construct_confirm_dialog
       name = get_workflow_name.chomp
       icon = get_confurm_dialog_icon
-      text = "#{name} needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.\\n\\nYou may be asked to allow some components to run, depending on your security settings.\\n\\nYou can decline this installation, but #{name} may not work without them. There will be a slight delay after accepting."
-      return "display dialog \"#{text}\" buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 with title \"#{name} Setup\" with icon file \"#{icon}\"";
+      script =  "display dialog \"#{text}\" "
+      script << "\"#{name} needs to install additional components, which will be "
+      script << "placed in the Alfred storage directory and will not interfere "
+      script << "with your system.\\n\\nYou may be asked to allow some components "
+      script << "to run, depending on your security settings.\\n\\nYou can "
+      script << "decline this installation, but #{name} may not work without them. "
+      script << "There will be a slight delay after accepting.\""
+      script << "buttons {\"More Info\",\"Cancel\",\"Proceed\"} default button 3 "
+      script << "with title \"#{name} Setup\" "
+      script << "with icon file \"#{icon}\""
+      return script
     end
 
     def get_workflow_name

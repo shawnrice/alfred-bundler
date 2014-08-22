@@ -1,0 +1,836 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Alfred::Log
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Alfred/Log.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Alfred.html" title="Alfred (module)">Alfred</a></span></span>
+     &raquo; 
+    <span class="title">Log</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Alfred::Log
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Alfred::Log</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">bundler/AlfredBundler.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_log_file-instance_method" title="#create_log_file (instance method)">- (Object) <strong>create_log_file</strong>(location) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fix_level-instance_method" title="#fix_level (instance method)">- (type) <strong>fix_level</strong>(level) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>[fix_level description].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#format_log-instance_method" title="#format_log (instance method)">- (Object) <strong>format_log</strong>(log, date) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_log-instance_method" title="#init_log (instance method)">- (type) <strong>init_log</strong>(location = STDERR) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>[init_log description].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Log) <strong>initialize</strong>(location, level = Logger::INFO) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>LOG FUNCTIONS.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method_missing-instance_method" title="#method_missing (instance method)">- (Object) <strong>method_missing</strong>(name, *arguments) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Alfred::Log (class)">Log</a></span></tt>) <strong>initialize</strong>(location, level = Logger::INFO) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>LOG FUNCTIONS</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+703
+704
+705
+706</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 703</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>INFO</span><span class='rparen'>)</span>
+  <span class='ivar'>@log</span> <span class='op'>=</span> <span class='id identifier rubyid_init_log'>init_log</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+  <span class='ivar'>@log</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='id identifier rubyid_level'>level</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice this">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+  </p>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="method_missing-instance_method">
+  
+    - (<tt>Object</tt>) <strong>method_missing</strong>(name, *arguments) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+709
+710
+711
+712</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 709</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@log</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='ivar'>@log</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:method</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error with logging</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_log_file-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_log_file</strong>(location) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+739
+740
+741
+742
+743
+744
+745</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 739</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_log_file'>create_log_file</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+   <span class='comment'># The log is a file, so let&#39;s make the path if it doesn&#39;t exist
+</span>    <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkpath'>mkpath</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+    <span class='comment'># Make and / or open the log file
+</span>    <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='comma'>,</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>WRONLY</span> <span class='op'>|</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>APPEND</span> <span class='op'>|</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>CREAT</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_file'>file</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fix_level-instance_method">
+  
+    - (<tt>type</tt>) <strong>fix_level</strong>(level) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <dl class="rdoc-list label-list"><dt>fix_level description
+<dd></dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>level</span>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><dl class="rdoc-list label-list"><dt>description
+<dd></dd></dl>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><dl class="rdoc-list label-list"><dt>description
+<dd></dd></dl>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 772</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fix_level'>fix_level</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+  <span class='comment'># Lowercase the level name
+</span>  <span class='id identifier rubyid_level'>level</span><span class='period'>.</span><span class='id identifier rubyid_downcase!'>downcase!</span>
+
+  <span class='comment'># define the levels and their
+</span>  <span class='id identifier rubyid_levels'>levels</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>debug</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>debug</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warning</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warn</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warn</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warn</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>error</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>error</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fatal</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fatal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fatal</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_levels'>levels</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a valid level, falling back to &#39;info&#39;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>debug</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_levels'>levels</span><span class='lbracket'>[</span><span class='id identifier rubyid_level'>level</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="format_log-instance_method">
+  
+    - (<tt>Object</tt>) <strong>format_log</strong>(log, date) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 747</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_format_log'>format_log</span><span class='lparen'>(</span><span class='id identifier rubyid_log'>log</span><span class='comma'>,</span> <span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+ <span class='comment'># We need to make the format match the bundler&#39;s
+</span>  <span class='id identifier rubyid_log'>log</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>=</span> <span class='id identifier rubyid_proc'>proc</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_severity'>severity</span><span class='comma'>,</span> <span class='id identifier rubyid_datetime'>datetime</span><span class='comma'>,</span> <span class='id identifier rubyid_progname'>progname</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span><span class='op'>|</span>
+    <span class='comment'># Get the last stack trace
+</span>    <span class='id identifier rubyid_trace'>trace</span> <span class='op'>=</span> <span class='id identifier rubyid_caller'>caller</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Get the filename from the stacktrace without the directory
+</span>    <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_trace'>trace</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span>
+    <span class='comment'># Get the line number fron the trace
+</span>    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_trace'>trace</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_date'>date</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_date'>date</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Normalize the log levels to be in line with the rest of the bundler
+</span>    <span class='id identifier rubyid_severity'>severity</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CRITICAL</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_severity'>severity</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FATAL</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_severity'>severity</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WARNING</span><span class='tstring_end'>&#39;</span></span>  <span class='kw'>if</span> <span class='id identifier rubyid_severity'>severity</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WARN</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='comment'># Set the message format to the bundler standard
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_date'>date</span><span class='embexpr_end'>}</span><span class='tstring_content'>] [</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file'>file</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_content'>] [</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_severity'>severity</span><span class='embexpr_end'>}</span><span class='tstring_content'>] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msg'>msg</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_log'>log</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_log-instance_method">
+  
+    - (<tt>type</tt>) <strong>init_log</strong>(location = STDERR) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <dl class="rdoc-list label-list"><dt>init_log description
+<dd></dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>location</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>STDERR</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<h1 id="label-STDERR+%5Btype%5D+%5Bdescription%5D">STDERR [type] [description]</h1>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><dl class="rdoc-list label-list"><dt>description
+<dd></dd></dl>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 719</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_log'>init_log</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span> <span class='op'>=</span> <span class='const'>STDERR</span><span class='rparen'>)</span>
+  <span class='comment'># Check to see the type of log
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_location'>location</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+    <span class='comment'># Creates the log file
+</span>    <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_log_file'>create_log_file</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+    <span class='comment'># Create the log with only one backup and a max size of 1MB
+</span>    <span class='id identifier rubyid_log'>log</span>  <span class='op'>=</span> <span class='const'>Logger</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='comma'>,</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>1048576</span><span class='rparen'>)</span>
+    <span class='comment'># Set the date format to YYYY-MM-DD HH:MM:SS
+</span>    <span class='id identifier rubyid_date'>date</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%Y-%m-%d %H:%M:%S</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='comment'># The log is to STDOUT / STDERR (probably just the latter)
+</span>    <span class='id identifier rubyid_log'>log</span>  <span class='op'>=</span> <span class='const'>Logger</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span>
+    <span class='comment'># Set the date format to HH:MM:SS
+</span>    <span class='id identifier rubyid_date'>date</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%H:%M:%S</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_log'>log</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_format_log'>format_log</span><span class='lparen'>(</span><span class='id identifier rubyid_log'>log</span><span class='comma'>,</span> <span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span>
+  <span class='comment'># Return the newly created log object
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_log'>log</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Aug 22 03:38:07 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.0.0).
+</div>
+
+  </body>
+</html>

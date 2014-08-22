@@ -1,8 +1,27 @@
 
+
+#  Alfred Bundler PHP API file
+#
+#  Main PHP interface for the Alfred Dependency Bundler.
+#
+#  This file is part of the Alfred Bundler, released under the MIT licence.
+#  Copyright (c) 2014 The Alfred Bundler Team
+#  See https://github.com/shawnrice/alfred-bundler for more information
+#
+#  @copyright  The Alfred Bundler Team 2014
+#  @license    http://opensource.org/licenses/MIT  MIT
+#  @version    Taurus 1
+#  @link       http://shawnrice.github.io/alfred-bundler
+#  @package    AlfredBundler
+#  @since      File available since Taurus 1
+
+
+
+
 #
 # [module description]
 #
-# @author [Sven]
+# @author The Alfred Bundler Team
 # @since Taurus 1
 #
 module Alfred
@@ -11,7 +30,7 @@ module Alfred
   #
   # [class description]
   #
-  # @author [Sven]
+  # @author The Alfred Bundler Team
   #
   class Internal
 
