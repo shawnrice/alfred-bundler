@@ -2,7 +2,6 @@ global B
 set B to my _load_bundler()
 property the_bundler : missing value
 
-
 (* ///
 MAIN API FUNCTIONS
 /// *)
@@ -40,7 +39,7 @@ on get_icon(_font, _name, _color, _alter)
 		set B to my _load_bundler()
 		try
 			set icon to B's get_icon(_font, _name, _color, _alter)
-			return "yes: " & icon
+			return icon
 		on error msg number num
 			set msg to "Error retrieving icon `" & _font & "`'s `{}`"
 			B's _log("get_icon", "DEBUG", B's _format(msg, _name))
@@ -60,15 +59,15 @@ on _bootstrap()
     	:returns: ``None``
 
     	*)
-	if the_bundler is not equal to missing value then
-		return true
-	else
-		set shell_bundlet to quoted form of (my _load_shell_bundlet())
-		set shell_cmd to shell_bundlet & " utility CocoaDialog"
-		set cmd to my _prepare_cmd(shell_cmd)
-		do shell script cmd
-		set the_bundler to true
-	end if
+	--if the_bundler is not equal to missing value then
+	--	return the_bundler
+	--else
+	set shell_bundlet to quoted form of (my _load_shell_bundlet())
+	set shell_cmd to shell_bundlet & " utility CocoaDialog"
+	set cmd to my _prepare_cmd(shell_cmd)
+	do shell script cmd
+	set the_bundler to true
+	--end if
 	
 end _bootstrap
 
@@ -91,7 +90,8 @@ end _load_shell_bundlet
 
 on _prepare_cmd(cmd)
 	set pwd to quoted form of (my _pwd())
-	return "cd " & pwd & "; bash " & cmd
+	set testing_var to "export AB_BRANCH=devel; "
+	return testing_var & "cd " & pwd & "; bash " & cmd
 end _prepare_cmd
 
 on _pwd()
