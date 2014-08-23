@@ -3,7 +3,6 @@
 && $? for bash status codes
 
 *)
-
 property BUNDLER_VERSION : "devel"
 
 --# Bundler paths
@@ -26,11 +25,11 @@ property COLOR_CACHE : DATA_DIR & "/color-cache"
 
 --# Where installer.sh can be downloaded from
 global BASH_BUNDLET_URL
-set BASH_BUNDLET_URL to my _format("https://raw.githubusercontent.com/shawnrice/alfred-bundler/{}/bundler/bundlets/alfred.bundler.sh", BUNDLER_VERSION)
+set BASH_BUNDLET_URL to my formatter("https://raw.githubusercontent.com/shawnrice/alfred-bundler/{}/bundler/bundlets/alfred.bundler.sh", BUNDLER_VERSION)
 
 --# Bundler log file
 global BUNDLER_LOGFILE
-set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
+set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
 
 
 (* ///
@@ -39,42 +38,42 @@ USER API
 
 on utility(_name, _version, _json)
 	--# partial support for "optional" args in Applescript
-	if my _is_empty(_version) then
+	if my is_empty(_version) then
 		set _version to "latest"
 	end if
-	if my _is_empty(_json) then
+	if my is_empty(_json) then
 		set _json to ""
 	end if
 	--# path to specific utility
-	set utility to UTILITIES_DIR & "/" & _name & "/" & _version
-	if my _folder_exists(utility) = false then
+	set utility to my joiner({UTILITIES_DIR, _name, _version}, "/")
+	if my folder_exists(utility) = false then
 		--# if utility isn't already installed
-		my _log("utility", "INFO", my _format("Utility at `{}` not found...", utility))
-		set bash_bundlet to (my _dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
-		if my _file_exists(bash_bundlet) = true then
+		my logger("utility", "INFO", my formatter("Utility at `{}` not found...", utility))
+		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
-			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
-			set cmd to my _prepare_cmd(cmd)
-			my _log("utility", "INFO", my _format("Running shell command: `{}`...", cmd))
+			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
+			set cmd to my prepare_cmd(cmd)
+			my logger("utility", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return full_path
 		else
-			set error_msg to my _log("utility", "DEBUG", my _format("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("utility", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if utility is already installed
-		my _log("utility", "INFO", my _format("Utility at `{}` found...", utility))
+		my logger("utility", "INFO", my formatter("Utility at `{}` found...", utility))
 		--# read utilities invoke file
 		set invoke_file to utility & "/invoke"
-		if my _file_exists(invoke_file) = true then
-			set invoke_path to my _read_file(invoke_file)
+		if my file_exists(invoke_file) = true then
+			set invoke_path to my read_file(invoke_file)
 			--# combine utility path with invoke path
 			set full_path to utility & "/" & invoke_path
 			return full_path
 		else
-			set error_msg to my _log("utility", "DEBUG", my _format("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("utility", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
@@ -84,95 +83,94 @@ end utility
 
 on icon(_font, _name, _color, _alter)
 	--# partial support for "optional" args in Applescript
-	if my _is_empty(_color) then
+	if my is_empty(_color) then
 		set _color to "000000"
-		if my _is_empty(_alter) then
+		if my is_empty(_alter) then
 			set _alter to true
 		end if
 	end if
-	if my _is_empty(_alter) then
+	if my is_empty(_alter) then
 		set _alter to false
 	end if
 	--# path to specific icon
-	set icon to ICONS_DIR & "/" & _font & "/" & _color & "/" & _name
-	if my _folder_exists(icon) = false then
+	set icon to my joiner({ICONS_DIR, _font, _color, _name}, "/")
+	if my folder_exists(icon) = false then
 		--# if icon isn't already installed
-		my _log("icon", "INFO", my _format("Icon at `{}` not found...", icon))
-		set bash_bundlet to (my _dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
-		if my _file_exists(bash_bundlet) = true then
+		my logger("icon", "INFO", my formatter("Icon at `{}` not found...", icon))
+		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
-			set cmd to my _join({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
-			set cmd to my _prepare_cmd(cmd)
-			my _log("icon", "INFO", my _format("Running shell command: `{}`...", cmd))
+			set cmd to my joiner({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
+			set cmd to my prepare_cmd(cmd)
+			my logger("icon", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 		else
-			set error_msg to my _log("icon", "DEBUG", my _format("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("icon", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if icon is already installed
-		my _log("icon", "INFO", my _format("Icon at `{}` found...", icon))
+		my logger("icon", "INFO", my formatter("Icon at `{}` found...", icon))
 		return icon
 	end if
 end icon
 
 
 
-
-
 (* ///
-MAIN ACTION HANDLERS 
+LOGGING HANDLER
 /// *)
 
-on _log(_handler, _level, _message)
-	--# Ensure log file exists
+on logger(_handler, _level, _message)
+	--# Ensure log file exists, with
+	--# checking for scope of global var
 	try
-		my _check_file(BUNDLER_LOGFILE)
+		my check_file(BUNDLER_LOGFILE)
 	on error
-		set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
-		my _check_file(BUNDLER_LOGFILE)
+		set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
+		my check_file(BUNDLER_LOGFILE)
 	end try
 	delay 0.1 -- delay to ensure IO action is completed
 	--# Prepare time string format %Y-%m-%d %H:%M:%S
-	set log_time to "[" & (my date_format()) & "]"
-	set formatted_time to text items 1 thru -4 of (time string of (current date)) as string
-	set error_time to "[" & formatted_time & "]"
+	set log_time to "[" & (my date_formatter()) & "]"
+	set formatterted_time to text items 1 thru -4 of (time string of (current date)) as string
+	set error_time to "[" & formatterted_time & "]"
 	--# Prepare location message
 	set _location to "[bundler.scpt:" & _handler & "]"
 	--# Prepare level message
 	set _level to "[" & _level & "]"
 	--# Generate full error message for logging
-	set log_msg to (ASCII character 10) & log_time & space & _location & space & _level & tab & _message
+	set log_msg to (ASCII character 10) & (my joiner({log_time, _location, _level, _message}, space))
 	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
 	--# Generate regular error message for returning to user
 	set error_msg to error_time & space & _location & space & _level & space & _message
 	return error_msg
-end _log
+end logger
 
 (* ///
 SUB-ACTION HANDLERS
 /// *)
 
-on date_format() -- Old_date is text, not a date.
+on date_formatter()
 	set {year:y, month:m, day:d} to current date
 	set date_num to (y * 10000 + m * 100 + d) as string
-	set formatted_date to ((text 1 thru 4 of date_num) & "-" & (text 5 thru 6 of date_num) & "-" & (text 7 thru 8 of date_num))
-	set formatted_time to text items 1 thru -4 of (time string of (current date)) as string
-	return formatted_date & space & formatted_time
-end date_format
+	set formatterted_date to ((text 1 thru 4 of date_num) & "-" & (text 5 thru 6 of date_num) & "-" & (text 7 thru 8 of date_num))
+	set formatterted_time to text items 1 thru -4 of (time string of (current date)) as string
+	return formatterted_date & space & formatterted_time
+end date_formatter
 
-on _read_file(target_file)
+on read_file(target_file)
 	open for access POSIX file target_file
 	set _contents to (read target_file)
 	close access target_file
 	return _contents
-end _read_file
+end read_file
 
-on _prepare_cmd(cmd)
+on prepare_cmd(cmd)
 	set pwd to quoted form of (my _pwd())
 	return "cd " & pwd & "; bash " & cmd
-end _prepare_cmd
+end prepare_cmd
 
 
 (* ///
@@ -196,59 +194,59 @@ on write_to_file(this_data, target_file, append_data)
 end write_to_file
 
 --# 
-on _pwd()
+on pwd()
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
 	set _path to (text items 1 thru -2 of (POSIX path of (path to me)) as string) & "/"
 	set AppleScript's text item delimiters to ASTID
 	return _path
-end _pwd
+end pwd
 
-on _dirname(_file)
+on dirname(_file)
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
 	set _path to (text items 1 thru -2 of _file as string) & "/"
 	set AppleScript's text item delimiters to ASTID
 	return _path
-end _dirname
+end dirname
 
-on _check_dir(_folder)
-	if not my _folder_exists(_folder) then
+on check_dir(_folder)
+	if not my folder_exists(_folder) then
 		do shell script "mkdir -p " & (quoted form of _folder)
 	end if
 	return _folder
-end _check_dir
+end check_dir
 
-on _check_file(_path)
-	if not my _file_exists(_path) then
-		set _dir to _dirname(_path)
-		my _check_dir(_dir)
+on check_file(_path)
+	if not my file_exists(_path) then
+		set _dir to dirname(_path)
+		my check_dir(_dir)
 		delay 0.1
 		do shell script "touch " & (quoted form of _path)
 	end if
-end _check_file
+end check_file
 
 --#  handler to check if a folder exists
-on _folder_exists(_folder)
-	if my _path_exists(_folder) then
+on folder_exists(_folder)
+	if my path_exists(_folder) then
 		tell application "System Events"
 			return (class of (disk item _folder) is folder)
 		end tell
 	end if
 	return false
-end _folder_exists
+end folder_exists
 
 --# handler to check if a file exists
-on _file_exists(_file)
-	if my _path_exists(_file) then
+on file_exists(_file)
+	if my path_exists(_file) then
 		tell application "System Events"
 			return (class of (disk item _file) is file)
 		end tell
 	end if
 	return false
-end _file_exists
+end file_exists
 
 --#  handler to check if a path exists
-on _path_exists(_path)
-	if _path is missing value or my _is_empty(_path) then return false
+on path_exists(_path)
+	if _path is missing value or my is_empty(_path) then return false
 	
 	try
 		if class of _path is alias then return true
@@ -264,13 +262,13 @@ on _path_exists(_path)
 	on error msg
 		return false
 	end try
-end _path_exists
+end path_exists
 
 (* ///
 TEXT HELPER FUNCTIONS
 /// *)
 
-on _split(str, delimiter)
+on split(str, delimiter)
 	local delimiter, str, ASTID
 	set ASTID to AppleScript's text item delimiters
 	try
@@ -282,10 +280,10 @@ on _split(str, delimiter)
 		set AppleScript's text item delimiters to ASTID
 		error "Can't explode: " & msg number num
 	end try
-end _split
+end split
 
 --# format string á la Python
-on _format(str, arg)
+on formatter(str, arg)
 	local ASTID, str, arg, lst
 	set ASTID to AppleScript's text item delimiters
 	try
@@ -301,10 +299,10 @@ on _format(str, arg)
 		set AppleScript's text item delimiters to ASTID
 		error "Can't replaceString: " & msg number num
 	end try
-end _format
+end formatter
 
 --# removes white space surrounding a string
-on _trim(str)
+on trim(str)
 	if class of str is not text or class of str is not string or str is missing value then return str
 	if str is "" then return str
 	repeat while str begins with " "
@@ -322,9 +320,9 @@ on _trim(str)
 		end try
 	end repeat
 	return str
-end _trim
+end trim
 
-on _join(pieces, delim)
+on joiner(pieces, delim)
 	local delim, pieces, ASTID
 	set ASTID to AppleScript's text item delimiters
 	try
@@ -336,23 +334,23 @@ on _join(pieces, delim)
 		set AppleScript's text item delimiters to ASTID
 		error "Can't implode: " & emsg number eNum
 	end try
-end _join
+end joiner
 
 (* ///
 LOWER LEVEL HELPER FUNCTIONS
 /// *)
 
 --# checks if a value is empty
-on _is_empty(str)
+on is_empty(str)
 	if {true, false} contains str then return false
 	if str is missing value then return true
-	return length of (my _trim(str)) is 0
-end _is_empty
+	return length of (my trim(str)) is 0
+end is_empty
 
 --TESTING!!
 on test()
 	set as_pwd to POSIX path of (path to me) as string
-	set pwd to quoted form of my _dirname(as_pwd)
+	set pwd to quoted form of my dirname(as_pwd)
 	set cmd to quoted form of "/Users/smargheim/Documents/DEVELOPMENT/GitHub/alfred-bundler/bundler/bundlets/TEST.sh"
 	set sh_pwd to do shell script "cd " & pwd & "; bash " & cmd
 	
