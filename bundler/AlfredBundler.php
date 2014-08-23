@@ -252,6 +252,50 @@ class AlfredBundlerInternalClass {
     endforeach;
   }
 
+/**
+ * Processes load arguments to get the proper json information
+ *
+ * @param   string  $type     type of asset
+ * @param   string  $name     name of asset
+ * @param   string  $version  version of asset
+ * @param   string  $json     path to json
+ *
+ * @return  Array            an array of the asset's json file or false
+ */
+  public function getJson($type, $name, $version, $json) {
+    if ( empty( $json ) ) {
+      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
+        $json_path = __DIR__ . "/meta/defaults/{$name}.json";
+      } else {
+        // JSON File cannot be found
+        $error = TRUE;
+      }
+    } else if ( file_exists( $json ) ) {
+        $json_path = $json;
+      } else {
+      // JSON File cannot be found
+      $error = TRUE;
+    }
+
+    // Check to see if the JSON is valid
+    if ( ! json_decode( file_get_contents( $json_path ) ) ) {
+      // JSON file not valid
+      $error = TRUE;
+    }
+
+    // If we've encountered an error, then write the error and exit
+    if ( isset( $error ) && ( $error === TRUE ) ) {
+      // There is an error with the JSON file.
+      $this->log->log( "There is a problem with the __implementation__ of " .
+        "the Alfred Bundler when trying to load '{$name}'. Please " .
+        "let the workflow author know.", 'CRITICAL', 'console' );
+      return FALSE;
+    }
+
+    return json_decode( file_get_contents( $json_path ), TRUE );
+  }
+
+
   /**
    * Load an asset using a generic function
    *
@@ -267,38 +311,7 @@ class AlfredBundlerInternalClass {
    */
   public function load( $type, $name, $version, $json = '' ) {
 
-    if ( empty( $json ) ) {
-      if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
-        $json_path = __DIR__ . "/meta/defaults/{$name}.json";
-      } else {
-        // JSON File cannot be found
-        $error = TRUE;
-      }
-    } else if ( file_exists( $json ) ) { $line = __LINE__;
-        $json_path = $json;
-      } else {
-      // JSON File cannot be found
-      $error = TRUE;
-    }
-
-    // Check to see if the JSON is valid
-    if ( ! json_decode( file_get_contents( $json_path ) ) ) { $line = __LINE__;
-      // JSON file not valid
-      $error = TRUE;
-    }
-
-    // If we've encountered an error, then write the error and exit
-    if ( isset( $error ) && ( $error === TRUE ) ) {
-      // There is an error with the JSON file.
-      // Output the error to STDERR.
-
-      $this->log->log( "There is a problem with the __implementation__ of " .
-        "the Alfred Bundler when trying to load '{$name}'. Please " .
-        "let the workflow author know.", 'CRITICAL', 'console' );
-      return FALSE;
-    }
-
-    $json = json_decode( file_get_contents( $json_path ), TRUE );
+    $json = $this->getJson( $type, $name, $version, $json  );
 
     // See if the file is installed
     if ( ! file_exists(
@@ -311,7 +324,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Register the asset. We don't need to worry about the return.
-    $this->register( $name, $version ); $line = __LINE__;
+    $this->register( $name, $version );
     $this->log->log( "Registering assset '{$name}'",
       'INFO', 'console' );
 
@@ -478,7 +491,7 @@ class AlfredBundlerInternalClass {
       mkdir( $composerDir, 0755, TRUE );
 
     if ( ! file_exists( "{$composerDir}/composer.phar" ) ) {
-      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" ); $line = __LINE__;
+      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
       exec( "'{$composerDir}/composer.phar'", $output, $status );
       if ( $status !== 0 ) {
         $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
