@@ -160,7 +160,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#dec_to_hex-instance_method" title="#dec_to_hex (instance method)">- (type) <strong>dec_to_hex</strong>(color) </a>
+      <a href="#dec_to_hex-instance_method" title="#dec_to_hex (instance method)">- (Object) <strong>dec_to_hex</strong>(color) </a>
     
 
     
@@ -183,7 +183,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#hex_to_dec-instance_method" title="#hex_to_dec (instance method)">- (type) <strong>hex_to_dec</strong>(color) </a>
+      <a href="#hex_to_dec-instance_method" title="#hex_to_dec (instance method)">- (Object) <strong>hex_to_dec</strong>(color) </a>
     
 
     
@@ -206,7 +206,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#hex_to_rgb-instance_method" title="#hex_to_rgb (instance method)">- (type) <strong>hex_to_rgb</strong>(hex) </a>
+      <a href="#hex_to_rgb-instance_method" title="#hex_to_rgb (instance method)">- (Object) <strong>hex_to_rgb</strong>(hex) </a>
     
 
     
@@ -220,7 +220,7 @@ foreground and background colors.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Converts hex to rgb.</p>
+    <span class="summary_desc"><div class='inline'><p>Converts Hex to RGB.</p>
 </div></span>
   
 </li>
@@ -376,7 +376,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#convert_hex-instance_method" title="#convert_hex (instance method)">- (type) <strong>convert_hex</strong>(color) </a>
+      <a href="#convert_hex-instance_method" title="#convert_hex (instance method)">- (Object) <strong>convert_hex</strong>(color) </a>
     
 
     
@@ -390,7 +390,7 @@ foreground and background colors.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>[convert_hex description].</p>
+    <span class="summary_desc"><div class='inline'><p>Converts 3-hex to 6-hex.</p>
 </div></span>
   
 </li>
@@ -465,7 +465,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#get_system_icon-instance_method" title="#get_system_icon (instance method)">- (type) <strong>get_system_icon</strong>(icon) </a>
+      <a href="#get_system_icon-instance_method" title="#get_system_icon (instance method)">- (Object) <strong>get_system_icon</strong>(icon) </a>
     
 
     
@@ -479,7 +479,7 @@ foreground and background colors.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>[get_system_icon description].</p>
+    <span class="summary_desc"><div class='inline'><p>Gets a file path for a system icon.</p>
 </div></span>
   
 </li>
@@ -488,7 +488,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#icon-instance_method" title="#icon (instance method)">- (type) <strong>icon</strong>(*args) </a>
+      <a href="#icon-instance_method" title="#icon (instance method)">- (Object) <strong>icon</strong>(*args) </a>
     
 
     
@@ -502,7 +502,7 @@ foreground and background colors.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>[icon description].</p>
+    <span class="summary_desc"><div class='inline'><p>Loads (and downloads) an icon.</p>
 </div></span>
   
 </li>
@@ -536,7 +536,7 @@ foreground and background colors.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#is_hex%3F-instance_method" title="#is_hex? (instance method)">- (type) <strong>is_hex?</strong>(color) </a>
+      <a href="#is_hex%3F-instance_method" title="#is_hex? (instance method)">- (Boolean) <strong>is_hex?</strong>(color) </a>
     
 
     
@@ -550,7 +550,7 @@ foreground and background colors.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>[is_hex description].</p>
+    <span class="summary_desc"><div class='inline'><p>Checks to see if string is a valid hex color.</p>
 </div></span>
   
 </li>
@@ -647,15 +647,15 @@ foreground and background colors.</p>
       <pre class="lines">
 
 
-397
-398
-399
-400
-401
-402</pre>
+413
+414
+415
+416
+417
+418</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 397</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 413</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_cache'>cache</span><span class='comma'>,</span> <span class='id identifier rubyid_err'>err</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>INFO</span><span class='rparen'>)</span>
   <span class='ivar'>@data</span>  <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
@@ -764,16 +764,16 @@ foreground and background colors.</p>
       <pre class="lines">
 
 
-715
-716
-717
-718
-719
-720
-721</pre>
+723
+724
+725
+726
+727
+728
+729</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 715</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 723</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alter'>alter</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_color'>color</span> <span class='op'>=</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_color'>color</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
@@ -870,13 +870,13 @@ foreground and background colors.</p>
       <pre class="lines">
 
 
-685
-686
-687
-688</pre>
+693
+694
+695
+696</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 685</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 693</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_brightness'>brightness</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>light</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_luminance'>luminance</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='op'>&gt;</span> <span class='float'>0.5</span>
@@ -975,13 +975,13 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-701
-702
-703
-704</pre>
+709
+710
+711
+712</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 701</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 709</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_check_for_alter'>check_for_alter</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='ivar'>@background</span> <span class='op'>==</span> <span class='id identifier rubyid_brightness'>brightness</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -995,7 +995,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="convert_hex-instance_method">
   
-    - (<tt>type</tt>) <strong>convert_hex</strong>(color) 
+    - (<tt>Object</tt>) <strong>convert_hex</strong>(color) 
   
 
   
@@ -1003,7 +1003,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>[convert_hex description]</p>
+    <p>Converts 3-hex to 6-hex</p>
 
 
   </div>
@@ -1017,12 +1017,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
         <span class='name'>color</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>String a hex color</p>
 </div>
       
     </li>
@@ -1035,12 +1035,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>String, Bool a six-color hex string or false on failure</p>
 </div>
       
     </li>
@@ -1068,16 +1068,16 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-540
-541
-542
-543
-544
-545
-546</pre>
+548
+549
+550
+551
+552
+553
+554</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 540</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 548</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_convert_hex'>convert_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_color'>color</span> <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{6}$</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -1094,7 +1094,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="dec_to_hex-instance_method">
   
-    - (<tt>type</tt>) <strong>dec_to_hex</strong>(color) 
+    - (<tt>Object</tt>) <strong>dec_to_hex</strong>(color) 
   
 
   
@@ -1116,12 +1116,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
         <span class='name'>color</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>Array an array of base 10 values</p>
 </div>
       
     </li>
@@ -1134,12 +1134,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>String a hex string (color)</p>
 </div>
       
     </li>
@@ -1167,21 +1167,21 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-562
-563
-564
-565
-566
-567
-568
-569
 570
 571
 572
-573</pre>
+573
+574
+575
+576
+577
+578
+579
+580
+581</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 562</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 570</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dec_to_hex'>dec_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hex'>hex</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
@@ -1239,13 +1239,13 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-404
-405
-406
-407</pre>
+420
+421
+422
+423</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 404</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 420</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background'>get_background</span><span class='lparen'>(</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_background_modern'>get_background_modern</span> <span class='kw'>unless</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_theme_background</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -1295,23 +1295,23 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-416
-417
-418
-419
-420
-421
-422
-423
-424
-425
-426
-427
-428
-429</pre>
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 416</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 432</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background_deprecated'>get_background_deprecated</span>
   <span class='id identifier rubyid_plist'>plist</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HOME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist</span><span class='tstring_end'>&quot;</span></span><span class='semicolon'>;</span>
@@ -1371,15 +1371,15 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-409
-410
-411
-412
-413
-414</pre>
+425
+426
+427
+428
+429
+430</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 409</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 425</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_background_modern'>get_background_modern</span>
   <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>rgba\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9.]{4,})\)</span><span class='regexp_end'>/</span></span><span class='period'>
@@ -1395,7 +1395,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="get_system_icon-instance_method">
   
-    - (<tt>type</tt>) <strong>get_system_icon</strong>(icon) 
+    - (<tt>Object</tt>) <strong>get_system_icon</strong>(icon) 
   
 
   
@@ -1403,7 +1403,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>[get_system_icon description]</p>
+    <p>Gets a file path for a system icon</p>
 
 
   </div>
@@ -1417,12 +1417,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
         <span class='name'>icon</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>String name of the icon to get (case sensitive)</p>
 </div>
       
     </li>
@@ -1435,12 +1435,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>String, Bool path to icon on success, false on failure</p>
 </div>
       
     </li>
@@ -1468,18 +1468,18 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-503
-504
-505
-506
-507
-508
-509
-510
-511</pre>
+521
+522
+523
+524
+525
+526
+527
+528
+529</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 503</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 521</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_system_icon'>get_system_icon</span><span class='lparen'>(</span><span class='id identifier rubyid_icon'>icon</span><span class='rparen'>)</span>
     <span class='comment'># This is where the icon should be
@@ -1498,7 +1498,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="hex_to_dec-instance_method">
   
-    - (<tt>type</tt>) <strong>hex_to_dec</strong>(color) 
+    - (<tt>Object</tt>) <strong>hex_to_dec</strong>(color) 
   
 
   
@@ -1538,12 +1538,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>Array an array of dec values from the hex values</p>
 </div>
       
     </li>
@@ -1571,12 +1571,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-554
-555
-556</pre>
+562
+563
+564</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 554</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 562</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hex_to_dec'>hex_to_dec</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_color'>color</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_item'>item</span><span class='op'>|</span> <span class='id identifier rubyid_item'>item</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='rbrace'>}</span>
@@ -1589,7 +1589,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="hex_to_rgb-instance_method">
   
-    - (<tt>type</tt>) <strong>hex_to_rgb</strong>(hex) 
+    - (<tt>Object</tt>) <strong>hex_to_rgb</strong>(hex) 
   
 
   
@@ -1597,7 +1597,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Converts hex to rgb</p>
+    <p>Converts Hex to RGB</p>
 
 
   </div>
@@ -1611,12 +1611,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
         <span class='name'>hex</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>String a hex color</p>
 </div>
       
     </li>
@@ -1629,12 +1629,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>Array an RGB color space</p>
 </div>
       
     </li>
@@ -1662,12 +1662,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-579
-580
-581</pre>
+587
+588
+589</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 579</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 587</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_hex'>hex</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hex_to_dec'>hex_to_dec</span><span class='lparen'>(</span><span class='id identifier rubyid_hex'>hex</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>.{2}</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1753,14 +1753,6 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-629
-630
-631
-632
-633
-634
-635
-636
 637
 638
 639
@@ -1787,10 +1779,18 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
 660
 661
 662
-663</pre>
+663
+664
+665
+666
+667
+668
+669
+670
+671</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 629</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 637</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hsv_to_rgb'>hsv_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_hsv'>hsv</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_h'>h</span> <span class='op'>=</span> <span class='const'>Float</span><span class='lparen'>(</span><span class='id identifier rubyid_hsv'>hsv</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -1835,7 +1835,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="icon-instance_method">
   
-    - (<tt>type</tt>) <strong>icon</strong>(*args) 
+    - (<tt>Object</tt>) <strong>icon</strong>(*args) 
   
 
   
@@ -1843,7 +1843,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>[icon description]</p>
+    <p>Loads (and downloads) an icon</p>
 
 
   </div>
@@ -1854,15 +1854,19 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
     <li>
       
-        <span class='name'>*args</span>
+        <span class='name'>args</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>Mixed accepts an array or a series of strings. Ultimately, we
+need arguments for <code>font</code>, <code>name</code>, <code>color</code>, <code>alter</code>. Only <code>font</code> and
+<code>name</code> are necessary. <code>Color</code> defaults to black, and <code>alter</code> defaults to
+false (unless <code>color</code> is left out, in which case <code>alter</code> defaults to
+true).</p>
 </div>
       
     </li>
@@ -1875,12 +1879,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><p>[description]</p>
+        
+        <div class='inline'><p>String path to an icon</p>
 </div>
       
     </li>
@@ -1908,26 +1912,6 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-453
-454
-455
-456
-457
-458
-459
-460
-461
-462
-463
-464
-465
-466
-467
-468
-469
-470
-471
-472
 473
 474
 475
@@ -1951,13 +1935,33 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
 493
 494
 495
-496</pre>
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 453</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 473</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_icon'>icon</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_icon_args'>parse_icon_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='rparen'>)</span>
+  <span class='comment'># Massage the icon arguments so that we can use them.
+</span>  <span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_icon_args'>parse_icon_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='rparen'>)</span>
 
   <span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='symbol'>:font</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase!'>downcase!</span>  <span class='comment'># normalize the args
 </span>  <span class='comment'># Deal with System icons first
@@ -1988,8 +1992,6 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   <span class='comment'># The file doesn&#39;t exist, so we&#39;ll have to go through the effort to get it
 </span>
   <span class='comment'># A list of icon servers so that we can have fallbacks
-</span>  <span class='comment'># we&#39;re going to find that file based on a relative path to &quot;me&quot;
-</span>  <span class='comment'># @TODO find a more elegant way to do this
 </span>  <span class='id identifier rubyid_servers'>servers</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/meta/icon_servers</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
   <span class='id identifier rubyid_servers'>servers</span> <span class='op'>=</span> <span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_readlines'>readlines</span><span class='lparen'>(</span><span class='id identifier rubyid_servers'>servers</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map!'>map!</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_server'>server</span><span class='op'>|</span>
     <span class='id identifier rubyid_server'>server</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='embexpr_end'>}</span><span class='tstring_content'>/icon/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='symbol'>:font</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='symbol'>:color</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
@@ -2008,7 +2010,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <div class="method_details ">
   <h3 class="signature " id="is_hex?-instance_method">
   
-    - (<tt>type</tt>) <strong>is_hex?</strong>(color) 
+    - (<tt>Boolean</tt>) <strong>is_hex?</strong>(color) 
   
 
   
@@ -2016,7 +2018,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>[is_hex description]</p>
+    <p>Checks to see if string is a valid hex color</p>
 
 
   </div>
@@ -2030,12 +2032,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
         <span class='name'>color</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>String a hex color</p>
 </div>
       
     </li>
@@ -2048,12 +2050,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'><p>[description]</p>
+        <div class='inline'><p>Bool</p>
 </div>
       
     </li>
@@ -2081,13 +2083,13 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-524
-525
-526
-527</pre>
+538
+539
+540
+541</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 524</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 538</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_is_hex?'>is_hex?</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{6}$|^[0-9a-f]{3}$</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
@@ -2175,13 +2177,13 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-673
-674
-675
-676</pre>
+681
+682
+683
+684</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 673</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 681</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_luminance'>luminance</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_rgb'>rgb</span> <span class='op'>=</span> <span class='id identifier rubyid_hex_to_rgb'>hex_to_rgb</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_rgb'>rgb</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
@@ -2231,25 +2233,25 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-431
-432
-433
-434
-435
-436
-437
-438
-439
-440
-441
-442
-443
-444
-445
-446</pre>
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 431</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 447</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_parse_icon_args'>parse_icon_args</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
@@ -2348,12 +2350,12 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-587
-588
-589</pre>
+595
+596
+597</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 587</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 595</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rgb_to_hex'>rgb_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_dec_to_hex'>dec_to_hex</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
@@ -2439,14 +2441,6 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
       <pre class="lines">
 
 
-596
-597
-598
-599
-600
-601
-602
-603
 604
 605
 606
@@ -2466,10 +2460,18 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
 620
 621
 622
-623</pre>
+623
+624
+625
+626
+627
+628
+629
+630
+631</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 596</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 604</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rgb_to_hsv'>rgb_to_hsv</span><span class='lparen'>(</span><span class='id identifier rubyid_rgb'>rgb</span><span class='rparen'>)</span>
 
@@ -2509,7 +2511,7 @@ as either &#39;light&#39; or &#39;dark&#39;</p>
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 21:44:49 2014 by
+  Generated on Fri Aug 22 22:06:57 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>

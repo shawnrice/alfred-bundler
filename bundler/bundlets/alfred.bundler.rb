@@ -66,6 +66,8 @@ module Alfred
     # `~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-taurus`
     attr_reader :data
 
+    # @!group Creation
+
     # The class constructor
     #
     # Sets up the bundler for use and intiantiates the internal bundler object;
@@ -119,6 +121,10 @@ module Alfred
       @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
     end
 
+    # @!endgroup
+
+    # @!group Magic (router handling)
+
     # Sends everything unrecognized to the bundler backend
     #
     # @see Internal
@@ -131,15 +137,7 @@ module Alfred
       @internal.send("#{name}", *arguments)
     end
 
-    # Reads a value from a plist
-    #
-    # @param key String the key in a plist
-    # @param plist String path to the plist file
-    #
-    # @return String the value of the key to be read
-    def read_plist_value(key, plist)
-      return `/usr/libexec/PlistBuddy -c 'Print :#{key}' '#{plist}'`
-    end
+    #@!endgroup
 
     # @!group Install Functions
 
@@ -164,19 +162,6 @@ module Alfred
       ]
 
       directories.each { |dir| FileUtils.mkpath(dir) unless File.directory?(dir) }
-    end
-
-    # Unzips a file using a shell command
-    #
-    # @param file String a path to the file to unzip
-    # @param destination String a path to the destination where the file will
-    #   be unzipped
-    #
-    # @return Int exit status of the unzip action
-    def unzip(file, destination)
-      command = "cd \"#{destination}\"; unzip -oq #{file}; cd - 1>&2 > /dev/null"
-      success = system(command)
-      success && $?.exitstatus == 0
     end
 
     # Installs the Alfred Bundler
@@ -305,6 +290,33 @@ module Alfred
     end
 
     # @!endgroup
+
+    # @!group Helper Functions
+
+    # Unzips a file using a shell command
+    #
+    # @param file String a path to the file to unzip
+    # @param destination String a path to the destination where the file will
+    #   be unzipped
+    #
+    # @return Int exit status of the unzip action
+    def unzip(file, destination)
+      command = "cd \"#{destination}\"; unzip -oq #{file}; cd - 1>&2 > /dev/null"
+      success = system(command)
+      success && $?.exitstatus == 0
+    end
+
+    # Reads a value from a plist
+    #
+    # @param key String the key in a plist
+    # @param plist String path to the plist file
+    #
+    # @return String the value of the key to be read
+    def read_plist_value(key, plist)
+      return `/usr/libexec/PlistBuddy -c 'Print :#{key}' '#{plist}'`
+    end
+
+    #@!endgroup
 
   end
 end

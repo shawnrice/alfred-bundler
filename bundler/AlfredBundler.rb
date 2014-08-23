@@ -53,13 +53,18 @@ module Alfred
     # `~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-taurus`
     attr_reader :data
 
+    # The class constructor
     #
-    # [initialize description]
-    # @param data [type] [description]
-    # @param cache [type] [description]
+    # Sets up everything neede for the bundler to function
     #
-    # @return [type] [description]
-    def initialize(data, cache)
+    # @see Bundler
+    #
+    # @param data String the data path for the bundler
+    # @param cache String the cache path for the bundler
+    # @param options Hash a hash of options sent to customize how the
+    #   bundler works
+    #
+    def initialize(data, cache, options = {})
       @data   = data
       @cache  = cache
       @bundle = 'foo.my.poop'
@@ -91,13 +96,15 @@ module Alfred
       raise StandardError('The Alfred Bundler cannot be used if no info.plist file is present.')
     end
 
-    # [method_missing description]
+    # Handles errors
     # @param name String the name of the missing method called
     # @param arguments Array an array of unknown arguments
     #
-    # @return [type] [description]
+    # @raise [StandardError] when a bad method is called
+    #
     def method_missing(name, *arguments)
       self.console("'#{name}' does not exist either externally or internally.", 'error')
+      raise StandardError("#{name} is not a valid method.")
     end
 
     # Sets the necessary variables to function if running Alfred >= v2.4:277
@@ -126,11 +133,15 @@ module Alfred
 
     # @!group Load methods
 
+    # Loads an asset
+    # @param args Array an array of arguments to load ultimately, we need
+    #   `type`, `name`, `version`, `json`. Only `type` and `name` are necessary.
+    #   `version` defaults to 'latest', and `json` defaults to one of the
+    #   'defaults'.
     #
-    # [load description]
-    # @param *args [type] [description]
+    # @raise [StandardError] when asset is not found
     #
-    # @return [type] [description]
+    # @return String path to an asset or false when asset is not found
     def load(*args)
       args = parse_load_args(args)
       type = args['type']
@@ -138,7 +149,9 @@ module Alfred
       version = args['version']
       json = args['json']
       json = File.join(@data, 'bundler', 'meta', 'defaults', "#{name}.json") if json == 'default'
-      return false unless File.exists? json
+      unless File.exists? json
+        raise StandardError("Asset #{name}, type #{type} does not exist")
+      end
 
       # We need to deal with utilities
       if type == 'utility'
@@ -152,13 +165,18 @@ module Alfred
       # This should install the asset; we might find a native way to do this later
       command = "'" + @data + "/bundler/bundlets/alfred.bundler.sh' '#{type}' '#{name}' '#{version}' '#{json}'"
       return `#{command}`.strip
-
     end
 
-    # [utility description]
-    # @param *args [type] [description]
+    # Loads a utility
     #
-    # @return [type] [description]
+    # A wrapper function for {#load}
+    #
+    # @see #load
+    #
+    # @param args Array random arguments, takes a set of strings, an array, or
+    #   a hash
+    #
+    # @return String path to asset
     def utility(*args)
       if args.count > 1
         args.unshift('utility')
@@ -177,7 +195,6 @@ module Alfred
       return self.load(args)
     end
 
-    #
     # Loads an icon
     #
     # Passes the arguments to the internal icon object to do the work.
@@ -238,8 +255,7 @@ module Alfred
 
     # @!group Gem Methods
 
-    #
-    # __Install a gem into the bundler's {#data} directory__
+    # Install a gem into the bundler's {#data} directory
     #
     # This method should be called, internally, only from the {#gems} method. The
     # method sends a notification to inform the user that a gem is being
@@ -267,7 +283,7 @@ module Alfred
       end
     end
 
-    # __Loads gems and downloads them if necessary__
+    # Loads gems and downloads them if necessary
     #
     # If the gem cannot be found, then it will download the gem and its
     # dependencies into the bundler's {#data} directory and load it from there.
@@ -445,12 +461,17 @@ module Alfred
       return {:font => font, :name => name, :color => color, :alter => alter}
     end
 
+    # Loads (and downloads) an icon
     #
-    # [icon description]
-    # @param *args [type] [description]
+    # @param args Mixed accepts an array or a series of strings. Ultimately, we
+    #   need arguments for `font`, `name`, `color`, `alter`. Only `font` and
+    #   `name` are necessary. `Color` defaults to black, and `alter` defaults to
+    #   false (unless `color` is left out, in which case `alter` defaults to
+    #   true).
     #
-    # @return [type] [description]
+    # @return String path to an icon
     def icon(*args)
+      # Massage the icon arguments so that we can use them.
       a = parse_icon_args(args.shift)
 
       a[:font].downcase!  # normalize the args
@@ -482,8 +503,6 @@ module Alfred
       # The file doesn't exist, so we'll have to go through the effort to get it
 
       # A list of icon servers so that we can have fallbacks
-      # we're going to find that file based on a relative path to "me"
-      # @TODO find a more elegant way to do this
       servers = File.join(File.expand_path(File.dirname(__FILE__)), '/meta/icon_servers')
       servers = IO.readlines(servers).map! {|server|
         server = "#{server}/icon/#{a[:font]}/#{a[:color]}/#{a[:name]}"
@@ -495,11 +514,10 @@ module Alfred
       return fallback
     end
 
+    # Gets a file path for a system icon
+    # @param icon String name of the icon to get (case sensitive)
     #
-    # [get_system_icon description]
-    # @param icon [type] [description]
-    #
-    # @return [type] [description]
+    # @return String, Bool path to icon on success, false on failure
     def get_system_icon(icon)
         # This is where the icon should be
         icon = "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/#{icon}.icns";
@@ -510,33 +528,23 @@ module Alfred
         false
     end
 
-    #######################
-    ### Icon Validation Functions
-    #######################
 
-    # checks to see if string is a valid hex color
 
+    # Checks to see if string is a valid hex color
     #
-    # [is_hex description]
-    # @param color [type] [description]
+    # @param color String a hex color
     #
-    # @return [type] [description]
+    # @return Bool
     def is_hex?(color)
       return true if /^[0-9a-f]{6}$|^[0-9a-f]{3}$/.match(color)
       false
     end
 
-    #######################
-    #### Conversion methods
-    #######################
-
-    # converts 3 hex to 6 hex
-
+    # Converts 3-hex to 6-hex
     #
-    # [convert_hex description]
-    # @param color [type] [description]
+    # @param color String a hex color
     #
-    # @return [type] [description]
+    # @return String, Bool a six-color hex string or false on failure
     def convert_hex(color)
       return color if /^[0-9a-f]{6}$/.match(color)
       if /^[0-9a-f]{3}$/.match(color)
@@ -550,15 +558,15 @@ module Alfred
     # Converts a hex number to a decimal
     # @param color String Hex color (six digits)
     #
-    # @return [type] [description]
+    # @return Array an array of dec values from the hex values
     def hex_to_dec(color)
       color.map {|item| item.to_i(16)}
     end
 
     # Converts a decimal to a hex number with a 0 pad
-    # @param color [type] [description]
+    # @param color Array an array of base 10 values
     #
-    # @return [type] [description]
+    # @return String a hex string (color)
     def dec_to_hex(color)
       hex = ""
       color.each do |x|
@@ -572,10 +580,10 @@ module Alfred
       hex
     end
 
-    # Converts hex to rgb
-    # @param hex [type] [description]
+    # Converts Hex to RGB
+    # @param hex String a hex color
     #
-    # @return [type] [description]
+    # @return Array an RGB color space
     def hex_to_rgb(hex)
       hex_to_dec(hex.scan(/.{2}/))
     end
@@ -833,7 +841,6 @@ module Alfred
     # Creates a file to be used for Logger
     #
     # @see #init_log
-    #
     # @see http://www.ruby-doc.org/stdlib-2.1.2/libdoc/logger/rdoc/Logger.html Logger
     #
     # @param location String path to a file
@@ -901,11 +908,5 @@ module Alfred
       end
       return levels[level]
     end
-
-
-    #### LOG FUNCTIONS
-    ######################
-
   end
-
 end
