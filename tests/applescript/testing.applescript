@@ -1,8 +1,22 @@
-set bundler to load script (my _pwd()) & "alfred.bundler.scpt"
+global bundler
+--One line version of loading the Alfred Bundler into a workflow script
+set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler()
+--Two line version (for clarity's sake)
+--set bundlet to load script (my _pwd()) & "alfred.bundler.scpt"
+--set bundler to bundlet's load_bundler()
+class Utility()
 
+end
+(* TESTS *)
+on utility_tests()
+	--load utility with no other info
+	bundler's load_utility("pashua", "", "")
+end utility_tests
 
-bundler's get_icon("octicons", "markdown", "000", true)
-bundler's load_utility("pashua", "", "")
+on icon_tests()
+	bundler's icon("octicons", "markdown", "000", true)
+end icon_tests
+--
 
 on _pwd()
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
