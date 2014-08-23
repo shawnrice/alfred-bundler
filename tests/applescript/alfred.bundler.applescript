@@ -37,7 +37,6 @@ on _bootstrap()
 	set shell_cmd to shell_bundlet & " utility CocoaDialog"
 	set cmd to my _prepare_cmd(shell_cmd)
 	do shell script cmd
-	return true
 end _bootstrap
 
 (* HELPER HANDLERS *)
