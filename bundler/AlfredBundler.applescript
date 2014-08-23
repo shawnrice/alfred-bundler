@@ -67,7 +67,7 @@ on utility(_name, _version, _json)
 		--# read utilities invoke file
 		set invoke_file to utility & "/invoke"
 		if my file_exists(invoke_file) = true then
-			set invoke_path to my read_file(invoke_file)
+			set invoke_path to my _read_file(invoke_file)
 			--# combine utility path with invoke path
 			set full_path to utility & "/" & invoke_path
 			return full_path
@@ -159,15 +159,15 @@ on date_formatter()
 	return formatterted_date & space & formatterted_time
 end date_formatter
 
-on read_file(target_file)
+on _read_file(target_file)
 	open for access POSIX file target_file
 	set _contents to (read target_file)
 	close access target_file
 	return _contents
-end read_file
+end _read_file
 
 on prepare_cmd(cmd)
-	set pwd to quoted form of (my _pwd())
+	set pwd to quoted form of (my pwd())
 	return "cd " & pwd & "; bash " & cmd
 end prepare_cmd
 
