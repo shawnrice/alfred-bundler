@@ -21,6 +21,7 @@ Help us understand you issues a bit better by looking at [this wiki page](https:
 * [Shawn Patrick Rice](https://github.com/shawnrice)
 * [Dean Jackson](https://github.com/deanishe)
 * [Stephen Bunn](https://github.com/Ritashugisha)
+* [Stephen Margheim](https://github.com/smargh)
 
 ## Coding Standards
 
