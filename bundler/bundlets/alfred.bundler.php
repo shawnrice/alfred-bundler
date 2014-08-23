@@ -311,7 +311,7 @@ private function prepareASDialog() {
 
   if ( file_exists( 'icon.png' ) ) {
     $icon = realpath( 'icon.png' );
-    $icon = str_replace('/', ':', 'icon');
+    $icon = str_replace('/', ':', $icon );
     $icon = substr( $icon, 1, strlen( $icon ) - 1 );
   } else {
     $icon = "System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns";

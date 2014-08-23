@@ -20,7 +20,6 @@
 require_once( __DIR__ . '/includes/php-classes/AlfredBundlerLogger.php' );
 require_once( __DIR__ . '/includes/php-classes/AlfredBundlerIcon.php' );
 
-// We'll add this in for testing
 if ( ! class_exists( 'AlfredBundlerInternalClass' ) ) :
 /**
  * Internal API Class for Alfred Bundler
@@ -39,71 +38,54 @@ class AlfredBundlerInternalClass {
 
   /**
    * A filepath to the bundler directory
-   *
-   * @access public
    * @var string
    */
   public   $data;
 
   /**
    * A filepath to the bundler cache directory
-   *
-   * @access public
    * @var string
    */
   public   $cache;
 
   /**
    * The MAJOR version of the bundler (which API to use)
-   *
-   * @access private
    * @var string
    */
   public   $major_version;
 
   /**
    * The MINOR version of the bundler
-   *
-   * @access private
    * @var string
    */
   public   $minor_version;
 
   /**
    * Filepath to an Alfred info.plist file
-   *
-   * @access private
    * @var string
    */
   private   $plist;
 
   /**
    * The Bundle ID of the workflow using the bundler
-   *
-   * @access private
    * @var string
    */
   public   $bundle;
 
   /**
    * The name of the workflow using the bundler
-   *
-   * @access private
    * @var string
    */
   public   $name;
 
   /**
    * The data directory of the workflow using the bundler
-   *
    * @var  string
    */
   public   $workflowData;
 
   /**
    * The background 'color' of the user's current theme in Alfred (light or dark)
-   *
-   * @access private
    * @var string
    */
   public   $background;
@@ -116,32 +98,24 @@ class AlfredBundlerInternalClass {
 
   /**
    * [$caches description]
-   *
-   * @access private
    * @var    array
    */
   private $caches;
 
   /**
    * Desc
-   *
-   * @access public
    * @var    object
    */
   public $log;
 
   /**
    * Desc
-   *
-   * @access public
    * @var    object
    */
   public $userLog;
 
   /**
    * Whether or not enviromental variables are present
-   *
-   * @access public
    * @var    bool
    */
   public $env;
@@ -151,26 +125,21 @@ class AlfredBundlerInternalClass {
    * The class constructor
    *
    * Sets necessary variables.
-   *
-   * @access public
-   * @param string $options a list of options to configure the instance
+   * @since  Taurus 1
+   * @param  string $options a list of options to configure the instance
    * @return bool          Return 'true' regardless
    */
   public function __construct( $options = [] ) {
 
-    if ( isset( $_ENV['AB_BRANCH'] ) ) {
+    if ( isset( $_ENV['AB_BRANCH'] ) )
       $this->major_version = $_ENV['AB_BRANCH'];
-    } else {
+    else
       $this->major_version = file_get_contents(  __DIR__ . '/meta/version_major' );
-    }
 
     $this->minor_version   = file_get_contents(  __DIR__ . '/meta/version_minor' );
-
     $this->data  = trim( "{$_SERVER[ 'HOME' ]}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major_version}" );
     $this->cache = trim( "{$_SERVER[ 'HOME' ]}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major_version}" );
-
     $this->setup();
-
     $this->log = new AlfredBundlerLogger( "{$this->data}/data/logs/bundler-{$this->major_version}" );
 
     if ( isset( $options[ 'log' ] ) )
@@ -180,13 +149,13 @@ class AlfredBundlerInternalClass {
 
     $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}", $log );
 
-    // Let's just return something
     return TRUE;
   }
 
   /**
    * General setup function for variables and directories
    *
+   * @since  Taurus 1
    */
   private function setup() {
 
@@ -205,6 +174,8 @@ class AlfredBundlerInternalClass {
 
   /**
    * Sets variables for Alfred v2.4:277+
+   *
+   * @since  Taurus 1
    */
   private function setupModern() {
 
@@ -212,11 +183,11 @@ class AlfredBundlerInternalClass {
     $this->name         = $_ENV[ 'alfred_workflow_name' ];
     $this->workflowData = $_ENV[ 'alfred_workflow_data' ];
     $this->env          = TRUE;
-
   }
 
   /**
    * Sets variables for versions of Alfred pre-2.4:277
+   * @since  Taurus 1
    */
   private function setupDeprecated() {
 
@@ -225,14 +196,14 @@ class AlfredBundlerInternalClass {
     $this->workflowData = $_SERVER[ 'HOME' ] .
       "/Library/Application Support/Alfred 2/Workflow Data/" . $this->bundle;
     $this->env          = FALSE;
-
   }
 
   /**
    * Creates the directories for the bundler
+   *
+   * @since  Taurus 1
    */
   private function setupDirStructure() {
-
     // This list is a bit redundant for the logic below, but that's fine.
     $directories = array(
       "{$this->data}/data",
@@ -250,23 +221,22 @@ class AlfredBundlerInternalClass {
       if ( ! file_exists( $dir ) )
         mkdir( $dir, 0775, TRUE );
     endforeach;
+
   }
 
-  /**
-   * Load an asset using a generic function
-   *
-   *
-   * @since  Taurus 1
-   * @access public
-   *
-   * @param string $type    Type of asset
-   * @param string $name    Name of asset
-   * @param string $version Version of asset to load
-   * @param string $json    = '' Path to json file
-   * @return mixed             Returns path to utility on success, FALSE on failure
-   */
-  public function load( $type, $name, $version, $json = '' ) {
-
+/**
+ * Processes load arguments to get the proper json information
+ *
+ * @since  Taurus 1
+ *
+ * @param   string  $type     type of asset
+ * @param   string  $name     name of asset
+ * @param   string  $version  version of asset
+ * @param   string  $json     path to json
+ *
+ * @return  Array             an array of the asset's json file or false
+ */
+  public function getJson($type, $name, $version, $json) {
     if ( empty( $json ) ) {
       if ( file_exists( __DIR__ . "/meta/defaults/{$name}.json" ) ) {
         $json_path = __DIR__ . "/meta/defaults/{$name}.json";
@@ -274,7 +244,7 @@ class AlfredBundlerInternalClass {
         // JSON File cannot be found
         $error = TRUE;
       }
-    } else if ( file_exists( $json ) ) { $line = __LINE__;
+    } else if ( file_exists( $json ) ) {
         $json_path = $json;
       } else {
       // JSON File cannot be found
@@ -282,7 +252,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Check to see if the JSON is valid
-    if ( ! json_decode( file_get_contents( $json_path ) ) ) { $line = __LINE__;
+    if ( ! json_decode( file_get_contents( $json_path ) ) ) {
       // JSON file not valid
       $error = TRUE;
     }
@@ -290,15 +260,28 @@ class AlfredBundlerInternalClass {
     // If we've encountered an error, then write the error and exit
     if ( isset( $error ) && ( $error === TRUE ) ) {
       // There is an error with the JSON file.
-      // Output the error to STDERR.
-
       $this->log->log( "There is a problem with the __implementation__ of " .
         "the Alfred Bundler when trying to load '{$name}'. Please " .
         "let the workflow author know.", 'CRITICAL', 'console' );
       return FALSE;
     }
 
-    $json = json_decode( file_get_contents( $json_path ), TRUE );
+    return json_decode( file_get_contents( $json_path ), TRUE );
+  }
+
+  /**
+   * Load an asset using a generic function
+   *
+   * @since  Taurus 1
+   * @param string $type    Type of asset
+   * @param string $name    Name of asset
+   * @param string $version Version of asset to load
+   * @param string $json    Path to json file
+   * @return mixed          Path to utility on success, FALSE on failure
+   */
+  public function load( $type, $name, $version, $json = '' ) {
+
+    $json = $this->getJson( $type, $name, $version, $json  );
 
     // See if the file is installed
     if ( ! file_exists(
@@ -311,7 +294,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Register the asset. We don't need to worry about the return.
-    $this->register( $name, $version ); $line = __LINE__;
+    $this->register( $name, $version );
     $this->log->log( "Registering assset '{$name}'",
       'INFO', 'console' );
 
@@ -344,7 +327,6 @@ class AlfredBundlerInternalClass {
     }
 
     // At this point, we need to check in with gatekeeper
-
     // Find the icon to pass to the Gatekeeper script
     if ( file_exists( 'icon.png' ) )
       $icon = realpath( 'icon.png' );
@@ -383,8 +365,21 @@ class AlfredBundlerInternalClass {
     return FALSE;
   }
 
-
-
+/**
+ * Retrieves an icon
+ *
+ * Actually, this method just wraps around the method from the Icon class.
+ *
+ * @since  Taurus 1
+ * @access public
+ *
+ * @param   string   $font   name of font
+ * @param   string   $name   name of icon
+ * @param   string   $color  hex color
+ * @param   boolean  $alter  whether to alter the icon's color
+ *
+ * @return  string           a path to the icon
+ */
   public function icon( $font, $name, $color = '000000', $alter = FALSE ) {
     if ( ! isset( $this->icon ) )
       $this->icon = new AlfredBundlerIcon( $this );
@@ -396,8 +391,6 @@ class AlfredBundlerInternalClass {
    * Loads a utility
    *
    * @since  Taurus 1
-   * @access public
-   *
    * @param string $name    Name of utility
    * @param string $version = 'latest' Version of utility
    * @param string $json    = ''        File path to json
@@ -418,8 +411,6 @@ class AlfredBundlerInternalClass {
    * Loads / requires a library
    *
    * @since  Taurus 1
-   * @access public
-   *
    * @param string $name    Name of library
    * @param string $version = 'latest' Version of library
    * @param string $json    = ''        File path to json
@@ -443,9 +434,9 @@ class AlfredBundlerInternalClass {
   /**
    * Loads a wrapper object
    *
+   * @since  Taurus 1
    * @param   string   $wrapper  name of wrapper to load
    * @param   boolean  $debug    turn debugging off / on
-   *
    * @return  object             a wrapper object
    */
   public function wrapper( $wrapper, $debug = FALSE ) {
@@ -465,32 +456,39 @@ class AlfredBundlerInternalClass {
   }
 
   /**
+   * Installs Composer into the bundler's data directory
+   *
+   * @since Taurus 1
+   */
+  public function installComposer() {
+    if ( ! file_exists( "{$this->composerDir}/composer.phar" ) ) {
+      $this->download( "https://getcomposer.org/composer.phar", "{$this->composerDir}/composer.phar" );
+      exec( "'{$this->composerDir}/composer.phar'", $output, $status );
+      if ( $status !== 0 ) {
+        $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
+      } else {
+        $this->log->log( "Installing Composer.phar to `{$this->composerDir}`", 'INFO', 'both' );
+      }
+    }
+  }
+
+  /**
    * Loads / requires composer packages
    *
    * @todo refactor into a composer class
-   *
+   * @since  Taurus 1
    * @param array $packages An array of packages to load in composer
    * @return bool            True on success, false on failure
    */
   public function composer( $packages ) {
-    $composerDir = "{$this->data}/data/assets/php/composer";
-    if ( ! file_exists( $composerDir ) )
-      mkdir( $composerDir, 0755, TRUE );
 
-    if ( ! file_exists( "{$composerDir}/composer.phar" ) ) {
-      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" ); $line = __LINE__;
-      exec( "'{$composerDir}/composer.phar'", $output, $status );
-      if ( $status !== 0 ) {
-        $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
-      } else {
-        $this->log->log( "Installing Composer.phar to `{$composerDir}`", 'INFO', 'both' );
-      }
-      // Add check to make sure the that file is complete above...
-    }
+    if ( ! file_exists( $this->composerDir = "{$this->data}/data/assets/php/composer" ) )
+      mkdir( $this->composerDir, 0775, TRUE );
 
+    $this->installComposer();
     $install = FALSE;
 
-    if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
+    if ( file_exists( "{$this->composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
       if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
         $installDir = "{$this->cache}/{$this->bundle}/composer";
         if ( ! file_exists( $installDir ) )
@@ -504,13 +502,13 @@ class AlfredBundlerInternalClass {
           $this->log->log( "Loaded Composer packages for {$this->bundle}.",
             'INFO', 'console' );
           require_once(
-            "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+            "{$this->composerDir}/bundles/{$this->bundle}/autoload.php" );
 
           return TRUE;
         } else {
           $install = TRUE;
-          if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-            $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
+          if ( file_exists( "{$this->composerDir}/bundles/{$this->bundle}" ) ) {
+            $this->rrmdir( "{$this->composerDir}/bundles/{$this->bundle}" );
           }
         }
       }
@@ -518,27 +516,38 @@ class AlfredBundlerInternalClass {
       $install = TRUE;
     }
 
-    if ( $install == TRUE ) {
-      if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-        $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
-      }
-      if ( $this->installComposerPackage( $packages ) === TRUE ) {
-        $this->log->log( "Loaded Composer packages for {$this->bundle}.",
-          'INFO', 'console' );
-        require_once "{$composerDir}/bundles/{$this->bundle}/autoload.php";
-        return TRUE;
-      } else {
-        $this->log->log( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', 'both' );
-        return FALSE;
-      }
-    }
+    if ( $install === TRUE )
+      return $this->doComposerInstall( $packages );
+
+    return TRUE;
   }
 
+  /**
+   * Executes and checks the composer install packages method
+   *
+   * @since Taurus 1
+   *
+   * @param   array  $packages  an array of packages to be installed
+   * @return  bool
+   */
+  public function doComposerInstall( $packages ) {
+    if ( is_dir( "{$this->composerDir}/bundles/{$this->bundle}" ) )
+      $this->rrmdir( "{$this->composerDir}/bundles/{$this->bundle}" );
 
+    if ( $this->installComposerPackage( $packages ) === TRUE ) {
+      $this->log->log( "Loaded Composer packages for {$this->bundle}.", 'INFO', 'console' );
+      require_once "{$this->composerDir}/bundles/{$this->bundle}/autoload.php";
+      return TRUE;
+    }
+
+    $this->log->log( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', 'both' );
+    return FALSE;
+  }
 
   /**
    * Creates an icns file out of the workflow's 'icon.png' file
    *
+   * @since  Taurus 1
    * @return string Path to generated icns file
    */
   public function icns() {
@@ -565,13 +574,14 @@ class AlfredBundlerInternalClass {
     }
   }
 
-  /******************************************************************************
- * BEGIN INSTALL FUNCTIONS
- *****************************************************************************/
+  /****************************************************************************
+   * BEGIN INSTALL FUNCTIONS
+   ***************************************************************************/
 
   /**
    * Installs an asset based on JSON information
    *
+   * @since  Taurus 1
    * @param string $json    File path to json
    * @param string $version = 'latest' Version of asset to install
    * @return bool                        TRUE on success, FALSE on failure
@@ -653,10 +663,10 @@ class AlfredBundlerInternalClass {
   /**
    * Installs composer packages
    *
-   * @todo refactor into a composer class
-   *
-   * @param array $packages List of composer ready packages with versions
-   * @return bool            TRUE on success, FALSE on failure
+   * @todo    refactor into a composer class
+   * @since   Taurus 1
+   * @param   array $packages List of composer ready packages with versions
+   * @return  bool            TRUE on success, FALSE on failure
    */
   private function installComposerPackage( $packages ) {
     if ( ! is_array( $packages ) ) {
@@ -688,9 +698,9 @@ class AlfredBundlerInternalClass {
     foreach ( $packages as $package ) :
 
     $name        = explode( '/', $package[ 'name' ] ); // As: vendor/package
-    $vendor      = $name[0];                         // vendor
+    $vendor      = $name[0];                           // vendor
     $name        = $name[1];                           // package name
-    $version     = $package[ 'version' ];           // version installed
+    $version     = $package[ 'version' ];              // version installed
     $installed[] = array( 'name' => $name,
       'vendor' => $vendor,
       'version' => $version );
@@ -735,19 +745,16 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-  /******************************************************************************
- * END INSTALL FUNCTIONS
- *****************************************************************************/
-
-
-
-  /*******************************************************************************
- * BEGIN HELPER FUNCTIONS
- ******************************************************************************/
+  /****************************************************************************
+   * END INSTALL FUNCTIONS
+   *
+   * BEGIN HELPER FUNCTIONS
+   ***************************************************************************/
 
   /**
    * Returns bundle id of workflow using bundler
    *
+   * @since  Taurus 1
    * @return string Bundle id
    */
   public function bundle() {
@@ -757,6 +764,7 @@ class AlfredBundlerInternalClass {
   /**
    * Reads a plist value using PlistBuddy
    *
+   * @since  Taurus 1
    * @param string $plist File path to plist
    * @param string $key   Key of plist to read
    * @return mixed         FALSE if plist doesn't exist, else value of key
@@ -775,8 +783,6 @@ class AlfredBundlerInternalClass {
    * @param string $file    The destination file
    * @param int   $timeout =  '3' A timeout variable (in seconds)
    * @return bool                   True on success and error code / false on failure
-   *
-   * @access public
    * @since  Taurus 1
    */
   public function download( $url, $file, $timeout = '5' ) {
@@ -813,7 +819,6 @@ class AlfredBundlerInternalClass {
     return TRUE;
   }
 
-
   /**
    * Log function for the user to employ
    *
@@ -822,7 +827,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    */
@@ -837,7 +841,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -853,7 +856,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -869,7 +871,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -885,7 +886,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -901,7 +901,6 @@ class AlfredBundlerInternalClass {
    * @param   string  $destination='' destination ( file, console, both )
    *                                  an empty argument will use the default
    *                                  destination set at instantiation
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -915,7 +914,6 @@ class AlfredBundlerInternalClass {
    *
    * @param   string  $message  message to log
    * @param   mixed   $level    level of log
-   *
    * @since Taurus 1
    * @see AlfredBundlerLogger:log
    * @see AlfredBundlerInternalClass:log
@@ -928,10 +926,7 @@ class AlfredBundlerInternalClass {
    * Recursively removes a folder along with all its files and directories
    *
    * @link http://php.net/manual/en/function.rmdir.php#110489
-   *
-   * @access public
    * @since  Taurus 1
-   *
    * @param string $path Path to directory to remove
    */
   public function rrmdir( $path ) {
@@ -955,10 +950,7 @@ class AlfredBundlerInternalClass {
    * Invokes the Gatekeeper script if the path has not already been called. The
    * call, if successful, is cached. If the cache file is present, then return
    * the path from there instead of calling the cache again.
-   *
-   * @access public
    * @since  Taurus 1
-   *
    * @param string $name    The name of the utility
    * @param string $path    The fullpath to the utility
    * @param string $message The "permissions" message from the JSON
@@ -1016,10 +1008,7 @@ class AlfredBundlerInternalClass {
    * Registers an asset
    *
    * The Bundler keeps a registry of which workflows use which assets.
-   *
-   * @access public
    * @since  Taurus 1
-   *
    * @param string $asset   Name of the asset to be registered
    * @param string $version Version of asset to use
    * @return bool             Returns TRUE on success, FALSE on failure
@@ -1031,23 +1020,16 @@ class AlfredBundlerInternalClass {
       return FALSE;
 
     // Load the registry data
-    if ( ! file_exists( "{$this->data}/data/registry.json" ) ) {
-      $registry = array();
-    } else {
-      if ( ! ( json_decode( file_get_contents( "{$this->data}/data/registry.json" ) ) ) ) {
-        // The JSON file is bad -- start over.
-        $registry = array();
-      } else {
+    $registry = array();
+    if ( file_exists( "{$this->data}/data/registry.json" ) ) {
         $registry = json_decode( file_get_contents( "{$this->data}/data/registry.json" ), TRUE );
-      }
-    }
 
     if ( isset( $registry[ $asset ] ) ) {
       if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
         $registry[ $asset ][ $version ] = array();
         $update = TRUE;
       }
-      if ( ! is_array( $registry[ $asset ][ $version] ) ) {
+      if ( ! is_array( $registry[ $asset ][ $version ] ) ) {
         $registry[ $asset ][ $version ] = array();
       }
       if ( ! in_array( $this->bundle , $registry[ $asset ][ $version ] ) ) {
@@ -1059,26 +1041,21 @@ class AlfredBundlerInternalClass {
       $update = TRUE;
     }
 
-    if ( $update ) file_put_contents( "{$this->data}/data/registry.json" , utf8_encode( json_encode( $registry ) ) );
+    if ( $update )
+      file_put_contents( "{$this->data}/data/registry.json", utf8_encode( json_encode( $registry ) ) );
 
     return TRUE;
+    }
   }
-
-  /****************************************************************************
-   * END HELPER FUNCTIONS
-   ***************************************************************************/
-
-  /****************************************************************************
-   * BEGIN BONUS FUNCTIONS
-   ***************************************************************************/
 
   /**
    * Uses CocoaDialog to display a notification
    *
-   * @param string $title   Title for notification
-   * @param string $message Message of notification
-   * @param string $icon = null An array of options that Terminal Notifer takes
-   * @return bool                      TRUE on success, FALSE on failure
+   * @since  Taurus 1
+   * @param  string $title   Title for notification
+   * @param  string $message Message of notification
+   * @param  string $icon    An array of options that Terminal Notifer takes
+   * @return bool           TRUE on success, FALSE on failure
    */
   public function notify( $title, $message, $icon = null ) {
     if ( gettype( $title ) !== 'string' || gettype( $message ) !== 'string' )
@@ -1115,10 +1092,5 @@ class AlfredBundlerInternalClass {
 
    }
 
-  /****************************************************************************
-   * END BONUS FUNCTIONS
-   ***************************************************************************/
-
 }
 endif;
-
