@@ -4,7 +4,6 @@
 
 *)
 property BUNDLER_VERSION : "devel"
-
 --# Bundler paths
 property _home : POSIX path of (path to "cusr" as text)
 property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
@@ -141,7 +140,7 @@ on logger(_handler, _level, _message)
 	--# Prepare level message
 	set _level to "[" & _level & "]"
 	--# Generate full error message for logging
-	set log_msg to (ASCII character 10) & (my joiner({log_time, _location, _level, _message}, space))
+	set log_msg to (my joiner({log_time, _location, _level, _message}, space)) & (ASCII character 10)
 	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
 	--# Generate regular error message for returning to user
 	set error_msg to error_time & space & _location & space & _level & space & _message
@@ -353,7 +352,5 @@ on test()
 	set pwd to quoted form of my dirname(as_pwd)
 	set cmd to quoted form of "/Users/smargheim/Documents/DEVELOPMENT/GitHub/alfred-bundler/bundler/bundlets/TEST.sh"
 	set sh_pwd to do shell script "cd " & pwd & "; bash " & cmd
-	
 	return "Applescript PWD: " & as_pwd & return & "Shell PWD: " & sh_pwd
-	
 end test
