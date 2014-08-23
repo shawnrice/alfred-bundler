@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class AlfredBundlerLogger | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li class="active"><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-AlfredBundler.html">AlfredBundler</a></li>
+				<li><a href="class-AlfredBundlerIcon.html">AlfredBundlerIcon</a></li>
+				<li><a href="class-AlfredBundlerInternalClass.html">AlfredBundlerInternalClass</a></li>
+				<li class="active"><a href="class-AlfredBundlerLogger.html">AlfredBundlerLogger</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-AlfredBundler.html" title="Summary of AlfredBundler"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class AlfredBundlerLogger</h1>
+
+
+	<div class="description">
+	
+<p>Simple logging functionality that writes to files or STDERR</p>
+
+<p>Usage: just create a single object and reuse it solely. Initialize the object
+with a full path to the log file (no log extension)</p>
+
+<p>This class was written to be part of the PHP implementation of the Alfred
+Bundler for the bundler's internal logging requirements. However its
+functionality is also made available to any workflow author implementing the
+bundler.</p>
+
+<p>While you can use this class without going through the bundler, it is easier
+just to use the logging functionality indirectly via the bundler object.</p>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		<b>Package:</b> <a href="package-AlfredBundler.html">AlfredBundler</a><br />
+
+				<b>Copyright:</b>
+				The Alfred Bundler Team 2014<br />
+				<b>License:</b>
+				<a href="http://opensource.org/licenses/MIT">MIT</a><br />
+				<b>Since:</b>
+				Class available since Taurus 1<br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#$log">AlfredBundlerInternalClass::<var>$log</var></a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_debug">AlfredBundlerInternalClass::debug()</a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_info">AlfredBundlerInternalClass::info()</a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_warning">AlfredBundlerInternalClass::warning()</a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_error">AlfredBundlerInternalClass::error()</a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_critical">AlfredBundlerInternalClass::critical()</a></code></code><br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html#_console">AlfredBundlerInternalClass::console()</a></code></code><br />
+		<b>Located at</b> <a href="source-class-AlfredBundlerLogger.html#23-292" title="Go to source code">AlfredBundlerLogger.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-AlfredBundlerLogger.html#116-151" title="Go to source code">__construct</a>( <span>string <var>$log</var></span>, <span>string <var>$destination</var> = <span class="php-quote">'file'</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Sets variables and ini settings to ensure there are no errors</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Sets variables and ini settings to ensure there are no errors</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$log</var></dt>
+					<dd><code>string</code><br>$log filename to use as a log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination = 'file' default destination for messages</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="log" id="_log">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_log">#</a>
+		<code><a href="source-class-AlfredBundlerLogger.html#153-201" title="Go to source code">log</a>( <span>string <var>$message</var></span>, <span>mixed <var>$level</var> = <span class="php-quote">'INFO'</span></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span></span>, <span>mixed <var>$trace</var> = <span class="php-num">0</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Logs a message to either a file or STDERR</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Logs a message to either a file or STDERR</p>
+
+<p>After initializing the log object, this should be the only method with which
+you interact.</p>
+
+<p>While you could use this separate from the bundler itself, it is easier to
+use the logging functionality from the bundler object.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$level</var></dt>
+					<dd><code>mixed</code><br>$level either int or string of log level</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination where the message should appear: valid options: 'file', 'console',
+'both'</dd>
+					<dt><var>$trace</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerInternalClass::log &lt;code&gt; $log = new AlfredBundlerLogger(
+'/full/path/to/mylog' ); $log-&gt;log( 'Write this to a file', 'INFO' ); $log-&gt;log( 'Warning message to console', 2, 'console' ); $log-&gt;log( 'This message will go to both the console and the
+log', 3, 'both'); &lt;/code&gt;<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="normalizeLogLevel" id="_normalizeLogLevel">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_normalizeLogLevel">#</a>
+		<code><a href="source-class-AlfredBundlerLogger.html#239-264" title="Go to source code">normalizeLogLevel</a>( <span>mixed <var>$level</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Ensures that the log level is valid</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Ensures that the log level is valid</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$level</var></dt>
+					<dd><code>mixed</code><br>$level either an int or a string denoting log level</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>log level as string<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="logConsole" id="_logConsole">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_logConsole">#</a>
+		<code><a href="source-class-AlfredBundlerLogger.html#266-276" title="Go to source code">logConsole</a>( <span>string <var>$message</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Writes a message to the console (STDERR)</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Writes a message to the console (STDERR)</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="logFile" id="_logFile">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_logFile">#</a>
+		<code><a href="source-class-AlfredBundlerLogger.html#278-289" title="Go to source code">logFile</a>( <span>string <var>$message</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Writes message to log file</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Writes message to log file</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="log" id="$log">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerLogger.html#53-61" title="Go to source code"><var>$log</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$log" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>Log file</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>Log file</p>
+
+<p>Full path to log file with no extension; set by user at instantiation</p>
+
+
+					<h4>Since</h4>
+					<div class="list">
+							Taurus 1<br />
+					</div>
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="logLevels" id="$logLevels">
+		<td class="attributes"><code>
+			protected  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerLogger.html#63-75" title="Go to source code"><var>$logLevels</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$logLevels" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>An array of log levels (int =&gt; string )</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>An array of log levels (int =&gt; string )</p>
+
+<p>0 =&gt; 'DEBUG' 1 =&gt; 'INFO' 2 =&gt; 'WARNING' 3 =&gt; 'ERROR' 4 =&gt;
+'CRITICAL'</p>
+
+
+					<h4>Since</h4>
+					<div class="list">
+							Taurus 1<br />
+					</div>
+			</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class CocoaDialog | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li class="active"><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-CocoaDialog.html">CocoaDialog</a></li>
+				<li><a href="class-ProgressBar.html">ProgressBar</a></li>
+				<li><a href="class-TerminalNotifier.html">TerminalNotifier</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-None.html" title="Summary of None"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class CocoaDialog</h1>
+
+
+	<div class="description">
+	
+<p>Main class used for interaction with CocoaDialog.</p>
+
+<p>Public class used to initialize the CocoaDialog interaction client. Client
+inintialization is built by:<br />
+$client = new CocoaDialog('path to CocoaDailog.app or exec', $debug=bool)</p>
+
+<p>Initializes global options (dict) and global icons (list).</p>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		
+
+				<b>Copyright:</b>
+				Ritashugisha 2014<br />
+				<b>License:</b>
+				<a href="https://www.gnu.org/licenses/gpl-3.0.txt">GPL v3</a><br />
+		<b>Located at</b> <a href="source-class-CocoaDialog.html#101-930" title="Go to source code">cocoadialog.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="log" id="_log">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_log">#</a>
+		<code><a href="source-class-CocoaDialog.html#149-161" title="Go to source code">log</a>( <span>string <var>$level</var></span>, <span>string <var>$funct</var></span>, <span>integer <var>$lineno</var></span>, <span>string <var>$message</var></span> )</code>
+
+		<div class="description short">
+			
+<p>This function prints debug logs to the console.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>This function prints debug logs to the console.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$level</var></dt>
+					<dd><code>string</code><br>$level Logging level (adapted from Python's logging module)</dd>
+					<dt><var>$funct</var></dt>
+					<dd><code>string</code><br>$funct Calling function's name</dd>
+					<dt><var>$lineno</var></dt>
+					<dd><code>integer</code><br>$lineno Calling functions line number</dd>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message Desired message</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-CocoaDialog.html#163-223" title="Go to source code">__construct</a>( <span>string <var>$cocoa</var></span>, <span>boolean <var>$debug</var> = <span class="php-keyword1">False</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>CocoaDialog class constructor.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>CocoaDialog class constructor.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$cocoa</var></dt>
+					<dd><code>string</code><br>$cocoa Path to either CocoaDialog.app or exec</dd>
+					<dt><var>$debug</var></dt>
+					<dd><code>boolean</code><br>$debug True if logging is enabled</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_format_passed" id="__format_passed">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__format_passed">#</a>
+		<code><a href="source-class-CocoaDialog.html#225-236" title="Go to source code">_format_passed</a>( <span>mixed <var>$passed</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_format_notify" id="__format_notify">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__format_notify">#</a>
+		<code><a href="source-class-CocoaDialog.html#238-270" title="Go to source code">_format_notify</a>( <span>mixed <var>$passed</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_run_subprocess" id="__run_subprocess">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__run_subprocess">#</a>
+		<code><a href="source-class-CocoaDialog.html#272-284" title="Go to source code">_run_subprocess</a>( <span>string <var>$process</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Run a process on the host system.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Run a process on the host system.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$process</var></dt>
+					<dd><code>string</code><br>$process Process to be run</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output of process<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_valid_options" id="__valid_options">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__valid_options">#</a>
+		<code><a href="source-class-CocoaDialog.html#286-357" title="Go to source code">_valid_options</a>( <span>array <var>$passed</var></span>, <span>array <var>$custom_options</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Validate and clean up passed dialog options.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Validate and clean up passed dialog options.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$passed</var></dt>
+					<dd><code>array</code><br>$passed Associative array of passed dialog arguemnts</dd>
+					<dt><var>$custom_options</var></dt>
+					<dd><code>array</code><br>$custom_options Associative array of calling dialog's unique arguments</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>True if OK for dialog to be shown<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_display" id="__display">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__display">#</a>
+		<code><a href="source-class-CocoaDialog.html#359-405" title="Go to source code">_display</a>( <span>string <var>$funct</var></span>, <span>array <var>$passed</var></span>, <span>boolean <var>$return_process</var> = <span class="php-keyword1">False</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Display the passed dialog after some crutial formatting.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Display the passed dialog after some crutial formatting.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$funct</var></dt>
+					<dd><code>string</code><br>$funct Dialog name</dd>
+					<dt><var>$passed</var></dt>
+					<dd><code>array</code><br>$passed Associative array of passed dialog options</dd>
+					<dt><var>$return_process</var></dt>
+					<dd><code>boolean</code><br>$return_process True if return process array instead of display</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output of dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="bubble" id="_bubble">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_bubble">#</a>
+		<code><a href="source-class-CocoaDialog.html#407-439" title="Go to source code">bubble</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type bubble</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type bubble</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/bubble_control">http://mstratman.github.io/cocoadialog/#documentation3.0/bubble_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="notify" id="_notify">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_notify">#</a>
+		<code><a href="source-class-CocoaDialog.html#441-472" title="Go to source code">notify</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type notify</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type notify</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="checkbox" id="_checkbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_checkbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#474-502" title="Go to source code">checkbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type checkbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type checkbox</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="radio" id="_radio">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_radio">#</a>
+		<code><a href="source-class-CocoaDialog.html#504-532" title="Go to source code">radio</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type radio</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type radio</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="slider" id="_slider">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_slider">#</a>
+		<code><a href="source-class-CocoaDialog.html#534-564" title="Go to source code">slider</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type slider</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type slider</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="msgbox" id="_msgbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_msgbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#566-595" title="Go to source code">msgbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type msgbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type msgbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/msgbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/msgbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="ok_msgbox" id="_ok_msgbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_ok_msgbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#597-623" title="Go to source code">ok_msgbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type ok_msgbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type ok_msgbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/ok-msgbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/ok-msgbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="yesno_msgbox" id="_yesno_msgbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_yesno_msgbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#625-651" title="Go to source code">yesno_msgbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type yesno_msgbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type yesno_msgbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/yesno-msgbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/yesno-msgbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="inputbox" id="_inputbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_inputbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#653-683" title="Go to source code">inputbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type inputbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type inputbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/inputbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/inputbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="standard_inputbox" id="_standard_inputbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_standard_inputbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#685-712" title="Go to source code">standard_inputbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type standard_inputbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type standard_inputbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/standard-box_control">http://mstratman.github.io/cocoadialog/#documentation3.0/standard-box_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="secure_inputbox" id="_secure_inputbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_secure_inputbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#714-743" title="Go to source code">secure_inputbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type secure_inputbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type secure_inputbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/secure-inputbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/secure-inputbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="secure_standard_inputbox" id="_secure_standard_inputbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_secure_standard_inputbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#745-771" title="Go to source code">secure_standard_inputbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type secure_standard_inputbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type secure_standard_inputbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/secure-standard-inputbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/secure-standard-inputbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="fileselect" id="_fileselect">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_fileselect">#</a>
+		<code><a href="source-class-CocoaDialog.html#773-803" title="Go to source code">fileselect</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type fileselect</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type fileselect</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control">http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="filesave" id="_filesave">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_filesave">#</a>
+		<code><a href="source-class-CocoaDialog.html#805-833" title="Go to source code">filesave</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type fileselect</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type fileselect</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control">http://mstratman.github.io/cocoadialog/#documentation3.0/fileselect_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="textbox" id="_textbox">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_textbox">#</a>
+		<code><a href="source-class-CocoaDialog.html#835-868" title="Go to source code">textbox</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type textbox</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type textbox</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/textbox_control">http://mstratman.github.io/cocoadialog/#documentation3.0/textbox_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="dropdown" id="_dropdown">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_dropdown">#</a>
+		<code><a href="source-class-CocoaDialog.html#870-900" title="Go to source code">dropdown</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type dropdown</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type dropdown</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/dropdown_control">http://mstratman.github.io/cocoadialog/#documentation3.0/dropdown_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="standard_dropdown" id="_standard_dropdown">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_standard_dropdown">#</a>
+		<code><a href="source-class-CocoaDialog.html#902-929" title="Go to source code">standard_dropdown</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Dialog type standard_dropdown</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Dialog type standard_dropdown</p>
+
+<p>Valid parameters are listed at: &lt;<a
+href="http://mstratman.github.io/cocoadialog/#documentation3.0/standard-dropdown_control">http://mstratman.github.io/cocoadialog/#documentation3.0/standard-dropdown_control</a>&gt;</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Dialog paramenters</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output from dialog<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="global_icons" id="$global_icons">
+		<td class="attributes"><code>
+			public  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-CocoaDialog.html#141-146" title="Go to source code"><var>$global_icons</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$global_icons" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>Reference to a list of global icons.</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>Reference to a list of global icons.</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

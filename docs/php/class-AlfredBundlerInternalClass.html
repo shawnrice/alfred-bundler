@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class AlfredBundlerInternalClass | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li class="active"><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-AlfredBundler.html">AlfredBundler</a></li>
+				<li><a href="class-AlfredBundlerIcon.html">AlfredBundlerIcon</a></li>
+				<li class="active"><a href="class-AlfredBundlerInternalClass.html">AlfredBundlerInternalClass</a></li>
+				<li><a href="class-AlfredBundlerLogger.html">AlfredBundlerLogger</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-AlfredBundler.html" title="Summary of AlfredBundler"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class AlfredBundlerInternalClass</h1>
+
+
+	<div class="description">
+	
+<p>Internal API Class for Alfred Bundler</p>
+
+<p>This class is the only one that you should interact with. The rest of the
+magic that the bundler performs happens under the hood. Also, the backend of the
+bundler (here the 'AlfredBundlerInternalClass') may change; however, this
+wrapper will continue to work with the bundler API for the remainder of this
+major version.</p>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		<b>Package:</b> <a href="package-AlfredBundler.html">AlfredBundler</a><br />
+
+				<b>Copyright:</b>
+				The Alfred Bundler Team 2014<br />
+				<b>License:</b>
+				<a href="http://opensource.org/licenses/MIT">MIT</a><br />
+				<b>Since:</b>
+				Class available since Taurus 1<br />
+		<b>Located at</b> <a href="source-class-AlfredBundlerInternalClass.html#25-1122" title="Go to source code">AlfredBundler.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#150-185" title="Go to source code">__construct</a>( <span>string <var>$options</var> = [] </span> )</code>
+
+		<div class="description short">
+			
+<p>The class constructor</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>The class constructor</p>
+
+<p>Sets necessary variables.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$options</var></dt>
+					<dd><code>string</code><br>$options a list of options to configure the instance</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>Return 'true' regardless<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="load" id="_load">
+
+		<td class="attributes"><code>
+			 public 
+			mixed
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_load">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#255-384" title="Go to source code">load</a>( <span>string <var>$type</var></span>, <span>string <var>$name</var></span>, <span>string <var>$version</var></span>, <span>string <var>$json</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Load an asset using a generic function</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Load an asset using a generic function</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$type</var></dt>
+					<dd><code>string</code><br>$type Type of asset</dd>
+					<dt><var>$name</var></dt>
+					<dd><code>string</code><br>$name Name of asset</dd>
+					<dt><var>$version</var></dt>
+					<dd><code>string</code><br>$version Version of asset to load</dd>
+					<dt><var>$json</var></dt>
+					<dd><code>string</code><br>$json = '' Path to json file</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>mixed</code><br>Returns path to utility on success, FALSE on failure<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="icon" id="_icon">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_icon">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#388-393" title="Go to source code">icon</a>( <span>mixed <var>$font</var></span>, <span>mixed <var>$name</var></span>, <span>mixed <var>$color</var> = <span class="php-quote">'000000'</span></span>, <span>mixed <var>$alter</var> = <span class="php-keyword1">FALSE</span> </span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="utility" id="_utility">
+
+		<td class="attributes"><code>
+			 public 
+			mixed
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_utility">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#395-415" title="Go to source code">utility</a>( <span>string <var>$name</var></span>, <span>string <var>$version</var> = <span class="php-quote">'latest'</span></span>, <span>string <var>$json</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Loads a utility</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Loads a utility</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd><code>string</code><br>$name Name of utility</dd>
+					<dt><var>$version</var></dt>
+					<dd><code>string</code><br>$version = 'latest' Version of utility</dd>
+					<dt><var>$json</var></dt>
+					<dd><code>string</code><br>$json = '' File path to json</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>mixed</code><br>Path to utility on success, FALSE on failure<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="library" id="_library">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_library">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#417-441" title="Go to source code">library</a>( <span>string <var>$name</var></span>, <span>string <var>$version</var> = <span class="php-quote">'latest'</span></span>, <span>string <var>$json</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Loads / requires a library</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Loads / requires a library</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd><code>string</code><br>$name Name of library</dd>
+					<dt><var>$version</var></dt>
+					<dd><code>string</code><br>$version = 'latest' Version of library</dd>
+					<dt><var>$json</var></dt>
+					<dd><code>string</code><br>$json = '' File path to json</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>TRUE on success, FALSE on failure<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="wrapper" id="_wrapper">
+
+		<td class="attributes"><code>
+			 public 
+			object
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_wrapper">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#443-465" title="Go to source code">wrapper</a>( <span>string <var>$wrapper</var></span>, <span>boolean <var>$debug</var> = <span class="php-keyword1">FALSE</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Loads a wrapper object</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Loads a wrapper object</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$wrapper</var></dt>
+					<dd><code>string</code><br>$wrapper name of wrapper to load</dd>
+					<dt><var>$debug</var></dt>
+					<dd><code>boolean</code><br>$debug turn debugging off / on</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>object</code><br>a wrapper object<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="composer" id="_composer">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_composer">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#467-535" title="Go to source code">composer</a>( <span>array <var>$packages</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Loads / requires composer packages</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Loads / requires composer packages</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$packages</var></dt>
+					<dd><code>array</code><br>$packages An array of packages to load in composer</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>True on success, false on failure<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="icns" id="_icns">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_icns">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#539-566" title="Go to source code">icns</a>( )</code>
+
+		<div class="description short">
+			
+<p>Creates an icns file out of the workflow's 'icon.png' file</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Creates an icns file out of the workflow's 'icon.png' file</p>
+
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Path to generated icns file<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="installAsset" id="_installAsset">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_installAsset">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#572-651" title="Go to source code">installAsset</a>( <span>string <var>$json</var></span>, <span>string <var>$version</var> = <span class="php-quote">'latest'</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Installs an asset based on JSON information</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Installs an asset based on JSON information</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$json</var></dt>
+					<dd><code>string</code><br>$json File path to json</dd>
+					<dt><var>$version</var></dt>
+					<dd><code>string</code><br>$version = 'latest' Version of asset to install</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>TRUE on success, FALSE on failure<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="bundle" id="_bundle">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_bundle">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#748-755" title="Go to source code">bundle</a>( )</code>
+
+		<div class="description short">
+			
+<p>Returns bundle id of workflow using bundler</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Returns bundle id of workflow using bundler</p>
+
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Bundle id<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="download" id="_download">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_download">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#771-814" title="Go to source code">download</a>( <span>string <var>$url</var></span>, <span>string <var>$file</var></span>, <span>integer <var>$timeout</var> = <span class="php-quote">'5'</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps a cURL function to download files</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps a cURL function to download files</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$url</var></dt>
+					<dd><code>string</code><br>$url A URL to the file</dd>
+					<dt><var>$file</var></dt>
+					<dd><code>string</code><br>$file The destination file</dd>
+					<dt><var>$timeout</var></dt>
+					<dd><code>integer</code><br>$timeout = '3' A timeout variable (in seconds)</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>True on success and error code / false on failure<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="log" id="_log">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_log">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#817-831" title="Go to source code">log</a>( <span>string <var>$message</var></span>, <span>mixed <var>$level</var> = <span class="php-quote">'INFO'</span></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Log function for the user to employ</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Log function for the user to employ</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$level</var></dt>
+					<dd><code>mixed</code><br>$level='INFO' level of the log message</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="debug" id="_debug">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_debug">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#833-847" title="Go to source code">debug</a>( <span>string <var>$message</var></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to level 'DEBUG'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to level 'DEBUG'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="info" id="_info">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_info">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#849-863" title="Go to source code">info</a>( <span>string <var>$message</var></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to level 'INFO'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to level 'INFO'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="warning" id="_warning">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_warning">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#865-879" title="Go to source code">warning</a>( <span>string <var>$message</var></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to level 'WARNING'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to level 'WARNING'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="error" id="_error">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_error">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#881-895" title="Go to source code">error</a>( <span>string <var>$message</var></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to level 'ERROR'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to level 'ERROR'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="critical" id="_critical">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_critical">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#897-911" title="Go to source code">critical</a>( <span>string <var>$message</var></span>, <span>string <var>$destination</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to level 'CRITICAL'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to level 'CRITICAL'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$destination</var></dt>
+					<dd><code>string</code><br>$destination='' destination ( file, console, both ) an empty argument will use
+the default destination set at instantiation</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="console" id="_console">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_console">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#913-925" title="Go to source code">console</a>( <span>string <var>$message</var></span>, <span>mixed <var>$level</var> = <span class="php-quote">'INFO'</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Wraps around 'log' to send to 'console'</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Wraps around 'log' to send to 'console'</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message message to log</dd>
+					<dt><var>$level</var></dt>
+					<dd><code>mixed</code><br>$level level of log</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>See</h4>
+				<div class="list">
+						AlfredBundlerLogger:log<br />
+						AlfredBundlerInternalClass:log<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="rrmdir" id="_rrmdir">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_rrmdir">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#927-950" title="Go to source code">rrmdir</a>( <span>string <var>$path</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Recursively removes a folder along with all its files and directories</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Recursively removes a folder along with all its files and directories</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$path</var></dt>
+					<dd><code>string</code><br>$path Path to directory to remove</dd>
+				</dl></div>
+
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+				<h4>Link</h4>
+				<div class="list">
+						<a href="http://php.net/manual/en/function.rmdir.php#110489">http://php.net/manual/en/function.rmdir.php#110489</a><br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="gatekeeper" id="_gatekeeper">
+
+		<td class="attributes"><code>
+			 public 
+			mixed
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_gatekeeper">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#952-1013" title="Go to source code">gatekeeper</a>( <span>string <var>$name</var></span>, <span>string <var>$path</var></span>, <span>string <var>$message</var> = <span class="php-quote">''</span></span>, <span>string <var>$icon</var> = <span class="php-quote">''</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Queries Gatekeeper to whitelist apps</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Queries Gatekeeper to whitelist apps</p>
+
+<p>Invokes the Gatekeeper script if the path has not already been called. The
+call, if successful, is cached. If the cache file is present, then return the
+path from there instead of calling the cache again.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd><code>string</code><br>$name The name of the utility</dd>
+					<dt><var>$path</var></dt>
+					<dd><code>string</code><br>$path The fullpath to the utility</dd>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message The "permissions" message from the JSON</dd>
+					<dt><var>$icon</var></dt>
+					<dd><code>string</code><br>$icon The workflow icon file (if exists)</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>mixed</code><br>FALSE on failure, path to utility on success<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="register" id="_register">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_register">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#1015-1065" title="Go to source code">register</a>( <span>string <var>$asset</var></span>, <span>string <var>$version</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Registers an asset</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Registers an asset</p>
+
+<p>The Bundler keeps a registry of which workflows use which assets.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$asset</var></dt>
+					<dd><code>string</code><br>$asset Name of the asset to be registered</dd>
+					<dt><var>$version</var></dt>
+					<dd><code>string</code><br>$version Version of asset to use</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>Returns TRUE on success, FALSE on failure<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="notify" id="_notify">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_notify">#</a>
+		<code><a href="source-class-AlfredBundlerInternalClass.html#1075-1116" title="Go to source code">notify</a>( <span>string <var>$title</var></span>, <span>string <var>$message</var></span>, <span>string <var>$icon</var> = <span class="php-keyword1">null</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Uses CocoaDialog to display a notification</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Uses CocoaDialog to display a notification</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$title</var></dt>
+					<dd><code>string</code><br>$title Title for notification</dd>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message Message of notification</dd>
+					<dt><var>$icon</var></dt>
+					<dd><code>string</code><br>$icon = null An array of options that Terminal Notifer takes</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>TRUE on success, FALSE on failure<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="data" id="$data">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#40-46" title="Go to source code"><var>$data</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$data" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>A filepath to the bundler directory</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>A filepath to the bundler directory</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="cache" id="$cache">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#48-54" title="Go to source code"><var>$cache</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$cache" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>A filepath to the bundler cache directory</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>A filepath to the bundler cache directory</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="major_version" id="$major_version">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#56-62" title="Go to source code"><var>$major_version</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$major_version" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The MAJOR version of the bundler (which API to use)</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The MAJOR version of the bundler (which API to use)</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="minor_version" id="$minor_version">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#64-70" title="Go to source code"><var>$minor_version</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$minor_version" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The MINOR version of the bundler</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The MINOR version of the bundler</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="bundle" id="$bundle">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#80-86" title="Go to source code"><var>$bundle</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$bundle" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The Bundle ID of the workflow using the bundler</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The Bundle ID of the workflow using the bundler</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="name" id="$name">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#88-94" title="Go to source code"><var>$name</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$name" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The name of the workflow using the bundler</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The name of the workflow using the bundler</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="workflowData" id="$workflowData">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#96-101" title="Go to source code"><var>$workflowData</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$workflowData" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The data directory of the workflow using the bundler</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The data directory of the workflow using the bundler</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="background" id="$background">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#103-109" title="Go to source code"><var>$background</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$background" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>The background 'color' of the user's current theme in Alfred (light or
+dark)</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>The background 'color' of the user's current theme in Alfred (light or
+dark)</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="finfo" id="$finfo">
+		<td class="attributes"><code>
+			public  
+			mixed
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#112" title="Go to source code"><var>$finfo</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$finfo" class="anchor">#</a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="alfredVersion" id="$alfredVersion">
+		<td class="attributes"><code>
+			public  
+			mixed
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#115" title="Go to source code"><var>$alfredVersion</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$alfredVersion" class="anchor">#</a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="log" id="$log">
+		<td class="attributes"><code>
+			public  
+			object
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#125-131" title="Go to source code"><var>$log</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$log" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>Desc</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>Desc</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="userLog" id="$userLog">
+		<td class="attributes"><code>
+			public  
+			object
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#133-139" title="Go to source code"><var>$userLog</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$userLog" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>Desc</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>Desc</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	<tr data-order="env" id="$env">
+		<td class="attributes"><code>
+			public  
+			boolean
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundlerInternalClass.html#141-147" title="Go to source code"><var>$env</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$env" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>Whether or not enviromental variables are present</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>Whether or not enviromental variables are present</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

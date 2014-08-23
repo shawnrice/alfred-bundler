@@ -1,7 +1,14 @@
 #!/bin/ruby
 
+require 'uri', 'rdoc'
+
+
+exit
+
 ENV['AB_BRANCH'] = 'devel'
 require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
+
+
 
 begin
 bundler  = Alfred::Bundler.new
@@ -59,7 +66,7 @@ puts bundler.icon({:font => 'elusive', :name => 'fire', :color => 'abcabc'})
 # bundler.log('Testing', 'FATAL')
 
 # # puts "We're about to load some gems"
-bundler.gems( ['rdoc'], ['plist', '~>3.1.0'])
+bundler.gems( ['oauth'], ['plist', '~>3.1.0'])
 # require 'plist'
 # p = Plist::Listener.new
 # p.tap{ |p| p p}

@@ -79,8 +79,8 @@
   
   
     <dt class="r1 last">Defined in:</dt>
-    <dd class="r1 last">bundler/AlfredBundler.rb<span class="defines">,<br />
-  bundler/bundlets/alfred.bundler.rb,<br /> bundler/includes/wrappers/ruby/cocoadialog.rb</span>
+    <dd class="r1 last">bundler/includes/wrappers/ruby/cocoadialog.rb<span class="defines">,<br />
+  bundler/AlfredBundler.rb,<br /> bundler/bundlets/alfred.bundler.rb</span>
 </dd>
   
 </dl>
@@ -88,121 +88,28 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Ruby API for interacting with OSX dialog spawner CocoaDialog.</p>
-<dl class="rdoc-list note-list"><dt>..module
-<dd>
-<p>cocoadialog</p>
-</dd></dl>
-
-<pre class="code ruby"><code class="ruby">:platform: MacOSX
-:synopsis: Ruby API for interacting with OSX dialog spawner CocoaDialog.</code></pre>
-<dl class="rdoc-list note-list"><dt>..moduleauthor
-<dd>
-<p>Ritashugisha &lt;ritashugisha@gmail.com&gt;</p>
-</dd></dl>
-
-<p>Copyright: 2014 Ritashugisha License: GPLv3 &lt;<a
-href="https://www.gnu.org/licenses/gpl-3.0.txt">www.gnu.org/licenses/gpl-3.0.txt</a>&gt;</p>
-
-<p>CocoaDialog is a resource which allows the user to spawn MacOSX aqua
-dialogs from the command-line. Dialogs are predefined and return input via
-echo.</p>
-
-<p>`Official Documentation &lt;<a
-href="http://mstratman.github.io/cocoadialog">mstratman.github.io/cocoadialog</a>/&gt;`</p>
-
-<p>*<strong>Note</strong>*: This module is documented mirroring Python Sphinx
-documentation.</p>
-
-<p>-&gt; Usage</p>
-
-<h6 id="label-"></h6>
-
-<p>To include this api in your Ruby scripts, copy this “cocoadialog.rb“ to a
-viable place to require.</p>
-
-<p>Load the CocoaDialog client:</p>
-
-<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;./cocoadialog&#39;</span>
-<span class="ruby-ivar">@client</span> = <span class="ruby-constant">CocoaDialog</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&#39;path to CocoaDialog.app or exec&#39;</span>, <span class="ruby-ivar">@debug</span>=<span class="ruby-constant">Boolean</span>)
-</pre>
-
-<p>Now that you have access to the client, you can call specific dialogs:</p>
-
-<pre class="code ruby"><code class="ruby">my_message_box = @client.msgbox(
-    title:&#39;My Message Box&#39;,
-    text:&#39;Hello, World!&#39;,
-    button1:&#39;Ok&#39;, button2:&#39;Cancel&#39;,
-    informative_text:&#39;Your information here...&#39;
-    icon:&#39;home&#39;,
-    string_output:true)
-
-puts my_message_box</code></pre>
-
-<p>If the user clicks on the “Ok” button, my_message_box will return [“Ok”] in
-this script. If, however, the user presses “Cancel”, [“Cancel”] will be
-returned.</p>
-
-<p>*<strong>NOTE</strong>*: The included `debug` parameter is very useful for
-finding out why your specified parameters are not being shown, or why your
-parameters are not passing as valid parameters, and thus the dialog is not
-being spawned.</p>
-
-<p>All other dialogs are spawned via similar treatment as shown above. For
-more info on what parameters are available for a specifc dialog, please
-visit the `Official Documentation` or play with `debug=True` for a while.</p>
-
-<p>To create a progress bar dialog, you have to create a new instance for the
-progress bar object.</p>
-
-<pre class="ruby"><span class="ruby-ivar">@my_progress_bar</span> = <span class="ruby-constant">ProgressBar</span>.<span class="ruby-identifier">new</span>(
-    <span class="ruby-ivar">@client</span>,
-    <span class="ruby-identifier">title</span>:<span class="ruby-string">&#39;My Progress Bar&#39;</span>,
-    <span class="ruby-identifier">text</span>:<span class="ruby-string">&#39;Hello, World!&#39;</span>,
-    <span class="ruby-identifier">percent</span>:<span class="ruby-value">0</span>,
-    <span class="ruby-identifier">icon</span>:<span class="ruby-string">&#39;info&#39;</span>)
-
-(<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">100</span>).<span class="ruby-identifier">step</span>(<span class="ruby-value">1</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
-    <span class="ruby-ivar">@my_progress_bar</span>.<span class="ruby-identifier">update</span>(<span class="ruby-identifier">percent</span>=<span class="ruby-identifier">i</span>)
-    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">0.1</span>)
-<span class="ruby-keyword">end</span>
-</pre>
-
-<p>Whenever the progress bar reaches an EOF, the dialog with kill itself.</p>
-
-<p>If you plan to add the `stoppable` feature in your progress bar, you will
-need to format your loop a little differently.</p>
-
-<pre class="ruby"><span class="ruby-ivar">@my_progress_bar</span> = <span class="ruby-constant">ProgressBar</span>.<span class="ruby-identifier">new</span>(
-    <span class="ruby-ivar">@client</span>,
-    <span class="ruby-identifier">title</span>:<span class="ruby-string">&#39;My Progress Bar&#39;</span>,
-    <span class="ruby-identifier">text</span>:<span class="ruby-string">&#39;Hello, World!&#39;</span>,
-    <span class="ruby-identifier">percent</span>:<span class="ruby-value">0</span>,
-    <span class="ruby-identifier">icon</span>:<span class="ruby-string">&#39;info&#39;</span>,
-    <span class="ruby-identifier">stoppable</span>:<span class="ruby-keyword">true</span>)
-
-(<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">100</span>).<span class="ruby-identifier">step</span>(<span class="ruby-value">1</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">sleep</span>(<span class="ruby-value">0.1</span>)
-    <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@my_progress_bar</span>.<span class="ruby-identifier">update</span>(<span class="ruby-identifier">percent</span>=<span class="ruby-identifier">i</span>) <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-<span class="ruby-keyword">end</span>
-</pre>
-
-<p>The `update` function, returns 1 to signify it is running. When the user
-stops the progress bar, the `finish` function is called and returns 0
-instead.</p>
-
-<p>-&gt; Revisions</p>
-
-<h6 id="label-"></h6>
-
-<p>1.0, 07-28-14: Initial release for (3.0, 0, &#39;beta&#39;)</p>
+    <p>[module description]</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+<p class="tag_title">Author:</p>
+<ul class="author">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'><p>The Alfred Bundler Team</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><h2>Defined Under Namespace</h2>
 <p class="children">
@@ -226,7 +133,7 @@ instead.</p>
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 04:20:45 2014 by
+  Generated on Fri Aug 22 20:11:07 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>

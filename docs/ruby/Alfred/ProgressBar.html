@@ -101,16 +101,14 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>CocoaDialog progress bar implementation</p>
+    <p>CocoaDialog progress bar implementation</p>
 
-<p>Since Ruby **does not** support nested classes, we have to build progress
-bar outside of the client.</p>
+<p>Since Ruby <strong>does not</strong> support nested classes, we have to build progress bar
+outside of the client.</p>
 
-<p>Progress bar client build:</p>
-
-<pre class="code ruby"><code class="ruby">@client = CocoaDialog.new(&#39;path to CocoaDialog.app or exec&#39;, @debug=Boolean)
-@progress_bar = ProgressBar.new(@client, **Dialog Arguments**)</code></pre>
+<p>Progress bar client build:
+    @client = CocoaDialog.new(&#39;path to CocoaDialog.app or exec&#39;, @debug=Boolean)
+    @progress_bar = ProgressBar.new(@client, <strong>Dialog Arguments</strong>)</p>
 
 <p>Progress bar class opens own subprocess with open PIPE.</p>
 
@@ -184,8 +182,7 @@ bar outside of the client.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Kill progress bar.</p>
+    <span class="summary_desc"><div class='inline'><p>Kill progress bar.</p>
 </div></span>
   
 </li>
@@ -210,8 +207,7 @@ bar outside of the client.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Progress bar class constructor.</p>
+    <span class="summary_desc"><div class='inline'><p>Progress bar class constructor.</p>
 </div></span>
   
 </li>
@@ -234,8 +230,7 @@ bar outside of the client.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Update function for progress bar.</p>
+    <span class="summary_desc"><div class='inline'><p>Update function for progress bar.</p>
 </div></span>
   
 </li>
@@ -258,11 +253,12 @@ bar outside of the client.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Progress bar class constructor.</p>
+    <p>Progress bar class constructor.</p>
 
-<p>:param cocoa_object: CocoaDialog object :type cocoa_object: CocoaDialog
-:param _passed: Progress bar arguments :type _passed: hash</p>
+<p>:param cocoa_object: CocoaDialog object
+:type cocoa_object: CocoaDialog
+:param _passed: Progress bar arguments
+:type _passed: hash</p>
 
 
   </div>
@@ -361,10 +357,10 @@ bar outside of the client.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Kill progress bar.</p>
+    <p>Kill progress bar.</p>
 
-<p>:returns: 0 if dead :rtype: int</p>
+<p>:returns: 0 if dead
+:rtype: int</p>
 
 
   </div>
@@ -408,12 +404,14 @@ bar outside of the client.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Update function for progress bar.</p>
+    <p>Update function for progress bar.</p>
 
-<p>:param percent: Percent value to be updated :param text: Text string to be
-updated :type percent: int :type text: str :returns: 1 if running :rtype:
-int</p>
+<p>:param percent: Percent value to be updated
+:param text: Text string to be updated
+:type percent: int
+:type text: str
+:returns: 1 if running
+:rtype: int</p>
 
 
   </div>
@@ -461,7 +459,7 @@ int</p>
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 04:20:46 2014 by
+  Generated on Fri Aug 22 20:11:07 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>

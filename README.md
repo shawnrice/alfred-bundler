@@ -1,4 +1,5 @@
-Alfred Bundler -- DEVELOPMENT VERSION
+# README
+alfred bundler: development version
 ==============
 
 Major Branch: `devel`

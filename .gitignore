@@ -27,3 +27,4 @@ install_confirm.scpt
 .yardoc
 bundler/doc
 doc
+generate-php-docs.sh
