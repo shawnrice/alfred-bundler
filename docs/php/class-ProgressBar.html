@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class ProgressBar | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li class="active"><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-CocoaDialog.html">CocoaDialog</a></li>
+				<li class="active"><a href="class-ProgressBar.html">ProgressBar</a></li>
+				<li><a href="class-TerminalNotifier.html">TerminalNotifier</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-None.html" title="Summary of None"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class ProgressBar</h1>
+
+
+	<div class="description">
+	
+<p>Seperate class used for interaction with CocoaDialog's progress bar.</p>
+
+<p>Client inintialization is built by:<br />
+$client = new ProgressBar('path to CocoaDialog.app or exec', [associative array
+of dialog arguements], $dialog=bool)</p>
+
+<p>NOTE: Currently broken due to CocoaDialog's exception thrown when opening
+process with stdin. Possibly fixable.</p>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		
+
+				<b>Copyright:</b>
+				Ritashugisha 2014<br />
+				<b>License:</b>
+				<a href="https://www.gnu.org/licenses/gpl-3.0.txt">GPL v3</a><br />
+		<b>Located at</b> <a href="source-class-ProgressBar.html#935-1055" title="Go to source code">cocoadialog.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-ProgressBar.html#987-1024" title="Go to source code">__construct</a>( <span>string <var>$cocoa</var></span>, <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Progress class constructor.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Progress class constructor.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$cocoa</var></dt>
+					<dd><code>string</code><br>$cocoa Path to CocoaDialog.app or exec</dd>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Progress dialog arguemnts (associative array)</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="update" id="_update">
+
+		<td class="attributes"><code>
+			 public 
+			integer
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_update">#</a>
+		<code><a href="source-class-ProgressBar.html#1026-1043" title="Go to source code">update</a>( <span>integer <var>$percent</var> = <span class="php-keyword1">NULL</span></span>, <span>string <var>$text</var> = <span class="php-keyword1">NULL</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>Update the current progress bar's state.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Update the current progress bar's state.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$percent</var></dt>
+					<dd><code>integer</code><br>$percent Percentage filled of progress bar dialog</dd>
+					<dt><var>$text</var></dt>
+					<dd><code>string</code><br>$text Test of progress bar dialog</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>integer</code><br>1 if running 0 if stopped<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="finish" id="_finish">
+
+		<td class="attributes"><code>
+			 public 
+			integer
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_finish">#</a>
+		<code><a href="source-class-ProgressBar.html#1045-1053" title="Go to source code">finish</a>( )</code>
+
+		<div class="description short">
+			
+<p>Kill the progress bar dialog.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Kill the progress bar dialog.</p>
+
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>integer</code><br>0 when killed<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

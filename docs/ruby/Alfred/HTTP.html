@@ -101,12 +101,28 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
+    <p>A simple class to help download files</p>
+
 
   </div>
 </div>
 <div class="tags">
   
+<p class="tag_title">Author:</p>
+<ul class="author">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'><p>The Alfred Bundler Team</p>
+</div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -116,8 +132,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -156,7 +171,8 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Downloads a file with error handling On failure, the file is deleted.</p>
+</div></span>
   
 </li>
 
@@ -178,7 +194,8 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Tries to download a file from a list of servers (URLs).</p>
+</div></span>
   
 </li>
 
@@ -203,12 +220,67 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Downloads a file with error handling
+On failure, the file is deleted.</p>
+
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>url</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String URL to download file</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String path to destination file (where the download)
+gets placed locally</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>Bool,String either false or the path where the file was
+downloaded</p>
+</div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -218,8 +290,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -232,19 +303,19 @@
       <pre class="lines">
 
 
-679
-680
-681
-682
-683
-684
-685
-686
-687
-688</pre>
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 679</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 748</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
   <span class='kw'>begin</span>
@@ -272,12 +343,69 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Tries to download a file from a list of servers (URLs)</p>
+
+<p>Iterates through a list of urls and attempts to download one until
+there is success.</p>
+
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>servers</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array an array of URLs</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String path to destination file (where the download)
+gets placed locally</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>String,Bool returns the file path on success and false if
+all the servers fail</p>
+</div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -287,8 +415,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -301,15 +428,15 @@
       <pre class="lines">
 
 
-690
-691
-692
-693
-694
-695</pre>
+770
+771
+772
+773
+774
+775</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 690</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 770</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_try_servers'>try_servers</span><span class='lparen'>(</span><span class='id identifier rubyid_servers'>servers</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
   <span class='comment'># Loop through the list of servers until we find one that is working
@@ -327,7 +454,7 @@
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 04:20:45 2014 by
+  Generated on Fri Aug 22 22:06:57 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>

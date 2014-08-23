@@ -101,8 +101,19 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>class description
-<dd></dd></dl>
+    <p>The Internal class that does all the heavy lifting for the Alfred Bundler</p>
+
+<p>Basically, the <span class='object_link'><a href="Bundler.html" title="Alfred::Bundler (class)">Bundler</a></span> class wraps around this class and passes
+everything here to process via its
+<span class='object_link'><a href="Bundler.html#method_missing-instance_method" title="Alfred::Bundler#method_missing (method)">method_missing</a></span> method.
+That class instantiates an object of this class. Icon handling is further
+routed to the internal <span class='object_link'><a href="Icon.html" title="Alfred::Icon (class)">icon class</a></span>, and logging functions are
+passed to a variety of objects instantiated by the <span class='object_link'><a href="Log.html" title="Alfred::Log (class)">internal logging class</a></span>.</p>
+
+<p>This class handles <span class='object_link'><a href="#load-instance_method" title="Alfred::Internal#load (method)">asset loading</a></span>, including <span class='object_link'><a href="#gems-instance_method" title="Alfred::Internal#gems (method)">gems</a></span>.</p>
+
+<p>The documentation for this class is the most important to read in order to
+understand how the bundler works.t</p>
 
 
   </div>
@@ -118,8 +129,7 @@
       
       
         
-        <div class='inline'>
-<p>The Alfred Bundler Team</p>
+        <div class='inline'><p>The Alfred Bundler Team</p>
 </div>
       
     </li>
@@ -134,8 +144,22 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Version:</p>
+<ul class="version">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -171,7 +195,8 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>The Bundler&#39;s data directory.</p>
+</div></span>
   
 </li>
 
@@ -183,59 +208,11 @@
 
   
     <h2>
-      Instance Method Summary
+      Load methods
       <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
     </h2>
 
     <ul class="summary">
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#console-instance_method" title="#console (instance method)">- (type) <strong>console</strong>(msg, level = &#39;info&#39;) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[console description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#gems-instance_method" title="#gems (instance method)">- (type) <strong>gems</strong>(args) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[gems description].</p>
-</div></span>
-  
-</li>
-
       
         <li class="public ">
   <span class="summary_signature">
@@ -254,32 +231,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#initialize-instance_method" title="#initialize (instance method)">- (type) <strong>initialize</strong>(data, cache) </a>
-    
-
-    
-  </span>
-  
-  
-    <span class="note title constructor">constructor</span>
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize description].</p>
+    <span class="summary_desc"><div class='inline'><p>Loads an icon.</p>
 </div></span>
   
 </li>
@@ -288,7 +240,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize_bundler_log-instance_method" title="#initialize_bundler_log (instance method)">- (type) <strong>initialize_bundler_log</strong>(level = Logger::DEBUG) </a>
+      <a href="#load-instance_method" title="#load (instance method)">- (Object) <strong>load</strong>(*args) </a>
     
 
     
@@ -302,8 +254,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize_bundler_log description].</p>
+    <span class="summary_desc"><div class='inline'><p>Loads an asset.</p>
 </div></span>
   
 </li>
@@ -312,7 +263,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize_deprecated-instance_method" title="#initialize_deprecated (instance method)">- (type) <strong>initialize_deprecated</strong> </a>
+      <a href="#parse_load_args-instance_method" title="#parse_load_args (instance method)">- (Object) <strong>parse_load_args</strong>(*args) </a>
     
 
     
@@ -326,270 +277,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize_deprecated description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#initialize_logs-instance_method" title="#initialize_logs (instance method)">- (type) <strong>initialize_logs</strong>(user = false) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize_logs description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#initialize_modern-instance_method" title="#initialize_modern (instance method)">- (type) <strong>initialize_modern</strong> </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize_modern description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#initialize_user_log-instance_method" title="#initialize_user_log (instance method)">- (type) <strong>initialize_user_log</strong>(level = Logger::INFO) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[initialize_user_log description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#install_gem-instance_method" title="#install_gem (instance method)">- (type) <strong>install_gem</strong>(name, version = Gem::Requirement.default) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[install_gem description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#load-instance_method" title="#load (instance method)">- (type) <strong>load</strong>(*args) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[load description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#log-instance_method" title="#log (instance method)">- (type) <strong>log</strong>(msg, level = &#39;info&#39;) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[log description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#method_missing-instance_method" title="#method_missing (instance method)">- (type) <strong>method_missing</strong>(name, *arguments) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[method_missing description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#notify-instance_method" title="#notify (instance method)">- (Object) <strong>notify</strong>(title, message, icon = &#39;icon.png&#39;) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#parse_load_args-instance_method" title="#parse_load_args (instance method)">- (type) <strong>parse_load_args</strong>(*args) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[parse_load_args description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#plist_check-instance_method" title="#plist_check (instance method)">- (type) <strong>plist_check</strong> </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[plist_check description].</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#read_plist_value-instance_method" title="#read_plist_value (instance method)">- (type) <strong>read_plist_value</strong>(key, plist) </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>[read_plist_value description].</p>
+    <span class="summary_desc"><div class='inline'><p>Parses the arguments sent to the <code>load</code> method to make them usable.</p>
 </div></span>
   
 </li>
@@ -612,8 +300,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Use a has or string args.</p>
+    <span class="summary_desc"><div class='inline'><p>Loads a utility.</p>
 </div></span>
   
 </li>
@@ -636,7 +323,359 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Loads a wrapper file.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Gem Methods
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gems-instance_method" title="#gems (instance method)">- (Object) <strong>gems</strong>(args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Loads gems and downloads them if necessary.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#install_gem-instance_method" title="#install_gem (instance method)">- (Object) <strong>install_gem</strong>(name, version = Gem::Requirement.default) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Install a gem into the bundler&#39;s <span class='object_link'><a href="#data-instance_method" title="Alfred::Internal#data (method)">#data</a></span> directory.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Log Functions
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#console-instance_method" title="#console (instance method)">- (type) <strong>console</strong>(msg, level = &#39;info&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>[console description].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_bundler_log-instance_method" title="#initialize_bundler_log (instance method)">- (Object) <strong>initialize_bundler_log</strong>(level = Logger::DEBUG) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Creates a console log and a file log for the bundler&#39;s use.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_logs-instance_method" title="#initialize_logs (instance method)">- (type) <strong>initialize_logs</strong>(user = false) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>[initialize_logs description].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_user_log-instance_method" title="#initialize_user_log (instance method)">- (Object) <strong>initialize_user_log</strong>(level = Logger::INFO) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Creates a file log for the workflow&#39;s use.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#log-instance_method" title="#log (instance method)">- (type) <strong>log</strong>(msg, level = &#39;info&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>[description].</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Internal) <strong>initialize</strong>(data, cache, options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The class constructor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_deprecated-instance_method" title="#initialize_deprecated (instance method)">- (Object) <strong>initialize_deprecated</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Sets the necessary variables to function if running Alfred &lt; v2.4:277.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_modern-instance_method" title="#initialize_modern (instance method)">- (Object) <strong>initialize_modern</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Sets the necessary variables to function if running Alfred &gt;= v2.4:277.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_there_a_plist%3F-instance_method" title="#is_there_a_plist? (instance method)">- (Boolean) <strong>is_there_a_plist?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Checks if an <code>info.plist</code> file is present.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method_missing-instance_method" title="#method_missing (instance method)">- (Object) <strong>method_missing</strong>(name, *arguments) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Handles errors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notify-instance_method" title="#notify (instance method)">- (type) <strong>notify</strong>(title, message, icon = &#39;icon.png&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>[notify description].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_plist_value-instance_method" title="#read_plist_value (instance method)">- (Object) <strong>read_plist_value</strong>(key, plist) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Reads a value from a plist.</p>
+</div></span>
   
 </li>
 
@@ -650,7 +689,7 @@
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    - (<tt>type</tt>) <strong>initialize</strong>(data, cache) 
+    - (<tt><span class='object_link'><a href="" title="Alfred::Internal (class)">Internal</a></span></tt>) <strong>initialize</strong>(data, cache, options = {}) 
   
 
   
@@ -658,8 +697,9 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize description
-<dd></dd></dl>
+    <p>The class constructor</p>
+
+<p>Sets up everything neede for the bundler to function</p>
 
 
   </div>
@@ -673,13 +713,12 @@
         <span class='name'>data</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String the data path for the bundler</p>
 </div>
       
     </li>
@@ -689,19 +728,43 @@
         <span class='name'>cache</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String the cache path for the bundler</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Hash a hash of options sent to customize how the
+bundler works</p>
 </div>
       
     </li>
   
 </ul>
 
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Bundler.html" title="Alfred::Bundler (class)">Bundler</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -711,8 +774,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -725,34 +787,33 @@
       <pre class="lines">
 
 
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67</pre>
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 45</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 67</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_cache'>cache</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_cache'>cache</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@data</span>   <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
   <span class='ivar'>@cache</span>  <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span>
   <span class='ivar'>@bundle</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>foo.my.poop</span><span class='tstring_end'>&#39;</span></span>
@@ -761,14 +822,13 @@
     <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Application Support</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Alfred 2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Workflow Data</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='ivar'>@bundle</span><span class='rparen'>)</span>
   <span class='ivar'>@icon</span> <span class='op'>=</span> <span class='const'>Alfred</span><span class='op'>::</span><span class='const'>Icon</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='ivar'>@data</span><span class='comma'>,</span> <span class='ivar'>@cache</span><span class='rparen'>)</span>
 
-
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_logs'>initialize_logs</span><span class='lparen'>(</span><span class='rparen'>)</span>
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_plist_check'>plist_check</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_initialize_logs'>initialize_logs</span>
+  <span class='id identifier rubyid_is_there_a_plist?'>is_there_a_plist?</span>
 
   <span class='kw'>unless</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_version</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_modern'>initialize_modern</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_modern'>initialize_modern</span>
   <span class='kw'>else</span>
-    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_deprecated'>initialize_deprecated</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_deprecated'>initialize_deprecated</span>
   <span class='kw'>end</span>
 
   <span class='comment'># Add our local gem repository
@@ -791,7 +851,7 @@
     <div class="method_details first">
   <h3 class="signature first" id="method_missing-instance_method">
   
-    - (<tt>type</tt>) <strong>method_missing</strong>(name, *arguments) 
+    - (<tt>Object</tt>) <strong>method_missing</strong>(name, *arguments) 
   
 
   
@@ -799,8 +859,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>method_missing description
-<dd></dd></dl>
+    <p>Handles errors</p>
 
 
   </div>
@@ -814,48 +873,45 @@
         <span class='name'>name</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String the name of the missing method called</p>
 </div>
       
     </li>
   
     <li>
       
-        <span class='name'>*arguments</span>
+        <span class='name'>arguments</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>Array an array of unknown arguments</p>
 </div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Returns:</p>
-<ul class="return">
+<p class="tag_title">Raises:</p>
+<ul class="raise">
   
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'>(<tt>StandardError</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>when a bad method is called</p>
 </div>
       
     </li>
@@ -870,8 +926,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -884,15 +939,17 @@
       <pre class="lines">
 
 
-85
-86
-87</pre>
+105
+106
+107
+108</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 85</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; does not exist either externally or internally.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a valid method.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -917,7 +974,10 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>The Bundler&#39;s data directory</p>
+
+<p><code>~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-taurus</code></p>
+
 
   </div>
 </div>
@@ -932,8 +992,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -946,12 +1005,12 @@
       <pre class="lines">
 
 
-37
-38
-39</pre>
+54
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 54</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_data'>data</span>
   <span class='ivar'>@data</span>
@@ -979,8 +1038,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>console description
-<dd></dd></dl>
+    <p>[console description]</p>
 
 
   </div>
@@ -999,8 +1057,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -1015,8 +1072,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -1034,8 +1090,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -1050,8 +1105,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1064,15 +1118,15 @@
       <pre class="lines">
 
 
-300
-301
-302</pre>
+356
+357
+358</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 300</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 356</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_console'>console</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
-  <span class='ivar'>@console</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_fix_level'>fix_level</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='ivar'>@console</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_normalize_log_level'>normalize_log_level</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1082,7 +1136,7 @@
       <div class="method_details ">
   <h3 class="signature " id="gems-instance_method">
   
-    - (<tt>type</tt>) <strong>gems</strong>(args) 
+    - (<tt>Object</tt>) <strong>gems</strong>(args) 
   
 
   
@@ -1090,14 +1144,29 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>gems description
-<dd></dd></dl>
+    <p>Loads gems and downloads them if necessary</p>
+
+<p>If the gem cannot be found, then it will download the gem and its
+dependencies into the bundler&#39;s <span class='object_link'><a href="#data-instance_method" title="Alfred::Internal#data (method)">#data</a></span> directory and load it from there.
+If they have already been downloaded, then they&#39;ll just be loaded.
+However, you still need to <code>require</code> everything.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_bundler'>bundler</span> <span class='op'>=</span> <span class='const'>Alfred</span><span class='op'>::</span><span class='const'>Bundler</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='id identifier rubyid_bundler'>bundler</span><span class='period'>.</span><span class='id identifier rubyid_gems'>gems</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>oauth</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plist</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>~&gt;3.1.0</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>plist</span><span class='tstring_end'>&#39;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>oauth</span><span class='tstring_end'>&#39;</span></span></code></pre>
+    
+  </div>
+
   <div class="docstring">
   <div class="discussion">
     
@@ -1110,76 +1179,31 @@
   
     <li>
       
-        <span class='name'>hash</span>
+        <span class='name'>gems</span>
       
       
         <span class='type'></span>
       
       
       
-    </li>
-  
-</ul>
-
-
-</div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>*gems</span>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>Arrays of <code>[&#39;gem_name&#39;]</code> or <code>[&#39;gem_name&#39;, &#39;gem_version&#39;]</code></p>
 </div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+
 </div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'></span>
-      
-      
-      
-        
-        <div class='inline'>
-<p>——– ?</p>
-</div>
-      
-    </li>
-  
-</ul>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#install_gem-instance_method" title="Alfred::Internal#install_gem (method)">#install_gem</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1189,8 +1213,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1203,18 +1226,18 @@
       <pre class="lines">
 
 
-246
-247
-248
-249
-250
-251
-252
-253
-254</pre>
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 246</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 304</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_gems'>gems</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_gems'>gems</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_gems'>gems</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_g'>g</span><span class='op'>|</span>
@@ -1241,12 +1264,58 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Loads an icon</p>
+
+<p>Passes the arguments to the internal icon object to do the work.</p>
+
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array, Strings</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>String file path to icon</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Icon.html#icon-instance_method" title="Alfred::Icon#icon (method)">Alfred::Icon#icon</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1256,8 +1325,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1270,12 +1338,12 @@
       <pre class="lines">
 
 
-316
-317
-318</pre>
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 316</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 207</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_icon'>icon</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='ivar'>@icon</span><span class='period'>.</span><span class='id identifier rubyid_icon'>icon</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1288,7 +1356,7 @@
       <div class="method_details ">
   <h3 class="signature " id="initialize_bundler_log-instance_method">
   
-    - (<tt>type</tt>) <strong>initialize_bundler_log</strong>(level = Logger::DEBUG) 
+    - (<tt>Object</tt>) <strong>initialize_bundler_log</strong>(level = Logger::DEBUG) 
   
 
   
@@ -1296,32 +1364,36 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize_bundler_log description
-<dd></dd></dl>
+    <p>Creates a console log and a file log for the bundler&#39;s use</p>
 
 
   </div>
 </div>
 <div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
     <li>
       
+        <span class='name'>level</span>
       
-        <span class='type'>(<tt>type</tt>)</span>
       
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>Logger::DEBUG</tt>)</em>
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>Object a Logger level
+(accepts: <code>Logger::DEBUG</code>, <code>Logger::INFO</code>, <code>Logger::WARN</code>, <code>Logger::ERROR</code>,
+<code>Logger::FATAL</code>)</p>
 </div>
       
     </li>
   
 </ul>
+
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1331,8 +1403,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1345,16 +1416,16 @@
       <pre class="lines">
 
 
-308
-309
-310
-311
-312
-313
-314</pre>
+366
+367
+368
+369
+370
+371
+372</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 308</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 366</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_bundler_log'>initialize_bundler_log</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>DEBUG</span><span class='rparen'>)</span>
   <span class='comment'># Create the bundler&#39;s log file
@@ -1371,7 +1442,7 @@
       <div class="method_details ">
   <h3 class="signature " id="initialize_deprecated-instance_method">
   
-    - (<tt>type</tt>) <strong>initialize_deprecated</strong> 
+    - (<tt>Object</tt>) <strong>initialize_deprecated</strong> 
   
 
   
@@ -1379,32 +1450,13 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize_deprecated description
-<dd></dd></dl>
+    <p>Sets the necessary variables to function if running Alfred &lt; v2.4:277</p>
 
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
-</div>
-      
-    </li>
-  
-</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1414,8 +1466,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1428,18 +1479,16 @@
       <pre class="lines">
 
 
-107
-108
-109
-110
-111</pre>
+120
+121
+122
+123</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 107</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 120</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_deprecated'>initialize_deprecated</span>
-  <span class='comment'># For Alfred &lt; v2.4:277
-</span>  <span class='ivar'>@name</span>   <span class='op'>=</span> <span class='id identifier rubyid_read_plist_value'>read_plist_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info.plist</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@name</span>   <span class='op'>=</span> <span class='id identifier rubyid_read_plist_value'>read_plist_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info.plist</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
   <span class='ivar'>@bundle</span> <span class='op'>=</span> <span class='id identifier rubyid_read_plist_value'>read_plist_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bundleid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info.plist</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1458,8 +1507,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize_logs description
-<dd></dd></dl>
+    <p>[initialize_logs description]</p>
 
 
   </div>
@@ -1480,8 +1528,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<h1 id="label-false+%5Btype%5D+%5Bdescription%5D">false [type] [description]</h1>
+        <div class='inline'><p>= false [type] [description]</p>
 </div>
       
     </li>
@@ -1499,8 +1546,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -1515,8 +1561,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1529,13 +1574,13 @@
       <pre class="lines">
 
 
-268
-269
-270
-271</pre>
+322
+323
+324
+325</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 268</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 322</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_logs'>initialize_logs</span><span class='lparen'>(</span> <span class='id identifier rubyid_user'>user</span> <span class='op'>=</span> <span class='kw'>false</span> <span class='rparen'>)</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_bundler_log'>initialize_bundler_log</span>
@@ -1549,7 +1594,7 @@
       <div class="method_details ">
   <h3 class="signature " id="initialize_modern-instance_method">
   
-    - (<tt>type</tt>) <strong>initialize_modern</strong> 
+    - (<tt>Object</tt>) <strong>initialize_modern</strong> 
   
 
   
@@ -1557,32 +1602,13 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize_modern description
-<dd></dd></dl>
+    <p>Sets the necessary variables to function if running Alfred &gt;= v2.4:277</p>
 
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
-</div>
-      
-    </li>
-  
-</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1592,8 +1618,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1606,20 +1631,16 @@
       <pre class="lines">
 
 
-94
-95
-96
-97
-98
-99
-100</pre>
+112
+113
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 94</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 112</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_modern'>initialize_modern</span>
-  <span class='comment'># For Alfred &gt;= v2.4:277
-</span>
   <span class='ivar'>@wf_data</span>    <span class='op'>=</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_workflow_data</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
   <span class='ivar'>@bundle</span>     <span class='op'>=</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_workflow_bundleid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
   <span class='ivar'>@name</span>       <span class='op'>=</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>alfred_workflow_name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
@@ -1632,7 +1653,7 @@
       <div class="method_details ">
   <h3 class="signature " id="initialize_user_log-instance_method">
   
-    - (<tt>type</tt>) <strong>initialize_user_log</strong>(level = Logger::INFO) 
+    - (<tt>Object</tt>) <strong>initialize_user_log</strong>(level = Logger::INFO) 
   
 
   
@@ -1640,32 +1661,38 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>initialize_user_log description
-<dd></dd></dl>
+    <p>Creates a file log for the workflow&#39;s use</p>
+
+<p>The log is created in the workflow&#39;s data directory with the name
+  <code>workflow_bundle_id.log</code> (accepts: <code>Logger::DEBUG</code>, <code>Logger::INFO</code>,
+  <code>Logger::WARN</code>, <code>Logger::ERROR</code>, <code>Logger::FATAL</code>)</p>
 
 
   </div>
 </div>
 <div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
     <li>
       
+        <span class='name'>level</span>
       
-        <span class='type'>(<tt>type</tt>)</span>
       
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>Logger::INFO</tt>)</em>
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>Object a Logger level</p>
 </div>
       
     </li>
   
 </ul>
+
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1675,8 +1702,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1689,12 +1715,12 @@
       <pre class="lines">
 
 
-278
-279
-280</pre>
+335
+336
+337</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 278</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 335</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize_user_log'>initialize_user_log</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>INFO</span><span class='rparen'>)</span>
   <span class='ivar'>@user</span> <span class='op'>=</span> <span class='const'>Alfred</span><span class='op'>::</span><span class='const'>Log</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@wf_data</span><span class='comma'>,</span> <span class='ivar'>@bundle</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.log</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
@@ -1707,7 +1733,7 @@
       <div class="method_details ">
   <h3 class="signature " id="install_gem-instance_method">
   
-    - (<tt>type</tt>) <strong>install_gem</strong>(name, version = Gem::Requirement.default) 
+    - (<tt>Object</tt>) <strong>install_gem</strong>(name, version = Gem::Requirement.default) 
   
 
   
@@ -1715,8 +1741,11 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>install_gem description
-<dd></dd></dl>
+    <p>Install a gem into the bundler&#39;s <span class='object_link'><a href="#data-instance_method" title="Alfred::Internal#data (method)">#data</a></span> directory</p>
+
+<p>This method should be called, internally, only from the <span class='object_link'><a href="#gems-instance_method" title="Alfred::Internal#gems (method)">#gems</a></span> method. The
+method sends a notification to inform the user that a gem is being
+installed because it might take a little while.</p>
 
 
   </div>
@@ -1730,13 +1759,12 @@
         <span class='name'>name</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String name of the gem to install</p>
 </div>
       
     </li>
@@ -1753,32 +1781,38 @@
       
       
         &mdash;
-        <div class='inline'>
-<h1 id="label-Gem%3A%3ARequirement.default+%5Btype%5D+%5Bdescription%5D">Gem::Requirement.default [type] [description]</h1>
+        <div class='inline'><p>String version of the gem</p>
 </div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Returns:</p>
-<ul class="return">
+<p class="tag_title">Raises:</p>
+<ul class="raise">
   
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        
+        <div class='inline'><p><code>Gem::GemNotFoundException</code> when the requested gem + version
+cannot be found.</p>
 </div>
       
     </li>
   
 </ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#gems-instance_method" title="Alfred::Internal#gems (method)">#gems</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -1788,8 +1822,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1802,23 +1835,23 @@
       <pre class="lines">
 
 
-221
-222
-223
-224
-225
-226
-227
-228
-229
-230
-231
-232
-233
-234</pre>
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 221</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 271</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_install_gem'>install_gem</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='const'>Gem</span><span class='op'>::</span><span class='const'>Requirement</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rubygems</span><span class='tstring_end'>&#39;</span></span>
@@ -1840,9 +1873,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="load-instance_method">
+  <h3 class="signature " id="is_there_a_plist?-instance_method">
   
-    - (<tt>type</tt>) <strong>load</strong>(*args) 
+    - (<tt>Boolean</tt>) <strong>is_there_a_plist?</strong> 
   
 
   
@@ -1850,47 +1883,42 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>load description
-<dd></dd></dl>
+    <p>Checks if an <code>info.plist</code> file is present</p>
 
 
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>*args</span>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
-</div>
-      
-    </li>
-  
-</ul>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>Bool</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StandardError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if no info.plist file is present</p>
 </div>
       
     </li>
@@ -1905,8 +1933,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -1919,17 +1946,119 @@
       <pre class="lines">
 
 
-134
-135
-136
-137
-138
-139
-140
-141
-142
-143
-144
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_there_a_plist?'>is_there_a_plist?</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>./info.plist</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The Alfred Bundler cannot be used if no info.plist file is present.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Loads an asset</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array an array of arguments to load ultimately, we need
+<code>type</code>, <code>name</code>, <code>version</code>, <code>json</code>. Only <code>type</code> and <code>name</code> are necessary.
+<code>version</code> defaults to &#39;latest&#39;, and <code>json</code> defaults to one of the
+&#39;defaults&#39;.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>String path to an asset or false when asset is not found</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StandardError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when asset is not found</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Since:</p>
+<ul class="since">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'><p>Taurus 1</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
 145
 146
 147
@@ -1941,10 +2070,22 @@
 153
 154
 155
-156</pre>
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 134</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 145</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_load_args'>parse_load_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1953,7 +2094,9 @@
   <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>version</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
   <span class='id identifier rubyid_json'>json</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>json</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
   <span class='id identifier rubyid_json'>json</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@data</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bundler</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meta</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>defaults</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_json'>json</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>default</span><span class='tstring_end'>&#39;</span></span>
-  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='id identifier rubyid_json'>json</span>
+  <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='id identifier rubyid_json'>json</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Asset </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>, type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
 
   <span class='comment'># We need to deal with utilities
 </span>  <span class='kw'>if</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utility</span><span class='tstring_end'>&#39;</span></span>
@@ -1967,7 +2110,6 @@
   <span class='comment'># This should install the asset; we might find a native way to do this later
 </span>  <span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='ivar'>@data</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/bundler/bundlets/alfred.bundler.sh&#39; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_json'>json</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>return</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
-
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1985,8 +2127,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>log description
-<dd></dd></dl>
+    <p>Returns [description]</p>
 
 
   </div>
@@ -2005,8 +2146,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -2023,8 +2163,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<h1 id="label-%27info%27+%5Btype%5D+%5Bdescription%5D">&#39;info&#39; [type] [description]</h1>
+        <div class='inline'><p>= &#39;info&#39; [type] [description]</p>
 </div>
       
     </li>
@@ -2042,8 +2181,7 @@
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>[description]</p>
 </div>
       
     </li>
@@ -2058,8 +2196,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2072,15 +2209,15 @@
       <pre class="lines">
 
 
-289
-290
-291</pre>
+346
+347
+348</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 289</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 346</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
-  <span class='ivar'>@file</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_fix_level'>fix_level</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='ivar'>@file</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_normalize_log_level'>normalize_log_level</span><span class='lparen'>(</span><span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2090,7 +2227,7 @@
       <div class="method_details ">
   <h3 class="signature " id="notify-instance_method">
   
-    - (<tt>Object</tt>) <strong>notify</strong>(title, message, icon = &#39;icon.png&#39;) 
+    - (<tt>type</tt>) <strong>notify</strong>(title, message, icon = &#39;icon.png&#39;) 
   
 
   
@@ -2098,12 +2235,81 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>[notify description]</p>
+
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>title</span>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[description]</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>message</span>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[description]</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>icon</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;icon.png&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>= &#39;icon.png&#39; [type] [description]</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>type</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[description]</p>
+</div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -2113,8 +2319,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2127,28 +2332,28 @@
       <pre class="lines">
 
 
-325
-326
-327
-328
-329
-330
-331
-332
-333
-334
-335
-336
-337
-338
-339
-340
-341
-342
-343</pre>
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 325</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 382</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_notify'>notify</span><span class='lparen'>(</span><span class='id identifier rubyid_title'>title</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='comma'>,</span> <span class='id identifier rubyid_icon'>icon</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>icon.png</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_wrapper'>wrapper</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cocoadialog</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -2178,11 +2383,11 @@
   <h3 class="signature " id="parse_load_args-instance_method">
   
     
-      <span class="overload">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+      <span class="overload">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
     
-      <span class="overload">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+      <span class="overload">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
     
-      <span class="overload">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+      <span class="overload">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
     
   
 
@@ -2191,8 +2396,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>parse_load_args description
-<dd></dd></dl>
+    <p>Parses the arguments sent to the <code>load</code> method to make them usable</p>
 
 
   </div>
@@ -2204,7 +2408,7 @@
     
       
       <li class="overload_item">
-        <span class="signature">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+        <span class="signature">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
         <div class="docstring">
   <div class="discussion">
     
@@ -2217,12 +2421,16 @@
   
     <li>
       
-        <span class='name'>hash</span>
+        <span class='name'>args</span>
       
       
         <span class='type'></span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>Hash</p>
+</div>
       
     </li>
   
@@ -2234,7 +2442,7 @@
     
       
       <li class="overload_item">
-        <span class="signature">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+        <span class="signature">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
         <div class="docstring">
   <div class="discussion">
     
@@ -2247,12 +2455,16 @@
   
     <li>
       
-        <span class='name'>array</span>
+        <span class='name'>args</span>
       
       
         <span class='type'></span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>Array</p>
+</div>
       
     </li>
   
@@ -2264,7 +2476,7 @@
     
       
       <li class="overload_item">
-        <span class="signature">- (<tt>type</tt>) <strong>parse_load_args</strong>(args) </span>
+        <span class="signature">- (<tt>Object</tt>) <strong>parse_load_args</strong>(args) </span>
         <div class="docstring">
   <div class="discussion">
     
@@ -2277,34 +2489,61 @@
   
     <li>
       
-        <span class='name'></span>
+        <span class='name'>type</span>
       
       
         <span class='type'></span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>String</p>
+</div>
       
     </li>
   
     <li>
       
-        <span class='name'></span>
+        <span class='name'>name</span>
       
       
         <span class='type'></span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>String</p>
+</div>
       
     </li>
   
     <li>
       
-        <span class='name'></span>
+        <span class='name'>version</span>
       
       
         <span class='type'></span>
       
       
+      
+        &mdash;
+        <div class='inline'><p>String</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>json</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String</p>
+</div>
       
     </li>
   
@@ -2315,26 +2554,6 @@
       </li>
     
   </ul>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>*args</span>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
-</div>
-      
-    </li>
-  
-</ul>
 
 <p class="tag_title">Returns:</p>
 <ul class="return">
@@ -2342,18 +2561,26 @@
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        
+        <div class='inline'><p>Hash has keys: <code>type</code>, <code>name</code>, <code>version</code>, <code>json</code></p>
 </div>
       
     </li>
   
 </ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#load-instance_method" title="Alfred::Internal#load (method)">#load</a></span></li>
+    
+      <li><span class='object_link'><a href="#utility-instance_method" title="Alfred::Internal#utility (method)">#utility</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -2363,8 +2590,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2377,20 +2603,20 @@
       <pre class="lines">
 
 
-176
-177
-178
-179
-180
-181
-182
-183
-184
-185
-186</pre>
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 176</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 242</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_parse_load_args'>parse_load_args</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
@@ -2409,84 +2635,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="plist_check-instance_method">
-  
-    - (<tt>type</tt>) <strong>plist_check</strong> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>plist_check description
-<dd></dd></dl>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>type</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Since:</p>
-<ul class="since">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>Taurus 1</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-74
-75
-76</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 74</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_plist_check'>plist_check</span>
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No plist exists.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fatal</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>./info.plist</span><span class='tstring_end'>&#39;</span></span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
   <h3 class="signature " id="read_plist_value-instance_method">
   
-    - (<tt>type</tt>) <strong>read_plist_value</strong>(key, plist) 
+    - (<tt>Object</tt>) <strong>read_plist_value</strong>(key, plist) 
   
 
   
@@ -2494,8 +2645,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <dl class="rdoc-list label-list"><dt>read_plist_value description
-<dd></dd></dl>
+    <p>Reads a value from a plist</p>
 
 
   </div>
@@ -2509,13 +2659,12 @@
         <span class='name'>key</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String the key to read</p>
 </div>
       
     </li>
@@ -2525,13 +2674,12 @@
         <span class='name'>plist</span>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
         &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        <div class='inline'><p>String file name for the plist to read</p>
 </div>
       
     </li>
@@ -2544,13 +2692,12 @@
     <li>
       
       
-        <span class='type'>(<tt>type</tt>)</span>
+        <span class='type'></span>
       
       
       
-        &mdash;
-        <div class='inline'><dl class="rdoc-list label-list"><dt>description
-<dd></dd></dl>
+        
+        <div class='inline'><p>String the value of the key called for in the plist</p>
 </div>
       
     </li>
@@ -2565,8 +2712,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2579,12 +2725,12 @@
       <pre class="lines">
 
 
-120
-121
-122</pre>
+130
+131
+132</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 120</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 130</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_read_plist_value'>read_plist_value</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_plist'>plist</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='backtick'>`</span><span class='tstring_content'>/usr/libexec/PlistBuddy -c &#39;Print :</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_plist'>plist</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>`</span></span>
@@ -2605,14 +2751,59 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Use a has or string args</p>
+    <p>Loads a utility</p>
+
+<p>A wrapper function for <span class='object_link'><a href="#load-instance_method" title="Alfred::Internal#load (method)">#load</a></span></p>
 
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array random arguments, takes a set of strings, an array, or
+a hash</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>String path to asset</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#load-instance_method" title="Alfred::Internal#load (method)">#load</a></span></li>
+    
+  </ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -2622,8 +2813,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2636,6 +2826,15 @@
       <pre class="lines">
 
 
+180
+181
+182
+183
+184
+185
+186
+187
+188
 189
 190
 191
@@ -2643,19 +2842,10 @@
 193
 194
 195
-196
-197
-198
-199
-200
-201
-202
-203
-204
-205</pre>
+196</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 180</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_utility'>utility</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;</span> <span class='int'>1</span>
@@ -2690,12 +2880,51 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Loads a wrapper file</p>
+
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>wrapper</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String name of the wrapper
+currently, the only values currently accepted are <code>cocoadialog</code> and
+<code>terminalnotifier</code></p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'><p>StandardError when wrapper file does not exist</p>
+</div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Since:</p>
 <ul class="since">
   
@@ -2705,8 +2934,7 @@
       
       
         
-        <div class='inline'>
-<p>Taurus 1</p>
+        <div class='inline'><p>Taurus 1</p>
 </div>
       
     </li>
@@ -2719,17 +2947,23 @@
       <pre class="lines">
 
 
-320
-321
-322
-323</pre>
+216
+217
+218
+219
+220
+221
+222</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 320</span>
+      <pre class="code"><span class="info file"># File 'bundler/AlfredBundler.rb', line 216</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wrapper'>wrapper</span><span class='lparen'>(</span><span class='id identifier rubyid_wrapper'>wrapper</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_wrapper'>wrapper</span><span class='period'>.</span><span class='id identifier rubyid_downcase!'>downcase!</span>
-  <span class='id identifier rubyid_require_relative'>require_relative</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>includes</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wrappers</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ruby</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_wrapper'>wrapper</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.rb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_wrapper'>wrapper</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>includes</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wrappers</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ruby</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wrapper'>wrapper</span><span class='embexpr_end'>}</span><span class='tstring_content'>.rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StandardError</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Wrapper </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wrapper'>wrapper</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span> <span class='id identifier rubyid_wrapper'>wrapper</span>
+  <span class='id identifier rubyid_require_relative'>require_relative</span> <span class='id identifier rubyid_wrapper'>wrapper</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2741,7 +2975,7 @@
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 04:20:45 2014 by
+  Generated on Fri Aug 22 22:06:56 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>

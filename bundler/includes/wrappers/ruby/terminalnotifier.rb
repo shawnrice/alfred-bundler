@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # Ruby API for interacting with OSX notification spawner TerminalNotifier.
-# 
+#
 # ..module:: terminalnotifier
 #     :platform: MacOSX
 #     :synopsis: Ruby API for interacting with OSX notification spawner TerminalNotifier.
@@ -9,41 +9,41 @@
 #
 # Copyright: 2014 Ritashugisha
 # License: GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>
-# 
+#
 # Terminal Notifier is a resource which allows the user to spawn MacOSX notifications
 # from the command-line. Notifications return no information.
-# 
+#
 # `Official Documentation <https://github.com/alloy/terminal-notifier>`_.
 # `License GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>`_.
 #
 # Design decisions were made to improve simplicity in the implementation of the API.
-# 
+#
 # **Note**: This module is documented mirroring Python Sphinx documentation.
 #
 # -> Usage
 # =============================================================================
-# 
-# To include this api in your Ruby scripts, copy this ``terminalnotifier.rb`` 
+#
+# To include this api in your Ruby scripts, copy this ``terminalnotifier.rb``
 # to a viable place to require.
-# 
+#
 # Load the TerminalNotifier client:
-# 
+#
 #     require './terminalnotifier'
 #     @client = TerminalNotifier.new('path to terminal-notifer.app or exec', @debug=Boolean)
-#     
-# Now that you have access to the client, you can call a notification: 
+#
+# Now that you have access to the client, you can call a notification:
 #
 #     my_notification = @client.notifiy(
 #         title:'My Notification',
 #         subtitle:'Hello, World!',
 #         message:'Have a nice day!',
 #         sender:'com.apple.Finder')
-# 
+#
 # **NOTE**: The included `debug` parameter is very useful for finding out why
 # your specified parameters are not being shown, or why your parameters are not
 # passing as valid parameters, and thus the dialog is not being spawned.
-# 
-# 
+#
+#
 # -> Revisions
 # =============================================================================
 # 1.0, 07-28-14: Initial release
@@ -52,12 +52,12 @@ $AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
 $DATE = '07-28-14'
 $VERSION = 1.0
 
-
+module Alfred
 # Main class used for interaction with TerminalNotifier.
-# 
+#
 # Class used to initialize the TerminalNotifier interaction client.
 # Client build by:
-# 
+#
 #    client = TerminalNotifier.new('path to terminal-notifier.app or exec', @debug=Boolean)
 #
 # Initializes valid and required options.
@@ -113,7 +113,7 @@ class TerminalNotifier
             valid_notifier = false
         end
         if !valid_notifier
-            self.class.log('critical', __method__, __LINE__, 
+            self.class.log('critical', __method__, __LINE__,
                 'invalid path to terminal-notifier (%s)' % [@@notifier])
             abort
         end
@@ -135,7 +135,7 @@ class TerminalNotifier
     end
 
     # Run a subprocess and return the output
-    # 
+    #
     # :param passed: Process to be run
     # :type passed: str
     # :returns: Output of process
@@ -161,7 +161,7 @@ class TerminalNotifier
         passed.keys.each do |passed_key|
             if @@valid_options.keys.include? passed_key.to_s
                 unless @@valid_options[passed_key.to_s].include? passed[passed_key].class
-                    self.class.log('warning', __method__, __LINE__, 
+                    self.class.log('warning', __method__, __LINE__,
                         'removing (%s) invalid type, expected (%s), got (%s)' % [
                             passed_key.to_s,
                             @@valid_options[passed_key.to_s].join(' or '),
@@ -169,7 +169,7 @@ class TerminalNotifier
                     passed.delete(passed_key)
                 end
             else
-                self.class.log('warning', __method__, __LINE__, 
+                self.class.log('warning', __method__, __LINE__,
                     'removing (%s) invalid parameter, available are (%s)' % [
                         passed_key.to_s, @@valid_options.keys.join(', ')])
                 passed.delete(passed_key)
@@ -205,7 +205,7 @@ class TerminalNotifier
     # :param passed: Notification arguments
     # :type passed: hash
     def _display(passed)
-        @process = ['\'%s\'' % @@notifier] 
+        @process = ['\'%s\'' % @@notifier]
         new_passed = {}
         passed.each_pair do |k,v|
             # It is important we escape the first character of every
@@ -220,7 +220,7 @@ class TerminalNotifier
     end
 
     # Spawn a notification with passed arguments
-    # 
+    #
     # :param _passed: Notification arguments
     # :type _passed: hash
     def notify(_passed)
@@ -229,5 +229,7 @@ class TerminalNotifier
         end
     end
 
+
+end
 
 end
