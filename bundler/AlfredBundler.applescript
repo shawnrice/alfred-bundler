@@ -118,6 +118,25 @@ end get_icon
 MAIN ACTION HANDLERS 
 /// *)
 
+on _log(_handler, _level, _message)
+	--# Ensure log file exists
+	my _check_file(BUNDLER_LOGFILE)
+	delay 0.1 -- delay to ensure IO action is completed
+	--# Prepare time string format %Y-%m-%d %H:%M:%S
+	set log_time to "[" & (my date_format()) & "]"
+	set formatted_time to text items 1 thru -4 of (time string of (current date)) as string
+	set error_time to "[" & formatted_time & "]"
+	--# Prepare location message
+	set _location to "[bundler.scpt:" & _handler & "]"
+	--# Prepare level message
+	set _level to "[" & _level & "]"
+	--# Generate full error message for logging
+	set log_msg to (ASCII character 10) & log_time & space & _location & space & _level & tab & _message
+	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
+	--# Generate regular error message for returning to user
+	set error_msg to error_time & space & _location & space & _level & tab & _message
+	return error_msg
+end _log
 
 (* ///
 SUB-ACTION HANDLERS
