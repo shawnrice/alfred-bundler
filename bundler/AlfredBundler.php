@@ -482,7 +482,7 @@ class AlfredBundlerInternalClass {
    */
   public function composer( $packages ) {
 
-    if ( ! file_exists( $this->composerDir = "{$this->data}/data/assets/php/composer"; ) )
+    if ( ! file_exists( $this->composerDir = "{$this->data}/data/assets/php/composer" ) )
       mkdir( $this->composerDir, 0775, TRUE );
 
     $this->installComposer();
