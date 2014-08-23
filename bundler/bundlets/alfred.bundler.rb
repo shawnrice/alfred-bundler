@@ -1,6 +1,23 @@
-#!/bin/ruby
+#!/usr/bin/ruby
 
-# All of these are native
+#  Ruby wrapper for the Alfred Bundler
+#
+# ..module:: Alfred
+#   :platform: MaxOSX
+# ..moduleauthor: The Alfred Bundler Team
+#
+#  Main Ruby file for the Alfred Bundler.
+#
+#  This file is part of the Alfred Bundler, released under the MIT licence.
+#  Copyright (c) 2014 The Alfred Bundler Team
+#  See https://github.com/shawnrice/alfred-bundler for more information
+#
+#  @copyright  The Alfred Bundler Team 2014
+#  @license    http://opensource.org/licenses/MIT  MIT
+#  @version    Taurus 1
+#  @since      File available since Taurus 1
+
+# All of these are native and necessary for the bundler to work
 require 'uri'
 require 'fileutils'
 require 'open-uri'
@@ -8,14 +25,20 @@ require 'logger'
 require 'pathname'
 require 'digest'
 
-
+# Namespace for the Alfred Bundler
 #
-# [module description]
-#
+# @see http://shawnrice.github.io/alfred-bundler Documentation
 # @author The Alfred Bundler Team
+# @since Taurus 1
 #
 module Alfred
 
+  # Exception class for various problems when installing the Alfred Bundler
+  #
+  # @see Bundler#install_bundler
+  #
+  # @author The Alfred Bundler Team
+  #
   class BundlerInstallError < RuntimeError
 
     attr :reason
@@ -26,55 +49,64 @@ module Alfred
 
   end
 
+  # External wrapper for the Bundler's {Internal internal class} (that does all
+  # the work).
   #
-  # [class description]
+  # @see Internal
+  # @see Icon
+  # @see Log
+  # @see HTTP
   #
   # @author The Alfred Bundler Team
   #
   class Bundler
 
+    # The Bundler's data directory
+    #
+    # `~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-taurus`
     attr_reader :data
 
+    # The class constructor
     #
-    # [initialize description]
-    # @param options = {} [type] [description]
+    # Sets up the bundler for use and intiantiates the internal bundler object;
+    # also, installs the bundler if it isn't already installed.
+    #
+    # @param options Hash a set of options to customize the behavior of the
+    # bundler instance
     #
     # @return [type] [description]
     def initialize(options = {})
 
+    # The major version of the Bundler
     @major_version = 'devel'
 
+    # The user's home folder
     @home  = File.expand_path('~/')
+
+    # The Bundler's data directory
     @data  = File.join(@home, 'Library', 'Application Support', 'Alfred 2',
               'Workflow Data', 'alfred.bundler-' + @major_version)
 
+    # the Bunder's cache directory
     @cache = File.join(@home, 'Library', 'Caches',
               'com.runningwithcrayons.Alfred-2', 'Workflow Data',
               'alfred.bundler-' + @major_version)
 
+    # the name of the workflow
     @name  = get_workflow_name.chomp
-
 
     # For development, we'll use the AlfredBundler.rb file that we're editing
     @bundler = File.join(@data, 'bundler', 'AlfredBundler.rb')
     # @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
 
-      # unless File.exists? @bundler
-        ## Let's reset everything here...
-        if File.directory?(@data)
-          command = "rm -fR '#{@data}'"
-          success = system(command)
-        end
-        if File.directory?(@cache)
-          command = "rm -fR '#{@cache}'"
-          success = system(command)
-        end
-
-        ### And let's reinstall
+      unless File.exists? @bundler
         self.install_bundler unless confirm_installation == 'Proceed'
         installed = true
-      # end
+      end
 
+      ####
+      #### @TODO REMOVE BEFORE PUSHING
+      ####
       # For testing...
       @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
       # End for testing...
@@ -83,30 +115,38 @@ module Alfred
 
       # Initialize an internal object
       @internal = Internal.new(@data, @cache)
+      # Send a notification informing that the bundler has been installed
       @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
     end
 
+    # Sends everything unrecognized to the bundler backend
+    #
+    # @see Internal
+    #
+    # @param name String the unrecognized method
+    # @param *arguments Array an array of the arguments
+    #
+    # @return Mixed whatever the Bundler backend sends to us
     def method_missing(name, *arguments)
       @internal.send("#{name}", *arguments)
     end
 
+    # Reads a value from a plist
     #
-    # [read_plist_value description]
-    # @param key [type] [description]
-    # @param plist [type] [description]
+    # @param key String the key in a plist
+    # @param plist String path to the plist file
     #
-    # @return [type] [description]
+    # @return String the value of the key to be read
     def read_plist_value(key, plist)
       return `/usr/libexec/PlistBuddy -c 'Print :#{key}' '#{plist}'`
     end
 
     # @!group Install Functions
 
-
+    # Creates the necessary directories for the Bundler to function
     #
-    # [make_install_directories description]
+    # @see #install_bundler
     #
-    # @return [type] [description]
     def make_install_directories
       directories = [
         @data,
@@ -124,26 +164,23 @@ module Alfred
       ]
 
       directories.each { |dir| FileUtils.mkpath(dir) unless File.directory?(dir) }
-
     end
 
+    # Unzips a file using a shell command
     #
-    # [unzip description]
-    # @param file [type] [description]
-    # @param destination [type] [description]
+    # @param file String a path to the file to unzip
+    # @param destination String a path to the destination where the file will
+    #   be unzipped
     #
-    # @return [type] [description]
+    # @return Int exit status of the unzip action
     def unzip(file, destination)
       command = "cd \"#{destination}\"; unzip -oq #{file}; cd - 1>&2 > /dev/null"
       success = system(command)
       success && $?.exitstatus == 0
     end
 
-
+    # Installs the Alfred Bundler
     #
-    # [install_bundler description]
-    #
-    # @return [type] [description]
     def install_bundler
 
       # Make all the directories
@@ -189,7 +226,15 @@ module Alfred
 
     end
 
-    def get_confurm_dialog_icon
+    # Gets the appropriate icon for the AppleScript dialog
+    #
+    # First, try to use the workflow's `icon.png` file but fallback to a system
+    # icon.
+    #
+    # @see #construct_confirm_dialog
+    #
+    # @return String path to an icon
+    def get_confirm_dialog_icon
       icon =  ":System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:"
       icon << "SideBarDownloadsFolder.icns"
       icon = File.expand_path('icon.png').gsub('/', ':') if File.exists? 'icon.png'
@@ -197,9 +242,15 @@ module Alfred
       return icon
     end
 
+    # Cobbles together an AppleScript dialog to confirm installation
+    #
+    # @see #install_bundler
+    # @see #do_confirm_dialog
+    #
+    # @return String the text of a full AppleScript dialog
     def construct_confirm_dialog
       name = get_workflow_name.chomp
-      icon = get_confurm_dialog_icon
+      icon = get_confirm_dialog_icon
       script =  "display dialog \"#{text}\" "
       script << "\"#{name} needs to install additional components, which will be "
       script << "placed in the Alfred storage directory and will not interfere "
@@ -213,15 +264,33 @@ module Alfred
       return script
     end
 
+    # Reads the name of the workflow from the `info.plist` file
+    #
+    # @return String the name of the workflow
     def get_workflow_name
       return `/usr/libexec/PlistBuddy -c 'Print :name' 'info.plist'`
     end
 
+    # Grabs the code for an AppleScript dialog and executes it
+    #
+    # @see #confirm_installation
+    #
+    # @return String the button pressed on the applescript
     def do_confirm_dialog
       dialog = construct_confirm_dialog
       return `osascript -e '#{dialog}'`.gsub('button returned:', '')
     end
 
+    # Asks the user for confirmation to install the Alfred Bundler
+    #
+    # Uses an AppleScript dialog to get confirmation
+    #
+    # @see #install_bundler
+    #
+    # @raise Alfred::BundlerInstallError when user asks for more information
+    # @raise Alfred::BundlerInstallError when the user denies installation
+    #
+    # @return Bool either return `true` or raise an exception
     def confirm_installation
       result = do_confirm_dialog.chomp
       if result == 'More Info'
@@ -235,9 +304,7 @@ module Alfred
         'User canceled installation of the Alfred Bundler.'
     end
 
-
     # @!endgroup
-
 
   end
 end

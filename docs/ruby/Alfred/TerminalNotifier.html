@@ -4,26 +4,26 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>
-  Class: TerminalNotifier
+  Class: Alfred::TerminalNotifier
   
     &mdash; Documentation by YARD 0.8.7.4
   
 </title>
 
-  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
 
-  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
 
 <script type="text/javascript" charset="utf-8">
   hasFrames = window.top.frames.main ? true : false;
-  relpath = '';
-  framesUrl = "frames.html#!TerminalNotifier.html";
+  relpath = '../';
+  framesUrl = "../frames.html#!Alfred/TerminalNotifier.html";
 </script>
 
 
-  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
 
-  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
 
 
   </head>
@@ -31,9 +31,9 @@
     <div id="header">
       <div id="menu">
   
-    <a href="_index.html">Index (T)</a> &raquo;
-    
-    
+    <a href="../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Alfred.html" title="Alfred (module)">Alfred</a></span></span>
+     &raquo; 
     <span class="title">TerminalNotifier</span>
   
 
@@ -43,17 +43,17 @@
       <div id="search">
   
     <a class="full_list_link" id="class_list_link"
-        href="class_list.html">
+        href="../class_list.html">
       Class List
     </a>
   
     <a class="full_list_link" id="method_list_link"
-        href="method_list.html">
+        href="../method_list.html">
       Method List
     </a>
   
     <a class="full_list_link" id="file_list_link"
-        href="file_list.html">
+        href="../file_list.html">
       File List
     </a>
   
@@ -63,7 +63,7 @@
 
     <iframe id="search_frame"></iframe>
 
-    <div id="content"><h1>Class: TerminalNotifier
+    <div id="content"><h1>Class: Alfred::TerminalNotifier
   
   
   
@@ -78,7 +78,7 @@
         <ul class="fullTree">
           <li>Object</li>
           
-            <li class="next">TerminalNotifier</li>
+            <li class="next">Alfred::TerminalNotifier</li>
           
         </ul>
         <a href="#" class="inheritanceTree">show all</a>
@@ -316,7 +316,7 @@ Client build by:</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    - (<tt><span class='object_link'><a href="" title="TerminalNotifier (class)">TerminalNotifier</a></span></tt>) <strong>initialize</strong>(notifier, debug = false) 
+    - (<tt><span class='object_link'><a href="" title="Alfred::TerminalNotifier (class)">TerminalNotifier</a></span></tt>) <strong>initialize</strong>(notifier, debug = false) 
   
 
   
@@ -395,7 +395,7 @@ Client build by:</p>
         <span class='id identifier rubyid_valid_notifier'>valid_notifier</span> <span class='op'>=</span> <span class='kw'>false</span>
     <span class='kw'>end</span>
     <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_valid_notifier'>valid_notifier</span>
-        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span> 
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span>
             <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>invalid path to terminal-notifier (%s)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span><span class='cvar'>@@notifier</span><span class='rbracket'>]</span><span class='rparen'>)</span>
         <span class='id identifier rubyid_abort'>abort</span>
     <span class='kw'>end</span>
@@ -548,7 +548,7 @@ Client build by:</p>
       <pre class="code"><span class="info file"># File 'bundler/includes/wrappers/ruby/terminalnotifier.rb', line 207</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid__display'>_display</span><span class='lparen'>(</span><span class='id identifier rubyid_passed'>passed</span><span class='rparen'>)</span>
-    <span class='ivar'>@process</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;%s\&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='cvar'>@@notifier</span><span class='rbracket'>]</span> 
+    <span class='ivar'>@process</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;%s\&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='cvar'>@@notifier</span><span class='rbracket'>]</span>
     <span class='id identifier rubyid_new_passed'>new_passed</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
     <span class='id identifier rubyid_passed'>passed</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
         <span class='comment'># It is important we escape the first character of every
@@ -705,7 +705,7 @@ Client build by:</p>
 </span>    <span class='id identifier rubyid_passed'>passed</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='op'>|</span>
         <span class='kw'>if</span> <span class='cvar'>@@valid_options</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_passed_key'>passed_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
             <span class='kw'>unless</span> <span class='cvar'>@@valid_options</span><span class='lbracket'>[</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_passed'>passed</span><span class='lbracket'>[</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
-                <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warning</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span> 
+                <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warning</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span>
                     <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>removing (%s) invalid type, expected (%s), got (%s)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span>
                         <span class='id identifier rubyid_passed_key'>passed_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
                         <span class='cvar'>@@valid_options</span><span class='lbracket'>[</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> or </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
@@ -713,7 +713,7 @@ Client build by:</p>
                 <span class='id identifier rubyid_passed'>passed</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='rparen'>)</span>
             <span class='kw'>end</span>
         <span class='kw'>else</span>
-            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warning</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span> 
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>warning</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___method__'>__method__</span><span class='comma'>,</span> <span class='kw'>__LINE__</span><span class='comma'>,</span>
                 <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>removing (%s) invalid parameter, available are (%s)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span>
                     <span class='id identifier rubyid_passed_key'>passed_key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='cvar'>@@valid_options</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
             <span class='id identifier rubyid_passed'>passed</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_passed_key'>passed_key</span><span class='rparen'>)</span>
@@ -800,7 +800,7 @@ Client build by:</p>
 </div>
 
     <div id="footer">
-  Generated on Fri Aug 22 20:52:33 2014 by
+  Generated on Fri Aug 22 21:44:48 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.0.0).
 </div>
