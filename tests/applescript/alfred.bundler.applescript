@@ -10,9 +10,9 @@ property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow 
 on load_bundler()
 	(* Load `AlfredBundler.scpt` from the Alfred-Bundler directory as a script object. 
 	If the Alfred-Bundler directory does not exist, install it (using `_bootstrap()`).
-	
+
 	:returns: ``script object``
-	
+
 	*)
 	--# Check if Alfred-Bundler is installed
 	if (my _folder_exists(BUNDLER_DIR)) is not equal to true then
@@ -30,9 +30,9 @@ end load_bundler
 on _bootstrap()
 	(* Check if bundler bash bundlet is installed and install it if not.
 
-    	:returns: ``None``
-		
-    	*)
+	:returns: ``None``
+
+	*)
 	set shell_bundlet to quoted form of ((my _pwd()) & "alfred.bundler.sh")
 	set shell_cmd to shell_bundlet & " utility CocoaDialog"
 	set cmd to my _prepare_cmd(shell_cmd)
@@ -45,9 +45,9 @@ end _bootstrap
 on _pwd()
 	(* Get path to "present working directory", i.e. the workflow's root directory.
 
-    	:returns: ``string`` (POSIX path)
-		
-    	*)
+	:returns: ``string`` (POSIX path)
+
+	*)
 	--# Save default AS delimiters, and set delimiters to "/"
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
 	--# Get POSIX path of script's directory
@@ -60,13 +60,13 @@ end _pwd
 on _prepare_cmd(_cmd)
 	(* Ensure shell `_cmd` is working from the property directory.
 	For testing purposes, it also sets the `AB_BRANCH` environmental variable.
-	
+
 	:param _cmd: Shell command to be run in `do shell script`
-    	:type _cmd: ``string``
+	:type _cmd: ``string``
 	:returns: Shell command with `pwd` set properly
-    	:returns: ``string``
+	:returns: ``string``
 		
-    	*)
+	*)
 	--# Ensure `pwd` is properly quoted for shell command
 	set pwd to quoted form of (my _pwd())
 	--# Declare environmental variable
@@ -78,12 +78,12 @@ end _prepare_cmd
 
 on _folder_exists(_folder)
 	(* Return ``true`` if `_folder` exists, else ``false``
-	
+
 	:param _folder: Full path to directory
-    	:type _folder: ``string`` (POSIX path)
-    	:returns: ``Boolean``
-		
-    	*)
+	:type _folder: ``string`` (POSIX path)
+	:returns: ``Boolean``
+
+	*)
 	if my _path_exists(_folder) then
 		tell application "System Events"
 			return (class of (disk item _folder) is folder)
@@ -94,12 +94,12 @@ end _folder_exists
 
 on _path_exists(_path)
 	(* Return ``true`` if `_path` exists, else ``false``
-	
+
 	:param _path: Any POSIX path (file or folder)
-    	:type _path: ``string`` (POSIX path)
-    	:returns: ``Boolean``
-		
-    	*)
+	:type _path: ``string`` (POSIX path)
+	:returns: ``Boolean``
+
+	*)
 	if _path is missing value or my _is_empty(_path) then return false
 	try
 		if class of _path is alias then return true
@@ -119,12 +119,12 @@ end _path_exists
 
 on _is_empty(_obj)
 	(* Return ``true`` if `_obj ` is empty, else ``false``
-	
+
 	:param _obj: Any Applescript type
-    	:type _obj: (optional)
-    	:returns: ``Boolean``
+	:type _obj: (optional)
+	:returns: ``Boolean``
 		
-    	*)
+	*)
 	--# Is `_obj ` a ``Boolean``?
 	if {true, false} contains _obj then return false
 	--# Is `_obj ` a ``missing value``?
@@ -135,12 +135,12 @@ end _is_empty
 
 on _trim(_str)
 	(* Remove white space from beginning and end of `_str`
-	
+
 	:param _str: A text string
-    	:type _str: ``string``
-    	:returns: trimmed string
-		
-    	*)
+	:type _str: ``string``
+	:returns: trimmed string
+
+	*)
 	if class of _str is not text or class of _str is not string or _str is missing value then return _str
 	if _str is "" then return _str
 	repeat while _str begins with " "
