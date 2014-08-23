@@ -19,7 +19,7 @@ end load_bundler
 (* AUTO-DOWNLOAD BUNDLER *)
 
 on _bootstrap()
-	(*Check if bundler bash bundlet is installed and install it if not.
+	(* Check if bundler bash bundlet is installed and install it if not.
 
     	:returns: ``None``
     	*)
