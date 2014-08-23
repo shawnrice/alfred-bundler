@@ -3,15 +3,16 @@ property _home : POSIX path of (path to "cusr" as text)
 property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 
 (* MAIN API FUNCTION *)
+my _bundler_exists()
 
 on load_bundler()
-	if (my _bundler_exists()) is not equal to true then
+	if (my _folder_exists(BUNDLER_DIR)) is not equal to true then
 		my _bootstrap()
 	end if
-	set applescript_test_dir to my _pwd()
-	set test_dir to my _dirname(applescript_test_dir)
-	set BUNDLER_DIR to my _dirname(test_dir)
-	set as_bundler to BUNDLER_DIR & "bundler/AlfredBundler.scpt"
+	set applescript_test_dir to (my _pwd())
+	set test_dir to (my _dirname(applescript_test_dir))
+	set BUNDLER_DIR to (my _dirname(test_dir))
+	set as_bundler to (BUNDLER_DIR & "bundler/AlfredBundler.scpt")
 	return load script as_bundler
 end load_bundler
 
@@ -22,34 +23,14 @@ on _bootstrap()
 
     	:returns: ``None``
     	*)
-	set shell_bundlet to quoted form of (my _load_shell_bundlet())
+	set shell_bundlet to quoted form of ((my _pwd()) & "alfred.bundler.sh")
 	set shell_cmd to shell_bundlet & " utility CocoaDialog"
 	set cmd to my _prepare_cmd(shell_cmd)
 	do shell script cmd
-	set the_bundler to true
+	return true
 end _bootstrap
 
 (* HELPER HANDLERS *)
-
-on _bundler_exists()
-	try
-		set _exists to B's _folder_exists(BUNDLER_DIR)
-	on error
-		set B to my _load_bundler()
-		set _exists to B's _folder_exists(BUNDLER_DIR)
-	end try
-	return _exists
-end _bundler_exists
-
-on _load_shell_bundlet()
-	set bundlet to (my _pwd()) & "alfred.bundler.sh"
-end _load_shell_bundlet
-
-on _prepare_cmd(cmd)
-	set pwd to quoted form of (my _pwd())
-	set testing_var to "export AB_BRANCH=devel; "
-	return testing_var & "cd " & pwd & "; bash " & cmd
-end _prepare_cmd
 
 on _pwd()
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
@@ -57,6 +38,13 @@ on _pwd()
 	set AppleScript's text item delimiters to ASTID
 	return _path
 end _pwd
+
+on _prepare_cmd(_cmd)
+	set pwd to quoted form of (my _pwd())
+	set testing_var to "export AB_BRANCH=devel; "
+	--#TODO: remove for final release
+	return testing_var & "cd " & pwd & "; bash " & _cmd
+end _prepare_cmd
 
 on _dirname(_file)
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
@@ -91,3 +79,29 @@ on _path_exists(_path)
 		return false
 	end try
 end _path_exists
+
+on _is_empty(str)
+	if {true, false} contains str then return false
+	if str is missing value then return true
+	return length of (my _trim(str)) is 0
+end _is_empty
+
+on _trim(str)
+	if class of str is not text or class of str is not string or str is missing value then return str
+	if str is "" then return str
+	repeat while str begins with " "
+		try
+			set str to items 2 thru -1 of str as text
+		on error msg
+			return ""
+		end try
+	end repeat
+	repeat while str ends with " "
+		try
+			set str to items 1 thru -2 of str as text
+		on error
+			return ""
+		end try
+	end repeat
+	return str
+end _trim
