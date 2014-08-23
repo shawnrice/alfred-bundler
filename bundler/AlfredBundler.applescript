@@ -64,8 +64,8 @@ on utility(_name, _version, _json)
 	end if
 	--# path to specific utility
 	set utility to UTILITIES_LIB_DIR & "/" & _name & "/" & _version
-	--# if utility isn't already installed
 	if my _folder_exists(utility) = false then
+		--# if utility isn't already installed
 		my _log("utility", "INFO", my _format("Utility at `{}` not found...", utility))
 		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
@@ -80,8 +80,8 @@ on utility(_name, _version, _json)
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
-		--# if utility is already installed
 	else
+		--# if utility is already installed
 		my _log("utility", "INFO", my _format("Utility at `{}` found...", utility))
 		--# read utilities invoke file
 		set invoke_file to utility & "/invoke"
@@ -99,7 +99,7 @@ on utility(_name, _version, _json)
 end utility
 
 
-on get_icon(_font, _name, _color, _alter)
+on icon(_font, _name, _color, _alter)
 	--# partial support for "optional" args in Applescript
 	if my _is_empty(_color) then
 		set _color to "000000"
@@ -110,22 +110,29 @@ on get_icon(_font, _name, _color, _alter)
 	if my _is_empty(_alter) then
 		set _alter to false
 	end if
-	
+	--# path to specific icon
 	set icon to BUNDLER_ICONS_LIB & "/" & _font & "/" & _color & "/" & _name
 	if my _folder_exists(icon) = false then
+		--# if icon isn't already installed
+		my _log("icon", "INFO", my _format("Icon at `{}` not found...", icon))
 		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
 			set cmd to my _prepare_cmd(cmd)
+			my _log("icon", "INFO", my _format("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 		else
-			my _log(_handler, _level, _message)
+			set error_msg to my _log("icon", "DEBUG", my _format("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			error error_msg number 1
+			--##TODO: need a stable error number schema
 		end if
 	else
+		--# if icon is already installed
+		my _log("icon", "INFO", my _format("Icon at `{}` found...", icon))
 		return icon
 	end if
-end get_icon
+end icon
 
 
 
