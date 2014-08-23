@@ -456,6 +456,23 @@ class AlfredBundlerInternalClass {
   }
 
   /**
+   * Installs Composer into the bundler's data directory
+   *
+   * @since Taurus 1
+   */
+  public function installComposer() {
+    if ( ! file_exists( "{$this->composerDir}/composer.phar" ) ) {
+      $this->download( "https://getcomposer.org/composer.phar", "{$this->composerDir}/composer.phar" );
+      exec( "'{$this->composerDir}/composer.phar'", $output, $status );
+      if ( $status !== 0 ) {
+        $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
+      } else {
+        $this->log->log( "Installing Composer.phar to `{$this->composerDir}`", 'INFO', 'both' );
+      }
+    }
+  }
+
+  /**
    * Loads / requires composer packages
    *
    * @todo refactor into a composer class
@@ -464,24 +481,14 @@ class AlfredBundlerInternalClass {
    * @return bool            True on success, false on failure
    */
   public function composer( $packages ) {
-    $composerDir = "{$this->data}/data/assets/php/composer";
-    if ( ! file_exists( $composerDir ) )
-      mkdir( $composerDir, 0755, TRUE );
 
-    if ( ! file_exists( "{$composerDir}/composer.phar" ) ) {
-      $this->download( "https://getcomposer.org/composer.phar", "{$composerDir}/composer.phar" );
-      exec( "'{$composerDir}/composer.phar'", $output, $status );
-      if ( $status !== 0 ) {
-        $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
-      } else {
-        $this->log->log( "Installing Composer.phar to `{$composerDir}`", 'INFO', 'both' );
-      }
-      // Add check to make sure the that file is complete above...
-    }
+    if ( ! file_exists( $this->composerDir = "{$this->data}/data/assets/php/composer"; ) )
+      mkdir( $this->composerDir, 0775, TRUE );
 
+    $this->installComposer();
     $install = FALSE;
 
-    if ( file_exists( "{$composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
+    if ( file_exists( "{$this->composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
       if ( file_exists( "{$this->data}/data/assets/php/composer/bundles/{$this->bundle}/composer.json" ) ) {
         $installDir = "{$this->cache}/{$this->bundle}/composer";
         if ( ! file_exists( $installDir ) )
@@ -495,13 +502,13 @@ class AlfredBundlerInternalClass {
           $this->log->log( "Loaded Composer packages for {$this->bundle}.",
             'INFO', 'console' );
           require_once(
-            "{$composerDir}/bundles/{$this->bundle}/autoload.php" );
+            "{$this->composerDir}/bundles/{$this->bundle}/autoload.php" );
 
           return TRUE;
         } else {
           $install = TRUE;
-          if ( file_exists( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-            $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
+          if ( file_exists( "{$this->composerDir}/bundles/{$this->bundle}" ) ) {
+            $this->rrmdir( "{$this->composerDir}/bundles/{$this->bundle}" );
           }
         }
       }
@@ -509,20 +516,32 @@ class AlfredBundlerInternalClass {
       $install = TRUE;
     }
 
-    if ( $install == TRUE ) {
-      if ( is_dir( "{$composerDir}/bundles/{$this->bundle}" ) ) {
-        $this->rrmdir( "{$composerDir}/bundles/{$this->bundle}" );
-      }
-      if ( $this->installComposerPackage( $packages ) === TRUE ) {
-        $this->log->log( "Loaded Composer packages for {$this->bundle}.",
-          'INFO', 'console' );
-        require_once "{$composerDir}/bundles/{$this->bundle}/autoload.php";
-        return TRUE;
-      } else {
-        $this->log->log( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', 'both' );
-        return FALSE;
-      }
+    if ( $install === TRUE )
+      return $this->doComposerInstall( $packages );
+
+    return TRUE;
+  }
+
+  /**
+   * Executes and checks the composer install packages method
+   *
+   * @since Taurus 1
+   *
+   * @param   array  $packages  an array of packages to be installed
+   * @return  bool
+   */
+  public function doComposerInstall( $packages ) {
+    if ( is_dir( "{$this->composerDir}/bundles/{$this->bundle}" ) )
+      $this->rrmdir( "{$this->composerDir}/bundles/{$this->bundle}" );
+
+    if ( $this->installComposerPackage( $packages ) === TRUE ) {
+      $this->log->log( "Loaded Composer packages for {$this->bundle}.", 'INFO', 'console' );
+      require_once "{$this->composerDir}/bundles/{$this->bundle}/autoload.php";
+      return TRUE;
     }
+
+    $this->log->log( "ERROR: failed to install packages for {$this->bundle}", 'ERROR', 'both' );
+    return FALSE;
   }
 
   /**
