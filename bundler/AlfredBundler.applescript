@@ -17,6 +17,9 @@ property BUNDLER_AS_LIB : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
 --# Root directory under which workflow-specific Python libraries are installed
 property APPLESCRIPT_LIB_DIR : DATA_DIR & "/assets/applescript"
 
+--# Root directory under which workflow-specific Python libraries are installed
+property UTILITIES_LIB_DIR : DATA_DIR & "/assets/utility"
+
 --# Wrappers module path
 property WRAPPERS_DIR : BUNDLER_DIR & "/bundler/includes/wrappers/applescript"
 
@@ -43,11 +46,6 @@ set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_V
 property _bundler : missing value
 
 
---get_icon("fontawesome", "ambulance", "000", true)
---my load_utility("pashua", missing value, missing value)
-
-
-
 (* ///
 USER API
 /// *)
@@ -60,17 +58,27 @@ on load_utility(_name, _version, _json)
 	if my _is_empty(_json) then
 		set _json to ""
 	end if
-	
-	set utility to APPLESCRIPT_LIB_DIR & "/" & _name & "/" & _version
+	--# path to specific utility
+	set utility to UTILITIES_LIB_DIR & "/" & _name & "/" & _version
+	--# if utility isn't already installed
 	if my _folder_exists(utility) = false then
 		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
-			set response to (do shell script "/bin/bash " & cmd)
-			return response
-		else
-			return "ERROR"
+			set cmd to my _prepare_cmd(cmd)
+			do shell script cmd
+		end if
+		
+		--# if utility is already installed
+	else
+		--# read utilities invoke file
+		set invoke_file to utility & "/invoke"
+		if my _file_exists(invoke_file) = true then
+			set invoke_path to my _read_file(invoke_file)
+			--# combine utility path with invoke path
+			set full_path to utility & "/" & invoke_path
+			return full_path
 		end if
 	end if
 end load_utility
@@ -90,21 +98,17 @@ on get_icon(_font, _name, _color, _alter)
 	
 	set icon to BUNDLER_ICONS_LIB & "/" & _font & "/" & _color & "/" & _name
 	if my _folder_exists(icon) = false then
-		set bash_bundlet to (my _pwd()) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
-			return "/bin/bash " & cmd
+			set cmd to my _prepare_cmd(cmd)
+			do shell script cmd
 		end if
 	else
-		return "exists"
+		return icon
 	end if
 end get_icon
-
-
-
-
-
 
 
 
@@ -114,113 +118,6 @@ end get_icon
 MAIN ACTION HANDLERS 
 /// *)
 
-on _bootstrap()
-	(*Check if bundler bash bundlet is installed and install it if not.
-
-    	:returns: ``None``
-
-    	*)
-	
-	if _bundler is not equal to missing value then
-		return true
-	else
-		--# Create local directories if they don't exist
-		repeat with dirpath in {HELPER_DIR, CACHE_DIR, COLOR_CACHE}
-			if my _folder_exists(dirpath) = false then
-				my _log("_bootstrap", "INFO", my _format("Creating directory `{}`", (dirpath as string)))
-				my _check_dir(dirpath)
-			else
-				
-			end if
-		end repeat
-		
-		if my _file_exists(BUNDLER_AS_LIB) = false then
-			--# Install bundler
-			my _log("_bootstrap", "INFO", my _format("Installing Alfred Dependency Bundler version `{}`", BUNDLER_VERSION))
-			set bundlet_path to CACHE_DIR & "/bundlet-temp.sh"
-			set bash_code to my _format("source \"{}\"", bundlet_path)
-			try
-				my _download(BASH_BUNDLET_URL, bundlet_path)
-			on error emsg number num
-				set msg to "Error downloading `" & BASH_BUNDLET_URL & "` to `{}`"
-				my _log("_bootstrap", "DEBUG", my _format(msg, bundlet_path))
-				error emsg number num
-			end try
-			my _log("_bootstrap", "INFO", my _format("Executing script : `{}`", bash_code))
-			return bash_code
-		else
-			
-		end if
-		
-	end if
-	
-	
-end _bootstrap
-
-on _download(_url, _filepath)
-	(*Download ``url`` to ``filepath``
-
-    	:param url: URL to download
-    	:type url: ``unicode`` or ``str``
-    	:param filepath: Path to download URL to
-    	:type filepath: ``unicode`` or ``str``
-    	:returns: None
-
-    	*)
-	
-	my _log("_download", "INFO", my _format("Opening URL `{}` ...", _url))
-	--# Ensure full path to file exists
-	my _check_file(_filepath)
-	delay 0.1
-	--# Get HTTP response headers
-	set cmd to "curl -I " & _url
-	try
-		set headers to do shell script cmd
-		set headers to my _split(headers, ASCII character 13)
-		my _log("_download", "INFO", my _format("HTTP Response [{}] ...", item 1 of headers))
-		--# Only download if HTTP response code 200 OK
-		if item 1 of headers contains "200" then
-			try
-				--# Download bash bundlet from GitHub
-				set cmd to "curl -v -o " & (quoted form of _filepath) & space & _url
-				my _log("_download", "INFO", my _format("Downloading `{}` ...", _url))
-				set response to do shell script cmd
-				my _log("_download", "INFO", my _format("Saved `{}`", _filepath))
-				return response
-			on error msg number num
-				set error_msg to "Applescript Error: <" & msg & "> Number: [" & num & "]"
-				my _log("_download", "DEBUG", error_msg)
-				error msg number num
-			end try
-		else
-			error my _log("_download", "DEBUG", my _format("Error retrieving URL. Server returned {}", item 1 of headers))
-		end if
-	on error msg number num
-		set error_msg to "Applescript Error: <" & msg & "> Number: [" & num & "]"
-		my _log("_download", "DEBUG", error_msg)
-		error msg number num
-	end try
-end _download
-
-on _log(_handler, _level, _message)
-	--# Ensure log file exists
-	my _check_file(BUNDLER_LOGFILE)
-	delay 0.1 -- delay to ensure IO action is completed
-	--# Prepare time string format %Y-%m-%d %H:%M:%S
-	set log_time to "[" & (my date_format()) & "]"
-	set formatted_time to text items 1 thru -4 of (time string of (current date)) as string
-	set error_time to "[" & formatted_time & "]"
-	--# Prepare location message
-	set _location to "[bundler.scpt:" & _handler & "]"
-	--# Prepare level message
-	set _level to "[" & _level & "]"
-	--# Generate full error message for logging
-	set log_msg to (ASCII character 10) & log_time & space & _location & space & _level & tab & _message
-	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
-	--# Generate regular error message for returning to user
-	set error_msg to error_time & space & _location & space & _level & tab & _message
-	return error_msg
-end _log
 
 (* ///
 SUB-ACTION HANDLERS
@@ -233,6 +130,19 @@ on date_format() -- Old_date is text, not a date.
 	set formatted_time to text items 1 thru -4 of (time string of (current date)) as string
 	return formatted_date & space & formatted_time
 end date_format
+
+on _read_file(target_file)
+	open for access POSIX file target_file
+	set _contents to (read target_file)
+	close access target_file
+	return _contents
+end _read_file
+
+on _prepare_cmd(cmd)
+	set pwd to quoted form of (my _pwd())
+	return "cd " & pwd & "; bash " & cmd
+end _prepare_cmd
+
 
 (* ///
 IO HELPER FUNCTIONS
@@ -403,6 +313,18 @@ LOWER LEVEL HELPER FUNCTIONS
 
 --# checks if a value is empty
 on _is_empty(str)
+	if {true, false} contains str then return false
 	if str is missing value then return true
 	return length of (my _trim(str)) is 0
 end _is_empty
+
+--TESTING!!
+on test()
+	set as_pwd to POSIX path of (path to me) as string
+	set pwd to quoted form of my _dirname(as_pwd)
+	set cmd to quoted form of "/Users/smargheim/Documents/DEVELOPMENT/GitHub/alfred-bundler/bundler/bundlets/TEST.sh"
+	set sh_pwd to do shell script "cd " & pwd & "; bash " & cmd
+	
+	return "Applescript PWD: " & as_pwd & return & "Shell PWD: " & sh_pwd
+	
+end test
