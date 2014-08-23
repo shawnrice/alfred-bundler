@@ -120,7 +120,12 @@ MAIN ACTION HANDLERS
 
 on _log(_handler, _level, _message)
 	--# Ensure log file exists
-	my _check_file(BUNDLER_LOGFILE)
+	try
+		my _check_file(BUNDLER_LOGFILE)
+	on error
+		set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
+		my _check_file(BUNDLER_LOGFILE)
+	end try
 	delay 0.1 -- delay to ensure IO action is completed
 	--# Prepare time string format %Y-%m-%d %H:%M:%S
 	set log_time to "[" & (my date_format()) & "]"
@@ -134,7 +139,7 @@ on _log(_handler, _level, _message)
 	set log_msg to (ASCII character 10) & log_time & space & _location & space & _level & tab & _message
 	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
 	--# Generate regular error message for returning to user
-	set error_msg to error_time & space & _location & space & _level & tab & _message
+	set error_msg to error_time & space & _location & space & _level & space & _message
 	return error_msg
 end _log
 
