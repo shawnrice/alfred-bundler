@@ -1,13 +1,16 @@
+property BUNDLER_VERSION : "devel"
+property _home : POSIX path of (path to "cusr" as text)
+property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 global B
 set B to my _load_bundler()
-property the_bundler : missing value
+
 
 (* ///
 MAIN API FUNCTIONS
 /// *)
 
 on load_utility(_name, _version, _json)
-	if the_bundler is not equal to true then
+	if (my _bundler_exists()) is not equal to true then
 		my _bootstrap()
 	end if
 	
@@ -28,7 +31,7 @@ on load_utility(_name, _version, _json)
 end load_utility
 
 on get_icon(_font, _name, _color, _alter)
-	if the_bundler is not equal to true then
+	if (my _bundler_exists()) is not equal to true then
 		my _bootstrap()
 	end if
 	
@@ -71,6 +74,17 @@ on _bootstrap()
 	
 end _bootstrap
 
+on _bundler_exists()
+	try
+		set _exists to B's _folder_exists(BUNDLER_DIR)
+	on error
+		set B to my _load_bundler()
+		set _exists to B's _folder_exists(BUNDLER_DIR)
+	end try
+	return _exists
+end _bundler_exists
+
+
 
 (* ///
 HELPER FUNCTIONS
@@ -79,8 +93,8 @@ HELPER FUNCTIONS
 on _load_bundler()
 	set applescript_test_dir to my _pwd()
 	set test_dir to my _dirname(applescript_test_dir)
-	set bundler_dir to my _dirname(test_dir)
-	set as_bundler to bundler_dir & "bundler/AlfredBundler.scpt"
+	set BUNDLER_DIR to my _dirname(test_dir)
+	set as_bundler to BUNDLER_DIR & "bundler/AlfredBundler.scpt"
 	return load script as_bundler
 end _load_bundler
 
