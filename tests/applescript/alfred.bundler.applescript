@@ -2,14 +2,16 @@ global B
 set B to my _load_bundler()
 property the_bundler : missing value
 
-my _bootstrap()
-
 
 (* ///
 MAIN API FUNCTIONS
 /// *)
 
 on load_utility(_name, _version, _json)
+	if the_bundler is not equal to true then
+		my _bootstrap()
+	end if
+	
 	try
 		set utility to B's load_utility(_name, _version, _json)
 		return utility
@@ -27,6 +29,10 @@ on load_utility(_name, _version, _json)
 end load_utility
 
 on get_icon(_font, _name, _color, _alter)
+	if the_bundler is not equal to true then
+		my _bootstrap()
+	end if
+	
 	try
 		set icon to B's get_icon(_font, _name, _color, _alter)
 		return icon
@@ -63,6 +69,7 @@ on _bootstrap()
 		do shell script cmd
 		set the_bundler to true
 	end if
+	
 end _bootstrap
 
 
