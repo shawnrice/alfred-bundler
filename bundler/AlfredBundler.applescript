@@ -6,33 +6,19 @@
 
 property BUNDLER_VERSION : "devel"
 
---# Used for notifications, paths
-property BUNDLER_ID : "com.hackademic.alfred-bundler-applescript"
-
 --# Bundler paths
 property _home : POSIX path of (path to "cusr" as text)
 property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 property DATA_DIR : BUNDLER_DIR & "/data"
 property CACHE_DIR : (_home) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
-
---# Main Applescript library
-property BUNDLER_AS_LIB : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
-
---# Root directory under which workflow-specific Python libraries are installed
-property APPLESCRIPT_LIB_DIR : DATA_DIR & "/assets/applescript"
-
---# Root directory under which workflow-specific Python libraries are installed
-property UTILITIES_LIB_DIR : DATA_DIR & "/assets/utility"
-
---# Wrappers module path
-property WRAPPERS_DIR : BUNDLER_DIR & "/bundler/includes/wrappers/applescript"
-
---# Where helper scripts and metadata are stored
-property HELPER_DIR : APPLESCRIPT_LIB_DIR & "/" & BUNDLER_ID
-
+--# Main Applescript Bundler
+property AS_BUNDLER : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
+--# Root directory under which workflow-specific applescript libraries are installed
+property APPLESCRIPT_DIR : DATA_DIR & "/assets/applescript"
+--# Root directory under which Bundler utilities are installed
+property UTILITIES_DIR : DATA_DIR & "/assets/utility"
 --# Directory for Bundler icons
-property BUNDLER_ICONS_LIB : DATA_DIR & "/assets/icons"
-
+property ICONS_DIR : DATA_DIR & "/assets/icons"
 --# Where color alternatives are cached
 property COLOR_CACHE : DATA_DIR & "/color-cache"
 
@@ -45,9 +31,6 @@ set BASH_BUNDLET_URL to my _format("https://raw.githubusercontent.com/shawnrice/
 --# Bundler log file
 global BUNDLER_LOGFILE
 set BUNDLER_LOGFILE to my _format((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
-
---# The actual bundler module will be imported into this variable
-property _bundler : missing value
 
 
 (* ///
@@ -63,11 +46,11 @@ on utility(_name, _version, _json)
 		set _json to ""
 	end if
 	--# path to specific utility
-	set utility to UTILITIES_LIB_DIR & "/" & _name & "/" & _version
+	set utility to UTILITIES_DIR & "/" & _name & "/" & _version
 	if my _folder_exists(utility) = false then
 		--# if utility isn't already installed
 		my _log("utility", "INFO", my _format("Utility at `{}` not found...", utility))
-		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my _dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
@@ -111,11 +94,11 @@ on icon(_font, _name, _color, _alter)
 		set _alter to false
 	end if
 	--# path to specific icon
-	set icon to BUNDLER_ICONS_LIB & "/" & _font & "/" & _color & "/" & _name
+	set icon to ICONS_DIR & "/" & _font & "/" & _color & "/" & _name
 	if my _folder_exists(icon) = false then
 		--# if icon isn't already installed
 		my _log("icon", "INFO", my _format("Icon at `{}` not found...", icon))
-		set bash_bundlet to (my _dirname(BUNDLER_AS_LIB)) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my _dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my _file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my _join({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
