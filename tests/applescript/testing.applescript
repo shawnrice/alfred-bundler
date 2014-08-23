@@ -4,10 +4,15 @@ set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler(
 --Two line version (for clarity's sake)
 --set bundlet to load script (my _pwd()) & "alfred.bundler.scpt"
 --set bundler to bundlet's load_bundler()
-class Utility()
 
-end
+
 (* TESTS *)
+
+on library_tests()
+	set url_er to bundler's library("_url", "", "")
+	url_er's urlEncode("hello world")
+end library_tests
+
 on utility_tests()
 	--load utility with no other info
 	bundler's load_utility("pashua", "", "")
