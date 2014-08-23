@@ -1023,19 +1023,20 @@ class AlfredBundlerInternalClass {
     }
 
     if ( $update )
-      file_put_contents( "{$this->data}/data/registry.json" , utf8_encode( json_encode( $registry ) ) );
+      file_put_contents( "{$this->data}/data/registry.json", utf8_encode( json_encode( $registry ) ) );
 
     return TRUE;
+    }
   }
 
   /**
    * Uses CocoaDialog to display a notification
    *
    * @since  Taurus 1
-   * @param string $title   Title for notification
-   * @param string $message Message of notification
-   * @param string $icon = null An array of options that Terminal Notifer takes
-   * @return bool                      TRUE on success, FALSE on failure
+   * @param  string $title   Title for notification
+   * @param  string $message Message of notification
+   * @param  string $icon    An array of options that Terminal Notifer takes
+   * @return bool           TRUE on success, FALSE on failure
    */
   public function notify( $title, $message, $icon = null ) {
     if ( gettype( $title ) !== 'string' || gettype( $message ) !== 'string' )
