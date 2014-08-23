@@ -3,30 +3,37 @@
 && $? for bash status codes
 
 *)
+
+--# Current Alfred-Bundler version
 property BUNDLER_VERSION : "devel"
---# Bundler paths
+
+(* ALFRED-BUNDLER PATH PROPERTIES *)
+
+--# Path to user's home directory
 property _home : POSIX path of (path to "cusr" as text)
+--# Path to Alfred-Bundler's root directory
 property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+--# Path to Alfred-Bundler's data directory
 property DATA_DIR : BUNDLER_DIR & "/data"
+--# Path to Alfred-Bundler's cache directory
 property CACHE_DIR : (_home) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
---# Main Applescript Bundler
+--# Path to main Applescript Bundler
 property AS_BUNDLER : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
---# Root directory under which workflow-specific applescript libraries are installed
+--# Path to applescript libraries directory
 property APPLESCRIPT_DIR : DATA_DIR & "/assets/applescript"
---# Root directory under which Bundler utilities are installed
+--# Path to utilities directory
 property UTILITIES_DIR : DATA_DIR & "/assets/utility"
---# Directory for Bundler icons
+--# Path to icons directory
 property ICONS_DIR : DATA_DIR & "/assets/icons"
---# Where color alternatives are cached
+--# Path to color alternatives cache
 property COLOR_CACHE : DATA_DIR & "/color-cache"
 
 (* GLOBAL VARIABLES *)
 
---# Where installer.sh can be downloaded from
+--# URL to download `installer.sh`
 global BASH_BUNDLET_URL
 set BASH_BUNDLET_URL to my formatter("https://raw.githubusercontent.com/shawnrice/alfred-bundler/{}/bundler/bundlets/alfred.bundler.sh", BUNDLER_VERSION)
-
---# Bundler log file
+--# Path to bundler log file
 global BUNDLER_LOGFILE
 set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
 
@@ -35,12 +42,37 @@ set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER
 USER API
 /// *)
 
-on utility(_name, _version, _json)
+on utility(_name, _version, _json_path)
+	(*  Get path to specified utility or asset, installing it first if necessary.
+
+    	Use this method to access common command line utilities, such as
+    	`cocaoDialog <http://mstratman.github.io/cocoadialog/>`_ or
+    	`Terminal-Notifier <https://github.com/alloy/terminal-notifier>`_.
+
+    	This function will return the path to the appropriate executable
+    	(installing it first if necessary), which you can then utilise via
+    	:command:`do shell script`.
+
+    	You can easily add your own utilities by means of JSON configuration
+    	files specified with the ``json_path`` argument. Please see
+    	`the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
+    	for details of the JSON file format.
+
+    	:param _name: Name of the utility/asset to install
+    	:type _name: ``string``
+    	:param _version: (optional) Desired version of the utility/asset.
+    	:type _version: ``string``
+    	:param _json_path: (optional) Path to bundler configuration file
+    	:type _json_path: ``string`` (POSIX path)
+    	:returns: Path to utility
+    	:rtype: ``string`` (POSIX path)
+	
+	*)
 	--# partial support for "optional" args in Applescript
 	if my is_empty(_version) then
 		set _version to "latest"
 	end if
-	if my is_empty(_json) then
+	if my is_empty(_json_path) then
 		set _json to ""
 	end if
 	--# path to specific utility
@@ -51,7 +83,7 @@ on utility(_name, _version, _json)
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
-			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json}, space)
+			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
 			my logger("utility", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
@@ -81,6 +113,26 @@ end utility
 
 
 on icon(_font, _name, _color, _alter)
+	(*  Get path to specified icon, downloading it first if necessary.
+
+    	``_font``, ``_icon`` and ``_color`` are normalised to lowercase. In
+	addition, ``_color`` is expanded to 6 characters if only 3 are passed.
+
+    	:param _font: name of the font
+    	:type _font: ``string``
+    	:param _icon: name of the font character
+    	:type _icon: ``string``
+	:param _color: (optional) CSS colour in format "xxxxxx" (no preceding #)
+    	:type _color: ``str``
+    	:param _alter: (optional) Automatically adjust icon colour to light/dark theme
+        background
+    	:type _alter: ``Boolean``
+    	:returns: path to icon file
+    	:rtype: ``string``
+
+    	See http://icons.deanishe.net to view available icons.
+	
+	*)
 	--# partial support for "optional" args in Applescript
 	if my is_empty(_color) then
 		set _color to "000000"
