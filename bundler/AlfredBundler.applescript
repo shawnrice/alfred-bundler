@@ -40,6 +40,74 @@ set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER
 USER API
 /// *)
 
+on library(_name, _version, _json_path)
+	(*  Get path to specified AppleScript library, installing it first if necessary.
+
+    	Use this method to access AppleScript libraries with functions for common commands.
+
+    	This function will return script object of the appropriate library
+    	(installing it first if necessary), which grants you access to all the
+	functions within that library.
+
+    	You can easily add your own utilities by means of JSON configuration
+    	files specified with the ``json_path`` argument. Please see
+    	`the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
+    	for details of the JSON file format.
+
+    	:param _name: Name of the utility/asset to install
+    	:type _name: ``string``
+    	:param _version: (optional) Desired version of the utility/asset.
+    	:type _version: ``string``
+    	:param _json_path: (optional) Path to bundler configuration file
+    	:type _json_path: ``string`` (POSIX path)
+    	:returns: Path to utility
+    	:rtype: ``script object``
+	
+	*)
+	--# partial support for "optional" args in Applescript
+	if my is_empty(_version) then
+		set _version to "latest"
+	end if
+	if my is_empty(_json_path) then
+		set _json to ""
+	end if
+	--# path to specific utility
+	set library to my joiner({APPLESCRIPT_DIR, _name, _version}, "/")
+	if my folder_exists(library) = false then
+		--# if utility isn't already installed
+		my logger("utility", "INFO", my formatter("Library at `{}` not found...", library))
+		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		if my file_exists(bash_bundlet) = true then
+			set bash_bundlet_cmd to quoted form of bash_bundlet
+			set cmd to my joiner({bash_bundlet_cmd, "applescript", _name, _version, _json_path}, space)
+			set cmd to my prepare_cmd(cmd)
+			my logger("utility", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			set full_path to (do shell script cmd)
+			return load script full_path
+		else
+			set error_msg to my logger("utility", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			error error_msg number 1
+			--##TODO: need a stable error number schema
+		end if
+	else
+		--# if utility is already installed
+		my logger("utility", "INFO", my formatter("Utility at `{}` found...", library))
+		--# read utilities invoke file
+		set invoke_file to library & "/invoke"
+		if my file_exists(invoke_file) = true then
+			set invoke_path to my read_file(invoke_file)
+			--# combine utility path with invoke path
+			set full_path to library & "/" & invoke_path
+			return load script full_path
+		else
+			set error_msg to my logger("utility", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			error error_msg number 1
+			--##TODO: need a stable error number schema
+		end if
+	end if
+end library
+
+
 on utility(_name, _version, _json_path)
 	(*  Get path to specified utility or asset, installing it first if necessary.
 
