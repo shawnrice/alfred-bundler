@@ -6,11 +6,33 @@ MAIN API FUNCTIONS
 /// *)
 
 on load_utility(_name, _version, _json)
-	return B's load_utility(_name, _version, _json)
+	try
+		set utility to B's load_utility(_name, _version, _json)
+		return utility
+	on error
+		set B to my _load_bundler()
+		try
+			set utility to B's load_utility(_name, _version, _json)
+			return utility
+		on error
+			--logging
+		end try
+	end try
 end load_utility
 
 on get_icon(_font, _name, _color, _alter)
-	return B's get_icon(_font, _name, _color, _alter)
+	try
+		set icon to B's get_icon(_font, _name, _color, _alter)
+		return icon
+	on error
+		set B to my _load_bundler()
+		try
+			set icon to B's get_icon(_font, _name, _color, _alter)
+			return "yes: " & icon
+		on error
+			--logging
+		end try
+	end try
 end get_icon
 
 
