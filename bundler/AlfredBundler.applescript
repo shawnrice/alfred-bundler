@@ -1,8 +1,6 @@
-(* GLOBAL PROPERTIES 
-
-&& $? for bash status codes
-
-*)
+(* ///
+GLOBAL PROPERTIES
+/// *)
 
 --# Current Alfred-Bundler version
 property BUNDLER_VERSION : "devel"
@@ -99,7 +97,7 @@ on utility(_name, _version, _json_path)
 		--# read utilities invoke file
 		set invoke_file to utility & "/invoke"
 		if my file_exists(invoke_file) = true then
-			set invoke_path to my _read_file(invoke_file)
+			set invoke_path to my read_file(invoke_file)
 			--# combine utility path with invoke path
 			set full_path to utility & "/" & invoke_path
 			return full_path
@@ -123,7 +121,7 @@ on icon(_font, _name, _color, _alter)
     	:param _icon: name of the font character
     	:type _icon: ``string``
 	:param _color: (optional) CSS colour in format "xxxxxx" (no preceding #)
-    	:type _color: ``str``
+    	:type _color: ``string``
     	:param _alter: (optional) Automatically adjust icon colour to light/dark theme
         background
     	:type _alter: ``Boolean``
@@ -174,15 +172,36 @@ LOGGING HANDLER
 /// *)
 
 on logger(_handler, _level, _message)
-	--# Ensure log file exists, with
-	--# checking for scope of global var
+	(* Log information in the standard Alfred-Bundler log file.
+	This AppleScript logger will save the `_message` with appropriate information
+	in this format:
+		'[%(asctime)s] [%(filename)s:%(lineno)s] '
+		'[%(levelname)s] %(message)s',
+		datefmt='%Y-%m-%d %H:%M:%S'
+	It will then return the information in this format:
+		'[%(asctime)s] [%(filename)s:%(lineno)s] '
+		'[%(levelname)s] %(message)s',
+		datefmt='%H:%M:%S'
+
+	param _handler: name of the function where the script it running
+    	:type _handler: ``string``
+    	:param _level: type of logging information (INFO or DEBUG)
+    	:type _level: ``string``
+	:param _message: message to be logged
+    	:type _message: ``string``
+	:returns: a properly formatted log message
+	:rtype: ``string``
+
+	*)
+	--# Ensure log file exists, with checking for scope of global var
 	try
 		my check_file(BUNDLER_LOGFILE)
 	on error
 		set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
 		my check_file(BUNDLER_LOGFILE)
 	end try
-	delay 0.1 -- delay to ensure IO action is completed
+	--# delay to ensure IO action is completed
+	delay 0.1
 	--# Prepare time string format %Y-%m-%d %H:%M:%S
 	set log_time to "[" & (my date_formatter()) & "]"
 	set formatterted_time to text items 1 thru -4 of (time string of (current date)) as string
@@ -211,14 +230,22 @@ on date_formatter()
 	return formatterted_date & space & formatterted_time
 end date_formatter
 
-on _read_file(target_file)
+on read_file(target_file)
 	open for access POSIX file target_file
 	set _contents to (read target_file)
 	close access target_file
 	return _contents
-end _read_file
+end read_file
 
 on prepare_cmd(cmd)
+	(* Ensure shell `_cmd` is working from the proper directory.
+	
+	:param _cmd: Shell command to be run in `do shell script`
+    	:type _cmd: ``string``
+	:returns: Shell command with `pwd` set properly
+    	:returns: ``string``
+		
+    	*)
 	set pwd to quoted form of (my pwd())
 	return "cd " & pwd & "; bash " & cmd
 end prepare_cmd
@@ -253,6 +280,14 @@ on pwd()
 end pwd
 
 on dirname(_file)
+	(* Get name of directory containing `_file`.
+	
+    	:param _file: Full path to existing file
+    	:type _file: ``string`` (POSIX path)
+	:returns: Full path to `_file`'s parent directory
+    	:returns: ``string`` (POSIX path)
+		
+    	*)
 	set {ASTID, AppleScript's text item delimiters} to {AppleScript's text item delimiters, "/"}
 	set _path to (text items 1 thru -2 of _file as string) & "/"
 	set AppleScript's text item delimiters to ASTID
