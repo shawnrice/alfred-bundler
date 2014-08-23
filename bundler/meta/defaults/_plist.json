@@ -1,0 +1,19 @@
+{
+    "name": "_plist",
+    "type": "applescript",
+    "description": "Create, read from, write to and add keys to property list files.",
+    "versions": {
+        "latest": {
+            "invoke": "_plist.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/plist/_plist.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_plist.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

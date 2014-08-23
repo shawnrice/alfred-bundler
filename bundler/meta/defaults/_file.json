@@ -1,0 +1,19 @@
+{
+    "name": "_file",
+    "type": "applescript",
+    "description": "Reading/writing data, renaming files, color labels of files and folders, getting information on files and folders.",
+    "versions": {
+        "latest": {
+            "invoke": "_file.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/file/_file.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_file.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

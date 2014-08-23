@@ -1,0 +1,19 @@
+{
+    "name": "_number",
+    "type": "applescript",
+    "description": "The number library contains some useful handlers for working with numbers such as some basics, rounding, converting to string, maximum/minimum, roman numerals,...",
+    "versions": {
+        "latest": {
+            "invoke": "_number.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/number/_number.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_number.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "name": "_keychain",
+    "type": "applescript",
+    "description": "Some handlers to facilitate the access to logins and passwords stored in Mac OS keychains via AppleScript.",
+    "versions": {
+        "latest": {
+            "invoke": "_keychain.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/keychain/_keychain.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_keychain.scpt' '__DATA__'"
+            ]
+        }
+    }
+}
