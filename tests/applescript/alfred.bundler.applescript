@@ -43,9 +43,6 @@ on _bootstrap()
 	on error
 		--# Cannot continue to install the bundler, so stop
 		return false
-
-	:returns: ``string`` (POSIX path)
-
 	end try
 	--# Download the bundler
 	set URLs to {"https://github.com/shawnrice/alfred-bundler/archive/" & BUNDLER_VERSION & ".zip", "https://bitbucket.org/shawnrice/alfred-bundler/get/" & BUNDLER_VERSION & ".zip"}
@@ -112,8 +109,9 @@ end _install_confirmation
 
 on _pwd()
 	(* Get path to "present working directory", i.e. the workflow's root directory.
-
-	:returns: ``string`` (POSIX path)
+	
+	:returns: Path to this script's parent directory
+	:rtype: ``string`` (POSIX path)
 
 	*)
 	--# Save default AS delimiters, and set delimiters to "/"
@@ -132,7 +130,7 @@ on _prepare_cmd(_cmd)
 	:param _cmd: Shell command to be run in `do shell script`
 	:type _cmd: ``string``
 	:returns: Shell command with `pwd` set properly
-	:returns: ``string``
+	:rtype: ``string``
 		
 	*)
 	--# Ensure `pwd` is properly quoted for shell command
