@@ -64,7 +64,7 @@ class AlfredBundlerInternalClass {
    * Filepath to an Alfred info.plist file
    * @var string
    */
-  private   $plist;
+  public   $plist;
 
   /**
    * The Bundle ID of the workflow using the bundler

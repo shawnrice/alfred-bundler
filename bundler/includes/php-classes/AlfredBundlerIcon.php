@@ -33,7 +33,6 @@ class AlfredBundlerIcon {
   public  $data;
   public  $cache;
 
-
   /**
    * Sets the variables to deal with icons
    *
@@ -48,17 +47,14 @@ class AlfredBundlerIcon {
     $this->mime       = finfo_open( FILEINFO_MIME_TYPE );
     $this->bundler    = $bundler; // in case we need any of the variables...
     $this->data       = $this->bundler->data;
-    // $this->cache      = $cache;
     $this->colors     = array();
     $this->fallback   = $this->data . '/bundler/meta/icons/default.png';
 
     $this->setBackground();
 
-    $this->cache = $bundler->cache . '/color';
+    $this->cache = $this->bundler->cache . '/color';
 
   }
-
-
 
 /*****************************************************************************
  * BEGIN SETUP FUNCTIONS
@@ -73,7 +69,7 @@ class AlfredBundlerIcon {
   private function setup() {
 
     if ( ! file_exists( $this->data . '/data' ) )
-      mkdir( $this->data . '/data' );
+      mkdir( $this->data . '/data', 0775, TRUE );
 
     if ( ! file_exists( $this->cache ) )
       mkdir( $this->cache, 0775, TRUE );
@@ -97,7 +93,7 @@ class AlfredBundlerIcon {
    * @since Taurus 1
    *
    */
-  private function setBackground() {
+  public function setBackground() {
 
     if ( isset( $_ENV[ 'alfred_version' ] ) ) {
       // Current Version >= v2.4:277
@@ -123,16 +119,16 @@ class AlfredBundlerIcon {
    * @since Taurus 1
    *
    */
-  private function setBackgroundFromEnv() {
+  public function setBackgroundFromEnv() {
     $pattern = "/rgba\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9.]{4,})\)/";
     preg_match_all( $pattern, $_ENV[ 'alfred_theme_background' ], $matches );
 
-    $this->background = $this->getLuminance(  array( 'r' => $matches[1][0],
-                                                     'g' => $matches[2][0],
-                                                     'b' => $matches[3][0] ) );
+    $hex = $this->rgbToHex( array( 'r' => $matches[1][0],
+                                   'g' => $matches[2][0],
+                                   'b' => $matches[3][0] ) );
+    $this->background = $this->getBrightness( $hex );
 
   }
-
 
   /**
    * Sets the theme background color to either 'light' or 'dark'
@@ -149,15 +145,15 @@ class AlfredBundlerIcon {
    * @since  Taurus 1
    *
    */
-  private function setBackgroundFromUtil() {
+  public function setBackgroundFromUtil() {
 
     // The Alfred preferences plist where the theme information is stored
     $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
     $cache = "{$this->data}/cache/misc/theme_background";
     $util  = "{$this->data}/bundler/includes/LightOrDark";
 
-    if ( ! file_exists( "{$this->data}/data" ) ) {
-      mkdir( "{$this->data}/data", 0775, TRUE );
+    if ( ! file_exists( "{$this->data}/cache/misc" ) ) {
+      mkdir( "{$this->data}/cache/misc", 0775, TRUE );
     }
 
     if ( file_exists( $cache ) ) {

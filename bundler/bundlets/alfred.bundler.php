@@ -152,7 +152,7 @@ class AlfredBundler {
         throw new Exception('The Alfred Bundler could not be installed.');
         return FALSE;
       } else {
-        chmod( "{$this->_data}/bundler/includes/LightOrDark", 0755 );
+        chmod( "{$this->_data}/bundler/includes/LightOrDark", 0775 );
         // The bundler is now in place, so require the actual PHP Bundler file
         require_once "{$this->_data}/bundler/AlfredBundler.php";
         // Create the internal class object
@@ -364,10 +364,10 @@ private function processASDialog() {
   private function prepareDirectories() {
     // Make the bundler cache directory
     if ( ! file_exists( $this->_cache ) )
-      mkdir( $this->_cache, 0755, TRUE );
+      mkdir( $this->_cache, 0775, TRUE );
     // Make the bundler data directory
     if ( ! file_exists( $this->_data ) )
-      mkdir( $this->_data, 0755, TRUE );
+      mkdir( $this->_data, 0775, TRUE );
   }
 
   private function userCanceledInstallation() {
