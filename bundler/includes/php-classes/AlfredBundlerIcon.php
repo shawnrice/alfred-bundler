@@ -152,23 +152,15 @@ class AlfredBundlerIcon {
     $cache = "{$this->data}/cache/misc/theme_background";
     $util  = "{$this->data}/bundler/includes/LightOrDark";
 
-    if ( ! file_exists( "{$this->data}/cache/misc" ) ) {
+    if ( ! file_exists( "{$this->data}/cache/misc" ) )
       mkdir( "{$this->data}/cache/misc", 0775, TRUE );
-    }
 
-    if ( file_exists( $cache ) ) {
-      if ( filemtime( $cache ) > filemtime( $plist ) ) {
-        $this->background = file_get_contents( $cache );
-        return TRUE;
-      }
+    if ( file_exists( $cache ) && ( filemtime( $cache ) > filemtime( $plist ) ) ) {
+      $this->background = file_get_contents( $cache );
+      return TRUE;
     }
-
-    if ( file_exists( $util ) ) {
-      $this->background = exec( "'$util'" );
-      file_put_contents( $cache, $this->background );
-    } else {
-      $this->background = 'dark';
-    }
+    $this->background = exec( "'$util'" );
+    file_put_contents( $cache, $this->background );
 
   }
 
