@@ -4,6 +4,8 @@ property BUNDLER_VERSION : "devel"
 property _home : POSIX path of (path to "cusr" as text)
 --# Path to Alfred-Bundler's root directory
 property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+property CACHE_DIR : (_home) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+
 
 (* MAIN API FUNCTION *)
 
@@ -11,7 +13,8 @@ on load_bundler()
 	(* Load `AlfredBundler.scpt` from the Alfred-Bundler directory as a script object. 
 	If the Alfred-Bundler directory does not exist, install it (using `_bootstrap()`).
 
-	:returns: ``script object``
+	:returns: the script object of `AlfredBundler.scpt`
+	:rtype: ``script object``
 
 	*)
 	--# Check if Alfred-Bundler is installed
@@ -19,6 +22,7 @@ on load_bundler()
 		--# install it if not
 		my _bootstrap()
 	end if
+	delay 0.1
 	--# Path to `AlfredBundler.scpt` in Alfed-Bundler directory
 	set as_bundler to (BUNDLER_DIR & "/bundler/AlfredBundler.scpt")
 	--# Return script object
@@ -33,11 +37,76 @@ on _bootstrap()
 	:returns: ``None``
 
 	*)
-	set shell_bundlet to quoted form of ((my _pwd()) & "alfred.bundler.sh")
-	set shell_cmd to shell_bundlet & " utility CocoaDialog"
-	set cmd to my _prepare_cmd(shell_cmd)
-	do shell script cmd
+	--# Ask to install the Bundler
+	try
+		my _install_confirmation()
+	on error
+		--# Cannot continue to install the bundler, so stop
+		return false
+
+	:returns: ``string`` (POSIX path)
+
+	end try
+	--# Download the bundler
+	set URLs to {"https://github.com/shawnrice/alfred-bundler/archive/" & BUNDLER_VERSION & ".zip", "https://bitbucket.org/shawnrice/alfred-bundler/get/" & BUNDLER_VERSION & ".zip"}
+	--# Save Alfred-Bundler zipfile to this location temporarily
+	set _zipfile to (quoted form of CACHE_DIR) & "/installer/bundler.zip"
+	repeat with _url in URLs
+		set _status to (do shell script "curl -fsSL --create-dirs --connect-timeout 5 " & _url & " -o " & _zipfile & " && echo $?")
+		if _status is equal to "0" then exit repeat
+	end repeat
+	--# Could not download the file
+	if _status is not equal to "0" then error "Could not download bundler install file" number 23
+	--# Ensure directory tree already exists for bundler to be moved into it
+	my _check_dir(BUNDLER_DIR)
+	--# Unzip the bundler and move it to its data directory
+	set _cmd to "cd " & (quoted form of CACHE_DIR) & "; cd installer; unzip -qo bundler.zip; mv ./*/bundler " & (quoted form of BUNDLER_DIR)
+	do shell script _cmd
+	--# Wait until bundler is fully unzipped and written to disk before finishing
+	set as_bundler to (BUNDLER_DIR & "/bundler/AlfredBundler.scpt")
+	repeat while not (my _path_exists(as_bundler))
+		delay 0.2
+	end repeat
+	return
 end _bootstrap
+
+--# Function to get confirmation to install the bundler
+on _install_confirmation()
+	(* Ask user for permission to install Alfred-Bundler. 
+	Allow user to go to website for more information, or even to cancel download.
+
+	:returns: ``True`` or raises Error
+
+	*)
+	--# Get path to workflow's `info.plist` file
+	set _plist to my _pwd() & "info.plist"
+	--# Get name of workflow's from `info.plist` file
+	set _cmd to "/usr/libexec/PlistBuddy -c 'Print :name' '" & _plist & "'"
+	set _name to do shell script _cmd
+	--# Get workflow's icon, or default to system icon
+	set _icon to my _pwd() & "icon.png"
+	set _icon to my _check_icon(_icon)
+	--# Prepare explanation text for dialog box
+	set _text to _name & " needs to install additional components, which will be placed in the Alfred storage directory and will not interfere with your system.
+
+You may be asked to allow some components to run, depending on your security settings.
+
+You can decline this installation, but " & _name & " may not work without them. There will be a slight delay after accepting."
+	
+	set _response to button returned of (display dialog _text buttons {"More Info", "Cancel", "Proceed"} default button 3 with title "Setup " & _name with icon POSIX file _icon)
+	--# If permission granted, continue download
+	if _response is equal to "Proceed" then return true
+	--# If more info requested, open webpage and error
+	if _response is equal to "More Info" then
+		tell application "System Events"
+			open location "https://github.com/shawnrice/alfred-bundler/wiki/What-is-the-Alfred-Bundler"
+		end tell
+		error "User looked sought more information" number 23
+	end if
+	--# If permission denied, stop and error
+	if _response is equal to "Cancel" then error "User canceled installation" number 23
+end _install_confirmation
+
 
 (* HELPER HANDLERS *)
 
@@ -74,6 +143,35 @@ on _prepare_cmd(_cmd)
 	--# return shell script where `pwd` is properly set
 	return testing_var & "cd " & pwd & "; bash " & _cmd
 end _prepare_cmd
+
+on _check_icon(_icon)
+	(* Check if `_icon` exists, and if not revert to system download icon.
+
+	:returns: POSIX path to `_icon`
+	:rtype: ``string`` (POSIX path)
+
+	*)
+	try
+		POSIX file _icon as alias
+		return _icon
+	on error
+		return "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/SidebarDownloadsFolder.icns"
+	end try
+end _check_icon
+
+on _check_dir(_folder)
+	(* Check if `_folder` exists, and if not create it, including any sub-directories.
+
+	:returns: POSIX path to `_folder`
+	:rtype: ``string`` (POSIX path)
+
+	*)
+	if not my _folder_exists(_folder) then
+		do shell script "mkdir -p " & (quoted form of _folder)
+	end if
+	return _folder
+end _check_dir
+
 
 on _folder_exists(_folder)
 	(* Return ``true`` if `_folder` exists, else ``false``
