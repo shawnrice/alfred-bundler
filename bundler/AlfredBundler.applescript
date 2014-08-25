@@ -609,12 +609,3 @@ on is_empty(_obj)
 	if _obj is missing value then return true
 	return length of (my trim(_obj)) is 0
 end is_empty
-
---# test if shell `pwd` matches AppleScript `pwd`
-on test()
-	set as_pwd to POSIX path of (path to me) as string
-	set pwd to quoted form of my dirname(as_pwd)
-	set cmd to quoted form of "/Users/smargheim/Documents/DEVELOPMENT/GitHub/alfred-bundler/bundler/bundlets/TEST.sh"
-	set sh_pwd to do shell script "cd " & pwd & "; bash " & cmd
-	return "Applescript PWD: " & as_pwd & return & "Shell PWD: " & sh_pwd
-end test
