@@ -1,15 +1,5 @@
 <?php
 
-/**
- * Tests for the PHP Bundler
- *
- */
-
-
-// tests to use info.plist
-// tests to use env variables
-
-
 class IconTests extends PHPUnit_Framework_TestCase
 {
     function setUp() {
@@ -25,26 +15,46 @@ class IconTests extends PHPUnit_Framework_TestCase
         define('DATADIR', "{$_SERVER['HOME']}/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{$this->major}");
         define('CACHEDIR', "{$_SERVER['HOME']}/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-{$this->major}");
 
-        // // define data and cache paths first...
-        // if ( file_exists( DATADIR ) ) {
-        //     rrmdir( DATADIR );
-        // }
-        // if ( file_exists( CACHEDIR ) )
-        //     rrmdir( CACHEDIR ); // make these work recursively
-
         $this->b = new AlfredBundler;
-        $this->i = new AlfredBundlerIcon( $b );
+        $this->i = new AlfredBundlerIcon( $this->b );
     }
-
     function tearDown(){
         unset( $this->b );
+        unset( $this->i );
     }
 
+    function testIcon() {
+        $path = $this->i->icon(['font' => 'elusive', 'name' => 'fire', 'color' => 'abcdef', 'alter' => false]);
+        $this->assertTrue( file_exists( $path ) );
+    }
 
+    function testIcon2() {
+        $path = $this->i->icon(['font' => 'elusive', 'name' => 'fire', 'color' => '000000', 'alter' => true]);
+        $this->assertTrue( file_exists( $path ) );
+    }
 
+    function testIcon3() {
+        $path = $this->i->icon(['font' => 'elusive', 'name' => 'fire', 'color' => 'fff', 'alter' => true]);
+        $path2 = $this->i->icon(['font' => 'elusive', 'name' => 'fire', 'color' => '000', 'alter' => true]);
 
-    //
-    //
+        $this->assertTrue( file_exists( $path ) && ( $path == $path2) );
+    }
+
+    function testIcon4() {
+        $path = $this->i->icon(['font' => 'system', 'name' => 'Accounts']);
+        $this->assertTrue( file_exists( $path ) );
+    }
+
+    function testSetBackgroundFromEnv() {
+        $this->i->setBackgroundFromEnv();
+        $this->assertTrue( 'light' == $this->i->background );
+    }
+
+    function testSetBackgroundFromUtil() {
+        $this->i->setBackgroundFromUtil();
+        $this->assertTrue( 'light' == $this->i->background );
+    }
+
     // COLOR TESTS
     function testNormalize3Hex() {
         // generate a 3-hex to use.
@@ -177,14 +187,3 @@ function get_hex( ) {
   $hex = array_merge( range( 'a', 'f' ), range( 0, 9 ) );
   return $hex[ mt_rand( 0, 15 ) ];
 }
-
-
-
-
-    // function testLoadLibrary() {
-    //   $this->assertTrue( $this->b->library( 'Workflows' ) );
-    // }
-
-    // public function testLoadLibraryFail() {
-    //     $this->assertFalse( $this->b->library('asdf') );
-    // }

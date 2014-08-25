@@ -41,17 +41,12 @@
 // validateImage
 // color
 // prepareIcon
-// rgb
-// hsv
 // altered
 // luminance
 // brightness
 // cached
 // cache
-// hexToRgb
-// rgbToHex
-// rgbToHsv
-// hsvToRgb
+
 // getLuminance
 // getBrightness
 // alter
