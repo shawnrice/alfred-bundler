@@ -7,14 +7,12 @@ property BUNDLER_VERSION : "devel"
 
 (* ALFRED-BUNDLER PATH PROPERTIES *)
 
---# Path to user's home directory
-property _home : POSIX path of (path to "cusr" as text)
 --# Path to Alfred-Bundler's root directory
-property BUNDLER_DIR : (_home) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+property BUNDLER_DIR : (POSIX path of (path to "cusr" as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 --# Path to Alfred-Bundler's data directory
 property DATA_DIR : BUNDLER_DIR & "/data"
 --# Path to Alfred-Bundler's cache directory
-property CACHE_DIR : (_home) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+property CACHE_DIR : (POSIX path of (path to "cusr" as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 --# Path to main Applescript Bundler
 property AS_BUNDLER : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
 --# Path to applescript libraries directory

@@ -1,4 +1,5 @@
-property _home : POSIX path of (path to "cusr" as text)
+global _home
+set _home to POSIX path of (path to "cusr" as text)
 --One line version of loading the Alfred Bundler into a workflow script
 global bundler
 set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler()
@@ -6,9 +7,13 @@ set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler(
 --set bundlet to load script (my _pwd()) & "alfred.bundler.scpt"
 --set bundler to bundlet's load_bundler()
 
-my library_tests()
+
 my utility_tests()
+(*
+my library_tests()
+
 my icon_tests()
+*)
 
 
 (* TESTS *)
@@ -22,8 +27,8 @@ end library_tests
 
 on utility_tests()
 	my utility_valid_latest_version() = true
-	my utility_valid_no_version() = true
-	my utility_valid_old_version() = true
+	--my utility_valid_no_version() = true
+	--my utility_valid_old_version() = true
 	my utility_invalid_name() = true
 	return true
 end utility_tests
