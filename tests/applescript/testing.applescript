@@ -165,7 +165,7 @@ end utility_invalid_name
 
 on utility_valid_old_version()
 	set util_path to bundler's utility("pashua", "1.0", "")
-	if util_path is equal to "/Users/smargheim/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/1.0/Pashua.app/Contents/MacOS/Pashua" then
+	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/1.0/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
@@ -174,7 +174,7 @@ end utility_valid_old_version
 
 on utility_valid_latest_version()
 	set util_path to bundler's utility("pashua", "latest", "")
-	if util_path is equal to "/Users/smargheim/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua" then
+	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
@@ -183,7 +183,7 @@ end utility_valid_latest_version
 
 on utility_valid_no_version()
 	set util_path to bundler's utility("pashua", "", "")
-	if util_path is equal to "/Users/smargheim/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua" then
+	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
