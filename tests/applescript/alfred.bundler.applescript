@@ -1,14 +1,17 @@
 --# Current Alfred-Bundler version
 property BUNDLER_VERSION : "devel"
 --# Path to Alfred-Bundler's root directory
-global BUNDLER_DIR
-set BUNDLER_DIR to (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+on get_bundler_dir()
+	return (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+end get_bundler_dir
 --# Path to Alfred-Bundler's cache directory
-global CACHE_DIR
-set CACHE_DIR to (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
-
+on get_cache_dir()
+	return (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+end get_cache_dir
 
 (* MAIN API FUNCTION *)
+
+
 
 on load_bundler()
 	(* Load `AlfredBundler.scpt` from the Alfred-Bundler directory as a script object. 
@@ -18,6 +21,7 @@ on load_bundler()
 	:rtype: ``script object``
 
 	*)
+	set BUNDLER_DIR to my get_bundler_dir()
 	--# Check if Alfred-Bundler is installed
 	if (my _folder_exists(BUNDLER_DIR)) is not equal to true then
 		--# install it if not
@@ -39,6 +43,8 @@ on _bootstrap()
 
 	*)
 	--# Ask to install the Bundler
+	set BUNDLER_DIR to my get_bundler_dir()
+	set CACHE_DIR to my get_cache_dir()
 	try
 		my _install_confirmation()
 	on error

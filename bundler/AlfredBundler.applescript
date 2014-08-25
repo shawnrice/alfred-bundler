@@ -6,35 +6,40 @@ GLOBAL PROPERTIES/VARIABLES
 property BUNDLER_VERSION : "devel"
 
 --# Path to Alfred-Bundler's root directory
-global BUNDLER_DIR
-set BUNDLER_DIR to (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+on get_bundler_dir()
+	return (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+end get_bundler_dir
+
 --# Path to Alfred-Bundler's data directory
-global DATA_DIR
-set DATA_DIR to BUNDLER_DIR & "/data"
---# Path to Alfred-Bundler's cache directory
-global CACHE_DIR
-set CACHE_DIR to (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+on get_data_dir()
+	return (my get_bundler_dir()) & "/data"
+end get_data_dir
+
 --# Path to main Applescript Bundler
-global AS_BUNDLER
-set AS_BUNDLER to BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
+on get_as_bundler()
+	return (my get_bundler_dir()) & "/bundler/AlfredBundler.scpt"
+end get_as_bundler
+
 --# Path to applescript libraries directory
-global APPLESCRIPT_DIR
-set APPLESCRIPT_DIR to DATA_DIR & "/assets/applescript"
+on get_as_dir()
+	return (my get_data_dir()) & "/assets/applescript"
+end get_as_dir
+
 --# Path to utilities directory
-global UTILITIES_DIR
-set UTILITIES_DIR to DATA_DIR & "/assets/utility"
+on get_utils_dir()
+	return (my get_data_dir()) & "/assets/utility"
+end get_utils_dir
+
 --# Path to icons directory
-global ICONS_DIR
-set ICONS_DIR to DATA_DIR & "/assets/icons"
---# Path to color alternatives cache
-global COLOR_CACHE
-set COLOR_CACHE to DATA_DIR & "/color-cache"
---# URL to download `installer.sh`
-global BASH_BUNDLET_URL
-set BASH_BUNDLET_URL to my formatter("https://raw.githubusercontent.com/shawnrice/alfred-bundler/{}/bundler/bundlets/alfred.bundler.sh", BUNDLER_VERSION)
+on get_icons_dir()
+	return (my get_data_dir()) & "/assets/icons"
+end get_icons_dir
+
 --# Path to bundler log file
-global BUNDLER_LOGFILE
-set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
+on get_logfile()
+	set unformatted_path to (my get_data_dir()) & "/logs/bundler-{}.log"
+	set BUNDLER_LOGFILE to my formatter(unformatted_path, BUNDLER_VERSION)
+end get_logfile
 
 
 (* ///
@@ -73,11 +78,11 @@ on library(_name, _version, _json_path)
 		set _json to ""
 	end if
 	--# path to specific utility
-	set _library to my joiner({APPLESCRIPT_DIR, _name, _version}, "/")
+	set _library to my joiner({my get_as_dir(), _name, _version}, "/")
 	if my folder_exists(_library) = false then
 		--# if utility isn't already installed
 		my logger("library", "78", "INFO", my formatter("Library at `{}` not found...", _library))
-		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "applescript", _name, _version, _json_path}, space)
@@ -141,11 +146,11 @@ on utility(_name, _version, _json_path)
 		set _json to ""
 	end if
 	--# path to specific utility
-	set _utility to my joiner({UTILITIES_DIR, _name, _version}, "/")
+	set _utility to my joiner({my get_utils_dir(), _name, _version}, "/")
 	if my folder_exists(_utility) = false then
 		--# if utility isn't already installed
 		my logger("utility", "146", "INFO", my formatter("Utility at `{}` not found...", _utility))
-		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json_path}, space)
@@ -208,11 +213,11 @@ on icon(_font, _name, _color, _alter)
 		set _alter to false
 	end if
 	--# path to specific icon
-	set _icon to my joiner({ICONS_DIR, _font, _color, _name}, "/")
+	set _icon to my joiner({my get_icons_dir(), _font, _color, _name}, "/")
 	if my folder_exists(_icon) = false then
 		--# if icon isn't already installed
 		my logger("icon", "213", "INFO", my formatter("Icon at `{}` not found...", _icon))
-		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
+		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
@@ -262,10 +267,10 @@ on logger(_handler, line_num, _level, _message)
 	*)
 	--# Ensure log file exists, with checking for scope of global var
 	try
-		my check_file(BUNDLER_LOGFILE)
+		my check_file(my get_logfile())
 	on error
-		set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER_VERSION)
-		my check_file(BUNDLER_LOGFILE)
+		set my get_logfile() to my formatter((my get_data_dir() & "/logs/bundler-{}.log"), BUNDLER_VERSION)
+		my check_file(my get_logfile())
 	end try
 	--# delay to ensure IO action is completed
 	delay 0.1
@@ -279,7 +284,7 @@ on logger(_handler, line_num, _level, _message)
 	set _level to "[" & _level & "]"
 	--# Generate full error message for logging
 	set log_msg to (my joiner({log_time, _location, _level, _message}, space)) & (ASCII character 10)
-	my write_to_file(log_msg, BUNDLER_LOGFILE, true)
+	my write_to_file(log_msg, my get_logfile(), true)
 	--# Generate regular error message for returning to user
 	set error_msg to error_time & space & _location & space & _level & space & _message
 	return error_msg

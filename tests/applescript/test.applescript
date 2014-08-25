@@ -1,17 +1,19 @@
-global _home
-set _home to POSIX path of (path to "cusr" as text)
---One line version of loading the Alfred Bundler into a workflow script
-global bundler
-set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler()
---Two line version (for clarity's sake)
---set bundlet to load script (my _pwd()) & "alfred.bundler.scpt"
---set bundler to bundlet's load_bundler()
+on _home()
+	return POSIX path of (path to home folder as text)
+end _home
 
+on _bundler()
+	--One line version of loading the Alfred Bundler into a workflow script
+	set bundler to (load script (my _pwd()) & "alfred.bundler.scpt")'s load_bundler()
+	--Two line version (for clarity's sake)
+	--set bundlet to load script (my _pwd()) & "alfred.bundler.scpt"
+	--set bundler to bundlet's load_bundler()
+end _bundler
 
-my utility_tests()
+my _bundler()'s icon("octicons", "book", "", "")
 (*
 my library_tests()
-
+my utility_tests()
 my icon_tests()
 *)
 
@@ -27,8 +29,8 @@ end library_tests
 
 on utility_tests()
 	my utility_valid_latest_version() = true
-	--my utility_valid_no_version() = true
-	--my utility_valid_old_version() = true
+	my utility_valid_no_version() = true
+	my utility_valid_old_version() = true
 	my utility_invalid_name() = true
 	return true
 end utility_tests
@@ -49,8 +51,8 @@ end icon_tests
 (* ICON TESTS *)
 
 on icon_invalid_system_icon()
-	set icon_path to bundler's icon("system", "WindowLicker", "", "")
-	if icon_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/bundler/meta/icons/default.icns") then
+	set icon_path to my _bundler()'s icon("system", "WindowLicker", "", "")
+	if icon_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/bundler/meta/icons/default.icns") then
 		return true
 	else
 		error "Wrong path to invalid system icon: " & icon_path
@@ -58,7 +60,7 @@ on icon_invalid_system_icon()
 end icon_invalid_system_icon
 
 on icon_valid_system_icon()
-	set icon_path to bundler's icon("system", "Accounts", "", "")
+	set icon_path to my _bundler()'s icon("system", "Accounts", "", "")
 	if icon_path is equal to "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/Accounts.icns" then
 		return true
 	else
@@ -67,8 +69,8 @@ on icon_valid_system_icon()
 end icon_valid_system_icon
 
 on icon_unaltered_color()
-	set icon_path to bundler's icon("octicons", "markdown", "000", false)
-	if icon_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/octicons/000000/markdown.png") then
+	set icon_path to my _bundler()'s icon("octicons", "markdown", "000", false)
+	if icon_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/octicons/000000/markdown.png") then
 		return true
 	else
 		error "Wrong path to unaltered icon: " & icon_path
@@ -76,8 +78,8 @@ on icon_unaltered_color()
 end icon_unaltered_color
 
 on icon_altered_color()
-	set icon_path to bundler's icon("octicons", "markdown", "000", true)
-	if icon_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/octicons/ffffff/markdown.png") then
+	set icon_path to my _bundler()'s icon("octicons", "markdown", "000", true)
+	if icon_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/octicons/ffffff/markdown.png") then
 		return true
 	else
 		error "Wrong path to altered icon: " & icon_path
@@ -85,8 +87,8 @@ on icon_altered_color()
 end icon_altered_color
 
 on icon_valid_color()
-	set icon_path to bundler's icon("fontawesome", "adjust", "fff", "")
-	if icon_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/fontawesome/ffffff/adjust.png") then
+	set icon_path to my _bundler()'s icon("fontawesome", "adjust", "fff", "")
+	if icon_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/icons/fontawesome/ffffff/adjust.png") then
 		return true
 	else
 		error "Wrong path to valid icon: " & icon_path
@@ -95,7 +97,7 @@ end icon_valid_color
 
 on icon_invalid_color()
 	try
-		bundler's icon("fontawesome", "adjust", "hubbahubba", "")
+		my _bundler()'s icon("fontawesome", "adjust", "hubbahubba", "")
 	on error msg number num
 		--proper error
 		if num = 1 then
@@ -113,7 +115,7 @@ end icon_invalid_color
 
 on icon_invalid_character()
 	try
-		bundler's icon("fontawesome", "banditry!", "", "")
+		my _bundler()'s icon("fontawesome", "banditry!", "", "")
 	on error msg number num
 		--proper error
 		if num = 1 then
@@ -131,7 +133,7 @@ end icon_invalid_character
 
 on icon_invalid_font()
 	try
-		bundler's icon("spaff", "adjust", "", "")
+		my _bundler()'s icon("spaff", "adjust", "", "")
 	on error msg number num
 		--proper error
 		if num = 1 then
@@ -152,7 +154,7 @@ end icon_invalid_font
 
 on utility_invalid_name()
 	try
-		bundler's utility("terminalnotifier", "", "")
+		my _bundler()'s utility("terminalnotifier", "", "")
 	on error msg number num
 		if num = 11 then
 			if msg contains "command not found" then
@@ -169,8 +171,8 @@ on utility_invalid_name()
 end utility_invalid_name
 
 on utility_valid_old_version()
-	set util_path to bundler's utility("pashua", "1.0", "")
-	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/1.0/Pashua.app/Contents/MacOS/Pashua") then
+	set util_path to my _bundler()'s utility("pashua", "1.0", "")
+	if util_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/1.0/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
@@ -178,8 +180,8 @@ on utility_valid_old_version()
 end utility_valid_old_version
 
 on utility_valid_latest_version()
-	set util_path to bundler's utility("pashua", "latest", "")
-	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
+	set util_path to my _bundler()'s utility("pashua", "latest", "")
+	if util_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
@@ -187,8 +189,8 @@ on utility_valid_latest_version()
 end utility_valid_latest_version
 
 on utility_valid_no_version()
-	set util_path to bundler's utility("pashua", "", "")
-	if util_path is equal to (_home & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
+	set util_path to my _bundler()'s utility("pashua", "", "")
+	if util_path is equal to (my _home() & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-devel/data/assets/utility/pashua/latest/Pashua.app/Contents/MacOS/Pashua") then
 		return true
 	else
 		error "Wrong path to valid utility: " & util_path
@@ -200,7 +202,7 @@ end utility_valid_no_version
 
 on library_invalid_name()
 	try
-		bundler's library("hello", "", "")
+		my _bundler()'s library("hello", "", "")
 	on error msg number num
 		if num = 11 then
 			if msg contains "command not found" then
@@ -216,7 +218,7 @@ on library_invalid_name()
 end library_invalid_name
 
 on library_valid_version()
-	set list_er to bundler's library("_list", "latest", "")
+	set list_er to my _bundler()'s library("_list", "latest", "")
 	if list_er's isAllOfClass({1, 2, 3}, integer) = true then
 		return true
 	else
@@ -226,7 +228,7 @@ end library_valid_version
 
 
 on library_valid_name()
-	set url_er to bundler's library("_url", "", "")
+	set url_er to my _bundler()'s library("_url", "", "")
 	if url_er's urlEncode("hello world") = "hello%20world" then
 		return true
 	else
