@@ -64,6 +64,7 @@ on _bootstrap()
 	repeat while not (my _path_exists(as_bundler))
 		delay 0.2
 	end repeat
+	tell application "Finder" to delete (POSIX file CACHE_DIR as alias)
 	return
 end _bootstrap
 
