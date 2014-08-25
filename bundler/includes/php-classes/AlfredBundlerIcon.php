@@ -49,10 +49,10 @@ class AlfredBundlerIcon {
     $this->data       = $this->bundler->data;
     $this->colors     = array();
     $this->fallback   = $this->data . '/bundler/meta/icons/default.png';
-
+    $this->cache = $this->bundler->cache . '/color';
     $this->setBackground();
 
-    $this->cache = $this->bundler->cache . '/color';
+
 
   }
 
@@ -149,11 +149,11 @@ class AlfredBundlerIcon {
 
     // The Alfred preferences plist where the theme information is stored
     $plist = "{$_SERVER[ 'HOME' ]}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
-    $cache = "{$this->data}/cache/misc/theme_background";
+    $cache = "{$this->cache}/../misc/theme_background";
     $util  = "{$this->data}/bundler/includes/LightOrDark";
 
     if ( ! file_exists( "{$this->data}/cache/misc" ) )
-      mkdir( "{$this->data}/cache/misc", 0775, TRUE );
+      mkdir( "{$this->cache}/cache/misc", 0775, TRUE );
 
     if ( file_exists( $cache ) && ( filemtime( $cache ) > filemtime( $plist ) ) ) {
       $this->background = file_get_contents( $cache );
