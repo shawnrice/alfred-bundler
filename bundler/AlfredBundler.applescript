@@ -40,6 +40,8 @@ set BUNDLER_LOGFILE to my formatter((DATA_DIR & "/logs/bundler-{}.log"), BUNDLER
 USER API
 /// *)
 
+
+
 on library(_name, _version, _json_path)
 	(*  Get path to specified AppleScript library, installing it first if necessary.
 
@@ -72,35 +74,35 @@ on library(_name, _version, _json_path)
 		set _json to ""
 	end if
 	--# path to specific utility
-	set library to my joiner({APPLESCRIPT_DIR, _name, _version}, "/")
-	if my folder_exists(library) = false then
+	set _library to my joiner({APPLESCRIPT_DIR, _name, _version}, "/")
+	if my folder_exists(_library) = false then
 		--# if utility isn't already installed
-		my logger("utility", "INFO", my formatter("Library at `{}` not found...", library))
+		my logger("library", "INFO", my formatter("Library at `{}` not found...", _library))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "applescript", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("utility", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("library", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return load script full_path
 		else
-			set error_msg to my logger("utility", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("library", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if utility is already installed
-		my logger("utility", "INFO", my formatter("Utility at `{}` found...", library))
+		my logger("library", "INFO", my formatter("Utility at `{}` found...", _library))
 		--# read utilities invoke file
-		set invoke_file to library & "/invoke"
+		set invoke_file to _library & "/invoke"
 		if my file_exists(invoke_file) = true then
 			set invoke_path to my read_file(invoke_file)
 			--# combine utility path with invoke path
-			set full_path to library & "/" & invoke_path
+			set full_path to _library & "/" & invoke_path
 			return load script full_path
 		else
-			set error_msg to my logger("utility", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("library", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
@@ -142,10 +144,10 @@ on utility(_name, _version, _json_path)
 		set _json to ""
 	end if
 	--# path to specific utility
-	set utility to my joiner({UTILITIES_DIR, _name, _version}, "/")
-	if my folder_exists(utility) = false then
+	set _utility to my joiner({UTILITIES_DIR, _name, _version}, "/")
+	if my folder_exists(_utility) = false then
 		--# if utility isn't already installed
-		my logger("utility", "INFO", my formatter("Utility at `{}` not found...", utility))
+		my logger("utility", "INFO", my formatter("Utility at `{}` not found...", _utility))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
@@ -161,13 +163,13 @@ on utility(_name, _version, _json_path)
 		end if
 	else
 		--# if utility is already installed
-		my logger("utility", "INFO", my formatter("Utility at `{}` found...", utility))
+		my logger("utility", "INFO", my formatter("Utility at `{}` found...", _utility))
 		--# read utilities invoke file
-		set invoke_file to utility & "/invoke"
+		set invoke_file to _utility & "/invoke"
 		if my file_exists(invoke_file) = true then
 			set invoke_path to my read_file(invoke_file)
 			--# combine utility path with invoke path
-			set full_path to utility & "/" & invoke_path
+			set full_path to _utility & "/" & invoke_path
 			return full_path
 		else
 			set error_msg to my logger("utility", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
@@ -210,10 +212,10 @@ on icon(_font, _name, _color, _alter)
 		set _alter to false
 	end if
 	--# path to specific icon
-	set icon to my joiner({ICONS_DIR, _font, _color, _name}, "/")
-	if my folder_exists(icon) = false then
+	set _icon to my joiner({ICONS_DIR, _font, _color, _name}, "/")
+	if my folder_exists(_icon) = false then
 		--# if icon isn't already installed
-		my logger("icon", "INFO", my formatter("Icon at `{}` not found...", icon))
+		my logger("icon", "INFO", my formatter("Icon at `{}` not found...", _icon))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
@@ -228,8 +230,8 @@ on icon(_font, _name, _color, _alter)
 		end if
 	else
 		--# if icon is already installed
-		my logger("icon", "INFO", my formatter("Icon at `{}` found...", icon))
-		return icon
+		my logger("icon", "INFO", my formatter("Icon at `{}` found...", _icon))
+		return _icon
 	end if
 end icon
 
