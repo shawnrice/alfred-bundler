@@ -152,7 +152,7 @@ class AlfredBundler {
         throw new Exception('The Alfred Bundler could not be installed.');
         return FALSE;
       } else {
-        chmod( "{$this->_data}/bundler/includes/LightOrDark", 0755 );
+        chmod( "{$this->_data}/bundler/includes/LightOrDark", 0775 );
         // The bundler is now in place, so require the actual PHP Bundler file
         require_once "../../bundler/AlfredBundler.php";
         // Create the internal class object
@@ -235,8 +235,8 @@ class AlfredBundler {
     // 'AlfredBundlerInternalClass' class
     if ( ! method_exists( $this->bundler, $method ) ) {
       // Whoops. We called a non-existent method
-      $this->report( "Could not find method [$method] in class 'AlfredBundler'.",
-        'ERROR', __FILE__, __LINE__ );
+      $this->bundler->log( "Could not find method [$method] in class 'AlfredBundler'.",
+        'ERROR', 'console' );
       return FALSE;
     }
 
@@ -311,7 +311,8 @@ private function prepareASDialog() {
 
   if ( file_exists( 'icon.png' ) ) {
     $icon = realpath( 'icon.png' );
-    $icon = str_replace('/', ':', 'icon');
+
+    $icon = str_replace('/', ':', $icon);
     $icon = substr( $icon, 1, strlen( $icon ) - 1 );
   } else {
     $icon = "System:Library:CoreServices:CoreTypes.bundle:Contents:Resources:SideBarDownloadsFolder.icns";
@@ -364,10 +365,10 @@ private function processASDialog() {
   private function prepareDirectories() {
     // Make the bundler cache directory
     if ( ! file_exists( $this->_cache ) )
-      mkdir( $this->_cache, 0755, TRUE );
+      mkdir( $this->_cache, 0775, TRUE );
     // Make the bundler data directory
     if ( ! file_exists( $this->_data ) )
-      mkdir( $this->_data, 0755, TRUE );
+      mkdir( $this->_data, 0775, TRUE );
   }
 
   private function userCanceledInstallation() {
@@ -532,7 +533,6 @@ private function processASDialog() {
  *****************************************************************************/
 
 }
-
 
 // Update logic for the bundler
 // ----------------------------

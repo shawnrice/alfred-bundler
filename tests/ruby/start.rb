@@ -1,7 +1,5 @@
 #!/bin/ruby
 
-require 'uri', 'rdoc'
-
 
 exit
 
