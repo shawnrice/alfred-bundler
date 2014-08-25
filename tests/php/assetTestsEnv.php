@@ -53,7 +53,13 @@ class IconTests extends PHPUnit_Framework_TestCase
 
     function testIcon() {
         $icon = $this->b->icon('elusive', 'fire', '123', true );
+        $this->assertTrue( file_exists( $icon ) );
 
+    }
+
+    function testComposer() {
+        $this->b->composer( array( 'monolog/monolog' => '1.0.*' ) );
+        $this->assertTrue( class_exists( "Monolog\Logger" ) );
     }
 
 
