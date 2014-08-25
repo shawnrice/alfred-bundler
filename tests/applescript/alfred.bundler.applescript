@@ -1,8 +1,11 @@
 --# Current Alfred-Bundler version
 property BUNDLER_VERSION : "devel"
 --# Path to Alfred-Bundler's root directory
-property BUNDLER_DIR : (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
-property CACHE_DIR : (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+global BUNDLER_DIR
+set BUNDLER_DIR to (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+--# Path to Alfred-Bundler's cache directory
+global CACHE_DIR
+set CACHE_DIR to (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 
 
 (* MAIN API FUNCTION *)

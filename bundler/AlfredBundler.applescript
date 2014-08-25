@@ -1,31 +1,34 @@
 (* ///
-GLOBAL PROPERTIES
+GLOBAL PROPERTIES/VARIABLES
 /// *)
 
 --# Current Alfred-Bundler version
 property BUNDLER_VERSION : "devel"
 
-(* ALFRED-BUNDLER PATH PROPERTIES *)
-
 --# Path to Alfred-Bundler's root directory
-property BUNDLER_DIR : (POSIX path of (path to "cusr" as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+global BUNDLER_DIR
+set BUNDLER_DIR to (POSIX path of (path to home folder as text)) & "Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 --# Path to Alfred-Bundler's data directory
-property DATA_DIR : BUNDLER_DIR & "/data"
+global DATA_DIR
+set DATA_DIR to BUNDLER_DIR & "/data"
 --# Path to Alfred-Bundler's cache directory
-property CACHE_DIR : (POSIX path of (path to "cusr" as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
+global CACHE_DIR
+set CACHE_DIR to (POSIX path of (path to home folder as text)) & "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/alfred.bundler-" & BUNDLER_VERSION
 --# Path to main Applescript Bundler
-property AS_BUNDLER : BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
+global AS_BUNDLER
+set AS_BUNDLER to BUNDLER_DIR & "/bundler/AlfredBundler.scpt"
 --# Path to applescript libraries directory
-property APPLESCRIPT_DIR : DATA_DIR & "/assets/applescript"
+global APPLESCRIPT_DIR
+set APPLESCRIPT_DIR to DATA_DIR & "/assets/applescript"
 --# Path to utilities directory
-property UTILITIES_DIR : DATA_DIR & "/assets/utility"
+global UTILITIES_DIR
+set UTILITIES_DIR to DATA_DIR & "/assets/utility"
 --# Path to icons directory
-property ICONS_DIR : DATA_DIR & "/assets/icons"
+global ICONS_DIR
+set ICONS_DIR to DATA_DIR & "/assets/icons"
 --# Path to color alternatives cache
-property COLOR_CACHE : DATA_DIR & "/color-cache"
-
-(* GLOBAL VARIABLES *)
-
+global COLOR_CACHE
+set COLOR_CACHE to DATA_DIR & "/color-cache"
 --# URL to download `installer.sh`
 global BASH_BUNDLET_URL
 set BASH_BUNDLET_URL to my formatter("https://raw.githubusercontent.com/shawnrice/alfred-bundler/{}/bundler/bundlets/alfred.bundler.sh", BUNDLER_VERSION)
