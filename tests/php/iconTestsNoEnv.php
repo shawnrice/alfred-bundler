@@ -4,11 +4,11 @@ class IconTests extends PHPUnit_Framework_TestCase
 {
     function setUp() {
         $_ENV['AB_BRANCH'] = 'devel';
-        $_ENV[ 'alfred_version' ]  = '2.4';
-        $_ENV[ 'alfred_theme_background' ]  = 'rgba(255,255,255,0.98)';
-        $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.poop';
-        $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
-        $_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Support/Alfred 2/Workflow Data/com.bundler.testing.poop';
+        // $_ENV[ 'alfred_version' ]  = '2.4';
+        // $_ENV[ 'alfred_theme_background' ]  = 'rgba(255,255,255,0.98)';
+        // $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.poop';
+        // $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
+        // $_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Support/Alfred 2/Workflow Data/com.bundler.testing.poop';
 
         require_once( 'alfred.bundler.php' );
         $this->major = 'devel';
@@ -47,12 +47,17 @@ class IconTests extends PHPUnit_Framework_TestCase
 
     function testSetBackgroundFromEnv() {
         $this->i->setBackgroundFromEnv();
-        $this->assertTrue( 'light' == $this->i->background );
+        $this->assertFalse( 'light' == $this->i->background );
     }
 
     function testSetBackgroundFromUtil() {
         $this->i->setBackgroundFromUtil();
         $this->assertTrue( 'light' == $this->i->background );
+    }
+
+    function testIconViaBundler() {
+        $path = $this->b->icon('elusive', 'fire', get_hex(), true );
+        $this->assertTrue( file_exists( $path ) );
     }
 
     // COLOR TESTS
@@ -149,11 +154,6 @@ class IconTests extends PHPUnit_Framework_TestCase
         $luminance = round( $luminance, 12 );
         $this->assertTrue( $luminance == $answer);
     } // luminance  -- private function
-
-
-
-
-
 
 // Color tests:
 // Hex: ac5ef1

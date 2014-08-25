@@ -57,6 +57,11 @@ class IconTests extends PHPUnit_Framework_TestCase
         $this->assertTrue( 'light' == $this->i->background );
     }
 
+    function testIconViaBundler() {
+        $path = $this->b->icon('elusive', 'fire', get_hex(), true );
+        $this->assertTrue( file_exists( $path ) );
+    }
+
     // COLOR TESTS
     function testNormalize3Hex() {
         // generate a 3-hex to use.

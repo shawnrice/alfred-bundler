@@ -25,35 +25,6 @@
 // register
 // notify
 
-
-// AlfredBundlerIcon
-// setup
-// setBackground
-// setBackgroundFromEnv
-// setBackgroundFromUtil
-// validateBackground
-// icon
-// parseIconArguments
-// getSystemIcon
-// getIcon
-// tryServers
-// downloadIcon
-// validateImage
-// color
-// prepareIcon
-// altered
-// luminance
-// brightness
-// cached
-// cache
-
-// getLuminance
-// getBrightness
-// alter
-// checkHex
-// normalizeHex
-// validateHex
-
 // AlfredBundler
 // report
 // install_bundler
