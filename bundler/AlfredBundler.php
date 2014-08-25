@@ -463,13 +463,17 @@ class AlfredBundlerInternalClass {
   public function installComposer() {
     if ( ! file_exists( "{$this->composerDir}/composer.phar" ) ) {
       $this->download( "https://getcomposer.org/composer.phar", "{$this->composerDir}/composer.phar" );
-      exec( "'{$this->composerDir}/composer.phar'", $output, $status );
+      exec( "php '{$this->composerDir}/composer.phar'", $output, $status );
       if ( $status !== 0 ) {
         $this->log->log( "Composer.phar is corrupt. Deleting...", 'CRITICAL', 'console' );
+        $this->rrmdir( $this->composerDir );
+        return false;
       } else {
         $this->log->log( "Installing Composer.phar to `{$this->composerDir}`", 'INFO', 'both' );
+        return true;
       }
     }
+    return true;
   }
 
   /**
@@ -485,7 +489,8 @@ class AlfredBundlerInternalClass {
     if ( ! file_exists( $this->composerDir = "{$this->data}/data/assets/php/composer" ) )
       mkdir( $this->composerDir, 0775, TRUE );
 
-    $this->installComposer();
+    if ( ! $this->installComposer() )
+      return false;
     $install = FALSE;
 
     if ( file_exists( "{$this->composerDir}/bundles/{$this->bundle}/autoload.php" ) ) {
