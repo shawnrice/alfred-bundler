@@ -75,23 +75,22 @@ on library(_name, _version, _json_path)
 	set _library to my joiner({APPLESCRIPT_DIR, _name, _version}, "/")
 	if my folder_exists(_library) = false then
 		--# if utility isn't already installed
-		my logger("library", "INFO", my formatter("Library at `{}` not found...", _library))
+		my logger("library", "78", "INFO", my formatter("Library at `{}` not found...", _library))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "applescript", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("library", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("library", "84", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return load script full_path
 		else
-			set error_msg to my logger("library", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("library", "88", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
-			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if utility is already installed
-		my logger("library", "INFO", my formatter("Utility at `{}` found...", _library))
+		my logger("library", "93", "INFO", my formatter("Library at `{}` found...", _library))
 		--# read utilities invoke file
 		set invoke_file to _library & "/invoke"
 		if my file_exists(invoke_file) = true then
@@ -100,9 +99,8 @@ on library(_name, _version, _json_path)
 			set full_path to _library & "/" & invoke_path
 			return load script full_path
 		else
-			set error_msg to my logger("library", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("library", "103", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
-			--##TODO: need a stable error number schema
 		end if
 	end if
 end library
@@ -145,23 +143,23 @@ on utility(_name, _version, _json_path)
 	set _utility to my joiner({UTILITIES_DIR, _name, _version}, "/")
 	if my folder_exists(_utility) = false then
 		--# if utility isn't already installed
-		my logger("utility", "INFO", my formatter("Utility at `{}` not found...", _utility))
+		my logger("utility", "146", "INFO", my formatter("Utility at `{}` not found...", _utility))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("utility", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("utility", "152", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return full_path
 		else
-			set error_msg to my logger("utility", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("utility", "156", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if utility is already installed
-		my logger("utility", "INFO", my formatter("Utility at `{}` found...", _utility))
+		my logger("utility", "162", "INFO", my formatter("Utility at `{}` found...", _utility))
 		--# read utilities invoke file
 		set invoke_file to _utility & "/invoke"
 		if my file_exists(invoke_file) = true then
@@ -170,7 +168,7 @@ on utility(_name, _version, _json_path)
 			set full_path to _utility & "/" & invoke_path
 			return full_path
 		else
-			set error_msg to my logger("utility", "DEBUG", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("utility", "171", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
@@ -212,18 +210,17 @@ on icon(_font, _name, _color, _alter)
 	set _icon to my joiner({ICONS_DIR, _font, _color, _name}, "/")
 	if my folder_exists(_icon) = false then
 		--# if icon isn't already installed
-		my logger("icon", "INFO", my formatter("Icon at `{}` not found...", _icon))
+		my logger("icon", "213", "INFO", my formatter("Icon at `{}` not found...", _icon))
 		set bash_bundlet to (my dirname(AS_BUNDLER)) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("icon", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("icon", "219", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 		else
-			set error_msg to my logger("icon", "DEBUG", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("icon", "222", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
-			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if icon is already installed
@@ -238,7 +235,7 @@ end icon
 LOGGING HANDLER
 /// *)
 
-on logger(_handler, _level, _message)
+on logger(_handler, line_num, _level, _message)
 	(* Log information in the standard Alfred-Bundler log file.
 	This AppleScript logger will save the `_message` with appropriate information
 	in this format:
@@ -252,6 +249,8 @@ on logger(_handler, _level, _message)
 
 	:param: _handler: name of the function where the script it running
 	:type _handler: ``string``
+	:param: line_num: number of the line of action for logging
+	:type line_num: ``string``
 	:param _level: type of logging information (INFO or DEBUG)
 	:type _level: ``string``
 	:param _message: message to be logged
@@ -274,7 +273,7 @@ on logger(_handler, _level, _message)
 	set formatterted_time to text items 1 thru -4 of (time string of (current date)) as string
 	set error_time to "[" & formatterted_time & "]"
 	--# Prepare location message
-	set _location to "[bundler.scpt:" & _handler & "]"
+	set _location to "[bundler.scpt:" & _handler & ":" & line_num & "]"
 	--# Prepare level message
 	set _level to "[" & _level & "]"
 	--# Generate full error message for logging

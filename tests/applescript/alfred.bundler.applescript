@@ -53,7 +53,7 @@ on _bootstrap()
 		if _status is equal to "0" then exit repeat
 	end repeat
 	--# Could not download the file
-	if _status is not equal to "0" then error "Could not download bundler install file" number 23
+	if _status is not equal to "0" then error "Could not download bundler install file" number 21
 	--# Ensure directory tree already exists for bundler to be moved into it
 	my _check_dir(BUNDLER_DIR)
 	--# Unzip the bundler and move it to its data directory
@@ -102,7 +102,7 @@ You can decline this installation, but " & _name & " may not work without them. 
 		error "User looked sought more information" number 23
 	end if
 	--# If permission denied, stop and error
-	if _response is equal to "Cancel" then error "User canceled installation" number 23
+	if _response is equal to "Cancel" then error "User canceled bundler installation" number 23
 end _install_confirmation
 
 
