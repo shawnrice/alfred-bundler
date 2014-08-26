@@ -104,6 +104,7 @@ module Alfred
       unless File.exists? @bundler
         self.install_bundler unless confirm_installation == 'Proceed'
         installed = true
+        @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
       end
 
       ####
@@ -118,7 +119,6 @@ module Alfred
       # Initialize an internal object
       @internal = Internal.new(@data, @cache)
       # Send a notification informing that the bundler has been installed
-      @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
     end
 
     # @!endgroup
@@ -236,7 +236,7 @@ module Alfred
     def construct_confirm_dialog
       name = get_workflow_name.chomp
       icon = get_confirm_dialog_icon
-      script =  "display dialog \"#{text}\" "
+      script =  "display dialog "
       script << "\"#{name} needs to install additional components, which will be "
       script << "placed in the Alfred storage directory and will not interfere "
       script << "with your system.\\n\\nYou may be asked to allow some components "
