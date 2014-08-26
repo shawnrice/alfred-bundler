@@ -81,22 +81,21 @@ on library(_name, _version, _json_path)
 	set _library to my joiner({my get_as_dir(), _name, _version}, "/")
 	if my folder_exists(_library) = false then
 		--# if utility isn't already installed
-		my logger("library", "78", "INFO", my formatter("Library at `{}` not found...", _library))
 		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "applescript", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("library", "84", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("library", "89", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return load script full_path
 		else
-			set error_msg to my logger("library", "88", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("library", "93", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 		end if
 	else
 		--# if utility is already installed
-		my logger("library", "93", "INFO", my formatter("Library at `{}` found...", _library))
+		my logger("library", "98", "INFO", my formatter("Library at `{}` found...", _library))
 		--# read utilities invoke file
 		set invoke_file to _library & "/invoke"
 		if my file_exists(invoke_file) = true then
@@ -105,7 +104,7 @@ on library(_name, _version, _json_path)
 			set full_path to _library & "/" & invoke_path
 			return load script full_path
 		else
-			set error_msg to my logger("library", "103", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("library", "107", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
 		end if
 	end if
@@ -149,23 +148,22 @@ on utility(_name, _version, _json_path)
 	set _utility to my joiner({my get_utils_dir(), _name, _version}, "/")
 	if my folder_exists(_utility) = false then
 		--# if utility isn't already installed
-		my logger("utility", "146", "INFO", my formatter("Utility at `{}` not found...", _utility))
 		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "utility", _name, _version, _json_path}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("utility", "152", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("utility", "156", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 			return full_path
 		else
-			set error_msg to my logger("utility", "156", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("utility", "160", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
 	else
 		--# if utility is already installed
-		my logger("utility", "162", "INFO", my formatter("Utility at `{}` found...", _utility))
+		my logger("utility", "166", "INFO", my formatter("Utility at `{}` found...", _utility))
 		--# read utilities invoke file
 		set invoke_file to _utility & "/invoke"
 		if my file_exists(invoke_file) = true then
@@ -174,7 +172,7 @@ on utility(_name, _version, _json_path)
 			set full_path to _utility & "/" & invoke_path
 			return full_path
 		else
-			set error_msg to my logger("utility", "171", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
+			set error_msg to my logger("utility", "175", "ERROR", my formatter("Internal invoke file `{}` does not exist.", invoke_file))
 			error error_msg number 1
 			--##TODO: need a stable error number schema
 		end if
@@ -216,21 +214,20 @@ on icon(_font, _name, _color, _alter)
 	set _icon to my joiner({my get_icons_dir(), _font, _color, _name}, "/")
 	if my folder_exists(_icon) = false then
 		--# if icon isn't already installed
-		my logger("icon", "213", "INFO", my formatter("Icon at `{}` not found...", _icon))
 		set bash_bundlet to (my dirname(my get_as_bundler())) & "bundlets/alfred.bundler.sh"
 		if my file_exists(bash_bundlet) = true then
 			set bash_bundlet_cmd to quoted form of bash_bundlet
 			set cmd to my joiner({bash_bundlet_cmd, "icon", _font, _name, _color, _alter}, space)
 			set cmd to my prepare_cmd(cmd)
-			my logger("icon", "219", "INFO", my formatter("Running shell command: `{}`...", cmd))
+			my logger("icon", "222", "INFO", my formatter("Running shell command: `{}`...", cmd))
 			set full_path to (do shell script cmd)
 		else
-			set error_msg to my logger("icon", "222", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
+			set error_msg to my logger("icon", "225", "ERROR", my formatter("Internal bash bundlet `{}` does not exist.", bash_bundlet))
 			error error_msg number 1
 		end if
 	else
 		--# if icon is already installed
-		my logger("icon", "INFO", my formatter("Icon at `{}` found...", _icon))
+		my logger("icon", "230", "INFO", my formatter("Icon at `{}` found...", _icon))
 		return _icon
 	end if
 end icon
@@ -264,6 +261,7 @@ on logger(_handler, line_num, _level, _message)
 	:returns: a properly formatted log message
 	:rtype: ``string``
 
+	do shell script "echo " & theLine & " >> ~/Library/Logs/AppleScript-events.log"
 	*)
 	--# Ensure log file exists, with checking for scope of global var
 	try
@@ -307,21 +305,6 @@ on date_formatter()
 	set formatterted_time to text items 1 thru -4 of (time string of (current date)) as string
 	return formatterted_date & space & formatterted_time
 end date_formatter
-
-on read_file(target_file)
-	(* Read data from `target_file`.
-	
-	:param target_file: Full path to the file to be written to
-	:type target_file: ``string`` (POSIX path)
-	:returns: Data contained in `target_file`
-	:rtype: ``string``
-		
-	*)
-	open for access POSIX file target_file
-	set _contents to (read target_file)
-	close access target_file
-	return _contents
-end read_file
 
 on prepare_cmd(cmd)
 	(* Ensure shell `_cmd` is working from the proper directory.
@@ -369,7 +352,21 @@ on write_to_file(this_data, target_file, append_data)
 	end try
 end write_to_file
 
---# 
+on read_file(target_file)
+	(* Read data from `target_file`.
+	
+	:param target_file: Full path to the file to be written to
+	:type target_file: ``string`` (POSIX path)
+	:returns: Data contained in `target_file`
+	:rtype: ``string``
+		
+	*)
+	open for access POSIX file target_file
+	set _contents to (read target_file)
+	close access target_file
+	return _contents
+end read_file
+
 on pwd()
 	(* Get path to "present working directory", i.e. the workflow's root directory.
 	
@@ -426,7 +423,6 @@ on check_file(_path)
 	end if
 end check_file
 
---#  handler to check if a folder exists
 on folder_exists(_folder)
 	(* Return ``true`` if `_folder` exists, else ``false``
 
@@ -443,7 +439,6 @@ on folder_exists(_folder)
 	return false
 end folder_exists
 
---# handler to check if a file exists
 on file_exists(_file)
 	(* Return ``true`` if `_file` exists, else ``false``
 
@@ -460,7 +455,6 @@ on file_exists(_file)
 	return false
 end file_exists
 
---#  handler to check if a path exists
 on path_exists(_path)
 	(* Return ``true`` if `_path` exists, else ``false``
 
@@ -515,7 +509,6 @@ on split(str, delim)
 	end try
 end split
 
---# format string á la Python
 on formatter(str, arg)
 	(* Replace `{}` in `str` with `arg`
 
@@ -544,7 +537,6 @@ on formatter(str, arg)
 	end try
 end formatter
 
---# removes white space surrounding a string
 on trim(_str)
 	(* Remove white space from beginning and end of `_str`
 
@@ -601,7 +593,6 @@ end joiner
 LOWER LEVEL HELPER FUNCTIONS
 /// *)
 
---# checks if a value is empty
 on is_empty(_obj)
 	(* Return ``true`` if `_obj ` is empty, else ``false``
 
