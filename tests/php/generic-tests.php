@@ -37,7 +37,7 @@ $_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Sup
 require_once( 'alfred.bundler.php' );
 // require_once( '../../bundler/bundlets/alfred.bundler.php' );
 
-$b = new AlfredBundler;
+$b = new AlfredBundler(['wf_log' => TRUE]);
 $i = new AlfredBundlerIcon( $b );
 $b->notify('Test', 'One Two Three');
 $viewer = $b->utility('viewer');
