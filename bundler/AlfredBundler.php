@@ -1024,12 +1024,16 @@ class AlfredBundlerInternalClass {
     if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
       return FALSE;
 
+
+
     // Load the registry data
     $registry = array();
-    if ( file_exists( "{$this->data}/data/registry.json" ) ) {
+
+    if ( file_exists( "{$this->data}/data/registry.json" ) )
         $registry = json_decode( file_get_contents( "{$this->data}/data/registry.json" ), TRUE );
 
     if ( isset( $registry[ $asset ] ) ) {
+
       if ( ! array_key_exists( $version , $registry[ $asset ] ) ) {
         $registry[ $asset ][ $version ] = array();
         $update = TRUE;
@@ -1050,7 +1054,6 @@ class AlfredBundlerInternalClass {
       file_put_contents( "{$this->data}/data/registry.json", utf8_encode( json_encode( $registry ) ) );
 
     return TRUE;
-    }
   }
 
   /**
