@@ -85,40 +85,46 @@ class AlfredBundlerInternalClass {
   public   $workflowData;
 
   /**
-   * The background 'color' of the user's current theme in Alfred (light or dark)
+   * The background 'color' of the user's current Alfred theme (light or dark)
    * @var string
    */
   public   $background;
 
-  // Just a resource to check on a fileinfo thingie.
-  public $finfo;
-
-  //
-  public $alfredVersion;
+  /**
+   * File resource of mimetypes
+   * @var  resource
+   */
+  public   $finfo;
 
   /**
-   * [$caches description]
+   * Version of Alfred installed
+   * @var  string
+   */
+  public   $alfredVersion;
+
+  /**
+   * Directory for caches
    * @var    array
    */
-  private $caches;
+  private   $caches;
 
   /**
    * Desc
    * @var    object
    */
-  public $log;
+  public    $log;
 
   /**
    * Desc
    * @var    object
    */
-  public $userLog;
+  public    $userLog;
 
   /**
    * Whether or not enviromental variables are present
    * @var    bool
    */
-  public $env;
+  public    $env;
 
 
   /**
@@ -147,7 +153,8 @@ class AlfredBundlerInternalClass {
     else
       $log = 'file';
 
-    $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}", $log );
+    if ( isset( $options[ 'wf_log' ] ) && ( $options[ 'wf_log' ] == TRUE ) )
+      $this->userLog = new AlfredBundlerLogger( "{$this->workflowData}/{$this->name}", $log );
 
     return TRUE;
   }
@@ -187,6 +194,7 @@ class AlfredBundlerInternalClass {
 
   /**
    * Sets variables for versions of Alfred pre-2.4:277
+   *
    * @since  Taurus 1
    */
   private function setupDeprecated() {
@@ -371,7 +379,6 @@ class AlfredBundlerInternalClass {
  * Actually, this method just wraps around the method from the Icon class.
  *
  * @since  Taurus 1
- * @access public
  *
  * @param   string   $font   name of font
  * @param   string   $name   name of icon
@@ -391,6 +398,7 @@ class AlfredBundlerInternalClass {
    * Loads a utility
    *
    * @since  Taurus 1
+   *
    * @param string $name    Name of utility
    * @param string $version = 'latest' Version of utility
    * @param string $json    = ''        File path to json
@@ -411,6 +419,7 @@ class AlfredBundlerInternalClass {
    * Loads / requires a library
    *
    * @since  Taurus 1
+   *
    * @param string $name    Name of library
    * @param string $version = 'latest' Version of library
    * @param string $json    = ''        File path to json
@@ -435,6 +444,7 @@ class AlfredBundlerInternalClass {
    * Loads a wrapper object
    *
    * @since  Taurus 1
+   *
    * @param   string   $wrapper  name of wrapper to load
    * @param   boolean  $debug    turn debugging off / on
    * @return  object             a wrapper object
@@ -481,6 +491,7 @@ class AlfredBundlerInternalClass {
    *
    * @todo refactor into a composer class
    * @since  Taurus 1
+   *
    * @param array $packages An array of packages to load in composer
    * @return bool            True on success, false on failure
    */
@@ -784,11 +795,11 @@ class AlfredBundlerInternalClass {
   /**
    * Wraps a cURL function to download files
    *
+   * @since  Taurus 1
    * @param string $url     A URL to the file
    * @param string $file    The destination file
    * @param int   $timeout =  '3' A timeout variable (in seconds)
    * @return bool                   True on success and error code / false on failure
-   * @since  Taurus 1
    */
   public function download( $url, $file, $timeout = '5' ) {
     // Check the URL here
@@ -1023,8 +1034,6 @@ class AlfredBundlerInternalClass {
     // We need the bundle to be set if we are to register the asset
     if ( ( ! isset( $this->bundle ) ) || empty( $this->bundle ) )
       return FALSE;
-
-
 
     // Load the registry data
     $registry = array();

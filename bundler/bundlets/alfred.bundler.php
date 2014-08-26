@@ -118,7 +118,7 @@ class AlfredBundler {
    *
    * @return bool Returns successful/failed instantiation
    */
-  public function __construct() {
+  public function __construct( $options = [] ) {
 
     if ( ! file_exists( 'info.plist' ) ) {
       throw new Exception('The Alfred Bundler cannot be used without an `info.plist` file present.');
@@ -145,7 +145,7 @@ class AlfredBundler {
 
     if ( file_exists( "{$this->_data}/bundler/AlfredBundler.php" ) ) {
       require_once ( "{$this->_data}/bundler/AlfredBundler.php" );
-      $this->bundler = new AlfredBundlerInternalClass();
+      $this->bundler = new AlfredBundlerInternalClass( $options );
     } else {
       if ( $this->installBundler() === FALSE ) {
         // The bundler could not install itself, so throw an exception.
@@ -156,7 +156,7 @@ class AlfredBundler {
         // The bundler is now in place, so require the actual PHP Bundler file
         require_once "{$this->_data}/bundler/AlfredBundler.php";
         // Create the internal class object
-        $this->bundler = new AlfredBundlerInternalClass();
+        $this->bundler = new AlfredBundlerInternalClass( $options );
         $this->bundler->notify(
         'Alfred Bundler',
         'Installation successful. Thank you for waiting.',
