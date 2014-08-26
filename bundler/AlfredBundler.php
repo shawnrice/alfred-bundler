@@ -252,7 +252,7 @@ class AlfredBundlerInternalClass {
     }
 
     // Check to see if the JSON is valid
-    if ( ! json_decode( file_get_contents( $json_path ) ) ) {
+    if ( isset( $json_path) && ! json_decode( file_get_contents( $json_path ) ) ) {
       // JSON file not valid
       $error = TRUE;
     }
