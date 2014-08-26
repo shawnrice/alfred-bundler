@@ -49,7 +49,7 @@ class AlfredBundlerIcon {
     $this->data       = $this->bundler->data;
     $this->colors     = array();
     $this->fallback   = $this->data . '/bundler/meta/icons/default.png';
-    $this->cache = $this->bundler->cache . '/color';
+    $this->cache      = $this->bundler->cache . '/color';
     $this->setBackground();
 
 
