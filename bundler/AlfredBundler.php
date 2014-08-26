@@ -1069,6 +1069,11 @@ class AlfredBundlerInternalClass {
     if ( gettype( $title ) !== 'string' || gettype( $message ) !== 'string' )
       return false;
 
+    if ( $icon === null ) {
+      if ( file_exists( 'icon.png' ) )
+        $icon = 'icon.png';
+    }
+
     $client = $this->wrapper( 'CocoaDialog' );
     $icon_type = 'icon';
     if ( ( ! is_null( $icon ) ) && ( gettype( $icon ) === 'string' ) ) {
