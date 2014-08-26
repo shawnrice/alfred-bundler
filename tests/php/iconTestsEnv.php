@@ -6,7 +6,7 @@ class IconTests extends PHPUnit_Framework_TestCase
         $_ENV[ 'AB_BRANCH' ] = 'devel';
         $_ENV[ 'alfred_version' ]  = '2.4';
         $_ENV[ 'alfred_theme_background' ]  = 'rgba(255,255,255,0.98)';
-        $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.poop';
+        $_ENV[ 'alfred_workflow_bundleid' ] = 'com.bundler.testing.php';
         $_ENV[ 'alfred_workflow_name' ]     = 'PHP BUNDLER TESTING FRAMEWORK';
         $_ENV[ 'alfred_workflow_data' ]     = $_SERVER['HOME'].'/Library/Application Support/Alfred 2/Workflow Data/com.bundler.testing.poop';
 
