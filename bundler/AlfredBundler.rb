@@ -380,13 +380,14 @@ module Alfred
     #
     # @return [type] [description]
     def notify(title, message, icon = 'icon.png')
+
       self.wrapper('cocoadialog')
-      @cd = Alfred::CocoaDialog.new(self.utility('cocoaDialog')) if @cd.nil?
+      @cd = Alfred::CocoaDialog.new(self.utility('cocoaDialog'), true ) if @cd.nil?
 
       notification = {
-        'title' => title,
-        'description' => message,
-        'alpha' => 1,
+        :title => title,
+        :description => message,
+        :alpha => 1,
         # 'background_top' => 'ffffff',
         # 'background_bottom' => 'ffffff',
         # 'border_color' => 'ffffff',
@@ -394,7 +395,8 @@ module Alfred
         # 'no_growl' => true
       }
 
-      notification['icon_file'] = icon unless icon == false
+      notification[:icon_file] = icon unless icon == false
+      $stderr.puts notification
       @cd.notify(notification)
 
     end

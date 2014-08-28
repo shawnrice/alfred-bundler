@@ -104,6 +104,9 @@ module Alfred
       unless File.exists? @bundler
         self.install_bundler unless confirm_installation == 'Proceed'
         installed = true
+        @bundler = File.join(File.dirname(__FILE__), '..', 'AlfredBundler.rb' )
+        require_relative @bundler
+        @internal = Internal.new(@data, @cache)
         @internal.notify("#{@name} Setup", "The Alfred Bundler has been installed.")
       end
 
@@ -117,7 +120,7 @@ module Alfred
       require_relative @bundler
 
       # Initialize an internal object
-      @internal = Internal.new(@data, @cache)
+      @internal = Internal.new(@data, @cache) if @internal.nil?
       # Send a notification informing that the bundler has been installed
     end
 
