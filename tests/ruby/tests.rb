@@ -62,12 +62,10 @@ class TestTruthiness < MiniTest::Unit::TestCase
   end
 
   def test_utility
-    # this fails... why?
     assert File.exists? @b.utility('cocoaDialog')
   end
 
   def test_load
-    #this fails, why?
     file = @b.load('utility', 'cocoaDialog')
     assert File.exists? "#{file}"
   end
