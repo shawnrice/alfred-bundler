@@ -3,8 +3,7 @@
 # Dean's stuff
 /benchmark_icons.py
 /icons.json
-/pydoc/
-/build-pydocs.sh
+/pydoc/_build
 /photos of Shawn's mum
 /test-flip.php
 /tests/python/test.html
