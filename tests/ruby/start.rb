@@ -1,8 +1,6 @@
 #!/bin/ruby
 
 
-exit
-
 ENV['AB_BRANCH'] = 'devel'
 require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
 
@@ -48,7 +46,8 @@ end
 
 puts bundler.icon('elusive', 'fire', 'abcabc')
 
-puts bundler.icon('elusive', 'fire')
+puts bundler.icon('fontawesome', 'check', '008000')
+puts bundler.icon('fontawesome', 'times', 'FF0000')
 puts bundler.icon('elusive', 'fire', 'abcabc', true)
 puts bundler.icon('elusive', 'fire', '000', true)
 puts bundler.icon('elusive', 'fire', 'ffffff', true)
