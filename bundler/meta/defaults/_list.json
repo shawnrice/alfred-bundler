@@ -1,0 +1,19 @@
+{
+    "name": "_list",
+    "type": "applescript",
+    "description": "The list library contains a bunch of handy functions to manipulate and analyze AppleScript lists.",
+    "versions": {
+        "latest": {
+            "invoke": "_list.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/list/_list.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_list.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

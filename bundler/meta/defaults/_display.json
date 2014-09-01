@@ -1,0 +1,19 @@
+{
+    "name": "_display",
+    "type": "applescript",
+    "description": "Retrieve some information on the connected displays.",
+    "versions": {
+        "latest": {
+            "invoke": "_display.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/display/_display.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_display.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

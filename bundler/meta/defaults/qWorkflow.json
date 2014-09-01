@@ -1,0 +1,19 @@
+{
+    "name": "qWorkflow",
+    "type": "applescript",
+    "description": "AppleScript implementation of the Workflow object class for Alfred 2",
+    "versions": {
+        "latest": {
+            "invoke": "q_workflow.scpt",
+            "files": [
+                {
+                    "url": "https://github.com/qlassiqa/qWorkflow/archive/master.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/qWorkflow-master/compiled source/q_workflow.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

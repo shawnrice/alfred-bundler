@@ -1,0 +1,30 @@
+{
+    "name": "SetupIconsForTheme",
+    "type": "utility",
+    "versions": {
+        "latest": {
+            "invoke": "SetupIconsForTheme",
+            "files": [
+                {
+                    "url": "https://github.com/clintxs/alfred-icons/releases/download/v0.1.0/SetupIconsForTheme",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/SetupIconsForTheme' '__DATA__'"
+            ]
+        },
+        "0.1.0": {
+            "invoke": "SetupIconsForTheme",
+            "files": [
+                {
+                    "url": "https://github.com/clintxs/alfred-icons/releases/download/v0.1.0/SetupIconsForTheme",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/SetupIconsForTheme' '__DATA__'"
+            ]
+        }
+    }
+}

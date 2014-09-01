@@ -1,0 +1,30 @@
+{
+    "name": "Workflows",
+    "type": "php",
+    "versions": {
+        "latest": {
+            "invoke": "workflows.php",
+            "files": [
+                {
+                    "url": "https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/workflows.php' '__DATA__'"
+            ]
+        },
+        "0.3.3": {
+            "invoke": "workflows.php",
+            "files": [
+                {
+                    "url": "https://raw.githubusercontent.com/jdfwarrior/Workflows/master/workflows.php",
+                    "method": "direct"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/workflows.php' '__DATA__'"
+            ]
+        }
+    }
+}

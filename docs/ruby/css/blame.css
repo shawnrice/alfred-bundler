@@ -1,0 +1,11 @@
+.blame caption {
+  text-align: left;
+}
+
+.blame .summary {
+  display: none;
+}
+
+.blame .code {
+  margin: 0;
+}

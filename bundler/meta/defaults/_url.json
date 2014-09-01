@@ -1,0 +1,19 @@
+{
+    "name": "_url",
+    "type": "applescript",
+    "description": "Two simple handlers to decode and encode URLs.",
+    "versions": {
+        "latest": {
+            "invoke": "_url.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/url/_url.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_url.scpt' '__DATA__'"
+            ]
+        }
+    }
+}

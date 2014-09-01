@@ -1,0 +1,43 @@
+{
+    "name": "Terminal-Notifier",
+    "type": "utility",
+    "description": "send notifications",
+    "versions": {
+        "latest": {
+            "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
+            "files": [
+                {
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/terminal-notifier-1.6.0.app.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
+            ]
+        },
+        "1.5.0": {
+            "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
+            "files": [
+                {
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/blob/master/terminal-notifier.app.zip?raw=true",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
+            ]
+        },
+        "1.6.0": {
+            "invoke": "terminal-notifier.app/Contents/MacOS/terminal-notifier",
+            "files": [
+                {
+                    "url": "https://github.com/shawnrice/Alfred-Helpers/raw/master/terminal-notifier-1.6.0.app.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -fR '__CACHE__/terminal-notifier.app' '__DATA__'"
+            ]
+        }
+    }
+}

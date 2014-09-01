@@ -1,0 +1,1 @@
+../../../bundler/AlfredBundler.py

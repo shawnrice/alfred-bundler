@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class AlfredBundler | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li class="active"><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-AlfredBundler.html">AlfredBundler</a></li>
+				<li><a href="class-AlfredBundlerIcon.html">AlfredBundlerIcon</a></li>
+				<li><a href="class-AlfredBundlerInternalClass.html">AlfredBundlerInternalClass</a></li>
+				<li><a href="class-AlfredBundlerLogger.html">AlfredBundlerLogger</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-AlfredBundler.html" title="Summary of AlfredBundler"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class AlfredBundler</h1>
+
+
+	<div class="description">
+	
+<p>The PHP interface for the Alfred Bundler</p>
+
+<p>This class is the only one that you should interact with. The rest of the
+magic that the bundler performs happens under the hood. Also, the backend of the
+bundler (here the 'AlfredBundlerInternalClass') may change; however, this
+bundlet will continue to work with the bundler API for the remainder of this
+major version (Taurus). Limited documentation is below, for more detailed
+documentation, see <a
+href="http://shawnrice.github.io/alfred-bundler">http://shawnrice.github.io/alfred-bundler</a>.</p>
+
+<p>Example usage:</p>
+
+<pre>
+<span class="php-keyword1">require_once</span>( <span
+class="php-quote">'alfred.bundler.php'</span> );
+<span
+class="php-var">$b</span> = <span
+class="php-keyword1">new</span> AlfredBundler;
+
+<span
+class="php-comment">// Downloads and requires David Ferguson's PHP Workflows library</span>
+<span
+class="php-var">$b</span>-&gt;library( <span
+class="php-quote">'Workflows'</span> );
+
+<span
+class="php-comment">// Download icons</span>
+<span
+class="php-var">$icon1</span> = <span class="php-var">$b</span>-&gt;icon( <span
+class="php-quote">'elusive'</span>, <span
+class="php-quote">'dashboard'</span>, <span
+class="php-quote">'ab332c'</span>, <span
+class="php-keyword1">TRUE</span> );
+<span class="php-var">$icon2</span> = <span
+class="php-var">$b</span>-&gt;icon( <span
+class="php-quote">'fontawesome'</span>, <span
+class="php-quote">'adjust'</span>, <span
+class="php-quote">'aabbcc'</span>, <span
+class="php-quote">'998877'</span>);
+<span class="php-var">$icon3</span> = <span
+class="php-var">$b</span>-&gt;icon( <span
+class="php-quote">'fontawesome, '</span>bug<span
+class="php-quote">' );
+$icon4 = $b-&gt;icon( '</span><span
+class="php-keyword2">system</span><span
+class="php-quote">', '</span>Accounts<span
+class="php-quote">' );
+
+// Send a message to the console (shows up in Alfred'</span>s debugger)
+<span
+class="php-var">$b</span>-&gt;<span class="php-keyword2">log</span>( <span
+class="php-quote">'Loaded icons'</span>, <span
+class="php-quote">'INFO'</span>, <span
+class="php-quote">'console'</span> );
+<span
+class="php-comment">// Log a message to a logfile found in the workflow's data directory</span>
+<span
+class="php-var">$b</span>-&gt;<span class="php-keyword2">log</span>( <span
+class="php-quote">'Initial bootstrap complete, check the log file'</span>, <span
+class="php-quote">'DEBUG'</span>, <span class="php-quote">'log'</span> );
+<span
+class="php-comment">// Send the same message to the console and the log file</span>
+<span
+class="php-var">$b</span>-&gt;<span class="php-keyword2">log</span>( <span
+class="php-quote">'Bootstrap completed.'</span>, <span
+class="php-quote">'INFO'</span>, <span
+class="php-quote">'both'</span> );
+
+
+<span
+class="php-comment">// Get Pashua to use later</span>
+<span
+class="php-var">$pashua</span> = <span
+class="php-var">$b</span>-&gt;utility( <span
+class="php-quote">'Pashua'</span> );
+
+<span
+class="php-comment">// Get an asset not included in the &quot;defaults&quot;</span>
+<span
+class="php-var">$myAsset</span> = <span
+class="php-var">$b</span>-&gt;load( <span
+class="php-quote">'utility'</span>, <span
+class="php-quote">'myAsset'</span>, <span
+class="php-quote">'latest'</span>, <span
+class="php-quote">'/path/to/json'</span> );
+
+<span
+class="php-comment">// Load 'cocoadialog' with the bundler's wrappers</span>
+<span
+class="php-var">$cocoadialog</span> = <span
+class="php-var">$b</span>-&gt;wrapper( <span
+class="php-quote">'cocoadialog'</span> );
+
+<span
+class="php-comment">// Load/install composer packages</span>
+<span
+class="php-var">$bundler</span>-&gt;composer( <span
+class="php-keyword1">array</span>(
+  <span
+class="php-quote">&quot;monolog/monolog&quot;</span> =&gt; <span
+class="php-quote">&quot;1.10.*@dev&quot;</span>
+));
+
+</pre>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		<b>Package:</b> <a href="package-AlfredBundler.html">AlfredBundler</a><br />
+
+				<b>Copyright:</b>
+				The Alfred Bundler Team 2014<br />
+				<b>License:</b>
+				<a href="http://opensource.org/licenses/MIT">MIT</a><br />
+				<b>Since:</b>
+				Class available since Taurus 1<br />
+				<b>See:</b>
+				<code><code><a href="class-AlfredBundlerInternalClass.html">AlfredBundlerInternalClass</a></code></code><br />
+		<b>Located at</b> <a href="source-class-AlfredBundler.html#24-534" title="Go to source code">alfred.bundler.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-AlfredBundler.html#116-172" title="Go to source code">__construct</a>( )</code>
+
+		<div class="description short">
+			
+<p>The class constructor</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>The class constructor</p>
+
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>boolean</code><br>Returns successful/failed instantiation<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="__call" id="___call">
+
+		<td class="attributes"><code>
+			 public 
+			mixed
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___call">#</a>
+		<code><a href="source-class-AlfredBundler.html#209-245" title="Go to source code">__call</a>( <span>string <var>$method</var></span>, <span>array <var>$args</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Passes calls to the internal object</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Passes calls to the internal object</p>
+
+<p>Wrapper function that passes all other calls to the internal object when the
+method has not been found in this class</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$method</var></dt>
+					<dd><code>string</code><br>$method Name of method</dd>
+					<dt><var>$args</var></dt>
+					<dd><code>array</code><br>$args An array of args passed</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>mixed</code><br>Whatever the internal function sends back<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="__get" id="___get">
+
+		<td class="attributes"><code>
+			 public 
+			mixed
+			&amp;
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___get">#</a>
+		<code><a href="source-class-AlfredBundler.html#247-261" title="Go to source code">__get</a>( <span>string <var>$name</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Gets variables from the AlfredBundlerInternalClass</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Gets variables from the AlfredBundlerInternalClass</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd><code>string</code><br>$name name of variable to get</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>mixed</code><br>the variable from the internal class object<br />
+				</div>
+
+
+				<h4>Since</h4>
+				<div class="list">
+						Taurus 1<br />
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="bundler" id="$bundler">
+		<td class="attributes"><code>
+			protected  
+			object
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-AlfredBundler.html#78-84" title="Go to source code"><var>$bundler</var></a>
+		</td>
+		<td class="value"><code></code></td>
+		<td class="description"><div>
+			<a href="#$bundler" class="anchor">#</a>
+
+			<div class="description short">
+				
+<p>An internal object that interfaces with the PHP Bundler API</p>
+
+			</div>
+
+			<div class="description detailed hidden">
+				
+<p>An internal object that interfaces with the PHP Bundler API</p>
+
+
+			</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

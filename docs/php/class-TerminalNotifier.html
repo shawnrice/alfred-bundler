@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+
+	<title>Class TerminalNotifier | Alfred Bundler</title>
+
+	<script type="text/javascript" src="resources/combined.js?3637124570"></script>
+	<script type="text/javascript" src="elementlist.js?1001524188"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li><a href="package-AlfredBundler.html">AlfredBundler</a>
+						</li>
+				<li class="active"><a href="package-None.html">None</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-CocoaDialog.html">CocoaDialog</a></li>
+				<li><a href="class-ProgressBar.html">ProgressBar</a></li>
+				<li class="active"><a href="class-TerminalNotifier.html">TerminalNotifier</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-None.html" title="Summary of None"><span>Package</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class TerminalNotifier</h1>
+
+
+	<div class="description">
+	
+<p>Main class used for interaction with Terminal Notifier.</p>
+
+<p>Public class used to initialize the Terminal Notifier interaction client.
+Client inintialization is built by:<br />
+$client = new TerminalNotifier('path to terminal-notifier.app or exec',
+$debug=bool)</p>
+
+<p>Initializes valid and required options.</p>
+
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		
+		
+
+				<b>Copyright:</b>
+				Ritashugisha 2014<br />
+				<b>License:</b>
+				<a href="https://www.gnu.org/licenses/gpl-3.0.txt">GPL v3</a><br />
+		<b>Located at</b> <a href="source-class-TerminalNotifier.html#49-255" title="Go to source code">terminalnotifier.php</a><br />
+	</div>
+
+
+
+	<table class="summary" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="log" id="_log">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_log">#</a>
+		<code><a href="source-class-TerminalNotifier.html#93-105" title="Go to source code">log</a>( <span>string <var>$level</var></span>, <span>string <var>$funct</var></span>, <span>integer <var>$lineno</var></span>, <span>string <var>$message</var></span> )</code>
+
+		<div class="description short">
+			
+<p>This function prints debug logs to the console.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>This function prints debug logs to the console.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$level</var></dt>
+					<dd><code>string</code><br>$level Logging level (adapted from Python's logging module)</dd>
+					<dt><var>$funct</var></dt>
+					<dd><code>string</code><br>$funct Calling function's name</dd>
+					<dt><var>$lineno</var></dt>
+					<dd><code>integer</code><br>$lineno Calling functions line number</dd>
+					<dt><var>$message</var></dt>
+					<dd><code>string</code><br>$message Desired message</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-TerminalNotifier.html#107-151" title="Go to source code">__construct</a>( <span>string <var>$notifier</var></span>, <span>boolean <var>$debug</var> = <span class="php-keyword1">False</span> </span> )</code>
+
+		<div class="description short">
+			
+<p>TerminalNotifier class constructor.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>TerminalNotifier class constructor.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$notifier</var></dt>
+					<dd><code>string</code><br>$notifier Path to either terminal-notifier.app or exec</dd>
+					<dt><var>$debug</var></dt>
+					<dd><code>boolean</code><br>$debug True if logging is enabled</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_run_subprocess" id="__run_subprocess">
+
+		<td class="attributes"><code>
+			 public 
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__run_subprocess">#</a>
+		<code><a href="source-class-TerminalNotifier.html#153-165" title="Go to source code">_run_subprocess</a>( <span>string <var>$process</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Run a process on the host system.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Run a process on the host system.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$process</var></dt>
+					<dd><code>string</code><br>$process Process to be run</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code>string</code><br>Output of process<br />
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_valid_options" id="__valid_options">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__valid_options">#</a>
+		<code><a href="source-class-TerminalNotifier.html#167-221" title="Go to source code">_valid_options</a>( <span>array <var>$passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Validate and clean up passed notification options.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Validate and clean up passed notification options.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$passed</var></dt>
+					<dd><code>array</code><br>$passed Associative array of passed dialog arguemnts</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="_display" id="__display">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#__display">#</a>
+		<code><a href="source-class-TerminalNotifier.html#223-242" title="Go to source code">_display</a>( <span>array <var>$passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Display the passed notification after some crutial formatting.</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Display the passed notification after some crutial formatting.</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$passed</var></dt>
+					<dd><code>array</code><br>$passed Associative array of passed dialog options</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="notify" id="_notify">
+
+		<td class="attributes"><code>
+			 public 
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_notify">#</a>
+		<code><a href="source-class-TerminalNotifier.html#244-254" title="Go to source code">notify</a>( <span>array <var>$_passed</var></span> )</code>
+
+		<div class="description short">
+			
+<p>Spawn a notification with passed arguments</p>
+
+		</div>
+
+		<div class="description detailed hidden">
+			
+<p>Spawn a notification with passed arguments</p>
+
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$_passed</var></dt>
+					<dd><code>array</code><br>$_passed Associative array of notification arguments</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		Alfred Bundler API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

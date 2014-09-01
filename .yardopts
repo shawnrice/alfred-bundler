@@ -1,0 +1,1 @@
+--output-dir ./docs/ruby --db exclude/.yardoc bundler/includes/wrappers/ruby/*.rb bundler/bundlets/*.rb bundler/*.rb README.md - README.md LICENSE ./docs/*.md -m markdown

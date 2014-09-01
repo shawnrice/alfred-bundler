@@ -1,0 +1,43 @@
+{
+    "name": "shunit2",
+    "type": "bash",
+    "versions": {
+        "latest": {
+            "invoke": "src/shunit2",
+            "files": [
+                {
+                    "url": "http://shunit2.googlecode.com/files/shunit2-2.1.6.tgz",
+                    "method": "tgz"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/*' '__DATA__'"
+            ]
+        },
+        "2.1.6": {
+            "invoke": "src/shunit2",
+            "files": [
+                {
+                    "url": "http://shunit2.googlecode.com/files/shunit2-2.1.6.tgz",
+                    "method": "tgz"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/*' '__DATA__'"
+            ]
+        }
+    },
+    "2.0.3": {
+            "invoke": "src/shunit2",
+            "files": [
+                {
+                    "url": "http://downloads.sourceforge.net/shunit2/shunit2-2.0.3.tgz",
+                    "method": "tgz"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/*' '__DATA__'"
+            ]
+        }
+    }
+}

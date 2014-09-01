@@ -1,0 +1,19 @@
+{
+    "name": "_string",
+    "type": "applescript",
+    "description": "A collection of handlers for string manipulation such as counting, finding, replacing, splitting etc.",
+    "versions": {
+        "latest": {
+            "invoke": "_string.scpt",
+            "files": [
+                {
+                    "url": "http://applescript.bratis-lover.net/library/string/_string.scpt.zip",
+                    "method": "zip"
+                }
+            ],
+            "install": [
+                "cp -f '__CACHE__/_string.scpt' '__DATA__'"
+            ]
+        }
+    }
+}
