@@ -213,12 +213,15 @@ module Alfred
     #   currently, the only values currently accepted are `cocoadialog` and
     #   `terminalnotifier`
     # @raise StandardError when wrapper file does not exist
-    def wrapper(wrapper)
+    def wrapper(wrapper, debug=false)
       wrapper.downcase!
+      _wrapper_name = wrapper.slice(0,1).capitalize + wrapper.slice(1..-1)
       wrapper = File.join(File.dirname(__FILE__), 'includes', 'wrappers',
         'ruby', "#{wrapper}.rb")
       raise StandardError("Wrapper #{wrapper} does not exist.") unless File.exists? wrapper
       require_relative wrapper
+      _wrapper_class = sprintf('Alfred::%s', _wrapper_name).split('::').inject(Object) {|o,c| o.const_get c}
+      return _wrapper_class.new(self.utility(_wrapper_name.downcase!), @debug=debug)
     end
 
     # Parses the arguments sent to the `load` method to make them usable

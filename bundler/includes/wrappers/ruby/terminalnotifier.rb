@@ -61,7 +61,7 @@ module Alfred
 #    client = TerminalNotifier.new('path to terminal-notifier.app or exec', @debug=Boolean)
 #
 # Initializes valid and required options.
-class TerminalNotifier
+class Terminalnotifier
 
     @@notifier         = ''
     @@debug            = false
