@@ -337,8 +337,21 @@ function AlfredBundler::library() {
   return 1
 }
 
-
 ###############################################################################
 ### End Asset Functions
 ###############################################################################
 
+function AlfredBundler::notify() {
+  local cd="$(AlfredBundler::utility CocoaDialog)"
+  local icon
+  local message="$1"
+
+  if [ -f 'icon.png' ]; then
+    icon=$(pwd -P)'/icon.png'
+  else
+    icon="${AB_DATA}/bundler/meta/icons/bundle.png"
+  fi
+
+  "'${cd}' notify --title '${WF_NAME}' --icon-file '${icon}' --text '${message}'"
+  return 0
+}
