@@ -320,6 +320,19 @@ function AlfredBundler::utility() {
   return 1
 } # End AlfredBundler::utility
 
+#######################################
+# Specific wrapper for the load function
+#
+# Globals:
+#   AB_DATA
+# Arguments:
+#   name
+#   version
+#   json
+# Returns:
+#   Filepath to library
+#
+#######################################
 function AlfredBundler::library() {
   local name
   local version
@@ -341,6 +354,18 @@ function AlfredBundler::library() {
 ### End Asset Functions
 ###############################################################################
 
+#######################################
+# Sends a notification with CocoaDialog
+#
+# Globals:
+#   AB_DATA
+#   WF_NAME
+# Arguments:
+#   message
+# Returns:
+#   None
+#
+#######################################
 function AlfredBundler::notify() {
   local cd="$(AlfredBundler::utility CocoaDialog)"
   local icon
