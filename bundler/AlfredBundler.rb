@@ -436,7 +436,7 @@ module Alfred
 
     def get_background_deprecated
       plist = "#{ENV['HOME']}/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist";
-      FileUtils.mkdir_p(File.join(@cache, '..', 'misc') unless File.directory?(File.join(@cache, '..', 'misc'))
+      FileUtils.mkdir_p(File.join(@cache, '..', 'misc')) unless File.directory?(File.join(@cache, '..', 'misc'))
       cache = File.join(@cache, '..', 'misc', 'theme_background')
       util  = File.join(@data, 'bundler', 'includes', 'LightOrDark')
       if File.exists? cache
