@@ -112,7 +112,7 @@ require 'open3'
 #    client = CocoaDialog.new('path to CocoaDialog.app or exec', @debug=Boolean)
 #
 # Initializes global options (Hash) and global icons (Array).
-class CocoaDialog
+class Cocoadialog
 
     @@cocoa = ''
     @@debug = false
