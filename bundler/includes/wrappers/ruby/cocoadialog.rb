@@ -858,7 +858,8 @@ class Cocoadialog
     end
 end
 
-
+# *** BROKEN *** needs to be fixed before release,
+# 
 # CocoaDialog progress bar implementation
 #
 # Since Ruby **does not** support nested classes, we have to build progress bar
@@ -885,7 +886,7 @@ class ProgressBar
     # :type _passed: hash
     def initialize(cocoa_object, _passed)
         @@cocoa_object = cocoa_object
-        unless @@cocoa_object.class.eql?(CocoaDialog)
+        unless @@cocoa_object.class.eql?(Cocoadialog)
             $stdout.write("[%-8s] <%s:%d>....%s\n" % [
                 'CRITICAL', __method__, __LINE__, 'invalid cocoadialog client'])
             abort
