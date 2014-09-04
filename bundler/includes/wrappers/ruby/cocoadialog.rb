@@ -858,8 +858,7 @@ class Cocoadialog
     end
 end
 
-# *** BROKEN *** needs to be fixed before release,
-# 
+ 
 # CocoaDialog progress bar implementation
 #
 # Since Ruby **does not** support nested classes, we have to build progress bar
@@ -870,6 +869,11 @@ end
 #     @progress_bar = ProgressBar.new(@client, **Dialog Arguments**)
 #
 # Progress bar class opens own subprocess with open PIPE.
+# 
+# Alfred Usage:
+# 
+# client = @bundler.wrapper('cocoadialog', debug=boolean)
+# myProgressBar = Alfred::ProgressBar(client, text:'Stuff here', percent:0)
 class ProgressBar
 
     @@cocoa_object = nil
@@ -899,7 +903,7 @@ class ProgressBar
             'stoppable' => [TrueClass, FalseClass]
         }
         custom_options = {
-            'dialog_name' => self.class.name.downcase,
+            'dialog_name' => self.class.name.downcase.split('::').last,
             'required_options' => ['percent', 'text'],
             'custom_options' => custom_options
         }
@@ -907,7 +911,7 @@ class ProgressBar
             @@percent = _passed[:percent]
             @@text = _passed[:text]
             @process = @@cocoa_object._display(
-                self.class.name.downcase, _passed, @return_process=true
+                custom_options['dialog_name'], _passed, @return_process=true
             ).join(' ')
             @@pipe_in, @@pipe_out = Open3.popen2(@process)
             @@pipe_out
