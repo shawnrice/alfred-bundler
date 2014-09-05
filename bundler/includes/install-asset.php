@@ -36,7 +36,7 @@ if ( ! isset( $argv[2] ) )
 else
   $version = $argv[2];
 
-if ( $version1 = $b->installAsset( $json, $version ) ) {
+if ( $version1 = $b->installAsset( $json, $version ) !== FALSE ) {
   if ( $verson1 == $version ) {
     echo $version;
     exit( 0 );
