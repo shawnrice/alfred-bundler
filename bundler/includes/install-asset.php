@@ -37,6 +37,7 @@ else
   $version = $argv[2];
 
 if ( $version1 = $b->installAsset( $json, $version ) ) {
+  $version1 = trim($version1);
   if ( $verson1 == $version ) {
     echo $version;
     exit(0);
