@@ -202,8 +202,8 @@ function AlfredBundler::load {
 
       AB::Log::Log "Installing ${type} '${name}' version ${version} ..." INFO console
 
-      php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
-
+      version=$(php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}")
+echo "Version: ${version}" >&2
       # If the install script exited with a non-zero status, then return 1;
       # the error messages were written to STDERR by the install script.
       status=$?
