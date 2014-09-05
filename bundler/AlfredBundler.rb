@@ -73,7 +73,8 @@ module Alfred
         'Application Support', 'Alfred 2', 'Workflow Data', @bundle)
       @icon = Alfred::Icon.new(@data, @cache)
 
-      initialize_logs
+      # Initialize with user log or without
+      options['wf_log'] == true ? initialize_logs(true) : initialize_logs
       is_there_a_plist?
 
       unless ENV['alfred_version'].nil?

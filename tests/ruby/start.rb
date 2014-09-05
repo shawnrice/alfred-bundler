@@ -6,10 +6,8 @@
 ENV['AB_BRANCH'] = 'devel'
 require_relative File.expand_path( File.dirname(__FILE__) ) + "../../../bundler/bundlets/alfred.bundler.rb"
 
-bundler  = Alfred::Bundler.new
-
 begin
-bundler  = Alfred::Bundler.new
+bundler  = Alfred::Bundler.new({'wf_log' => true})
 
 rescue Alfred::BundlerInstallError => error
   raise StandardError.new("If you don't want to use the Bundler, uninstall this workflow") if error.reason == 'Deny'
