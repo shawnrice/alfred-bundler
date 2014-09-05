@@ -39,12 +39,12 @@ else
 if ( $version1 = $b->installAsset( $json, $version ) ) {
   if ( $verson1 == $version ) {
     echo $version;
-    exit( 0 );
+    exit(0);
   } else {
-    file_put_contents( 'php://stderr', "Error: version {$version1} is not valid.\n" );
+    file_put_contents( 'php://stderr', "Error: version {$version} is not valid.\n" );
     file_put_contents( 'php://stderr', "Installed 'latest' instead." );
     echo $version;
-    exit( 1 );
+    exit(0);
   }
 }
 
