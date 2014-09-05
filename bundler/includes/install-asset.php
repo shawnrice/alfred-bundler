@@ -44,11 +44,11 @@ if ( $version1 = $b->installAsset( $json, $version ) ) {
   } else {
     file_put_contents( 'php://stderr', "Error: version {$version} is not valid.\n" );
     file_put_contents( 'php://stderr', "Installed 'latest' instead." );
-    echo $version;
+    echo $version1;
     exit(0);
   }
 }
 
 // Output the error to STDERR.
 file_put_contents( 'php://stderr', 'Error with asset installation. See logs.' );
-exit( 1 );
+exit(1);
