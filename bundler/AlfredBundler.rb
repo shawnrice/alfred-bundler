@@ -67,6 +67,7 @@ module Alfred
     def initialize(data, cache, options = {})
       @data   = data
       @cache  = cache
+      # development / debugging. remove these.
       @bundle = 'foo.my.poop'
       @major_version = 'devel'
       @wf_data = File.join( File.expand_path('~/'), 'Library',
