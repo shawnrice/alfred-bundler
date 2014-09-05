@@ -610,6 +610,17 @@ class AlfredBundlerInternalClass {
 
     $json = json_decode( file_get_contents( $json ), TRUE );
 
+    // Check to see if the version asked for is in the json; else, fallback to
+    // default if exists; if not, throw error.
+    if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
+      if ( ! isset( $json[ 'versions' ][ 'latest' ] ) ) {
+        $this->log->log( "Cannot install {$name} because no version found and cannot fallback to 'latest'.", 'ERROR', 'both');
+        return FALSE;
+      } else {
+        $version = 'latest';
+      }
+    }
+
     // Check to make sure that the JSON is valid.
     if ( $json == null ) {
       $this->log->log( "Cannot install asset because the JSON file ('{$json}') is not valid.", 'ERROR', 'console' );
@@ -629,16 +640,7 @@ class AlfredBundlerInternalClass {
     $name = $json[ 'name' ];
     $type = $json[ 'type' ];
 
-    // Check to see if the version asked for is in the json; else, fallback to
-    // default if exists; if not, throw error.
-    if ( ! isset( $json[ 'versions' ][ $version ] ) ) {
-      if ( ! isset( $json[ 'versions' ][ 'latest' ] ) ) {
-        $this->log->log( "Cannot install {$name} because no version found and cannot fallback to 'latest'.", 'ERROR', 'both');
-        return FALSE;
-      } else {
-        $version = 'latest';
-      }
-    }
+
     $invoke  = $json[ 'versions' ][ $version ][ 'invoke' ];
     $install = $json[ 'versions' ][ $version ][ 'install' ];
 
