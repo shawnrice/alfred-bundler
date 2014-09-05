@@ -177,6 +177,9 @@ function AlfredBundler::load {
       # Install the asset
       version=$(php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}")
 
+      # @TODO This is a quick fix for bad version numbers. Do something better.
+      asset="${AB_DATA}/data/assets/${type}/${name}/${version}"
+
       # If the install script exited with a non-zero status, then return 1;
       # the error messages were written to STDERR by the install script.
       status=$?
@@ -203,6 +206,10 @@ function AlfredBundler::load {
       AB::Log::Log "Installing ${type} '${name}' version ${version} ..." INFO console
 
       version=$(php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}")
+
+      # @TODO This is a quick fix for bad version numbers. Do something better.
+      asset="${AB_DATA}/data/assets/${type}/${name}/${version}"
+
       # If the install script exited with a non-zero status, then return 1;
       # the error messages were written to STDERR by the install script.
       status=$?
@@ -219,7 +226,7 @@ function AlfredBundler::load {
   # Create cache directory if it doesn't exist
   if [[ ! -d "${AB_PATH_CACHE}" ]]; then
     mkdir -p -m 775 "${AB_PATH_CACHE}"
-    [[ $? -ne 0 ]] && AB::Log::Log "Could not make directory: ${AB_PATH_CACHE}" CRITICAL both || AB::Log::Log "Created directory: ${cache_dir}" INFO both
+    [[ $? -ne 0 ]] && AB::Log::Log "Could not make directory: ${AB_PATH_CACHE}" CRITICAL both || AB::Log::Log "Created directory: ${AB_PATH_CACHE}" INFO both
   fi
 
   # Cache path for this call
