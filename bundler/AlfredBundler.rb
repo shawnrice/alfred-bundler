@@ -67,7 +67,7 @@ module Alfred
     def initialize(data, cache, options = {})
       @data   = data
       @cache  = cache
-      # development / debugging. remove these.
+      # development / debugging. remove these
       @bundle = 'foo.my.poop'
       @major_version = 'devel'
       @wf_data = File.join( File.expand_path('~/'), 'Library',
@@ -166,6 +166,7 @@ module Alfred
 
       # This should install the asset; we might find a native way to do this later
       command = "'" + @data + "/bundler/bundlets/alfred.bundler.sh' '#{type}' '#{name}' '#{version}' '#{json}'"
+
       return `#{command}`.strip
     end
 

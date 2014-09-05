@@ -13,9 +13,10 @@ rescue Alfred::BundlerInstallError => error
   raise StandardError.new("If you don't want to use the Bundler, uninstall this workflow") if error.reason == 'Deny'
   raise StandardError.new("We'll wait for you to try again later.") if error.reason == 'More Info'
 end
+puts "here"
 
-
-puts bundler.utility({'name' => 'CocoaDialog', 'version' => '3.0.0-beta7'})
+puts bundler.utility({'name' => 'CocoaDialog', 'version' => '2.1343.1'})
+exit
 puts bundler.utility(['Pashua', 'latest'])
 puts bundler.utility('Pashua', 'latest')
 puts bundler.utility('cocoaDialog')
