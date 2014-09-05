@@ -43,7 +43,7 @@ if ( $version1 = $b->installAsset( $json, $version ) ) {
     exit(0);
   } else {
     file_put_contents( 'php://stderr', "Error: version {$version} is not valid.\n" );
-    file_put_contents( 'php://stderr', "Installed 'latest' instead." );
+    file_put_contents( 'php://stderr', "Installed 'latest' instead.\n" );
     echo $version1;
     exit(0);
   }

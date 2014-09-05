@@ -176,7 +176,6 @@ function AlfredBundler::load {
     else
       # Install the asset
       version=$(php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}")
-
       # @TODO This is a quick fix for bad version numbers. Do something better.
       asset="${AB_DATA}/data/assets/${type}/${name}/${version}"
 

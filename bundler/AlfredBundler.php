@@ -630,7 +630,7 @@ class AlfredBundlerInternalClass {
     $installDir = "{$this->data}/data/assets/{$json[ 'type' ]}/{$json[ 'name' ]}/{$version}";
 
     if ( file_exists( "{$installDir}/invoke" ) )
-      return $installDir . "/" . file_get_contents( "{$installDir}/invoke" );
+      return $version;
 
     // Make the installation directory if it doesn't exist
     if ( ! file_exists( $installDir ) )
@@ -679,6 +679,7 @@ class AlfredBundlerInternalClass {
     file_put_contents( "{$installDir}/invoke", $invoke );
     $this->log->log( "Installed '{$type}': '{$name}' -- version '{$version}'.", 'INFO', 'both' );
     $this->rrmdir( "{$tmpDir}" );
+
     return $version;
   }
 
