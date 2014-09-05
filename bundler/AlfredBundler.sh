@@ -175,7 +175,7 @@ function AlfredBundler::load {
       return 0
     else
       # Install the asset
-      php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}"
+      version=$(php "${AB_DATA}/bundler/includes/install-asset.php" "${json}" "${version}")
 
       # If the install script exited with a non-zero status, then return 1;
       # the error messages were written to STDERR by the install script.

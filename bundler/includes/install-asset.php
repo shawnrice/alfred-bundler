@@ -36,10 +36,18 @@ if ( ! isset( $argv[2] ) )
 else
   $version = $argv[2];
 
-if ( $b->installAsset( $json, $version ) ) {
-  exit( 0 );
-} else {
-  // Output the error to STDERR.
-  file_put_contents( 'php://stderr', 'Error with asset installation. See logs.' );
-  exit( 1 );
+if ( $version1 = $b->installAsset( $json, $version ) ) {
+  if ( $verson1 == $version ) {
+    echo $version;
+    exit( 0 );
+  } else {
+    file_put_contents( 'php://stderr', "Error: version {$version) is not valid." );
+    file_put_contents( 'php://stderr', "Installed 'latest' instead." );
+    echo $version;
+    exit( 1 );
+  }
 }
+
+// Output the error to STDERR.
+file_put_contents( 'php://stderr', 'Error with asset installation. See logs.' );
+exit( 1 );
