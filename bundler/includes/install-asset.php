@@ -38,7 +38,7 @@ else
 
 if ( $version1 = $b->installAsset( $json, $version ) ) {
   $version1 = trim($version1);
-  if ( $verson1 == $version ) {
+  if ( ( $verson1 == $version ) || ( $version == 'latest' ) ) {
     echo $version;
     exit(0);
   } else {
