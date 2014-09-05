@@ -268,7 +268,7 @@ function AlfredBundler::load {
     [[ -f '../icon.png' ]] && icon=$(pwd -P)"/../icon.png"
 
     path="${asset}/$(cat "${asset}/invoke")"
-
+echo "PATH IS: ${path}" >&2
     # Call gatekeeper
     bash "${AB_DATA}/bundler/includes/gatekeeper.sh" "${name}" "${path}" "${message}" "${icon}" "${WF_BUNDLE}"
 
