@@ -217,8 +217,8 @@ module Alfred
     #   `terminalnotifier`
     # @raise StandardError when wrapper file does not exist
     def wrapper(wrapper, debug=false)
-      wrapper.downcase!
       _wrapper_name = wrapper.slice(0,1).capitalize + wrapper.slice(1..-1)
+      wrapper.downcase!
       wrapper = File.join(File.dirname(__FILE__), 'includes', 'wrappers',
         'ruby', "#{wrapper}.rb")
       raise StandardError("Wrapper #{wrapper} does not exist.") unless File.exists? wrapper

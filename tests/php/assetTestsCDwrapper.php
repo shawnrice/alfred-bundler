@@ -16,7 +16,7 @@ class CocoaDialogTest extends PHPUnit_Framework_TestCase {
     }
 
     function testMsgBox() {
-        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name);
+        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name, $debug=True);
         $_test_msgbox = $wrapper_load->msgbox([
             'title'=>'Bundler::'.__FUNCTION__,
             'text'=>'Please click the indicated button...',
@@ -37,7 +37,7 @@ class CocoaDialogTest extends PHPUnit_Framework_TestCase {
     }
 
     function testNotify() {
-        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name);
+        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name, $debug=True);
         $_test_notify = $wrapper_load->notify([
             'title'=>'Bundler::'.__FUNCTION__,
             'description'=>'This is just a test notification...'
@@ -46,7 +46,7 @@ class CocoaDialogTest extends PHPUnit_Framework_TestCase {
     }
 
     function testProgressBar() {
-        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name);
+        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name, $debug=True);
         $_test_progressbar = new ProgressBar($wrapper_load, [
             'title'=>'Bundler::'.__FUNCTION__,
             'text'=>'Testing progress bar...',
@@ -61,7 +61,7 @@ class CocoaDialogTest extends PHPUnit_Framework_TestCase {
     }
 
     function testStoppableProgressBar() {
-        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name);
+        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name, $debug=True);
         $_test_progressbar = new ProgressBar($wrapper_load, [
             'title'=>'Bundler::'.__FUNCTION__,
             'text'=>'Testing progress bar...',

@@ -63,7 +63,7 @@ class CocoaDialogTest(unittest.TestCase):
         )
 
     def test_msgbox(self):
-        _wrapper_load = bundler.wrapper(self.wrapper_name)
+        _wrapper_load = bundler.wrapper(self.wrapper_name, debug=True)
         _test_msgbox = _wrapper_load.msgbox(
             title='Bundler::{}'.format(self.test_msgbox.__name__),
             text='Please click the indicated button...',
@@ -107,7 +107,7 @@ class CocoaDialogTest(unittest.TestCase):
         )
 
     def test_notify(self):
-        _wrapper_load = bundler.wrapper(self.wrapper_name)
+        _wrapper_load = bundler.wrapper(self.wrapper_name, debug=True)
         _test_notify = _wrapper_load.notify(
             title='Bundler::{}'.format(self.test_notify.__name__),
             description='This is just a test notification...'
@@ -118,7 +118,7 @@ class CocoaDialogTest(unittest.TestCase):
         )
 
     def test_progressbar(self):
-        _wrapper_load = bundler.wrapper(self.wrapper_name)
+        _wrapper_load = bundler.wrapper(self.wrapper_name, debug=True)
         _test_progressbar = _wrapper_load.progressbar(
             title='Bundler::{}'.format(self.test_progressbar.__name__),
             text='Testing progress bar...',
@@ -138,7 +138,7 @@ class CocoaDialogTest(unittest.TestCase):
         _test_progressbar.finish()
 
     def test_stoppable_progressbar(self):
-        _wrapper_load = bundler.wrapper(self.wrapper_name)
+        _wrapper_load = bundler.wrapper(self.wrapper_name, debug=True)
         _test_progressbar = _wrapper_load.progressbar(
             title='Bundler::{}'.format(
                 self.test_stoppable_progressbar.__name__

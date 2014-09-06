@@ -16,7 +16,7 @@ class TerminalNotifierTest extends PHPUnit_Framework_TestCase {
     }
 
     function testNotification() {
-        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name);
+        $wrapper_load = $this->_bundler->wrapper($this->wrapper_name, $debug=True);
         $_test_notification = $wrapper_load->notify([
             'title'=>'Bundler::'.__FUNCTION__,
             'message'=>'This is just a test notification...'

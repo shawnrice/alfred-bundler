@@ -172,7 +172,7 @@ class Cocoadialog
         end
         @@global_options = {
             'title' => [String],
-            'string_output' => [String],
+            'string_output' => [TrueClass, FalseClass],
             'no_newline' => [TrueClass, FalseClass],
             'width' => [Fixnum, Float],
             'height' => [Fixnum, Float],
@@ -385,7 +385,8 @@ class Cocoadialog
         end
         unless return_process
             self.class.log('info', __method__, __LINE__, @process)
-            return _run_subprocess(@process.join(' ')).split("\n")
+            _process = _run_subprocess(@process.join(' ')).split("\n")
+            return _process.length > 0 ? _process : nil
         else
             return @process
         end
