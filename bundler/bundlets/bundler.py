@@ -108,6 +108,7 @@ Alfred Bundler Methods
 from __future__ import print_function, unicode_literals
 
 import os
+import re
 import subprocess
 import urllib2
 import imp
@@ -323,7 +324,8 @@ def wrapper(wrapper, debug=False):
     :type debug: bool
     """
     _bootstrap()
-    return _wrappers.wrapper(wrapper.lower(), debug=debug)
+    wrapper = ''.join(re.findall(r'[A-Za-z0-9]', wrapper)).lower()
+    return _wrappers.wrapper(wrapper, debug=debug)
 
 
 def notify(title, message, icon=None):  # pragma: no cover

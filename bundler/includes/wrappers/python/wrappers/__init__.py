@@ -1,32 +1,37 @@
-# I hate to do this, but until we can figure out a common way to store
-# global variables between releases, I'll have to reference the "devel"
-# VERSION.
-#
-# This will need to be updated with release.
-#
-# TODO: Figure out an easier way to point to AlfredBundler.py for self import.
-BUNDLER_VERSION = 'devel'
+import os
+
+BUNDLER_DIR = None
+
+_lookback = os.path.abspath(__file__)
+while not BUNDLER_DIR:
+    _curdir = os.path.dirname(os.path.abspath(_lookback))
+    if os.path.basename(_curdir).startswith('alfred.bundler-'):
+        BUNDLER_DIR = _curdir
+        break
+    else:
+        _lookback = _curdir
 
 try:
     import AlfredBundler
 except ImportError:
-    import os
     import imp
-    AlfredBundler = imp.load_source('AlfredBundler', os.path.expanduser(
-        '~/Library/Application Support/Alfred 2/Workflow Data/'
-        'alfred.bundler-{}/bundler/AlfredBundler.py'.format(BUNDLER_VERSION)))
+    AlfredBundler = im.load_source(
+        'AlfredBundler',
+        os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
+    )
 
 from cocoadialog import CocoaDialog
 from terminalnotifier import TerminalNotifier
 
-_wrappers = {
+# This "should" work through the json,
+# but in Python it's better to work around the json like this.
+_common = {
     'cocoadialog': (CocoaDialog, 'cocoaDialog'),
-    'terminalnotifier': (TerminalNotifier, 'terminal-notifier')
+    'terminalnotifier': (TerminalNotifier, 'Terminal-Notifier')
 }
 
 
 def wrapper(desired, debug=False):
-    if desired in _wrappers.keys():
-        # This key conform is questionable
-        return _wrappers[desired.lower()][0](
-            AlfredBundler.utility(_wrappers[desired.lower()][1]), debug=debug)
+    if desired in _common.keys():
+        return _wrappers[desired][0](
+            AlfredBundler.utility(_wrappers[desired][1]), debug=debug)
