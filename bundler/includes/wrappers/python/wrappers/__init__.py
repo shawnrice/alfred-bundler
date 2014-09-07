@@ -33,5 +33,5 @@ _common = {
 
 def wrapper(desired, debug=False):
     if desired in _common.keys():
-        return _wrappers[desired][0](
-            AlfredBundler.utility(_wrappers[desired][1]), debug=debug)
+        return _common[desired][0](
+            AlfredBundler.utility(_common[desired][1]), debug=debug)
