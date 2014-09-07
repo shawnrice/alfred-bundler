@@ -450,15 +450,14 @@ class AlfredBundlerInternalClass {
    * @return  object             a wrapper object
    */
   public function wrapper( $wrapper, $debug = FALSE ) {
-    $wrapperPointer = [
-        'cocoadialog'=>'cocoaDialog',
-        'terminalnotifier'=>'terminal-notifier'
-    ];
+    $_common = json_decode(file_get_contents("{$this->data}/bundler/includes/wrappers/wrappers.json"), true);
+    preg_match_all("/[A-Za-z0-9]/", $wrapper, $_output);
+    $wrapper = strtolower(join('', $_output[0]));
     $wrappersDir = "{$this->data}/bundler/includes/wrappers/php";
     if ( file_exists( "{$wrappersDir}/{$wrapper}.php" ) ) {
       require_once "{$wrappersDir}/{$wrapper}.php";
       $this->log->log( "Loaded '{$wrapper}' bindings", 'INFO', 'console' );
-      return new $wrapper( $this->utility( $wrapperPointer[strtolower( $wrapper )] ), $debug );
+      return new $wrapper( $this->utility( $_common[$wrapper] ), $debug );
     } else {
       $this->log->log( "'{$wrapper}' not found.", 'ERROR', 'console' );
       return 10;
