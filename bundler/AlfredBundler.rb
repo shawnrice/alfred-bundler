@@ -217,14 +217,19 @@ module Alfred
     #   `terminalnotifier`
     # @raise StandardError when wrapper file does not exist
     def wrapper(wrapper, debug=false)
+      require_once 'json';
+      _common = JSON.parse(File.read(File.join(File.dirname(__FILE__), 
+        'includes', 'wrappers', 'wrappers.json'
+      )))
+      _wrapper_common = /^[A-Za-z0-9]$/.match(wrapper).downcase!
       _wrapper_name = wrapper.slice(0,1).capitalize + wrapper.slice(1..-1)
-      wrapper.downcase!
       wrapper = File.join(File.dirname(__FILE__), 'includes', 'wrappers',
         'ruby', "#{wrapper}.rb")
       raise StandardError("Wrapper #{wrapper} does not exist.") unless File.exists? wrapper
       require_relative wrapper
-      _wrapper_class = sprintf('Alfred::%s', _wrapper_name).split('::').inject(Object) {|o,c| o.const_get c}
-      return _wrapper_class.new(self.utility(_wrapper_name.downcase!), @debug=debug)
+      _wrapper_class_name = _wrapper_common.slice(0,1).capitalize + _wrapper_common.slice(1..-1)
+      _wrapper_class = sprintf('Alfred::%s', _wrapper_class_name).split('::').inject(Object) {|o,c| o.const_get c}
+      return _wrapper_class.new(self.utility(_common[_wrapper_common]), @debug=debug)
     end
 
     # Parses the arguments sent to the `load` method to make them usable
