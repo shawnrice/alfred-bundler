@@ -4,10 +4,6 @@ gem "minitest"
 require "minitest/autorun"
 require "../../bundler/bundlets/alfred.bundler.rb"
 
-# Broken: due to Ruby bundler's utility->load methods.
-# > All other bundler's allow the names "cocoadialog" and "terminalnotifier"
-# > for loading wrappers (which also means utilities)
-
 
 class TerminalNotifierTest < MiniTest::Unit::TestCase
 
@@ -18,6 +14,16 @@ class TerminalNotifierTest < MiniTest::Unit::TestCase
 
     def test_wrapper_function
         _wrapper_load = @_bundler.wrapper(@wrapper_name)
+        assert _wrapper_load.is_a?(Alfred::Terminalnotifier)
+    end
+
+    def test_notification
+        _wrapper_load = @_bundler.wrapper(@wrapper_name)
+        _test_notification = _wrapper_load.notify(
+            title:"Bundler::#{__method__}",
+            message:"This is just a test notification..."
+        )
+        assert _test_notification.nil?
     end
 
 end
