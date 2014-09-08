@@ -13,7 +13,9 @@ CocoaDialog is a resource which allows the user to spawn MacOSX aqua dialogs
 from the command-line. Dialogs are predefined and return input via echo.
 
 `Official Documentation <http://mstratman.github.io/cocoadialog/>`_.
-`License GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>`_.
+`Bundler Documentation <?>`_.
+`License MIT <http://opensource.org/licenses/MIT>`_.
+`Copyright 2014 The Alfred Bundler Team`_.
 
 **NOTE**: Dialog classes don't follow standard naming conventions.
 This decision was made to improve simplicity in the implementation of the API.
@@ -112,7 +114,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
+AUTHOR = 'The Alfred Bundler Team'
 DATE = '07-28-14'
 VERSION = '1.0'
 COCOA_VERSION = (3.0, 0, 'beta')

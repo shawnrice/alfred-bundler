@@ -6,8 +6,9 @@
  * Terminal Notifier is a resource which allows the user to spawn MacOSX notifications
  * from the command-line. Notifications return nothing.
  * 
- * Official Documentation {@link https://github.com/alloy/terminal-notifier}
- * LICENSE: GPLv3 {@link https://www.gnu.org/licenses/gpl-3.0.txt}
+ * Official Documentation {@link http://mstratman.github.io/cocoadialog/}
+ * LICENSE: MIT {@link http://opensource.org/licenses/MIT}
+ * Copyright 2014 The Alfred Bundler Team
  *
  * -> Usage
  * ===========================================================================
@@ -36,12 +37,12 @@
  * ============================================================================
  * 1.0, 07-28-14: Initial release
  * 
- * @copyright  Ritashugisha 2014
- * @license    https://www.gnu.org/licenses/gpl-3.0.txt  GPL v3
+ * @copyright  The Alfred Bundler Team
+ * @license    http://opensource.org/licenses/MIT MIT
  * @version    1.0
  */
 
-$AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>';
+$AUTHOR = 'The Alfred Bundler Team';
 $DATE = '07-28-14';
 $VERSION = 1.0;
 

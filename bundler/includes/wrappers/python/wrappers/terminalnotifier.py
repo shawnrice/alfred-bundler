@@ -13,8 +13,10 @@ Python API for interacting with OSX notification spawner Terminal Notifier.
 Terminal Notifier is a resource which allows the user to spawn MacOSX
 notifications from the command-line. Notifications return no information.
 
-`Official Documentation <https://github.com/alloy/terminal-notifier>`_.
-`License GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>`_.
+`Official Documentation <http://mstratman.github.io/cocoadialog/>`_.
+`Bundler Documentation <?>`_.
+`License MIT <http://opensource.org/licenses/MIT>`_.
+`Copyright 2014 The Alfred Bundler Team`_.
 
 Design decisions were made to improve simplicity
 in the implementation of the API.
@@ -81,7 +83,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
+AUTHOR = 'The Alfred Bundler Team'
 DATE = '07-28-14'
 VERSION = '1.0'
 

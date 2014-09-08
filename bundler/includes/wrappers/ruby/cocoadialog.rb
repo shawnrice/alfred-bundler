@@ -7,8 +7,8 @@
 #     :synopsis: Ruby API for interacting with OSX dialog spawner CocoaDialog.
 # ..moduleauthor:: Ritashugisha <ritashugisha@gmail.com>
 #
-# Copyright: 2014 Ritashugisha
-# License: GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>
+# Copyright: 2014 The Alfred Bundler Team
+# License: MIT <http://opensource.org/licenses/MIT>
 #
 # CocoaDialog is a resource which allows the user to spawn MacOSX aqua dialogs
 # from the command-line. Dialogs are predefined and return input via echo.
@@ -96,7 +96,7 @@
 
 module Alfred
 
-$AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
+$AUTHOR = 'The Alfred Bundler Team'
 $DATE = '07-28-14'
 $VERSION = 1.0
 $COCOA_VERSION = [3.0, 0, 'beta']

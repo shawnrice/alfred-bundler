@@ -7,8 +7,8 @@
 #     :synopsis: Ruby API for interacting with OSX notification spawner TerminalNotifier.
 # ..moduleauthor:: Ritashugisha <ritashugisha@gmail.com>
 #
-# Copyright: 2014 Ritashugisha
-# License: GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>
+# Copyright: 2014 The Alfred Bundler Team
+# License: MIT <http://opensource.org/licenses/MIT>
 #
 # Terminal Notifier is a resource which allows the user to spawn MacOSX notifications
 # from the command-line. Notifications return no information.
@@ -48,7 +48,7 @@
 # =============================================================================
 # 1.0, 07-28-14: Initial release
 
-$AUTHOR = 'Ritashugisha <ritashugisha@gmail.com>'
+$AUTHOR = 'The Alfred Bundler Team'
 $DATE = '07-28-14'
 $VERSION = 1.0
 
