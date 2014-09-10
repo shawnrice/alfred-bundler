@@ -15,7 +15,7 @@ try:
     import AlfredBundler
 except ImportError:
     import imp
-    AlfredBundler = im.load_source(
+    AlfredBundler = imp.load_source(
         'AlfredBundler',
         os.path.join(BUNDLER_DIR, 'bundler', 'AlfredBundler.py')
     )

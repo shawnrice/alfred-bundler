@@ -639,16 +639,39 @@ def flip_color(color):
 
 
 def wrapper(wrapper, debug=False):
+    """ Grab a wrapper object from the wrappers.
+    Note: the wrappers must already be on the system for this method to work.
+
+    :param wrapper: Wrapper name to load
+    :type wrapper: ``str`` or ``unicode``
+    :param debug: Toggle for enabling debug
+    :type debug: ``bool``
+    """
     global _wrappers
     if not _wrappers:
-        _wrappers_file, _wrappers_filename, _wrappers_data = imp.find_module(
-            'wrappers', [WRAPPERS_DIR])
+        (_wrappers_file,
+         _wrappers_filename,
+         _wrappers_data) = imp.find_module('wrappers', [WRAPPERS_DIR])
         _wrappers = imp.load_module(
-            'wrappers', _wrappers_file, _wrappers_filename, _wrappers_data)
+            'wrappers',
+            _wrappers_file,
+            _wrappers_filename,
+            _wrappers_data
+        )
     return _wrappers.wrapper(wrapper.lower(), debug=debug)
 
 
 def notify(title, message, icon=None):
+    """ Send a notification to the desktop.
+    Note: wrappers must be on the system for this method to work.
+
+    :param title: Title of notification
+    :type title: ``str`` or ``unicode``
+    :param message: Message of notification
+    :type message: ``str`` or ``unicode``
+    :param icon: Absolute path to icon for notification
+    :type icon: ``str`` or ``unicode``
+    """
     if (isinstance(title, str) or isinstance(title, unicode)) and \
        (isinstance(message, str) or isinstance(message, unicode)):
         client = wrapper('cocoadialog', debug=True)
@@ -663,13 +686,7 @@ def notify(title, message, icon=None):
             icon_type = None
         notification = {
             'title': title,
-            'description': message,
-            'alpha': 1,
-            'background_top': 'ffffff',
-            'background_bottom': 'ffffff',
-            'border_color': 'ffffff',
-            'text_color': '000000',
-            'no_growl': True
+            'description': message
         }
         if icon_type:
             notification[icon_type] = icon

@@ -356,13 +356,7 @@ def notify(title, message, icon=None):  # pragma: no cover
             icon_type = None
         notification = {
             'title': title,
-            'description': message,
-            'alpha': 1,
-            'background_top': 'ffffff',
-            'background_bottom': 'ffffff',
-            'border_color': 'ffffff',
-            'text_color': '000000',
-            'no_growl': True
+            'description': message
         }
         if icon_type:
             notification[icon_type] = icon
