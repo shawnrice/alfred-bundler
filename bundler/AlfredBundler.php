@@ -1104,13 +1104,7 @@ class AlfredBundlerInternalClass {
     }
     $notification = [
       'title'=>$title,
-      'description'=>$message,
-      'alpha'=>1,
-      'background_top'=>'ffffff',
-      'background_bottom'=>'ffffff',
-      'border_color'=>'ffffff',
-      'text_color'=>'000000',
-      'no_growl'=>true,
+      'description'=>$message
     ];
     if ( ! is_null( $icon_type ) ) {
       $notification[$icon_type] = $icon;
