@@ -13,6 +13,44 @@ ScriptFilter API for building Alfred ScriptFilter entries.
 `License MIT <http://opensource.org/licenses/MIT>`_.
 `Copyright 2014 The Alfred Bundler Team`_.
 
+-> Usage
+===============================================================================
+
+To include this api in your Python scripts, copy this ``scriptfilter.py`` to
+a viable place for you to import.
+
+Import the ScriptFilter client:
+
+    from scriptfilter import ScriptFilter
+    my_filter = ScriptFilter(debug=False)
+
+Now that you have access to the client, you can add entries to the filter.
+
+    my_filter.add(
+        title='My Entry',
+        subtitle='A subtitle for my entry',
+        arg='My entry's passed argument',
+        adv_subtitle={
+            'shift': 'Subtitle when shift is pressed',
+            'cmd': 'Subtitle when cmd is pressed'
+        },
+        uid='my custom uid',
+        icon='path to your icon.png'
+    )
+
+This will ensure that this entry will be rendered to XML (along with any
+other entries that you add) that can be accepted by Alfred's ScriptFilter obj.
+
+In order to obtain the XML, either print the filter name or grab the returned
+value from the .get() method.
+
+    # Option 1
+    print my_filter
+
+    # Option 2
+    filter_output = my_filter.get()
+
+
 -> Revisons
 ===============================================================================
 1.1, 10-9-14: Initial build for just script filter output
@@ -44,7 +82,7 @@ class ScriptFilter:
     Public class used to initailize the main items element and the entries list
     Script filter element is built by:
 
-        filter_output = alfredworkflow.filters.ScriptFilter()
+        _filter = bundler.wrapper('scriptfilter')
 
     :returns: Built items XML
     :rtype: ``str`` or ``unicode``
