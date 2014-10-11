@@ -55,7 +55,7 @@ class ScriptFilter:
 
         self.debug = debug
         self.log = logging.getLogger(self.__class__.__name__)
-        self._header = '<?xml version="1.0" encoding="UTF-8"?>'
+        self.header = '<?xml version="1.0" encoding="UTF-8"?>'
         self.entries = []
         self.items = etree.Element('items')
 
@@ -69,7 +69,7 @@ class ScriptFilter:
         :returns: Built XML from the items element
         :rtype: ``str`` or ``unicode``
         """
-        return self._build_xml()
+        return self.get()
 
     def _build_xml(self):
         """ Build the XML for the current entries.
@@ -79,7 +79,16 @@ class ScriptFilter:
         """
 
         [i._build() for i in self.entries]
-        return '{}{}'.format(self._header, etree.tostring(self.items))
+        return '{}{}'.format(self.header, etree.tostring(self.items))
+
+    def get(self):
+        """ Grab the built XML if you need the values before printing them.
+
+        :returns: Built XML from the items element
+        :rtype: ``str`` or ``unicode``
+        """
+
+        return self._build_xml()
 
     def add(self, **passed):
         """ Add an entry to the script filter object.
