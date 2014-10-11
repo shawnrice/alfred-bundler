@@ -22,16 +22,21 @@ except ImportError:
 
 from cocoadialog import CocoaDialog
 from terminalnotifier import TerminalNotifier
+from scriptfilter import ScriptFilter
 
 # This "should" work through the json,
 # but in Python it's better to work around the json like this.
 _common = {
     'cocoadialog': (CocoaDialog, 'cocoaDialog'),
-    'terminalnotifier': (TerminalNotifier, 'Terminal-Notifier')
+    'terminalnotifier': (TerminalNotifier, 'Terminal-Notifier'),
+    'scriptfilter': (ScriptFilter, None)
 }
 
 
 def wrapper(desired, debug=False):
     if desired in _common.keys():
-        return _common[desired][0](
-            AlfredBundler.utility(_common[desired][1]), debug=debug)
+        if _common[desired][1] != None:
+            return _common[desired][0](
+                AlfredBundler.utility(_common[desired][1]), debug=debug)
+        else:
+            return _common[desired][0](debug=debug)
