@@ -120,7 +120,9 @@ class ScriptFilter:
         :param adv_text: Advanced text dictionary
         :type adv_text: ``dict``
         """
-        _new_entry = ScriptFilter.Entry(self.items)._add(**passed)
+        _new_entry = ScriptFilter.Entry(
+            self.items, self.log, self.debug
+        )._add(**passed)
         if _new_entry != None:
             self.entries.append(_new_entry)
 
@@ -136,15 +138,12 @@ class ScriptFilter:
         :type root: xml.etree.ElementTree
         """
 
-        def __init__(self, root):
+        def __init__(self, root, log, debug):
             """ Initializes the Entry object."""
 
-            self.log = logging.getLogger('{}::{}'.format(
-                os.path.splitext(os.path.basename(__file__))[0],
-                self.__class__.__name__
-            ))
+            self.log = log
+            self.debug = debug
             self.root = root
-
             self.entry_options = {
                 'title': (str, unicode,),
                 'subtitle': (str, unicode,),
@@ -198,18 +197,24 @@ class ScriptFilter:
                 for _k, _v in self.entry_options.iteritems():
                     if (k == _k):
                         _found = True
-                        if type(v) in _v:
-                            self.item[k] = v
+                        if type(v) not in _v:
+                            if self.debug:
+                                self.log.warning(', '.join([
+                                    'removing ({}) invalid type'.format(k),
+                                    'expected ({})'.format(' or '.join([
+                                        i.__name__ for i in _v
+                                    ]))
+                                ]))
                         else:
-                            self.log.warning((
-                                'removing {} -> invalid type '
-                                '"{}", expecting type {}'.format(k, v, _v))
-                            )
+                            self.item[k] = v
                 if not _found:
-                    self.log.warning((
-                        'removing {} -> '
-                        'unknown parameter'.format(k))
-                    )
+                    if self.debug:
+                        self.log.warning(', '.join([
+                            'removing ({}) unknown parameter'.format(k),
+                            'available are ({})'.format(', '.join([
+                                i for i in self.item.keys()
+                            ]))
+                        ]))
 
 
             # TODO: Shrink this cleanup down...
@@ -237,10 +242,13 @@ class ScriptFilter:
             # Validate that the required options are present
             for i in self.required_options:
                 if self.item[i] == None:
-                    self.log.error((
-                        'stopping -> required option '
-                        '"{}" was not passed correctly'
-                    ).format(i))
+                    if self.debug:
+                        self.log.critical(', '.join([
+                            'failed from required option ({})'.format(i),
+                            'must be of type ({})'.format(' or '.join([
+                                j.__name__ for j in self.entry_options[i]
+                            ]))
+                        ]))
                     _valid = False
 
             # Fix up the advanced dictionary based parameters
@@ -251,10 +259,10 @@ class ScriptFilter:
                 _to_pop = []
                 for i in self.item[k]:
                     if (i not in v.keys()):
-                        self.log.warning((
-                            'removing {}:{} -> '
-                            'invalid option "{}"'.format(k, i, i))
-                        )
+                        if self.debug:
+                            self.log.warning(
+                                'removing ({}:{}) invalid option'.format(k, i)
+                            )
                         _to_pop.append(i)
                 [self.item[k].pop(i) for i in _to_pop]
                 if len(self.item[k].keys()) <= 0:
@@ -266,28 +274,39 @@ class ScriptFilter:
                 'icon_type': self._available_icon_type
             }.iteritems():
                 if self.item[k] != None and self.item[k] not in v:
-                    self.log.warning((
-                        'removing {} -> invalid "{}", '
-                        'removing'.format(k, self.item[k]))
-                    )
+                    if self.debug:
+                        self.log.warning(', '.join([
+                            'removing ({}) invalid name'.format(k),
+                            'expected ({})'.format(' or '.join(v))
+                        ]))
                     self.item[k] = None
 
             # Validate that the passed icon exists, defaults to icon.png
             if self.item['icon'] != None:
                 if not os.path.exists(self.item['icon']):
-                    self.log.warning((
-                        'defaulting to "icon.png" -> icon '
-                        '"{}" does not exist'.format(self.item['icon']))
-                    )
+                    if self.debug:
+                        self.log.warning(', '.join([
+                            'defaulting to (icon.png)',
+                            '({}) does not exist'.format(self.item['icon'])
+                        ]))
                     self.item['icon'] = 'icon.png'
 
             # If the UID is empty but the argument isn't,
             # let the UID equal the argument
             if (self.item['arg'] != None) and (self.item['uid'] == None):
+                if self.debug:
+                    self.log.info(
+                        '"uid" is None, setting "uid" value to "arg" value'
+                    )
                 self.item['uid'] = self.item['arg']
 
             # Backup method, assigns the UID to a random 5 digit number
             if self.item['uid'] == None:
+                if self.debug:
+                    self.log.info((
+                        '"uid" is None and "arg" is None, setting "uid" to '
+                        'random 5 digit integer'
+                    ))
                 self.item['uid'] = str(random.randint(10**(5-1), (10**5)-1))
 
             return _valid
