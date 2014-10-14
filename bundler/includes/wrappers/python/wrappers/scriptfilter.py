@@ -29,7 +29,7 @@ Now that you have access to the client, you can add entries to the filter.
     my_filter.add(
         title='My Entry',
         subtitle='A subtitle for my entry',
-        arg='My entry's passed argument',
+        arg='My entry\'s passed argument',
         adv_subtitle={
             'shift': 'Subtitle when shift is pressed',
             'cmd': 'Subtitle when cmd is pressed'
@@ -89,7 +89,11 @@ class ScriptFilter:
     """
 
     def __init__(self, debug=False):
-        """ Initialize the ScriptFilter object."""
+        """ Initialize the ScriptFilter object.
+
+        :param debug: Allow debuggin for the script filter object.
+        :type debug: bool
+        """
 
         self.debug = debug
         self.log = logging.getLogger(self.__class__.__name__)
@@ -102,7 +106,7 @@ class ScriptFilter:
         
         Simply printing or returning the object variable will call this method
 
-            return filter_output
+            return _filter
 
         :returns: Built XML from the items element
         :rtype: ``str`` or ``unicode``
@@ -169,7 +173,7 @@ class ScriptFilter:
 
         """ Nested ScriptFilter Entry class used to build the XML for an entry.
 
-        Initializes the refernce to both the ``items`` root as well as the
+        Initializes the reference to both the ``items`` root as well as the
         single item entry under self.item
 
         :param root: The items element
@@ -177,7 +181,15 @@ class ScriptFilter:
         """
 
         def __init__(self, root, log, debug):
-            """ Initializes the Entry object."""
+            """ Initializes the Entry object.
+
+            :param root: Root of the items node
+            :type root: xml.etree.ElementTree.Element
+            :param log: Log for the ScriptFilter object
+            :type log: logging.logger
+            :param debug: Allow debugging for entry manipulation
+            :type debug: bool
+            """
 
             self.log = log
             self.debug = debug

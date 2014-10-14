@@ -952,7 +952,7 @@ def icon(font, icon, color='000000', alter=False):
         raise ValueError(error)
 
     elif code != 200:  # pragma: no cover
-        raise IOError('Could not retrieve icon : {}/{}/{{'.format(font,
+        raise IOError('Could not retrieve icon : {}/{}/{}'.format(font,
                                                                   icon,
                                                                   color))
 
