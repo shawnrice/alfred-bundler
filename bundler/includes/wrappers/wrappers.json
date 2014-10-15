@@ -1,4 +1,5 @@
 {
     "cocoadialog": "cocoaDialog",
-    "terminalnotifier": "Terminal-Notifier"
+    "terminalnotifier": "Terminal-Notifier",
+    "scriptfilter": ""
 }

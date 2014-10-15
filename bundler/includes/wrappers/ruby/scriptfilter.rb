@@ -103,7 +103,7 @@ class ScriptFilter
     # :rtype: String
     def to_s()
         @entries.each{ |i| i._build() }
-        return '%s%s' % [@@header, @@items.to_s]
+        return '%s%s' % [@header, @@items.to_s]
     end
 
     # Add an entry to the script filter object.
@@ -327,6 +327,8 @@ class Entry
                 end
                 @item[:icon] = 'icon.png'
             end
+        else
+            @item[:icon] = 'icon.png'
         end
 
         if @item[:arg] != nil and @item[:uid] == nil
