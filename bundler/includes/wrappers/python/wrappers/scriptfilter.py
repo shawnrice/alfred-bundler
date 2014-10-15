@@ -262,7 +262,7 @@ class ScriptFilter:
                         self.log.warning(', '.join([
                             'removing ({}) unknown parameter'.format(k),
                             'available are ({})'.format(', '.join([
-                                i for i in self.item.keys()
+                                i for i in self.entry_options.keys()
                             ]))
                         ]))
 
