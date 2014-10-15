@@ -228,7 +228,11 @@ module Alfred
       require_relative wrapper
       _wrapper_class_name = _wrapper_common.slice(0,1).capitalize + _wrapper_common.slice(1..-1)
       _wrapper_class = sprintf('Alfred::%s', _wrapper_class_name).split('::').inject(Object) {|o,c| o.const_get c}
-      return _wrapper_class.new(self.utility(_common[_wrapper_common]), @debug=debug)
+      if _common[_wrapper_common].length > 0
+        return _wrapper_class.new(self.utility(_common[_wrapper_common]), @debug=debug)
+      else
+        return _wrapper_class.new(@debug=debug)
+      end
     end
 
     # Parses the arguments sent to the `load` method to make them usable

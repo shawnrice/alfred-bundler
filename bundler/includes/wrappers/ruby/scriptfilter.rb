@@ -73,7 +73,7 @@ require 'xml'
 #     
 # :returns: Build items XML
 # :rtype: String
-class ScriptFilter
+class Scriptfilter
 
     @@debug
     @@_root_doc
