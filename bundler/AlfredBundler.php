@@ -457,7 +457,7 @@ class AlfredBundlerInternalClass {
     if ( file_exists( "{$wrappersDir}/{$wrapper}.php" ) ) {
       require_once "{$wrappersDir}/{$wrapper}.php";
       $this->log->log( "Loaded '{$wrapper}' bindings", 'INFO', 'console' );
-      if ( strlen( $this->utility( $_common[$wrapper] ) ) > 0 ) {
+      if ( strlen( $_common[$wrapper] ) > 0 ) {
         return new $wrapper( $this->utility( $_common[$wrapper] ), $debug );
       } else {
         return new $wrapper( $debug );
