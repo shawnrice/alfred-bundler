@@ -266,9 +266,6 @@ class ScriptFilter:
                             ]))
                         ]))
 
-
-            # TODO: Shrink this cleanup down...
-            # Cleanup the entry attributes
             self.item['valid'] = (
                 'no' if ('valid' in _new_passed.keys()) and \
                 not _new_passed['valid'] else 'yes'

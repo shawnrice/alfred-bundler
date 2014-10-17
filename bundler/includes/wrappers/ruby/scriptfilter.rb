@@ -31,7 +31,7 @@
 #         adv_subtitle: {
 #             shift: 'Subtitle when shift is pressed',
 #             cmd: 'Subtitle when cmd is pressed'
-#         }
+#         },
 #         uid: 'my custom uid',
 #         icon: 'path to your icon.png'
 #     )
