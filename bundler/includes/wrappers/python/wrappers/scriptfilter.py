@@ -67,7 +67,7 @@ logging.basicConfig(
             '[{}:%(lineno)d] '
             '[%(levelname)s] '
             '%(message)s').format(os.path.basename(__file__)),
-    datefmt='%Y-%m-%d %H:%M:%S'
+    datefmt='%H:%M:%S'
 )
 
 AUTHOR = 'The Alfred Bundler Team'

@@ -231,7 +231,7 @@ class Entry {
 
     function log( $level, $funct, $lineno, $message ) {
         if ( $this->debug ) {
-            echo sprintf( "[%s] [%s:%d] [%s] %s\xA", date('Y-m-d h:i:s'), basename(__FILE__), $lineno, strtoupper( $level ), $message );
+            echo sprintf( "[%s] [%s:%d] [%s] %s\xA", date('h:i:s'), basename(__FILE__), $lineno, strtoupper( $level ), $message );
         }
     }
 

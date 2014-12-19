@@ -84,7 +84,7 @@ class Terminalnotifier
     def self.log(level, funct, lineno, message)
         if @@debug
             $stdout.write "[%s] [%s:%d] [%s] %s\n" % [
-                Time.now.strftime('%Y-%m-%d %H:%M:%S'),
+                Time.now.strftime('%H:%M:%S'),
                 File.basename(__FILE__),
                 lineno,
                 level.upcase,
