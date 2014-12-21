@@ -1,4 +1,5 @@
 import os
+import inspect
 
 BUNDLER_DIR = None
 
@@ -33,10 +34,13 @@ _common = {
 }
 
 
-def wrapper(desired, debug=False):
+def wrapper(desired, debug=False, workflow_id=None):
     if desired in _common.keys():
-        if _common[desired][1] != None:
+        if _common[desired][1]:
             return _common[desired][0](
-                AlfredBundler.utility(_common[desired][1]), debug=debug)
+                AlfredBundler._utility(
+                    _common[desired][1], 'latest', workflow_id=workflow_id),
+                debug=debug
+            )
         else:
             return _common[desired][0](debug=debug)

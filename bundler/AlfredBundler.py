@@ -1,1094 +1,823 @@
 #!/usr/bin/env python
 # encoding: utf-8
-#
-# Copyright © 2014 deanishe@deanishe.net
-#
-# MIT Licence. See http://opensource.org/licenses/MIT
-#
-# Created on 2014-08-03
-#
 
-"""
-#########################
-Alfred Bundler for Python
-#########################
-
-Alfred Bundler is a framework to help workflow authors manage external
-utilities and libraries required by their workflows without having to
-include them with each and every workflow.
-
-`Alfred Bundler Homepage/Documentation <http://shawnrice.github.io/alfred-bundler/>`_.
-
-**NOTE**: By necessity, this Python implementation does not work in
-exactly the same way as the reference PHP/bash implementations by
-Shawn Rice.
-
-The purpose of the Bundler is to enable workflow authors to easily
-access utilites and libraries that are commonly used without having to
-include a copy in every ``.alfredworkflow`` file or worry about installing
-them themselves. This way, we can hopefully avoid having, say, 15 copies
-of ``cocaoDialog`` clogging up users' Dropboxes, and also allow authors to
-distribute workflows with sizeable requirements without their exceeding
-GitHub's 10 MB limit for ``.alfredworkflow`` files or causing authors
-excessive bandwidth costs.
-
-Unfortunately, due to the nature of Python's import system, it isn't
-possible to provide versioned libraries in the way that the PHP Bundler
-does, so this version of the Bundler creates an individual library
-directory for each workflow and adds it to ``sys.path`` with one simple call.
-
-It is based on `Pip <http://pip.readthedocs.org/en/latest/index.html>`_,
-the de facto Python library installer, and you must create a
-``requirements.txt`` file in `the format required by pip <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
-in order to take advantage of automatic dependency installation.
-
-Usage
-======
-
-Simply include the ``bundler.py`` file (from the Alfred Bundler's
-``bundler/bundlets`` directory) alongside your workflow's Python code
-where it can be imported.
-
-The Python Bundler provides two main features: the ability to use common
-utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
-or `Pashua <http://www.bluem.net/en/mac/pashua/>`_) simply by asking for
-them by name (they will automatically be installed if necessary), and the
-ability to automatically install and update any Python libraries required
-by your workflows.
-
-Using utilities/assets
-----------------------
-
-The basic interface for utilities is::
-
-    import bundler
-    util_path = bundler.utility('utilityName')
-
-which will return the path to the appropriate executable, installing
-it first if necessary. You may optionally specify a version number
-and/or your own JSON file that defines a non-standard utility.
-
-Please see `the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
-for details of the JSON file format and how the Bundler works in general.
-
-Handling Python dependencies
-----------------------------
-
-The Python Bundler can also take care of your workflow's dependencies for
-you if you create a `requirements.txt <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
-file in your workflow root directory and put the following in your Python
-source files before trying to import any of those dependencies::
-
-    import bundler
-    bundler.init()
-
-:func:`~bundler.init()` will find your ``requirements.txt``  file (you may alternatively
-specify the path explicitly—see :func:`~bundler.init()`)
-and call Pip with it (installing Pip first if necessary). Then it will
-add the directory it's installed the libraries in to ``sys.path``, so you
-can immediately ``import`` those libraries::
-
-    import bundler
-    bundler.init()
-    import requests  # specified in `requirements.txt`
-
-The Bundler doesn't define any explicit exceptions, but may raise any number
-of different ones (e.g. :class:`~exceptions.IOError` if a file doesn't
-exist or if the computer or PyPi is offline).
-
-By and large, these are not recoverable errors, but if you'd like to ensure
-your workflow's users are notified, I recommend (shameless plug) building
-your Python workflow with
-`Alfred-Workflow <http://www.deanishe.net/alfred-workflow/>`_,
-which can catch workflow errors and warn the user (amongst other cool stuff).
-
-Any problems with the Bundler may be raised on
-`Alfred's forum <http://www.alfredforum.com/topic/4255-alfred-dependency-downloader-framework/>`_
-or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_.
-
-Alfred Bundler Methods
-======================
-
-"""
-
-from __future__ import print_function, unicode_literals
-
-import sys
+from __future__ import unicode_literals
 import os
 import re
+import sys
 import imp
-import subprocess
-import plistlib
+import time
 import json
+import shutil
+import inspect
+import urllib2
 import hashlib
 import cPickle
-import urllib2
-import time
-import shutil
-import colorsys
 import logging
 import logging.handlers
+import colorsys
+import plistlib
+import subprocess
 
-
-VERSION = '0.2'
-
-
-BUNDLER_VERSION = 'devel'
-
-if os.getenv('AB_BRANCH'):
-    BUNDLER_VERSION = os.getenv('AB_BRANCH')
-
-# How often to check for updates
-UPDATE_INTERVAL = 604800  # 1 week
-
-# Used for notifications, paths
-BUNDLER_ID = 'net.deanishe.alfred-bundler-python'
-
-# Bundler paths
-BUNDLER_DIR = os.path.expanduser(
-    '~/Library/Application Support/Alfred 2/Workflow Data/'
-    'alfred.bundler-{}'.format(BUNDLER_VERSION))
-DATA_DIR = os.path.join(BUNDLER_DIR, 'data')
-
-CACHE_DIR = os.path.expanduser(
+BUNDLER_ID = 'alfredbundler.default'
+BUNDLER_DIRECTORY = os.path.expanduser(
+    '~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{}'
+)
+BUNDLER_LOGFILE = 'data/logs/bundler-{}.log'
+BUNDLER_LOGGER = None
+BUNDLER_UPDATER = os.path.join(
+    BUNDLER_DIRECTORY, 'bundler', 'meta', 'update-wrapper.sh'
+)
+CACHE_DIRECTORY = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
-    'alfred.bundler-{}'.format(BUNDLER_VERSION))
-# Script that updates the bundler
-BUNDLER_UPDATE_SCRIPT = os.path.join(BUNDLER_DIR, 'bundler', 'meta',
-                                     'update-wrapper.sh')
-
-# Root directory under which workflow-specific Python libraries are installed
-PYTHON_LIB_DIR = os.path.join(DATA_DIR, 'assets', 'python')
-
-# Where helper scripts and metadata are stored
-HELPER_DIR = os.path.join(PYTHON_LIB_DIR, BUNDLER_ID)
-
-# Cache results of calls to `utility()`, as `bundler.sh` is pretty slow
-# at the moment
-UTIL_CACHE_PATH = os.path.join(HELPER_DIR, 'python_utilities.cache')
-
-# Wrappers module path
-WRAPPERS_DIR = os.path.join(
-    BUNDLER_DIR, 'bundler', 'includes',
-    'wrappers', 'python'
+    'alfred.bundler-{}'
+)
+PREFERENCES_PLIST = os.path.expanduser(
+    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist'
+)
+SYSTEM_ICONS = (
+    '/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/'
+    '{name}.icns'
 )
 
-# Hold wrappers object
-_wrappers = None
-
-# Where colour alternatives are cached
-COLOUR_CACHE = os.path.join(DATA_DIR, 'color-cache')
-
-# Where icons will be cached
-ICON_CACHE = os.path.join(DATA_DIR, 'assets', 'icons')
-API_URL = 'http://icons.deanishe.net/icon/{font}/{color}/{icon}'
-# Location of OS X icons
-SYSTEM_ICON_DIR = ('/System/Library/CoreServices/CoreTypes.bundle'
-                   '/Contents/Resources')
-
-# The misc bash bundler bundlet script we will call to get paths to
-# utilities and install them if necessary.
-HELPER_PATH = os.path.join(BUNDLER_DIR, 'bundler', 'bundlets',
-                           'alfred.bundler.sh')
-
-# Path to file storing update metadata (last update check, etc.)
-UPDATE_JSON_PATH = os.path.join(HELPER_DIR, 'update.json')
-
-# URL of Pip installer (`get-pip.py`)
-PIP_INSTALLER_URL = ('https://raw.githubusercontent.com/pypa/pip/'
-                     'develop/contrib/get-pip.py')
-
-# Background colour (`light` or `dark`)
-BACKGROUND_COLOUR_FILE = os.path.join(DATA_DIR, 'theme_background')
-
-# Background util to determine whether background is light or dark
-# Result is saved to `BACKGROUND_COLOUR_FILE`
-BACKGROUND_UTIL = os.path.join(BUNDLER_DIR, 'bundler', 'includes',
-                               'LightOrDark')
-
-# Alfred's preferences file
-ALFRED_PREFS_PATH = os.path.expanduser(
-    '~/Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist')
-
-# HTTP timeout
+UPDATE_JSON = os.path.join(
+    BUNDLER_DIRECTORY, 'data', 'assets', 'python', BUNDLER_ID, 'update.json'
+)
 HTTP_TIMEOUT = 5
+UPDATE_INTERVAL = 604800
+GET_PIP = (
+    'https://raw.githubusercontent.com/pypa/pip/develop/contrib/get-pip.py'
+)
+CWD = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+PYTHON_LIBRARY = os.path.join(
+    BUNDLER_DIRECTORY, 'data', 'assets', 'python', BUNDLER_ID
+)
 
-# is_css_colour = re.compile(r'^(?:[a-fA-F0-9]{3}){1,2}$').match
-
-_workflow_bundle_id = None
-
-# These will be set at the bottom of this file
-_log = None
-metadata = None
-
-# Prevent recursive calling of _update
-update_running = False
-
-
-########################################################################
-# Helper classes/functions
-########################################################################
 
 class Metadata(object):
-    """Store update metadata
-
-    Last update time and Etags are stored in here.
-
-    """
 
     def __init__(self, filepath):
-
         self._filepath = filepath
         self._etags = {}
         self._last_updated = 0
-
         if os.path.exists(self._filepath):
             self._load()
 
     def _load(self):
-        """Load cached settings from JSON file `self._filepath`"""
+        with open(self._filepath, 'rb') as _file:
+            _data = json.load(_file, encoding='utf-8')
+        self._etags = _data.get('etags', {})
+        self._last_updated = _data.get('last_updated', 0)
 
-        with open(self._filepath, 'rb') as file:
-            data = json.load(file, encoding='utf-8')
-
-        self._etags = data.get('etags', {})
-        self._last_updated = data.get('last_updated', 0)
-
-    def save(self):
-        """Save settings to JSON file `self._filepath`"""
-        data = dict(etags=self._etags, last_updated=self._last_updated)
-
+    def _save(self):
+        _data = dict(etags=self._etags, last_updated=self._last_updated)
         if not os.path.exists(os.path.dirname(self._filepath)):
-            os.makedirs(os.path.dirname(self._filepath), 0755)
+            os.makedirs(os.path.dirname(self._filepath), 0775)
+        with open(self._filepath, 'wb') as _file:
+            json.dump(_data, _file, sort_keys=True, indent=2, encoding='utf-8')
 
-        with open(self._filepath, 'wb') as file:
-            json.dump(data, file, sort_keys=True, indent=2, encoding='utf-8')
-
-    def set_etag(self, url, etag):
-        """Save Etag for ``url``
-
-        :param url: URL key for Etag
-        :type url: ``unicode`` or ``str``
-        :param etag: Etag for URL
-        :type etag: ``unicode`` or ``str``
-
-        """
-
+    def _set_etag(self, url, etag):
         self._etags[url] = etag
-        self.save()
+        self._save()
 
-    def get_etag(self, url):
-        """Return Etag for ``url`` or ``None``
-
-        :param url: URL to retrieve Etag for
-        :type url: ``unicode`` or ``str``
-        :returns: Etag or ``None``
-        :rtype: ``unicode`` or ``None``
-
-        """
-
+    def _get_etag(self, url):
         return self._etags.get(url, None)
 
-    def set_updated(self):
-        """Record current time as last updated time"""
+    def _set_updated(self):
         self._last_updated = time.time()
-        self.save()
+        self._save()
 
-    def get_updated(self):
-        """Return last updated time"""
+    def _get_updated(self):
         return self._last_updated
 
-    def wants_update(self):
-        """Return ``True`` if update is due, else ``False``"""
-        if time.time() - self._last_updated > UPDATE_INTERVAL:
-            return True
-        return False
+    def _wants_update(self):
+        return (time.time() - self._last_updated) > UPDATE_INTERVAL
 
 
-class cached(object):
+class Cached(object):
 
-    def __init__(self, func):
-        self.func = func
-        self.cachepath = os.path.join(HELPER_DIR, '{}.{}.cache'.format(
-                                      __name__, func.__name__))
-        # self.func = func
+    def __init__(self, function):
+        self.function = function
+        self._cachepath = os.path.join(
+            os.path.dirname(CWD), 'data', 'assets', 'python', BUNDLER_ID,
+            '{}.{}.cache'.format(__name__, self.function.__name__)
+        )
         self.cache = {}
-
-        if os.path.exists(self.cachepath):
-            with open(self.cachepath, 'rb') as file:
-                self.cache = cPickle.load(file)
+        if os.path.exists(self._cachepath):
+            with open(self._cachepath, 'rb') as _file:
+                self.cache = cPickle.load(_file)
 
     def __call__(self, *args, **kwargs):
-
         key = (args, frozenset(kwargs.items()))
-
-        path = self.cache.get(key, None)
-
-        # If file has disappeared, call function again
-        if path is None or not os.path.exists(path):
-            # Cache results
-            path = self.func(*args, **kwargs)
-            self.cache[key] = path
-
-            dirpath = os.path.dirname(self.cachepath)
-            if not os.path.exists(dirpath):
-                os.makedirs(dirpath, 0755)
-
-            with open(self.cachepath, 'wb') as file:
-                cPickle.dump(self.cache, file, protocol=2)
-
-        return path
+        _path = self.cache.get(key, None)
+        if _path is None or not os.path.exists(_path):
+            _path = self.function(*args, **kwargs)
+            self.cache[key] = _path
+            _dirpath = os.path.dirname(self._cachepath)
+            if not os.path.exists(_dirpath):
+                os.makedirs(_dirpath, 0775)
+            with open(self._cachepath, 'wb') as _file:
+                cPickle.dump(self.cache, _file, protocol=2)
+        return _path
 
     def __repr__(self):
-        """Return the function's docstring."""
-        return self.func.__doc__
-
-    # def __get__(self, obj, objtype):
-    #     """Support instance methods."""
-    #     return functools.partial(self.__call__, obj)
+        return self.function.__doc__
 
 
-def _find_file(filename, start_dir=None):
-    """Find file named ``filename`` in the directory tree at ``start_dir``.
+class NestedAccess(object):
 
-    Climb up directory tree until ``filename`` is found. Raises IOError
-    if file is not found.
+    """Decorator used to provide child classes with access to their parent."""
 
-    If ``start_dir`` is ``None``, start at current working directory.
+    def __init__(self, cls):
+        """Initialize decorator with the class descriptor.
 
-    :param filename: Name of the file to search for
+        :param cls: Parent class initializing wrapper class
+        """
+        self.cls = cls
+
+    def __get__(self, instance, outer_class):
+        """Grab the parent class's object and returns in a Wrapper class.
+
+        :param instance: Instance of child class
+        :param outer_class: Parent class object
+        """
+        class Wrapper(self.cls):
+            outer = instance
+
+        Wrapper.__name__ = self.cls.__name__
+        return Wrapper
+
+
+def _lookback(filename, start_path=None, end_path=None):
+    """ Recursively walks directory path in reverse looking for a filename
+
+    :param filename: Filename to discover
     :type filename: ``unicode`` or ``str``
-    :param start_dir: Path to starting directory. Default is current
-        working directory
-    :type start_dir: ``unicode`` or ``str``
-    :returns: Path to file or ``None``
-    :rtype: ``unicode`` or ``str``
-
+    :param start_path: File path to start the reverse walk
+    :type start_path: ``unicode`` or ``str``
+    :param end_path: File path to end the reverse walk
+    :type end_path: ``unicode`` or ``str``
+    :returns: None if file is not found, otherwise full file path
     """
 
-    curdir = start_dir or os.getcwd()
-    filepath = None
-    while True:
-        path = os.path.join(curdir, filename)
-        if os.path.exists(path):
-            filepath = path
-            break
-        if curdir == '/':
-            break
-        curdir = os.path.dirname(curdir)
-
-    if not filepath:
-        raise IOError(2, 'No such file or directory', filename)
-    return filepath
-
-
-def _bundle_id():
-    """Return bundle ID of current workflow
-
-    :returns: Bundle ID or ``None``
-    :rtype: ``unicode``
-
-    """
-
-    global _workflow_bundle_id
-
-    if _workflow_bundle_id is not None:
-        return _workflow_bundle_id
-
-    plist = plistlib.readPlist(_find_file('info.plist'))
-    _workflow_bundle_id = plist.get('bundleid', None)
-    return _workflow_bundle_id
-
-
-#-----------------------------------------------------------------------
-# Icon helpers
-#-----------------------------------------------------------------------
-
-def normalize_hex_color(color):
-    """Convert CSS colour to 6-characters and lowercase
-
-    :param color: CSS colour of form XXX or XXXXXX
-    :type color: ``unicode`` or ``str``
-    :returns: Normalised CSS colour of form xxxxxx
-    :rtype: ``unicode``
-
-    """
-
-    color = color.lower().strip('#')
-
-    if not re.match(r'^(?:[a-fA-F0-9]{3}){1,2}$', color):
-        raise ValueError('Invalid CSS colour: {}'.format(color))
-
-    if len(color) == 3:  # Expand to 6 characters
-        r, g, b = color
-        color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
-
-    return color
-
-
-def hex_to_rgb(color):
-    """Convert CSS-style colour to ``(r, g, b)``
-
-    :param colour: xxx or xxxxxx CSS colour
-    :type colour: ``unicode`` or ``str``
-    :returns: ``(r, g, b)`` tuple of ``ints`` 0-255
-    :rtype: ``tuple``
-
-    """
-
-    color = normalize_hex_color(color)
-    r = int(color[:2], 16)
-    g = int(color[2:4], 16)
-    b = int(color[4:6], 16)
-
-    return (r, g, b)
-
-
-def rgb_to_hex(r, g, b):
-    """Return CSS hex representation of colour
-
-    :param r: Red
-    :type r: ``int`` 0-255
-    :param g: Green
-    :type g: ``int`` 0-255
-    :param b: Blue
-    :type b: ``int`` 0-255
-    :returns: 6-character CSS hex
-    :rtype: ``unicode``
-
-    """
-
-    def clamp(i):
-        return int(max(0, min(round(i), 255)))
-
-    color = '{:02x}{:02x}{:02x}'.format(clamp(r), clamp(g), clamp(b)).lower()
-
-    return color
-
-
-def hsv_to_rgb(h, s, v):
-    """Convert HSV to RGB (for CSS, i.e. 0-255, not floats)
-
-    :param h: Hue
-    :type h: ``float``
-    :param s: Saturation
-    :type s: ``float``
-    :param v: Value
-    :type v: ``float``
-    :returns: ``(r, g, b)`` tuple, where the values are ints between 0-255
-    :rtype: ``tuple``
-
-    """
-    return tuple(map(lambda i: int(round(i * 255.0)),
-                 colorsys.hsv_to_rgb(h, s, v)))
-
-
-def rgb_to_hsv(r, g, b):
-    """Convert RGB colour to HSV
-
-    :param r: Red
-    :type r: ``int`` 0-255
-    :param g: Green
-    :type g: ``int`` 0-255
-    :param b: Blue
-    :type b: ``int`` 0-255
-    :returns: ``(h, s, v)`` tuple of floats
-    :rtype: ``tuple``
-    """
-
-    r, g, b = map(lambda i: i / 255.0, (r, g, b))
-    return colorsys.rgb_to_hsv(r, g, b)
-
-
-def rgba_to_rgb(rgba):
-    """Convert RGBA CSS colour to ``(r, g, b)``
-
-    :param rgba: RGBA colour in format ``rgba(r,g,b,a)``
-    :type rgba: ``unicode`` or ``str``
-    :returns: ``(r, g, b)`` tuple of ``ints``
-    :rtype: ``tuple``
-
-    """
-
-    m = re.match(r'rgba\((\d+),(\d+),(\d+),[0-9.]+\)', rgba)
-
-    if not m:
-        raise ValueError('Unparseable RGBA colour : {}'.format(rgba))
-
-    return tuple(map(int, m.groups()))
-
-
-def set_background():  # pragma: no cover
-    """Determine whether background is ``light`` or ``dark`` and save the
-    value to ``BACKGROUND_COLOUR_FILE``
-
-    """
-
-    do_update = False
-
-    if os.path.exists(BACKGROUND_COLOUR_FILE):
-        if (os.stat(ALFRED_PREFS_PATH).st_mtime >
-                os.stat(BACKGROUND_COLOUR_FILE).st_mtime):
-            _log.debug('Alfred prefs updated')
-            do_update = True
-    else:
-        do_update = True
-
-    if do_update:
-        # Determine and save background colour
-        if os.path.exists(BACKGROUND_UTIL):
-            colour = subprocess.check_output([BACKGROUND_UTIL]).strip()
-            with open(BACKGROUND_COLOUR_FILE, 'wb') as file:
-                file.write(colour)
-            _log.debug('Theme background : {}'.format(colour))
-
-
-def background_is_dark():
-    """Return ``True`` if background is dark, else ``False``"""
-
-    background_colour = os.getenv('alfred_theme_background')
-
-    if background_colour:
-        background_colour = rgb_to_hex(*rgba_to_rgb(background_colour))
-
-        if color_is_dark(background_colour):
-            _log.debug('Background is dark')
-            return True
-
-        else:
-            _log.debug('Background is light')
-            return False
-
-    set_background()
-
-    with open(BACKGROUND_COLOUR_FILE, 'rb') as file:
-        colour = file.read().strip()
-
-    _log.debug('Background is {}'.format(colour))
-
-    if colour == 'dark':
-        return True
-
-    return False
-
-
-def background_is_light():
-    """Return ``True`` if background is light, else ``False``"""
-
-    return not background_is_dark()
-
-
-def color_is_dark(color):
-    """Return ``True`` if CSS ``color`` is dark, else ``False``"""
-
-    r, g, b = hex_to_rgb(color)
-
-    value = sum([(r * 299), (g * 587), (b * 114)]) / 1000.0
-
-    if value < 140:
-        _log.debug('{} is dark'.format(color))
-        return True
-
-    _log.debug('{} is light'.format(color))
-    return False
-
-
-def color_is_light(color):
-    """Return ``True`` if CSS ``color`` is light, else ``False``"""
-
-    return not color_is_dark(color)
-
-
-def flip_color(color):
-    """Return lightened/darkened version of CSS ``color``
-
-    :param color: CSS colour of form XXX or XXXXXXX
-    :type color: ``unicode`` or ``str``
-    :returns: CSS colour
-    :rtype: ``unicode``
-
-    """
-
-    color = normalize_hex_color(color)
-
-    cachepath = os.path.join(COLOUR_CACHE, color)
-
-    # if os.path.exists(cachepath):
-    #     with open(cachepath, 'rb') as file:
-    #         return file.read().strip()
-
-    h, s, v = rgb_to_hsv(*hex_to_rgb(color))
-
-    v = 1 - v  # flip Value
-
-    flipped = rgb_to_hex(*hsv_to_rgb(h, s, v))
-
-    _log.debug('Altered `{}` to `{}`'.format(color, flipped))
-
-    if not os.path.exists(COLOUR_CACHE):
-        os.makedirs(COLOUR_CACHE, 0755)
-
-    with open(cachepath, 'wb') as file:
-        file.write(flipped)
-
-    return flipped
-
-#-----------------------------------------------------------------------
-# Wrapper Functions
-#-----------------------------------------------------------------------
-
-
-def wrapper(wrapper, debug=False):
-    """ Grab a wrapper object from the wrappers.
-    Note: the wrappers must already be on the system for this method to work.
-
-    :param wrapper: Wrapper name to load
-    :type wrapper: ``str`` or ``unicode``
-    :param debug: Toggle for enabling debug
-    :type debug: ``bool``
-    """
-    global _wrappers
-    if not _wrappers:
-        (_wrappers_file,
-         _wrappers_filename,
-         _wrappers_data) = imp.find_module('wrappers', [WRAPPERS_DIR])
-        _wrappers = imp.load_module(
-            'wrappers',
-            _wrappers_file,
-            _wrappers_filename,
-            _wrappers_data
+    if not (
+        (isinstance(start_path, str) or isinstance(start_path, unicode))
+            and os.path.exists(start_path)
+    ):
+        start_path = os.path.dirname(os.path.abspath(
+            inspect.getfile(inspect.currentframe())
+        ))
+    if not (
+        (isinstance(end_path, str) or isinstance(end_path, unicode))
+            and os.path.exists(end_path)
+    ):
+        end_path = '/'
+
+    # While our path's are not referencing the same space
+    if start_path != end_path:
+        for i in os.listdir(start_path):
+            if filename.lower() == i.lower():
+                return os.path.join(start_path, i)
+        # Recurse using a shrunken start path
+        _start_path = os.path.split(start_path)[0]
+        return _lookback(
+            filename, start_path=_start_path, end_path=end_path
         )
-    return _wrappers.wrapper(wrapper.lower(), debug=debug)
-
-
-def notify(title, message, icon=None):
-    """ Send a notification to the desktop.
-    Note: wrappers must be on the system for this method to work.
-
-    :param title: Title of notification
-    :type title: ``str`` or ``unicode``
-    :param message: Message of notification
-    :type message: ``str`` or ``unicode``
-    :param icon: Absolute path to icon for notification
-    :type icon: ``str`` or ``unicode``
-    """
-    if (isinstance(title, str) or isinstance(title, unicode)) and \
-       (isinstance(message, str) or isinstance(message, unicode)):
-        client = wrapper('cocoadialog', debug=True)
-        icon_type = 'icon'
-        if icon and (isinstance(icon, str) or isinstance(icon, unicode)):
-            if not os.path.exists(icon):
-                if icon not in client.global_icons:
-                    icon_type = None
-            else:
-                icon_type = 'icon_file'
-        else:
-            icon_type = None
-        notification = {
-            'title': title,
-            'description': message
-        }
-        if icon_type:
-            notification[icon_type] = icon
-        client.notify(**notification)
-        return True
     else:
+        return None
+
+
+def _download(url, save_path):
+    """ Download the response from some given ``url``
+
+    :param url: A valid accessable file url
+    :type url: ``unicode`` or ``str``
+    :param save_path: A valid file path
+    :type save_path: ``unicode`` or ``str``
+    :returns: True if successful download, otherwise False
+    """
+
+    BUNDLER_LOGGER.info('retrieving url `{}` ...'.format(url))
+    try:
+        _response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
+    except urllib2.HTTPError:
+        BUNDLER_LOGGER.error('`{}` could not be found'.format(url))
         return False
 
+    if _response.getcode() != 200:
+        BUNDLER_LOGGER.error('error connecting to `{}`'.format(url))
+        return False
 
-#-----------------------------------------------------------------------
-# Installation/update functions
-#-----------------------------------------------------------------------
+    if not os.path.exists(os.path.dirname(save_path)):
+        os.makedirs(os.path.dirname(save_path), 0775)
+    with open(save_path, 'wb') as _file:
+        BUNDLER_LOGGER.info('downloading to `{}` ...'.format(save_path))
+        _file.write(_response.read())
+    return True
 
-def _download_if_updated(url, filepath, ignore_missing=False):
-    """Replace ``filepath`` with file at ``url`` if it has been updated
-    as determined by ``etag`` read from ``UPDATE_JSON_PATH``.
 
-    :param url: URL to remote resource
-    :type url: ``unicode`` or ``str``
-    :param filepath: Local filepath to save URL at
-    :type filepath: ``unicode`` or ``str``
-    :param ignore_missing: If ``True``, do not automatically download the
-        file just because it is missing.
-    :type ignore_missing: ``boolean``
-    :returns: ``True`` if updated, else ``False``
-    :rtype: ``boolean``
+def _run_subprocess(process):
+    """ Run a unwaiting subprocess
 
+    :param process: A split subprocess
+    :type process: ``list`` or ``str``
+    :returns: Subprocess output
     """
 
-    global metadata
-
-    previous_etag = metadata.get_etag(url)
-
-    _log.debug('Opening URL `{}` ...'.format(url))
-
-    response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
-
-    _log.debug('[{}] {}'.format(response.getcode(), url))
-
-    if response.getcode() != 200:
-        raise IOError(2, 'Error retrieving URL. Server returned {}'.format(
-                      response.getcode()), url)
-
-    current_etag = response.info().get('Etag')
-
-    force_download = not os.path.exists(filepath) and not ignore_missing
-
-    if current_etag != previous_etag or force_download:
-        with open(filepath, 'wb') as file:
-            file.write(response.read())
-            _log.info('Saved `{}`'.format(filepath))
-
-        metadata.set_etag(url, current_etag)
-
-        return True
-
-    return False
-
-
-def _update():
-    """Check for periodical updates of bundler and pip"""
-
-    global metadata, update_running
-
-    if update_running:
-        return
-
-    if not metadata.wants_update():
-        return
-
-    update_running = True
-
-    try:
-        notify('Workflow libraries are being updated',
-               'Your workflow will continue momentarily')
-
-        # Call bundler updater
-        cmd = ['/bin/bash', BUNDLER_UPDATE_SCRIPT]
-        _log.debug('Running command: {} ...'.format(cmd))
-        proc = subprocess.Popen(cmd)
-
-        _install_pip()
-
-        # Wait for `update.sh` to complete
-        retcode = proc.wait()
-        if retcode:
-            _log.error('Error updating bundler. `{}` returned {}'.format(
-                       BUNDLER_UPDATE_SCRIPT, retcode))
-
-        metadata.set_updated()
-
-    finally:
-        update_running = False
-
-
-def _install_pip():
-    """Retrieve ``get-pip.py`` script and install ``pip`` in
-    ``PYTHON_LIB_DIR``
-
-    """
-
-    ignore_missing = False
-    if os.path.exists(os.path.join(HELPER_DIR, 'pip')):
-        ignore_missing = True
-
-    installer_path = os.path.join(HELPER_DIR, 'get-pip.py')
-    updated = _download_if_updated(PIP_INSTALLER_URL,
-                                   installer_path,
-                                   ignore_missing)
-
-    if updated:
-        assert os.path.exists(installer_path), \
-            'Error retrieving Pip installer from GitHub.'
-        # Remove existing pip
-        for filename in os.listdir(HELPER_DIR):
-            if filename.startswith('pip'):
-                p = os.path.join(HELPER_DIR, filename)
-                if os.path.isdir(p):
-                    shutil.rmtree(p)
-
-        cmd = ['/usr/bin/python', installer_path, '--target', HELPER_DIR]
-
-        _log.debug('Running command: {} ...'.format(cmd))
-
-        subprocess.check_output(cmd)
-
-    assert os.path.exists(os.path.join(HELPER_DIR, 'pip')), \
-        'Pip  installation failed'
-
-    if os.path.exists(installer_path):
-        os.unlink(installer_path)
-
-
-def _add_pip_path():
-    """Install ``pip`` if necessary and add its directory to ``sys.path``
-
-    :returns: ``None``
-
-    """
-
-    if not os.path.exists(os.path.join(HELPER_DIR, 'pip')):
-        # Pip's not installed, let's install it
-        _install_pip()
-
-    if HELPER_DIR not in sys.path:
-        sys.path.insert(0, HELPER_DIR)
-
-
-########################################################################
-# API functions
-########################################################################
-
-
-def logger(name, logpath=None):
-    """Return ``~logging.Logger`` object that logs to ``logpath`` and STDERR.
-
-    :param name: Name of logger
-    :type name: ``unicode`` or ``str``
-    :param logpath: Path to logfile. If ``None``, a default logfile in the
-        workflow's data directory will be used.
-    :type logpath: ``unicode`` or ``str``
-    :returns: Configured ``~logging.Logger`` object
-
-    """
-
-    if name == 'bundler' and logpath is None:
-        logpath = os.path.join(DATA_DIR, 'logs',
-                               'bundler-{}.log'.format(BUNDLER_VERSION))
-
-    if not logpath:
-        logpath = os.path.join(
-            os.path.expanduser(
-                '~/Library/Application Support/Alfred 2/Workflow Data/'),
-            _bundle_id(), 'logs', '{}.log'.format(_bundle_id()))
-
-    logdir = os.path.dirname(logpath)
-    if not os.path.exists(logdir):
-        os.makedirs(logdir, 0755)
-
-    logger = logging.getLogger(name)
-
-    if not logger.handlers:
-        logfile = logging.handlers.RotatingFileHandler(logpath,
-                                                       maxBytes=1024*1024,
-                                                       backupCount=1)
-        console = logging.StreamHandler()
-
-        fmtc = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                                 '[%(levelname)s] %(message)s',
-                                 datefmt='%H:%M:%S')
-
-        fmtf = logging.Formatter('[%(asctime)s] [%(filename)s:%(lineno)s] '
-                                 '[%(levelname)s] %(message)s',
-                                 datefmt='%Y-%m-%d %H:%M:%S')
-
-        logfile.setFormatter(fmtf)
-        console.setFormatter(fmtc)
-        logger.addHandler(logfile)
-        logger.addHandler(console)
-
-    logger.setLevel(logging.DEBUG)
-    return logger
-
-
-def icon(font, icon, color='000000', alter=False):
-    """Get path to specified icon, downloading it first if necessary.
-
-    ``font``, ``icon`` and ``color`` are normalised to lowercase. In
-    addition, ``color`` is expanded to 6 characters if only 3 are passed.
-
-    :param font: name of the font
-    :type font: ``unicode`` or ``str``
-    :param icon: name of the font character
-    :type icon: ``unicode`` or ``str``
-    :param color: CSS colour in format "xxxxxx" (no preceding #)
-    :type color: ``unicode`` or ``str``
-    :param alter: Automatically adjust icon colour to light/dark theme
-        background
-    :type alter: ``Boolean``
-    :returns: path to icon file
-    :rtype: ``unicode``
-
-    See http://icons.deanishe.net to view available icons.
-
-    """
-
-    if font == 'system':
-        path = os.path.join(SYSTEM_ICON_DIR, '{}.icns'.format(icon))
-        if not os.path.exists(path):
-            raise ValueError('Unknown system icon : {}'.format(icon))
-
-        return path
-
-    # Normalise arguments
-    font = font.lower()
-    icon = icon.lower()
-
-    color = normalize_hex_color(color)
-
-    # Invert colour if necessary
-    if alter:
-
-        if background_is_dark() == color_is_dark(color):  # Both are dark/light
-            color = flip_color(color)
-
-    icondir = os.path.join(ICON_CACHE, font, color)
-    path = os.path.join(icondir, '{}.png'.format(icon))
-
-    if os.path.exists(path):
-        return path
-
-    url = API_URL.format(font=font, color=color, icon=icon)
-    _log.debug('Retrieving URL `{}` ...'.format(url))
-
-    response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
-
-    code = response.getcode()
-
-    _log.debug('[{}] {}'.format(code, url))
-
-    if code > 399:  # pragma: no cover
-        error = response.read()
-        raise ValueError(error)
-
-    elif code != 200:  # pragma: no cover
-        raise IOError('Could not retrieve icon : {}/{}/{}'.format(font,
-                                                                  icon,
-                                                                  color))
-
-    if not os.path.exists(icondir):
-        os.makedirs(icondir, 0755)
-
-    with open(path, 'wb') as file:
-        file.write(response.read())
-
-    return path
-
-
-@cached
-def utility(name, version='latest', json_path=None):
-    """Get path to specified utility or asset, installing it first if necessary.
-
-    Use this method to access common command line utilities, such as
-    `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_ or
-    `Terminal-Notifier <https://github.com/alloy/terminal-notifier>`_.
-
-    This function will return the path to the appropriate executable
-    (installing it first if necessary), which you can then utilise via
-    :mod:`subprocess`.
-
-    You can easily add your own utilities by means of JSON configuration
-    files specified with the ``json_path`` argument. Please see
-    `the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
-    for details of the JSON file format.
-
-    :param name: Name of the utility/asset to install
-    :type name: ``unicode`` or ``str``
-    :param version: Desired version of the utility/asset.
-    :type version: ``unicode`` or ``str``
-    :param json_path: Path to bundler configuration file
-    :type json_path: ``unicode`` or ``str``
-    :returns: Path to utility
-    :rtype: ``unicode``
-
-    """
-
-    _update()
-
-    # Call bash bundlet with specified arguments
-    json_path = json_path or ''
-    cmd = ['/bin/bash', HELPER_PATH, 'utility', name, version, json_path]
-    path = subprocess.check_output(cmd).strip().decode('utf-8')
-
-    return path
-
-
-def asset(name, version='latest', json_path=None):
-    """Synonym for :func:`~bundler.utility()`"""
-    return utility(name, version, json_path)
-
-
-def init(requirements=None):
-    """Install dependencies from ``requirements.txt`` to your workflow's
-    custom bundler directory and add this directory to ``sys.path``.
-
-    Will search up the directory tree for ``requirements.txt`` if
-    ``requirements`` argument is not specified.
-
-    **Note:** Your workflow must have a bundle ID set in order to use
-    this function. (You should set one anyway, especially if you intend
-    to distribute your workflow.)
-
-    Your ``requirements.txt`` file must be in the
-    `format required by Pip <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_.
-
-    :param requirements: Path to Pip requirements file
-    :type requirements: ``unicode`` or ``str``
-    :returns: ``None``
-
-    """
-
-    _update()
-
-    bundle_id = _bundle_id()
-    if not bundle_id:  # pragma: no cover
-        raise ValueError('You *must* set a bundle ID in your workflow '
-                         'to use this library.')
-
-    install_dir = os.path.join(PYTHON_LIB_DIR, bundle_id)
-    if not os.path.exists(install_dir):
-        os.makedirs(install_dir)
-
-    requirements = requirements or _find_file('requirements.txt')
-    req_metadata_path = os.path.join(install_dir, 'requirements.json')
-    last_updated = 0
-    last_hash = ''
-    metadata_changed = False
-    metadata = {}
-
-    # Load cached metadata if it exists
-    if os.path.exists(req_metadata_path):
-        with open(req_metadata_path, 'rb') as file:
-            metadata = json.load(file, encoding='utf-8')
-        last_updated = metadata.get('updated', 0)
-        last_hash = metadata.get('hash', '')
-
-    # compare requirements.txt to saved metadata
-    req_mtime = os.stat(requirements).st_mtime
-    if req_mtime > last_updated:
-        metadata['updated'] = req_mtime
-        metadata_changed = True
-
-        # compare MD5 hash
-        m = hashlib.md5()
-        with open(requirements, 'rb') as file:
-            m.update(file.read())
-        h = m.hexdigest()
-
-        if h != last_hash:  # requirements.txt has changed, let's install
-            # Update metadata
-            metadata['hash'] = h
-
-            # Notify user of updates
-            notify('Installing workflow dependencies',
-                   'Your worklow will run momentarily')
-
-            # Install dependencies with Pip
-            _add_pip_path()
-            import pip
-            args = ['install',
-                    '--upgrade',
-                    '--requirement', requirements,
-                    '--target', install_dir]
-
-            pip.main(args)
-
-    if metadata_changed:  # Save new metadata
-        with open(req_metadata_path, 'wb') as file:
-            json.dump(metadata, file, encoding='utf-8', indent=2)
-
-    # Add workflow library directory to front of `sys.path`
-    sys.path.insert(0, install_dir)
-
-_log = logger('bundler')
-metadata = Metadata(UPDATE_JSON_PATH)
+    if isinstance(process, list):
+        _proc = subprocess.Popen(process, stdout=subprocess.PIPE)
+    elif isinstance(process, str) or isinstance(process, unicode):
+        _proc = subprocess.Popen([
+            process], stdout=subprocess.PIPE, shell=True
+        )
+    else:
+        return False
+    (_proc, _proc_e) = _proc.communicate()
+    return _proc
+
+
+@Cached
+def _utility(name, version='latest', json_path=None, workflow_id=None):
+        json_path = json_path or ''
+        _utility = _run_subprocess([
+            '/bin/bash', os.path.join(
+                BUNDLER_DIRECTORY, 'bundler', 'bundlets', 'alfred.bundler.sh'
+            ), 'utility', name, version, json_path
+        ])
+        if workflow_id:
+            _register_asset(name, version, workflow_id=workflow_id)
+        return _utility.split('\n')[0]
+
+
+def _register_asset(asset, version, workflow_id=None):
+    if not workflow_id:
+        # TODO: log error
+        return False
+    _registry_path = os.path.join(
+        BUNDLER_DIRECTORY, 'data', 'registry.json'
+    )
+    _registry = {}
+    _update = False
+    if os.path.exists(_registry_path):
+        _registry = json.loads(open(_registry_path, 'rb').read())
+    else:
+        json.dump(_registry, open(_registry_path, 'wb'))
+    if asset in _registry.keys():
+        if version not in _registry[asset].keys():
+            _registry[asset][version] = []
+            _update = True
+        if workflow_id not in _registry[asset][version]:
+            _registry[asset][version].append(workflow_id)
+            _update = True
+    else:
+        _registry[asset] = {version: [workflow_id]}
+        _update = True
+    if _update:
+        json.dump(_registry, open(_registry_path, 'wb'))
+    return True
+
+
+# TODO: Make sure the modern and deprecated setups are built on both bundlers
+class Main:
+
+    def __init__(self, calling_path):
+
+        global BUNDLER_DIRECTORY, CACHE_DIRECTORY, BUNDLER_LOGFILE
+        global BUNDLER_UPDATER, UPDATE_JSON, PYTHON_LIBRARY, BUNDLER_LOGGER
+
+        self._called = calling_path
+        self.major_version = os.getenv('AB_BRANCH')
+        if not self.major_version:
+            self.major_version = open(
+                os.path.join(CWD, 'meta', 'version_major')
+            ).readline()
+        # TODO: Make sure minor version is correctly formatted
+        self.minor_version = open(
+            os.path.join(CWD, 'meta', 'version_minor')
+        ).readline()
+
+        BUNDLER_DIRECTORY = BUNDLER_DIRECTORY.format(self.major_version)
+        BUNDLER_UPDATER = BUNDLER_UPDATER.format(self.major_version)
+        UPDATE_JSON = UPDATE_JSON.format(self.major_version)
+        CACHE_DIRECTORY = CACHE_DIRECTORY.format(self.major_version)
+        PYTHON_LIBRARY = PYTHON_LIBRARY.format(self.major_version)
+        BUNDLER_LOGFILE = os.path.join(
+            BUNDLER_DIRECTORY, BUNDLER_LOGFILE.format(self.major_version)
+        )
+        BUNDLER_LOGGER = self.logger(self.__class__.__name__, BUNDLER_LOGFILE)
+
+        self.workflow_id = None
+        self.workflow_name = None
+        self.workflow_data = None
+        self.workflow_log = None
+
+        if os.getenv('alfred_version'):
+            self.workflow_id = os.getenv('alfred_workflow_bundleid')
+            self.workflow_name = os.getenv('alfred_workflow_name')
+            self.workflow_data = os.getenv('alfred_workflow_data')
+        else:
+            _info_plist = _lookback(
+                'info.plist',
+                start_path=self._called, end_path=os.path.dirname(self._called)
+            )
+            if _info_plist:
+                _info_plist = plistlib.readPlist(_info_plist)
+                self.workflow_id = _info_plist['bundleid']
+                self.workflow_name = _info_plist['name']
+                self.workflow_data = os.path.expanduser(
+                    '~/Library/Application Support/Alfred 2/Workflow Data/{}'
+                    .format(self.workflow_id)
+                )
+            else:
+                raise EnvironmentError(
+                    'The Alfred Bundler cannot be used without an '
+                    '`info.plist` file present'
+                )
+                sys.exit(1)
+        self.log = self.logger(
+            self.workflow_name,
+            os.path.join(
+                self.workflow_data, 'logs',
+                '{}.log'.format(self.workflow_id)
+            )
+        )
+
+        for i in [
+            os.path.join(BUNDLER_DIRECTORY, 'data'),
+            CACHE_DIRECTORY,
+            os.path.join(CACHE_DIRECTORY, 'color'),
+            os.path.join(CACHE_DIRECTORY, 'misc'),
+            os.path.join(CACHE_DIRECTORY, 'php'),
+            os.path.join(CACHE_DIRECTORY, 'ruby'),
+            os.path.join(CACHE_DIRECTORY, 'python'),
+            os.path.join(CACHE_DIRECTORY, 'utilities'),
+            PYTHON_LIBRARY,
+        ]:
+            if not os.path.exists(i):
+                os.makedirs(i, 0775)
+
+        self.wrappers = None
+        (_file, _name, _data) = imp.find_module(
+            'wrappers', [
+                os.path.join(
+                    BUNDLER_DIRECTORY, 'bundler', 'includes',
+                    'wrappers', 'python'
+                )
+            ]
+        )
+        self.wrappers = imp.load_module('wrappers', _file, _name, _data)
+        self._running_update = False
+        self.metadata = Metadata(UPDATE_JSON)
+        self.requirements = self.AlfredBundlerRequirements(
+            _lookback(
+                'requirements', start_path=self._called,
+                end_path=os.path.dirname(self._called)
+            )
+        )
+        self.requirements._handle_requirements()
+
+    def _update(self):
+        if self._running_update:
+            return
+        if not self.metadata._wants_update():
+            return
+        self._running_update = True
+        try:
+            self.notify(
+                'Updating Workflow Libraries',
+                'Your workflow will continue momentarily'
+            )
+            _proc = subprocess.Popen(['/bin/bash', BUNDLER_UPDATER])
+            self.requirements._install_pip()
+            _retcode = _proc.wait()
+            if _retcode:
+                BUNDLER_LOGGER.error(
+                    'error updating bundler `{}`'.format(_retcode)
+                )
+            self.metadata._set_updated()
+        finally:
+            self._running_update = False
+
+    def _download_update(self, url, filepath, ignore_missing=False):
+        _prev_etag = self.metadata._get_etag(url)
+        BUNDLER_LOGGER.info('retrieving `{}` ...'.format(url))
+        _resp = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
+        if _resp.getcode() != 200:
+            raise IOError(
+                2, 'Error retrieving url. Server returned {}'.format(
+                    _resp.getcode()
+                ), url
+            )
+        _curr_etag = _resp.info().get('Etag')
+        force = not os.path.exists(filepath) and not ignore_missing
+        if _curr_etag != _prev_etag or force:
+            with open(filepath, 'wb') as _file:
+                BUNDLER_LOGGER.info('saving to `{}` ...'.format(filepath))
+                _file.write(_resp.read())
+            self.metadata._set_etag(url, _curr_etag)
+            return True
+        return False
+
+    def logger(self, name, log_path=None):
+
+        if not log_path:
+            log_path = os.path.join(
+                os.path.split(BUNDLER_DIRECTORY)[0],
+                self.workflow_id, 'logs',
+                '{}.log'.format(self.workflow_id)
+            )
+        log_dir = os.path.dirname(log_path)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir, 0755)
+
+        _logger = logging.getLogger(name)
+        if not _logger.handlers:
+            _logfile = logging.handlers.RotatingFileHandler(
+                log_path, maxBytes=(1024 * 1024), backupCount=1
+            )
+            _console = logging.StreamHandler()
+            _logfile.setFormatter(
+                logging.Formatter(
+                    '[%(asctime)s] [%(filename)s:%(lineno)s] '
+                    '[%(levelname)s] %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S'
+                )
+            )
+            _console.setFormatter(
+                logging.Formatter(
+                    '[%(asctime)s] [%(filename)s:%(lineno)s] '
+                    '[%(levelname)s] %(message)s',
+                    datefmt='%H:%M:%S'
+                )
+            )
+            _logger.addHandler(_logfile)
+            _logger.addHandler(_console)
+
+        _logger.setLevel(logging.DEBUG)
+        return _logger
+
+    def notify(self, title, message, icon=None):
+        """ Send a notification to the desktop.
+        Note: wrappers must be on the system for this method to work.
+
+        :param title: Title of notification
+        :type title: ``str`` or ``unicode``
+        :param message: Message of notification
+        :type message: ``str`` or ``unicode``
+        :param icon: Absolute path to icon for notification
+        :type icon: ``str`` or ``unicode``
+        """
+        if (isinstance(title, str) or isinstance(title, unicode)) and \
+           (isinstance(message, str) or isinstance(message, unicode)):
+            client = self.wrapper('cocoadialog', debug=True)
+            icon_type = 'icon'
+            if icon and (isinstance(icon, str) or isinstance(icon, unicode)):
+                if not os.path.exists(icon):
+                    if icon not in client.global_icons:
+                        icon_type = None
+                else:
+                    icon_type = 'icon_file'
+            else:
+                icon_type = None
+            notification = {
+                'title': title,
+                'description': message
+            }
+            if icon_type:
+                notification[icon_type] = icon
+            client.notify(**notification)
+            return True
+        else:
+            return False
+
+    def icon(self, font, icon, color='000000', alter=False):
+        return self.AlfredBundlerIcon(
+            font, icon, color=color, alter=alter
+        ).icon
+
+    def icns(self):
+        _info_plist = _lookback(
+            'info.plist',
+            start_path=self._called, end_path=os.path.dirname(self._called)
+        )
+        if not os.path.exists(os.path.join(
+            os.path.dirname(_info_plist), 'icon.png'
+        )):
+            BUNDLER_LOGGER.error((
+                'cannot convert to icns, '
+                'icon.png does not exist in `{}`'
+            ).format(os.path.dirname(_info_plist)))
+            return False
+        _cache_icon = os.path.join(
+            CACHE_DIRECTORY, 'icns', '{}.icns'.format(self.workflow_id)
+        )
+        if os.path.exists(_cache_icon):
+            return os.path.join(
+                CACHE_DIRECTORY, 'icns', '{}.icns'.format(self.workflow_id)
+            )
+        else:
+            if not os.path.exists(os.path.dirname(_cache_icon)):
+                os.makedirs(os.path.dirname(_cache_icon), 0775)
+            _run_subprocess([
+                '/bin/bash',
+                os.path.join(
+                    BUNDLER_DIRECTORY, 'bundler', 'includes', 'png_to_icns.sh'
+                ),
+                os.path.join(os.path.dirname(_info_plist), 'icon.png'),
+                _cache_icon
+            ])
+            if os.path.exists(_cache_icon):
+                return _cache_icon
+            else:
+                BUNDLER_LOGGER.error(
+                    'could not convert `icon.png` to .icns , unknown reason'
+                )
+                return False
+
+    def wrapper(self, wrapper, debug=False):
+        return self.wrappers.wrapper(
+            wrapper.lower(), debug=debug, workflow_id=self.workflow_id
+        )
+
+    def utility(self, name, version='latest', json_path=None):
+        _retn = _utility(name, version, json_path=json_path)
+        self.register_asset(name, version)
+        return _retn
+
+    def register_asset(self, asset, version, workflow_id=None):
+        if not workflow_id:
+            workflow_id = self.workflow_id
+        return _register_asset(asset, version, workflow_id=self.workflow_id)
+
+    @NestedAccess
+    class AlfredBundlerIcon:
+
+        def __init__(self, font, name, color='000000', alter=False):
+            (self.font, self.name, self.color, self.alter,) = (
+                font, name, color, alter
+            )
+            self.cache = os.path.join(CACHE_DIRECTORY, 'color')
+            self.background = None
+            self.fallback = os.path.join(
+                BUNDLER_DIRECTORY, 'bundler', 'meta', 'icons', 'default.png'
+            )
+            if not os.path.exists(os.path.join(BUNDLER_DIRECTORY, 'data')):
+                os.makedirs(os.path.join(BUNDLER_DIRECTORY, 'data'), 0775)
+            if not os.path.exists(self.cache):
+                os.makedirs(self.cache, 0775)
+            self._set_background()
+
+            if self.alter:
+                if isinstance(self.alter, bool):
+                    self.color = self.rgb_to_hex(
+                        *self.altered(*self.hex_to_rgb(self.color))
+                    )
+                elif ((
+                    isinstance(self.alter, tuple) or
+                    isinstance(self.alter, list)
+                ) and len(self.alter) == 3):
+                    self.color = self.rgb_to_hex(*self.alter)
+                elif isinstance(self.alter, str) or \
+                        isinstance(self.alter, unicode):
+                    self.color = self.rgb_to_hex(
+                        *self._normalize_hex(self.alter)
+                    )
+
+            self.icon = None
+            if self.font.lower() == 'system':
+                self.icon = self.system_icon(self.name)
+            else:
+                _icon = os.path.join(
+                    BUNDLER_DIRECTORY, 'data', 'assets', 'icons',
+                    self.font, self.color, self.name
+                )
+                if os.path.exists('{}.png'.format(_icon)):
+                    self.icon = '{}.png'.format(_icon)
+                else:
+                    self.icon = self.retrieve_icon(
+                        self.font, self.color, self.name
+                    )
+            if not os.path.exists(self.icon):
+                self.icon = self.fallback
+
+        def __repr__(self):
+            return (
+                '{}(\n  font=`{}`\n  name=`{}`\n  '
+                'color=`{}`\n  icon=`{}`\n)'
+            ).format(
+                self.__class__.__name__, self.font, self.name,
+                self.color, self.icon
+            )
+
+        def _set_background(self):
+            if os.getenv('alfred_version'):
+                _pattern = re.match(
+                    r'rgba\((\d+),(\d+),(\d+),([0-9.]+)\)',
+                    os.getenv('alfred_theme_background')
+                )
+                self.background = 'dark' if (
+                    self.luminance(*_pattern.groups()[0:-1]) < 140
+                ) else 'light'
+            else:
+                _cache = os.path.join(
+                    CACHE_DIRECTORY, 'misc', 'theme_background'
+                )
+                if not os.path.exists(os.path.dirname(_cache)):
+                    os.makedirs(os.path.dirname(_cache), 0775)
+                if os.path.exists(_cache) and (
+                    os.stat(_cache).st_mtime >
+                    os.stat(PREFERENCES_PLIST).st_mtime
+                ):
+                    self.background = open(_cache, 'rb').read()
+                    return True
+                self.background = _run_subprocess([
+                    '/bin/bash',
+                    os.path.join(
+                        BUNDLER_DIRECTORY, 'bundler', 'includes', 'LightOrDark'
+                    )
+                ])
+                with open(_cache, 'wb') as _file:
+                    _file.write(self.background)
+
+        def _normalize_hex(self, hex_color):
+            if not re.match(
+                r'^(?:[a-fA-F0-9]{3}){1,2}$',
+                hex_color.lower().strip('#')
+            ):
+                raise ValueError(
+                    'invalid passed hex color : {}'.format(hex_color)
+                )
+            if len(hex_color) == 3:
+                (r, g, b,) = hex_color
+                hex_color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
+            return hex_color
+
+        def rgb_to_hex(self, r, g, b):
+
+            def _normalize(i):
+                return int(max(0, min(round(int(i)), 255)))
+
+            return '{:02x}{:02x}{:02x}'.format(
+                _normalize(r), _normalize(g), _normalize(b)
+            )
+
+        def hex_to_rgb(self, hex_color):
+            _color = self._normalize_hex(hex_color)
+            (r, g, b,) = (
+                int(_color[:2], 16),
+                int(_color[2:4], 16),
+                int(_color[4:6], 16),
+            )
+            return (r, g, b,)
+
+        def rgb_to_hsv(self, r, g, b):
+            (r, g, b,) = map(lambda i: i / 255.0, (r, g, b,))
+            return colorsys.rgb_to_hsv(r, g, b)
+
+        def hsv_to_rgb(self, h, s, v):
+            return tuple(map(
+                lambda i: int(round(i * 255.0)),
+                colorsys.hsv_to_rgb(h, s, v)
+            ))
+
+        def luminance(self, r, g, b):
+            return sum([
+                (299 * int(r)) + (587 * int(g)) + (114 * int(b))
+            ]) / 1000.0
+
+        def altered(self, r, g, b):
+            (h, s, v,) = self.rgb_to_hsv(r, g, b)
+            v = 1 - v
+            return self.hsv_to_rgb(h, s, v)
+
+        def system_icon(self, icon_name):
+            _icon = SYSTEM_ICONS.format(name=icon_name)
+            if os.path.exists(_icon):
+                return _icon
+            BUNDLER_LOGGER.warning(
+                'system icon `{}` could not be found, passing default'.format(
+                    icon_name.lower()
+                )
+            )
+            return os.path.join(
+                BUNDLER_DIRECTORY, 'bundler', 'meta', 'icons', 'default.icns'
+            )
+
+        def retrieve_icon(self, font, color, name):
+            _save_dir = os.path.join(
+                BUNDLER_DIRECTORY, 'data', 'assets', 'icons', font, color
+            )
+            if not os.path.exists(_save_dir):
+                os.makedirs(_save_dir, 0775)
+            _icon = os.path.join(_save_dir, '{}.png'.format(name))
+            _sub_url = 'icon/{font}/{color}/{name}'.format(
+                font=font, color=color, name=name
+            )
+            for i in open(
+                os.path.join(
+                    BUNDLER_DIRECTORY, 'bundler', 'meta', 'icon_servers'
+                )
+            ).read().split('\n')[:-1]:
+                if _download('{}/{}'.format(i, _sub_url), _icon):
+                    break
+            return _icon
+
+    @NestedAccess
+    class AlfredBundlerRequirements:
+
+        def __init__(self, reqpath=None):
+            self.reqpath = reqpath or os.path.join(
+                self.outer._called, 'requirements'
+            )
+            if not self.reqpath or not os.path.exists(self.reqpath):
+                BUNDLER_LOGGER.info(
+                    'generating `requirements` at `{}`'.format(self.reqpath)
+                )
+                with open(self.reqpath, 'wb') as _file:
+                    _file.close()
+
+        def _handle_requirements(self):
+            self.outer._update()
+            _metadata_path = os.path.join(PYTHON_LIBRARY, 'requirements.json')
+            (_last_updated, _last_hash, _metadata_changed, _metadata,) = (
+                0, '', False, {}
+            )
+            if os.path.exists(_metadata_path):
+                with open(_metadata_path, 'rb') as _file:
+                    _metadata = json.load(_file, encoding='utf-8')
+                _last_updated = _metadata.get('updated', 0)
+                _last_hash = _metadata.get('hash', '')
+
+            _req_mtime = os.stat(self.reqpath).st_mtime
+            if _req_mtime > _last_updated:
+                _metadata['updated'] = _req_mtime
+                _metadata_changed = True
+
+                md5hash = hashlib.md5()
+                with open(self.reqpath, 'rb') as _file:
+                    md5hash.update(_file.read())
+                _digest = md5hash.hexdigest()
+                if _digest != _last_hash and \
+                        len(open(self.reqpath, 'rb').read()) > 0:
+                    _metadata['hash'] = _digest
+                    self.outer.notify(
+                        'Installing Workflow Dependencies',
+                        'Your workflow will run momentarily'
+                    )
+                    self._pip_path()
+                    import pip
+                    pip.main([
+                        'install', '--upgrade', '--requirement',
+                        self.reqpath, '--target',
+                        PYTHON_LIBRARY
+                    ])
+            if _metadata_changed:
+                with open(_metadata_path, 'wb') as _file:
+                    json.dump(_metadata, _file, encoding='utf-8', indent=2)
+            sys.path.insert(0, PYTHON_LIBRARY)
+
+        def _install_pip(self):
+            _ignore = False
+            _installer = os.path.join(PYTHON_LIBRARY, 'get-pip.py')
+
+            if os.path.exists(os.path.join(PYTHON_LIBRARY, 'pip')):
+                _ignore = True
+
+            _updated = self.outer._download_update(
+                GET_PIP, _installer, ignore_missing=_ignore
+            )
+
+            if _updated:
+                if not os.path.exists(_installer):
+                    BUNDLER_LOGGER.error(
+                        'Error retrieving pip installer from `{}`'.format(
+                            GET_PIP
+                        )
+                    )
+                    return False
+                for i in os.listdir(PYTHON_LIBRARY):
+                    if i.startswith('pip'):
+                        if os.path.isdir(os.path.join(PYTHON_LIBRARY, i)):
+                            shutil.rmtree(os.path.join(PYTHON_LIBRARY, i))
+                BUNDLER_LOGGER.info(
+                    'running pip installer `{}` ...'.format(_installer)
+                )
+                subprocess.check_output([
+                    '/usr/bin/python', _installer, '--target', PYTHON_LIBRARY
+                ])
+
+            if not os.path.exists(os.path.join(PYTHON_LIBRARY, 'pip')):
+                BUNDLER_LOGGER.error('pip installation failed')
+                return False
+
+            if os.path.exists(_installer):
+                os.unlink(_installer)
+
+        def _pip_path(self):
+            if not os.path.exists(os.path.join(PYTHON_LIBRARY, 'pip')):
+                self._install_pip()
+            if PYTHON_LIBRARY not in sys.path:
+                BUNDLER_LOGGER.info(
+                    'inserting `{}` to system path '.format(PYTHON_LIBRARY)
+                )
+                sys.path.insert(0, PYTHON_LIBRARY)

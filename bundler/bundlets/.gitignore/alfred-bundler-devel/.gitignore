@@ -1,0 +1,31 @@
+*.log
+
+# Dean's stuff
+/benchmark_icons.py
+/icons.json
+/pydoc/_build
+/photos of Shawn's mum
+/test-flip.php
+/tests/python/test.html
+
+# Shawn's stuff
+/revolting-tentacle-porn
+exclude
+exclude/*
+system-icons/*
+system-icons
+bashtests.sh
+phptests.php
+include.php
+benchmark.sh
+benchmark.php
+bash-php-benchmark.sh
+bundler/test_icons.sh
+test_icons.sh
+install_confirm.scpt
+.yardoc
+bundler/doc
+doc
+
+
+# generate-php-docs.sh
