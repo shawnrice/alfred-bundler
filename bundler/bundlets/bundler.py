@@ -1,5 +1,112 @@
 #!/usr/bin/env python
 # encoding: utf-8
+#
+# Copyright © 2014 The Alfred Bundler Team
+# MIT License. <http://opensource.org/licenses/MIT>
+
+"""
+Python Alfred Bundler for workflow distribution.
+
+.. module:: bundler
+    :platform: MacOSX
+    :synopsis: Python Alfred Bundler for workflow distribution.
+.. moduleauthor:: deanishe
+.. moduleauthor:: ritashugisha
+
+Alfred Bundler is a framework to help workflow authors manage external
+utilities and libraries required by their workflows without having to
+include them with each and every workflow.
+
+`Alfred Bundler Homepage/Documentation <http://shawnrice.github.io/alfred-bundler/>`_.
+
+**NOTE**: By necessity, this Python implementation does not work in
+exactly the same way as the reference PHP/bash implementations by
+Shawn Rice.
+
+The purpose of the Bundler is to enable workflow authors to easily
+access utilites and libraries that are commonly used without having to
+include a copy in every ``.alfredworkflow`` file or worry about installing
+them themselves. This way, we can hopefully avoid having, say, 15 copies
+of ``cocaoDialog`` clogging up users' Dropboxes, and also allow authors to
+distribute workflows with sizeable requirements without their exceeding
+GitHub's 10 MB limit for ``.alfredworkflow`` files or causing authors
+excessive bandwidth costs.
+
+Unfortunately, due to the nature of Python's import system, it isn't
+possible to provide versioned libraries in the way that the PHP Bundler
+does, so this version of the Bundler creates an individual library
+directory for each workflow and adds it to ``sys.path`` with one simple call.
+
+It is based on `Pip <http://pip.readthedocs.org/en/latest/index.html>`_,
+the de facto Python library installer, and you must create a
+``requirements.txt`` file in `the format required by pip <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
+in order to take advantage of automatic dependency installation.
+
+Usage
+======
+
+Simply include this ``bundler.py`` file (from the Alfred Bundler's
+``bundler/bundlets`` directory) alongside your workflow's Python code
+where it can be imported.
+
+The Python Bundler provides two main features: the ability to use common
+utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
+or `Pashua <http://www.bluem.net/en/mac/pashua/>`_) simply by asking for
+them by name (they will automatically be installed if necessary), and the
+ability to automatically install and update any Python libraries required
+by your workflows.
+
+Using utilities/assets
+----------------------
+
+The basic interface for utilities is::
+
+    import bundler
+    b = bundler.AlfredBundler()
+    util_path = b.utility('utilityName')
+
+which will return the path to the appropriate executable, installing
+it first if necessary. You may optionally specify a version number
+and/or your own JSON file that defines a non-standard utility.
+
+Please see `the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
+for details of the JSON file format and how the Bundler works in general.
+
+Handling Python dependencies
+----------------------------
+
+The Python Bundler can also take care of your workflow's dependencies for
+you if you create a `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
+file in your workflow root directory and put the following in your Python
+source files before trying to import any of those dependencies::
+
+    import bundler
+    b = bundler.AlfredBundler()
+
+:func:`~AlfredBundler.__init__()` will find your ``requirements``  file (AlfredBundlerRequirements will create this file if not present`)
+and call Pip with it (installing Pip first if necessary). Then it will
+add the directory it's installed the libraries in to ``sys.path``, so you
+can immediately ``import`` those libraries::
+
+    import bundler
+    b = bundler.AlfredBundler()
+    import requests  # specified in `requirements`
+
+The Bundler doesn't define any explicit exceptions, but may raise any number
+of different ones (e.g. :class:`~exceptions.IOError` if a file doesn't
+exist or if the computer or PyPi is offline).
+
+By and large, these are not recoverable errors, but if you'd like to ensure
+your workflow's users are notified, I recommend (shameless plug) building
+your Python workflow with
+`Alfred-Workflow <http://www.deanishe.net/alfred-workflow/>`_,
+which can catch workflow errors and warn the user (amongst other cool stuff).
+
+Any problems with the Bundler may be raised on
+`Alfred's forum <http://www.alfredforum.com/topic/4255-alfred-dependency-downloader-framework/>`_
+or on `GitHub <https://github.com/shawnrice/alfred-bundler>`_.
+
+"""
 
 from __future__ import unicode_literals
 import os
@@ -16,67 +123,110 @@ import plistlib
 import subprocess
 
 
+# Python bundler filename
 BUNDLER = 'AlfredBundler.py'
+# Path to bundler's data directory
 BUNDLER_DIRECTORY = os.path.expanduser(
     '~/Library/Application Support/Alfred 2/Workflow Data/alfred.bundler-{}'
 )
+# Path to bundler's log, appended to end of $BUNDLER_DIRECTORY
 BUNDLER_LOGFILE = 'data/logs/bundler-{}.log'
+# Path to the bundler's cache directory
 CACHE_DIRECTORY = os.path.expanduser(
     '~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/'
     'alfred.bundler-{}'
 )
-
+# Bundler's install servers
 BUNDLER_SERVERS = [
     'https://github.com/shawnrice/alfred-bundler/archive/{}{suffix}',
     'https://bitbucket.org/shawnrice/alfred-bundler/get/{}{suffix}'
 ]
-
+# Bundler's `More Info` resource URL
 INFO_RESOURCE = (
     'https://github.com/shawnrice/alfred-bundler/wiki/'
     'What-is-the-Alfred-Bundler'
 )
-
+# Downloads connection timeout
 HTTP_TIMEOUT = 5
+# Major version to default to if AB_BRANCH cannot be loaded
 DEFAULT_MAJOR_VERSION = 'devel'
 
 
 class InstallationError(Exception):
 
-    """ Raised if bundler installation failed"""
+    """ Raised if bundler installation fails.
+
+    .. note::
+            Code value corresponds to the type of error.
+                default - 1000
+                `More Info` pressed - 1001
+                `Cancel` pressed - 1002
+                corrupt zip file - 1003
+    """
 
     def __init__(self, code=1000, message=''):
+        """ Initialize InstallationError instance.
+
+        :param code: Error code
+        :type code: ``int``
+        :param message: Error message
+        :type mesage: ``str`` or ``unicode``
+        """
         self.code = code
         self.message = message
 
     def __str__(self):
+        """ Return a representation of the error.
+
+        :returns: String representation of error
+        :rtype: str
+        """
         return repr('{} (code : {})'.format(self.message, self.code))
 
 
 def AlfredBundler():
-    """ Return an instance of bootstrapped bundler"""
+    """ Return an instance of bootstrapped bundler.
+
+    .. note::
+        Installs AlfredBundler if neccessary for bootstrap
+
+    :returns: Loaded AlfredBundler object
+    :rtype: AlfredBundler.Main()
+    """
 
     return AlfredBundlerBootstrap().bundler
 
 
 class AlfredBundlerBootstrap:
 
-    """ AlfredBundler bootstrap class"""
+    """ Class used for installing and importing $BUNDLER.
+
+    ..note::
+        Requires `info.plist` to exist in `bundler.py`'s root directory
+    """
 
     def __init__(self):
-        """ Initialize the bundler's bootstrap client"""
+        """ Initialize the bundler's bootstrap client.
 
+        :raises: EnvironmentError
+        """
+
+        # Globalize variables that require major_version formatting
         global BUNDLER_DIRECTORY, CACHE_DIRECTORY, BUNDLER_LOGFILE
         global BUNDLER_SERVERS
 
         self.log = logging.getLogger(self.__class__.__name__)
-        self._cwd = os.path.dirname(os.path.abspath(
+
+        # Grab the current file's directory, inspect.getfile() is used for
+        # compatability with relative imports
+        self.cwd = os.path.dirname(os.path.abspath(
             inspect.getfile(inspect.currentframe())
         ))
         self.bundler = None
 
         # Validate that the workflow's info.plist is present and active
         self.workflow = self._lookback(
-            'info.plist', end_path=os.path.split(self._cwd)[0]
+            'info.plist', end_path=os.path.split(self.cwd)[0]
         )
         if not self.workflow:
             raise EnvironmentError(
@@ -109,26 +259,28 @@ class AlfredBundlerBootstrap:
                 os.makedirs(i, 0775)
 
         # Setup logging to _logfile and _console
-        _logfile = logging.handlers.RotatingFileHandler(
+        logfile = logging.handlers.RotatingFileHandler(
             BUNDLER_LOGFILE, maxBytes=(1024 * 1024), backupCount=1
         )
-        _console = logging.StreamHandler()
-        _logfile.setFormatter(
+        console = logging.StreamHandler()
+        # Setup logfile logging format
+        logfile.setFormatter(
             logging.Formatter(
                 '[%(asctime)s] [%(filename)s:%(lineno)s] '
                 '[%(levelname)s] %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S'
             )
         )
-        _console.setFormatter(
+        # Setup console logging format
+        console.setFormatter(
             logging.Formatter(
                 '[%(asctime)s] [%(filename)s:%(lineno)s] '
                 '[%(levelname)s] %(message)s',
                 datefmt='%H:%M:%S'
             )
         )
-        self.log.addHandler(_logfile)
-        self.log.addHandler(_console)
+        self.log.addHandler(logfile)
+        self.log.addHandler(console)
         self.log.setLevel(logging.DEBUG)
 
         # Check if bundler isn't currently installed
@@ -143,14 +295,14 @@ class AlfredBundlerBootstrap:
                 self.workflow = plistlib.readPlist(self.workflow)['name']
             if not self._install_bundler():
                 # If we couldn't handle some exception, raise it here
-                raise InstallationError(1005, 'Unkown installation error')
+                raise InstallationError('Unkown installation error')
                 sys.exit(1)
         # Reference the bundler with imp
         if not self.bundler:
             self.bundler = imp.load_source(
                 os.path.splitext(BUNDLER)[0],
                 os.path.join(BUNDLER_DIRECTORY, 'bundler', BUNDLER)
-            ).Main(self._cwd)
+            ).Main(self.cwd)
         # Call the wrapper to update itself, subprocess required for speed
         self._run_subprocess([
             '/bin/bash',
@@ -160,7 +312,7 @@ class AlfredBundlerBootstrap:
         ])
 
     def _lookback(self, filename, start_path=None, end_path=None):
-        """ Recursively walks directory path in reverse looking for a filename
+        """ Recursively walks directory path in reverse looking for a filename.
 
         :param filename: Filename to discover
         :type filename: ``unicode`` or ``str``
@@ -175,7 +327,7 @@ class AlfredBundlerBootstrap:
             (isinstance(start_path, str) or isinstance(start_path, unicode))
                 and os.path.exists(start_path)
         ):
-            start_path = self._cwd
+            start_path = self.cwd
         if not (
             (isinstance(end_path, str) or isinstance(end_path, unicode))
                 and os.path.exists(end_path)
@@ -188,34 +340,35 @@ class AlfredBundlerBootstrap:
                 if filename.lower() == i.lower():
                     return os.path.join(start_path, i)
             # Recurse using a shrunken start path
-            _start_path = os.path.split(start_path)[0]
+            new_start = os.path.split(start_path)[0]
             return self._lookback(
-                filename, start_path=_start_path, end_path=end_path
+                filename, start_path=new_start, end_path=end_path
             )
         else:
             return None
 
     def _run_subprocess(self, process):
-        """ Run a unwaiting subprocess
+        """ Run an unwaiting subprocess.
 
         :param process: A split subprocess
         :type process: ``list`` or ``str``
         :returns: Subprocess output
+        :rtype: ``str``
         """
 
         if isinstance(process, list):
-            _proc = subprocess.Popen(process, stdout=subprocess.PIPE)
+            proc = subprocess.Popen(process, stdout=subprocess.PIPE)
         elif isinstance(process, str) or isinstance(process, unicode):
-            _proc = subprocess.Popen([
+            proc = subprocess.Popen([
                 process], stdout=subprocess.PIPE, shell=True
             )
         else:
             return False
-        (_proc, _proc_e) = _proc.communicate()
-        return _proc
+        (proc, proc_e,) = proc.communicate()
+        return proc
 
     def _download(self, url, save_path):
-        """ Download the response from some given ``url``
+        """ Download the response from some given *url*.
 
         :param url: A valid accessable file url
         :type url: ``unicode`` or ``str``
@@ -226,38 +379,41 @@ class AlfredBundlerBootstrap:
 
         self.log.info('retrieving url `{}` ...'.format(url))
         try:
-            _response = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
+            resp = urllib2.urlopen(url, timeout=HTTP_TIMEOUT)
         except urllib2.HTTPError:
             self.log.error('`{}` could not be found'.format(url))
             return False
 
-        if _response.getcode() != 200:
+        if resp.getcode() != 200:
             self.log.error('error connecting to `{}`'.format(url))
             return False
 
         if not os.path.exists(os.path.dirname(save_path)):
             os.makedirs(os.path.dirname(save_path), 0775)
-        with open(save_path, 'wb') as _file:
+        with open(save_path, 'wb') as f:
             self.log.info('downloading to `{}` ...'.format(save_path))
-            _file.write(_response.read())
+            f.write(resp.read())
         return True
 
     def _AS_dialog(self):
-        """ Prompt user with AppleScript informational dialog"""
+        """ Prompt user with AppleScript installation informational dialog.
+
+        :raises: InstallationError
+        """
 
         # Look for the `icon.png` for the current workflow
-        _icon = self._lookback(
-            'icon.png', end_path=os.path.split(self._cwd)[0]
+        icon = self._lookback(
+            'icon.png', end_path=os.path.split(self.cwd)[0]
         )
-        if _icon and os.path.exists(_icon):
-            _icon = ':'.join(_icon.split(os.sep)[1:])
+        if icon and os.path.exists(icon):
+            icon = ':'.join(icon.split(os.sep)[1:])
         else:
             # Default icon to this system icon
-            _icon = (
+            icon = (
                 'System:Library:CoreServices:CoreTypes.bundle:'
                 'Contents:Resources:SideBarDownloadsFolder.icns'
             )
-        _text = (
+        text = (
             '{name} needs to install additional components, which will be '
             'placed in the Alfred storage directory and will not interfere '
             'with your system.\n\nYou may be asked to allow some components '
@@ -265,20 +421,20 @@ class AlfredBundlerBootstrap:
             'this installation, but {name} may not work without them.\n'
             'There will be a slight delay ater accepting.'
         ).format(name=self.workflow)
-        _script = (
+        script = (
             'display dialog "%s" buttons {"More Info", "Cancel", "Proceed"} '
             'default button 3 with title "%s Setup" with icon file "%s"'
-        ) % (_text, self.workflow, _icon,)
+        ) % (text, self.workflow, icon,)
 
         # Run the subprocess (_script)
-        _retn = self._run_subprocess(
-            'osascript -e \'{}\''.format(_script)
+        retn = self._run_subprocess(
+            'osascript -e \'{}\''.format(script)
         ).replace('\n', '').split(':')[-1].lower()
 
-        # Handle buttons
-        if _retn == 'proceed':
+        # Handle buttons, raises InstallationError if `More Info` or `Cancel`
+        if retn == 'proceed':
             return True
-        elif _retn == 'more info':
+        elif retn == 'more info':
             self._run_subprocess('open {}'.format(INFO_RESOURCE))
             raise InstallationError(
                 1001, 'Bundler installation was interrupted by `info resource`'
@@ -292,40 +448,40 @@ class AlfredBundlerBootstrap:
         return True
 
     def _install_bundler(self):
-        """ Install the bundler to the valid `BUNDLER_DIRECTORY`"""
+        """ Download and install the bundler from BUNDLER_SERVERS."""
 
         # Prompt the user with the AS informational dialog
         if self._AS_dialog():
-            _suffix = '-latest.zip'
+            suffix = '-latest.zip'
             if os.getenv('AB_BRANCH'):
-                _suffix = '.zip'
-            _bundler_zip = os.path.join(CACHE_DIRECTORY, 'bundler.zip')
+                suffix = '.zip'
+            bundler_zip = os.path.join(CACHE_DIRECTORY, 'bundler.zip')
 
             # Walk through our bundler servers looking for an installation
             for server in BUNDLER_SERVERS:
                 self.log.info(
                     'trying bundler installation from `{}` ...'.format(
-                        server.format(_suffix)
+                        server.format(suffix)
                     )
                 )
-                if self._download(server.format(_suffix), _bundler_zip):
+                if self._download(server.format(suffix), bundler_zip):
                     break
 
             # Extract and move the `bundler.zip` to the bundler directory
             try:
-                self.log.info('extracting `{}` ...'.format(_bundler_zip))
-                with zipfile.ZipFile(open(_bundler_zip, 'rb')) as _zip:
-                    _zip_name = None
-                    for i in _zip.namelist():
-                        if not _zip_name:
-                            _zip_name = i.split(os.sep)[0]
-                        _ext_dir = os.path.dirname(_bundler_zip)
+                self.log.info('extracting `{}` ...'.format(bundler_zip))
+                with zipfile.ZipFile(open(bundler_zip, 'rb')) as z:
+                    zip_name = None
+                    for i in z.namelist():
+                        if not zip_name:
+                            zip_name = i.split(os.sep)[0]
+                        ext_dir = os.path.dirname(bundler_zip)
                         if i.split(os.sep)[1].lower() == 'bundler':
-                            _zip.extract(i, _ext_dir)
+                            z.extract(i, ext_dir)
                     shutil.copytree(
                         os.path.join(
-                            os.path.dirname(_bundler_zip),
-                            _zip_name, 'bundler'
+                            os.path.dirname(bundler_zip),
+                            zip_name, 'bundler'
                         ),
                         os.path.join(BUNDLER_DIRECTORY, 'bundler')
                     )
@@ -334,9 +490,9 @@ class AlfredBundlerBootstrap:
 
             # Successful installation, clean up left over files
             self.log.info('Alfred Bundler successfuly installed, cleaning...')
-            os.remove(_bundler_zip)
+            os.remove(bundler_zip)
             shutil.rmtree(
-                os.path.join(os.path.dirname(_bundler_zip), _zip_name)
+                os.path.join(os.path.dirname(bundler_zip), zip_name)
             )
             # Ensure that the LightOrDark binary is executable
             os.chmod(
@@ -351,7 +507,7 @@ class AlfredBundlerBootstrap:
             self.bundler = imp.load_source(
                 os.path.splitext(BUNDLER)[0],
                 os.path.join(BUNDLER_DIRECTORY, 'bundler', BUNDLER)
-            ).Main(self._cwd)
+            ).Main(self.cwd)
             self.bundler.notify(
                 'Alfred Bundler',
                 'Installation successful. Thank you for waiting.',
