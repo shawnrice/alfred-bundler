@@ -656,6 +656,8 @@ class Main:
             )
         curr_etag = resp.info().get('Etag')
         force = not os.path.exists(filepath) and not ignore_missing
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath), 0775)
         if curr_etag != prev_etag or force:
             with open(filepath, 'wb') as f:
                 BUNDLER_LOGGER.info('saving to `{}` ...'.format(filepath))
@@ -969,6 +971,15 @@ class Main:
             if not os.path.exists(self.icon):
                 self.icon = self.fallback
 
+        def __call__(self):
+            """ Return the AlfredBundlerIcon instance.
+
+            :returns: Self AlfredBundlerIcon instance
+            :rtype: ``AlfredBundlerIcon``
+
+            """
+            return self
+
         def __repr__(self):
             """ Represent the AlfredBundlerIcon instance as a string.
 
@@ -995,9 +1006,9 @@ class Main:
                     r'rgba\((\d+),(\d+),(\d+),([0-9.]+)\)',
                     os.getenv('alfred_theme_background')
                 )
-                self.background = 'dark' if (
+                self.background = ('dark' if (
                     self.luminance(*pattern.groups()[0:-1]) < 140
-                ) else 'light'
+                ) else 'light')
             else:
                 # Run the `LightOrDark` utility to save brightness to background
                 background_cache = os.path.join(
@@ -1017,6 +1028,7 @@ class Main:
                         BUNDLER_DIRECTORY, 'bundler', 'includes', 'LightOrDark'
                     )
                 ])
+                self.background = ('dark' if (self.background) else 'light')
                 with open(background_cache, 'wb') as f:
                     f.write(self.background)
 
@@ -1040,6 +1052,19 @@ class Main:
                 (r, g, b,) = hex_color
                 hex_color = '{r}{r}{g}{g}{b}{b}'.format(r=r, g=g, b=b)
             return hex_color
+
+        def color_is_dark(self, hex_color):
+            return self.luminance(*self.hex_to_rgb(hex_color)) < 140
+
+        def color_is_light(self, hex_color):
+            return not self.color_is_dark(hex_color)
+
+        def background_is_dark(self):
+            self._set_background()
+            return self.background.lower() == 'dark'
+
+        def background_is_light(self):
+            return not self.background_is_dark()
 
         def rgb_to_hex(self, r, g, b):
             """ Return CSS hex representation of colour.
@@ -1167,7 +1192,7 @@ class Main:
                 )
             )
             return os.path.join(
-                BUNDLER_DIRECTORY, 'bundler', 'meta', 'icons', 'default.icns'
+                BUNDLER_DIRECTORY, 'bundler', 'meta', 'icons', 'default.png'
             )
 
         def retrieve_icon(self, font, color, name):
@@ -1205,6 +1230,8 @@ class Main:
             ).read().split('\n')[:-1]:
                 if _download('{}/{}'.format(i, sub_url), icon):
                     break
+            if not os.path.exists(icon):
+                shutil.rmtree(os.path.dirname(os.path.dirname(save_dir)))
             return icon
 
     @NestedAccess

@@ -7,6 +7,7 @@
 from __future__ import print_function, unicode_literals
 
 import os
+import imp
 import sys
 import time
 import types
@@ -15,18 +16,20 @@ import logging
 import unittest
 
 from common import *
-from pybundler import bundler
+
+bundler = imp.load_source(
+    os.path.splitext(BUNDLET)[0],
+    BUNDLET_PATH
+).AlfredBundler()
 
 LOG = logging.getLogger('tests.wrapper')
-LOG.debug('bundler version: {}-{}'.format(
-    bundler.VERSION, bundler.BUNDLER_VERSION
-))
+LOG.debug('BUNDLER VERSION : {}'.format(MAJOR_VERSION))
 
 
 class DeveloperTesting:
 
     def __init__(self):
-        self._wrappers_dir = os.path.join(bundler.WRAPPERS_DIR, 'wrappers')
+        self._wrappers_dir = os.path.join(WRAPPERS_DIRECTORY)
         self._wrappers = [
             os.path.splitext(i)[0] for i in os.listdir(self._wrappers_dir) if (
                 os.path.splitext(i)[1].lower() == '.py') and

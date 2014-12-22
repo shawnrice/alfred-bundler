@@ -15,21 +15,33 @@ from __future__ import print_function, unicode_literals
 
 
 import os
+import imp
 import random
 import logging
 import shutil
 import unittest
 
-from common import BACKGROUND_COLOUR_FILE, BUNDLER_VERSION, COLOUR_CACHE
-from pybundler import AlfredBundler
+from common import *
+
+if not os.path.exists(BUNDLER_PATH):
+    bundlet = imp.load_source(
+        os.path.splitext(BUNDLET)[0],
+        BUNDLET_PATH
+    ).AlfredBundler()
+
+log = logging.getLogger('test.colours')
+log.debug('BUNDLER VERSION : {}'.format(MAJOR_VERSION))
+
+AlfredBundlerScript = imp.load_source(
+    os.path.splitext(BUNDLER)[0],
+    BUNDLER_PATH
+)
+AlfredBundler = AlfredBundlerScript.Main(
+    os.path.dirname(os.path.abspath(__file__))
+).AlfredBundlerIcon('', '')
 
 
 ITERATIONS = 10000
-
-
-log = logging.getLogger('tests.colours')
-
-log.debug('Bundler version : {}'.format(BUNDLER_VERSION))
 
 
 def setUp():
@@ -123,7 +135,9 @@ class ColourTests(unittest.TestCase):
             b = random.randint(0, 255)
 
             css = '{:02x}{:02x}{:02x}'.format(r, g, b)
-            css2 = AlfredBundler.flip_color(AlfredBundler.flip_color(css))
+            css2 = '{:02x}{:02x}{:02x}'.format(
+                AlfredBundler.altered(AlfredBundler.altered(r, g, b))
+            )
 
             r2, g2, b2 = AlfredBundler.hex_to_rgb(css2)
             log.debug('{}  ->  {}'.format(css, css2))
@@ -134,11 +148,31 @@ class ColourTests(unittest.TestCase):
 
     def test_flip_color(self):
         """Flip colour"""
-        self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
-        self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
+        self.assertEqual(
+            AlfredBundler.altered(
+                *AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('000000'))
+            ),
+            AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('ffffff'))
+        )
+        self.assertEqual(
+            AlfredBundler.altered(
+                *AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('ffffff'))
+            ),
+            AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('000000'))
+        )
 
-        self.assertEqual(AlfredBundler.flip_color('000000'), 'ffffff')
-        self.assertEqual(AlfredBundler.flip_color('ffffff'), '000000')
+        self.assertEqual(
+            AlfredBundler.altered(
+                *AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('000000'))
+                ),
+            AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('ffffff'))
+        )
+        self.assertEqual(
+            AlfredBundler.altered(
+                *AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('ffffff'))
+                ),
+            AlfredBundler.rgb_to_hex(*AlfredBundler.hex_to_rgb('000000'))
+        )
 
     def test_dark_light_colors(self):
         """Dark and light colours"""
@@ -154,6 +188,7 @@ class ColourTests(unittest.TestCase):
         """Theme background"""
         # Test against `alfred_theme_background` set in
         # `setUp()`
+        log.critical(AlfredBundler._set_background())
         self.assertTrue(AlfredBundler.background_is_light())
         self.assertFalse(AlfredBundler.background_is_dark())
 
@@ -177,19 +212,6 @@ class ColourTests(unittest.TestCase):
 
         self.assertTrue(AlfredBundler.background_is_dark())
         self.assertFalse(AlfredBundler.background_is_light())
-
-    def test_rgba_colors(self):
-        """RGBA colours"""
-        pairs = [
-            ('rgba(255,255,255,1.0)', (255, 255, 255)),
-            ('rgba(0,0,0,1.0)', (0, 0, 0)),
-        ]
-
-        for rgba, expected in pairs:
-            self.assertEqual(expected, AlfredBundler.rgba_to_rgb(rgba))
-
-        with self.assertRaises(ValueError):
-            AlfredBundler.rgba_to_rgb('panties')
 
 
 if __name__ == '__main__':
