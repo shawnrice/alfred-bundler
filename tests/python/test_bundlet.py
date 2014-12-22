@@ -24,6 +24,11 @@ bundlet = imp.load_source(
     common.BUNDLET_PATH
 )
 
+AlfredBundlerScript = imp.load_source(
+    os.path.splitext(common.BUNDLER)[0],
+    common.BUNDLER_PATH
+)
+
 
 class HelperTests(unittest.TestCase):
 
