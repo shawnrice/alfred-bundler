@@ -24,7 +24,7 @@ exactly the same way as the reference PHP/bash implementations by
 Shawn Rice.
 
 The purpose of the Bundler is to enable workflow authors to easily
-access utilites and libraries that are commonly used without having to
+access utilites, icons, and libraries that are commonly used without having to
 include a copy in every ``.alfredworkflow`` file or worry about installing
 them themselves. This way, we can hopefully avoid having, say, 15 copies
 of ``cocaoDialog`` clogging up users' Dropboxes, and also allow authors to
@@ -37,11 +37,6 @@ possible to provide versioned libraries in the way that the PHP Bundler
 does, so this version of the Bundler creates an individual library
 directory for each workflow and adds it to ``sys.path`` with one simple call.
 
-It is based on `Pip <http://pip.readthedocs.org/en/latest/index.html>`_,
-the de facto Python library installer, and you must create a
-``requirements.txt`` file in `the format required by pip <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
-in order to take advantage of automatic dependency installation.
-
 Usage
 ======
 
@@ -49,21 +44,41 @@ Simply include this ``bundler.py`` file (from the Alfred Bundler's
 ``bundler/bundlets`` directory) alongside your workflow's Python code
 where it can be imported.
 
-The Python Bundler provides two main features: the ability to use common
-utility programs (e.g. `cocaoDialog <http://mstratman.github.io/cocoadialog/>`_
-or `Pashua <http://www.bluem.net/en/mac/pashua/>`_) simply by asking for
-them by name (they will automatically be installed if necessary), and the
-ability to automatically install and update any Python libraries required
-by your workflows.
-
-Using utilities/assets
-----------------------
-
-The basic interface for utilities is::
+Here is a simple construction for a new AlfredBundler instance::
 
     import bundler
-    b = bundler.AlfredBundler()
-    util_path = b.utility('utilityName')
+    my_bundler = bundler.AlfredBundler()
+
+The :class:`~AlfredBundler.Main` class provides the methods to access utilities, icons, wrappers, and
+required Python libraries. Both icons and requirements are managed by their
+own nested classes AlfredBundlerIcon and AlfredBundlerRequirements.
+The main features of the Python Bundler are the following:
+
+Loading common utility programs simply by asking for them by name.
+(e.g. `cocoaDialog <http://mstratman.github.io/cocoadialog/>`_).
+
+Along the same line as utilities, wrappers have been built for the easy use of
+interacting with specific utilities. Loading these wrappers can be done by
+simply asking for the wrapper of some utility, by name.
+(e.g. (e.g. `cocoaDialog <http://mstratman.github.io/cocoadialog/>`_ and
+`Terminal-Notifier <https://github.com/alloy/terminal-notifier>`_).)
+
+Loading icons from either the system or popular webfonts of any color simply
+by requesting some icon of type `font`, `name`, and `color`.
+System retrieved icons are not modified by any passed `color`.
+
+The ability to automatically install and update any required non-standard
+Python libraries by your workflow. This is achieved through the use of both
+`Pip <http://pip.readthedocs.org/en/latest/index.html>`_ (the de facto Python
+library installer) and the Pip `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_ file.
+
+Loading utilities
+-----------------
+
+From the point where `my_bundler` has be attributed to a new instance of type
+AlfredBundler.Main, we can load the path to an available utility by::
+
+    utility_path = my_bundler.utility('utilityName')
 
 which will return the path to the appropriate executable, installing
 it first if necessary. You may optionally specify a version number
@@ -72,35 +87,52 @@ and/or your own JSON file that defines a non-standard utility.
 Please see `the Alfred Bundler documentation <http://shawnrice.github.io/alfred-bundler/>`_
 for details of the JSON file format and how the Bundler works in general.
 
+Loading wrappers
+----------------
+
+Wrappers are accessed in virtually the same way that utilities are.
+Instead of returning the path to the wrapper,
+the :func:`~AlfredBundler.Main().wrapper()` method returns an instance of the
+wrapper already loaded with the utility::
+
+    wrapper_instance = my_bundler.wrapper('wrapperName')
+
+Loading icons
+-------------
+
+Icons are managed by the AlfredBundlerIcon nested class.
+
+Icons can be loaded in from either the system icons or any of the supported
+webfonts. Webfont icon's color can be manipulated through a passed hex color,
+while system icon retrieval will ignore this argument. If the requested icon
+does not exist in any of the supported webfonts, the path to the `default.png`
+(broken IE) icon will be returned instead.
+
+    icon_path = my_bundler.icon('fontName', 'iconName', 'colorHex')
+
+
 Handling Python dependencies
 ----------------------------
 
-The Python Bundler can also take care of your workflow's dependencies for
-you if you create a `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
-file in your workflow root directory and put the following in your Python
-source files before trying to import any of those dependencies::
+Python dependencies are managed by the AlfredBundlerRequirements nested class.
 
-    import bundler
-    b = bundler.AlfredBundler()
+The Python Bundler automatically handles your workflow dependencies through
+the created instance of the AlfredBundlerRequirements. This is achieved through
+the use of Pip's `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_ file in your workflow's root directory.
 
-:func:`~AlfredBundler.__init__()` will find your ``requirements``  file (AlfredBundlerRequirements will create this file if not present`)
-and call Pip with it (installing Pip first if necessary). Then it will
-add the directory it's installed the libraries in to ``sys.path``, so you
-can immediately ``import`` those libraries::
+Because the bundler handles gathering those modules, you will have to load the
+bundler before trying to import any non-standard Python modules specified in
+the requirements file.
 
-    import bundler
-    b = bundler.AlfredBundler()
-    import requests  # specified in `requirements`
+:func:`~AlfredBundler.AlfredBundlerRequirements.__init__()` will find your
+``requirements`` file (AlfredBundlerRequirements will create this file if not
+present`) and call Pip with it (installing Pip first if necessary).
+Then it will add the directory it's installed the libraries in to ``sys.path``,
+so you can immediately ``import`` those libraries.
 
 The Bundler doesn't define any explicit exceptions, but may raise any number
 of different ones (e.g. :class:`~exceptions.IOError` if a file doesn't
 exist or if the computer or PyPi is offline).
-
-By and large, these are not recoverable errors, but if you'd like to ensure
-your workflow's users are notified, I recommend (shameless plug) building
-your Python workflow with
-`Alfred-Workflow <http://www.deanishe.net/alfred-workflow/>`_,
-which can catch workflow errors and warn the user (amongst other cool stuff).
 
 Any problems with the Bundler may be raised on
 `Alfred's forum <http://www.alfredforum.com/topic/4255-alfred-dependency-downloader-framework/>`_
@@ -368,7 +400,7 @@ class AlfredBundlerBootstrap:
         return proc
 
     def _download(self, url, save_path):
-        """ Download the response from some given *url*.
+        """ Download the response from some given ``url``.
 
         :param url: A valid accessable file url
         :type url: ``unicode`` or ``str``
