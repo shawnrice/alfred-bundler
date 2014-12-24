@@ -124,7 +124,8 @@ Python dependencies are managed by the AlfredBundlerRequirements nested class.
 
 The Python Bundler automatically handles your workflow dependencies through
 the created instance of the AlfredBundlerRequirements. This is achieved through
-the use of Pip's `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_ file in your workflow's root directory.
+the use of Pip's `requirements <http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files>`_
+file in your workflow's root directory.
 
 Because the bundler handles gathering those modules, you will have to load the
 bundler before trying to import any non-standard Python modules specified in
@@ -1055,20 +1056,20 @@ class Main:
                 if not os.path.exists(os.path.dirname(background_cache)):
                     os.makedirs(os.path.dirname(background_cache), 0775)
                 if os.path.exists(background_cache) and (
-                    os.stat(background_cache).st_mtime >
+                    os.stat(background_cache).st_mtime <
                     os.stat(PREFERENCES_PLIST).st_mtime
                 ):
                     self.background = open(background_cache, 'rb').read()
                     return True
-                self.background = _run_subprocess([
-                    '/bin/bash',
+                self.background = subprocess.check_output([
                     os.path.join(
-                        BUNDLER_DIRECTORY, 'bundler', 'includes', 'LightOrDark'
+                        BUNDLER_DIRECTORY, 'bundler', 'includes',
+                        'LightOrDark'
                     )
-                ])
-                self.background = ('dark' if (self.background) else 'light')
+                ]).strip()
                 with open(background_cache, 'wb') as f:
                     f.write(self.background)
+            return True
 
         def _normalize_hex(self, hex_color):
             """ Convert CSS colour to 6-characters and lowercase.
@@ -1299,7 +1300,7 @@ class Main:
                 if _download('{}/{}'.format(i, sub_url), icon):
                     break
             if not os.path.exists(icon):
-                shutil.rmtree(os.path.dirname(os.path.dirname(save_dir)))
+                shutil.rmtree(save_dir)
             return icon
 
     @NestedAccess
