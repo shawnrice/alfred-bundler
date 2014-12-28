@@ -754,6 +754,7 @@ class Main:
             logger.addHandler(logfile)
             logger.addHandler(console)
 
+        logger.propagate = False
         logger.setLevel(logging.DEBUG)
         return logger
 
